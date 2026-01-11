@@ -1,104 +1,124 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
+const QUOTE = "Markets are systems. Systems require operators.";
 
-  const handleLogin = async () => {
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
+export default function Entrance() {
+  const router = useRouter();
+  const [typed, setTyped] = useState("");
+  const [status, setStatus] = useState("SYSTEM INITIALIZING");
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-    try {
-      const res = await fetch(
-        "https://socialexchangebackend.onrender.com/api/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.detail || "Authentication failed");
+  /* ---------- TYPEWRITER ---------- */
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setTyped(QUOTE.slice(0, i));
+      i++;
+      if (i > QUOTE.length) {
+        clearInterval(interval);
+        setTimeout(() => setStatus("SYSTEM STANDBY"), 600);
       }
+    }, 45);
+    return () => clearInterval(interval);
+  }, []);
 
-      setSuccess(`Logged in as ${data.user.email}`);
-    } catch (err: any) {
-      setError(err.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  /* ---------- STARFIELD ---------- */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let w = (canvas.width = window.innerWidth);
+    let h = (canvas.height = window.innerHeight);
+
+    const stars = Array.from({ length: 120 }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 1.2,
+      s: Math.random() * 0.3 + 0.1,
+    }));
+
+    const animate = () => {
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#ffffff";
+
+      stars.forEach((star) => {
+        star.y += star.s;
+        if (star.y > h) star.y = 0;
+        ctx.globalAlpha = Math.random() * 0.5 + 0.3;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    window.addEventListener("resize", () => {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    });
+  }, []);
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "#000",
-        color: "#fff",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <div
+    <>
+      {/* Space Layer */}
+      <canvas
+        ref={canvasRef}
         style={{
-          width: 360,
-          padding: 24,
-          border: "1px solid #333",
-          borderRadius: 8,
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* UI Layer */}
+      <main
+        style={{
+          position: "relative",
+          zIndex: 1,
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexDirection: "column",
+          textAlign: "center",
         }}
       >
-        <h1 style={{ marginBottom: 24 }}>SocialExchange</h1>
+        <h1 style={{ letterSpacing: "0.5em", marginBottom: "1.5rem" }}>
+          SOCIAL • EXCHANGE
+        </h1>
 
-        <label>Email</label>
-        <input
-          style={{ width: "100%", marginBottom: 12 }}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <label>Password</label>
-        <input
-          type="password"
-          style={{ width: "100%", marginBottom: 16 }}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        {error && (
-          <div style={{ color: "red", marginBottom: 12 }}>{error}</div>
-        )}
-
-        {success && (
-          <div style={{ color: "lime", marginBottom: 12 }}>{success}</div>
-        )}
-
+        {/* BUTTON IS PRESENT IMMEDIATELY */}
         <button
-          onClick={handleLogin}
-          disabled={loading}
+          className="command-button"
+          onClick={() => router.push("/cockpit/dashboard")}
+        >
+          ENTER MISSION CONTROL
+        </button>
+
+        {/* TYPEWRITER */}
+        <p
+          className="typewriter"
           style={{
-            width: "100%",
-            padding: 10,
-            cursor: loading ? "not-allowed" : "pointer",
+            marginTop: "1.5rem",
+            color: "var(--text-muted)",
           }}
         >
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
-      </div>
-    </main>
+          {typed}
+        </p>
+
+        {/* STATUS */}
+        <div className="system-online">{status}</div>
+      </main>
+    </>
   );
 }
