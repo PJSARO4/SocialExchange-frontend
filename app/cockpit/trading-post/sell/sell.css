@@ -1,0 +1,49 @@
+.sell-root {
+  padding: 40px;
+}
+
+.sell-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.sell-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 20px;
+}
+
+.sell-card h3 {
+  margin-bottom: 6px;
+}
+
+.sell-card p {
+  opacity: 0.6;
+  margin-bottom: 12px;
+}
+
+.price {
+  color: #00ffff;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.sell-button {
+  background: transparent;
+  border: 1px solid #00ffff;
+  color: #00ffff;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sell-button:hover {
+  background: rgba(0, 255, 255, 0.15);
+}
+
+.empty {
+  opacity: 0.5;
+  margin-top: 32px;
+}

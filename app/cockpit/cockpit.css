@@ -1,0 +1,1369 @@
+/* ======================================================
+   RESET
+====================================================== */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #02040a;
+  color: #e6e6e6;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* ======================================================
+   ROOT LAYOUT
+====================================================== */
+.cockpit-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ======================================================
+   TOP BAR
+====================================================== */
+.cockpit-topbar {
+  height: 56px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo {
+  letter-spacing: 0.3em;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.exit-cockpit a {
+  color: #aaa;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.exit-cockpit a:hover {
+  color: #fff;
+}
+
+/* ======================================================
+   BODY
+====================================================== */
+.cockpit-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* ======================================================
+   SIDEBAR
+====================================================== */
+.cockpit-sidebar {
+  width: 220px;
+  padding: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-title {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  opacity: 0.5;
+  margin-bottom: 10px;
+}
+
+.sidebar-link {
+  text-decoration: none;
+  color: #bbb;
+  font-size: 13px;
+  padding: 6px 8px;
+  border-left: 2px solid transparent;
+}
+
+.sidebar-link:hover {
+  color: #fff;
+}
+
+.sidebar-link.active {
+  color: #fff;
+  border-left: 2px solid #3fffdc;
+  background: linear-gradient(
+    to right,
+    rgba(63, 255, 220, 0.15),
+    transparent
+  );
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.status-ok {
+  color: #3fffdc;
+}
+
+/* ======================================================
+   MAIN PANEL
+====================================================== */
+.cockpit-main {
+  flex: 1;
+  padding: 40px 48px;
+  overflow-y: auto;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(20, 40, 80, 0.35),
+    #02040a 70%
+  );
+  padding-bottom: 200px; /* footer clearance */
+}
+
+/* ======================================================
+   FOOTER / BOTTOM DECK
+====================================================== */
+.cockpit-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  align-items: center;
+  background: rgba(5, 8, 15, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 1000;
+}
+
+.deck-node {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.deck-node.active {
+  color: #3fffdc;
+  opacity: 1;
+}
+
+.deck-node.power {
+  font-size: 22px;
+  transition: all 0.4s ease;
+}
+
+.deck-node.power.on {
+  color: #3aff6f;
+  text-shadow: 0 0 12px rgba(58, 255, 111, 0.6);
+}
+
+.deck-node.power.idle {
+  color: #3fffdc;
+  animation: reactorPulse 2.4s infinite;
+}
+
+@keyframes reactorPulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* ======================================================
+   TOP TICKER
+====================================================== */
+.topbar-center {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ticker {
+  max-width: 600px;
+  overflow: hidden;
+}
+
+.ticker-track {
+  display: flex;
+  gap: 24px;
+  white-space: nowrap;
+  animation: ticker-scroll 30s linear infinite;
+}
+
+.ticker-item {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.ticker-symbol {
+  opacity: 0.6;
+}
+
+.ticker-price.up {
+  color: #3fffdc;
+}
+
+.ticker-price.down {
+  color: #ff5f5f;
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ======================================================
+   CRUISE / IDLE OVERLAY (SINGLE SOURCE OF TRUTH)
+====================================================== */
+.idle-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(10, 20, 30, 0.85),
+    rgba(5, 10, 15, 0.95) 70%,
+    #020409
+  );
+  pointer-events: all;
+}
+
+/* Viewport (outside glass) */
+.idle-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Space layers (depth, no dot noise) */
+.star-layer {
+  position: absolute;
+  inset: -30%;
+  background-repeat: repeat;
+  animation: spaceDrift linear infinite;
+}
+
+.star-layer.far {
+  background-image: radial-gradient(#ffffff 1px, transparent 1px);
+  background-size: 260px 260px;
+  opacity: 0.12;
+  animation-duration: 240s;
+}
+
+.star-layer.mid {
+  background-image: radial-gradient(#9ff 1px, transparent 1px);
+  background-size: 180px 180px;
+  opacity: 0.22;
+  animation-duration: 120s;
+}
+
+.star-layer.near {
+  background-image: radial-gradient(#ffffff 1.5px, transparent 1.5px);
+  background-size: 120px 120px;
+  opacity: 0.35;
+  animation-duration: 60s;
+}
+
+@keyframes spaceDrift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-400px, 600px, 0); }
+}
+
+/* Planet limb */
+.planet-horizon {
+  position: absolute;
+  bottom: -45%;
+  left: -20%;
+  width: 140%;
+  height: 90%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(34, 211, 238, 0.18),
+    rgba(2, 6, 23, 0.95) 65%
+  );
+  filter: blur(40px);
+}
+
+/* Glass canopy */
+.cockpit-glass {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center,
+      rgba(255,255,255,0.06),
+      rgba(0,0,0,0.7)
+    );
+  pointer-events: none;
+}
+
+/* HUD */
+.idle-hud {
+  position: absolute;
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-family: monospace;
+  color: #3fffdc;
+}
+
+.idle-title {
+  font-size: 26px;
+  letter-spacing: 6px;
+  text-shadow: 0 0 16px rgba(63,255,220,0.6);
+}
+
+.idle-subtitle {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.7;
+  letter-spacing: 2px;
+}
+
+.idle-resume {
+  margin-top: 24px;
+  background: transparent;
+  border: 1px solid rgba(63,255,220,0.6);
+  color: #3fffdc;
+  padding: 10px 28px;
+  letter-spacing: 3px;
+  cursor: pointer;
+}
+
+.idle-resume:hover {
+  background: rgba(63,255,220,0.12);
+}
+/* ================================================= */
+/* POWER CONTROL (SCOPED)                            */
+/* ================================================= */
+
+.power-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.power-reactor {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+.power-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(120,160,255,0.25);
+  box-shadow: 0 0 12px rgba(120,160,255,0.25);
+}
+
+.power-core {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #9fd0ff,
+    #1e3a5f 70%
+  );
+  box-shadow: 0 0 16px rgba(120,180,255,0.6);
+}
+
+.power-control.active .power-ring {
+  border-color: rgba(140,220,255,0.8);
+  box-shadow: 0 0 24px rgba(140,220,255,0.9);
+}
+
+.power-control.active .power-core {
+  box-shadow: 0 0 32px rgba(140,220,255,1);
+}
+
+.power-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: #9fb6d4;
+}
+/* ======================================================
+   CRUISE / IDLE MODE (VISUAL AUTOPILOT VIEW)
+====================================================== */
+
+.idle-visual-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 3;              /* ABOVE CONTENT, BELOW HUD */
+  pointer-events: none;   /* NEVER BLOCK INTERACTION */
+  overflow: hidden;
+
+  /* Push cockpit into background */
+  backdrop-filter: blur(6px) brightness(0.6) saturate(0.7);
+  -webkit-backdrop-filter: blur(6px) brightness(0.6) saturate(0.7);
+}
+
+/* ======================================================
+   STARFIELD — RANDOMIZED (NO GRID)
+====================================================== */
+
+/* Base star layer using box-shadow scatter */
+.star-layer {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+/* Far stars */
+.star-layer.far::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  box-shadow:
+    12vw 18vh rgba(255,255,255,0.35),
+    44vw 62vh rgba(255,255,255,0.25),
+    71vw 21vh rgba(255,255,255,0.3),
+    83vw 77vh rgba(255,255,255,0.2),
+    26vw 84vh rgba(255,255,255,0.25),
+    9vw 55vh rgba(255,255,255,0.3),
+    58vw 9vh rgba(255,255,255,0.35),
+    91vw 34vh rgba(255,255,255,0.25),
+    67vw 71vh rgba(255,255,255,0.3);
+  width: 1px;
+  height: 1px;
+  animation: drift-far 220s linear infinite;
+}
+
+/* Mid stars */
+.star-layer.mid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  box-shadow:
+    14vw 12vh rgba(200,255,255,0.45),
+    39vw 48vh rgba(200,255,255,0.35),
+    62vw 28vh rgba(200,255,255,0.4),
+    77vw 66vh rgba(200,255,255,0.3),
+    21vw 73vh rgba(200,255,255,0.35),
+    5vw 42vh rgba(200,255,255,0.4),
+    55vw 15vh rgba(200,255,255,0.45),
+    88vw 52vh rgba(200,255,255,0.35);
+  width: 1.5px;
+  height: 1.5px;
+  animation: drift-mid 140s linear infinite;
+}
+
+/* Near stars */
+.star-layer.near::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  box-shadow:
+    18vw 8vh rgba(255,255,255,0.65),
+    46vw 31vh rgba(255,255,255,0.55),
+    69vw 17vh rgba(255,255,255,0.6),
+    81vw 49vh rgba(255,255,255,0.5),
+    32vw 61vh rgba(255,255,255,0.55),
+    11vw 27vh rgba(255,255,255,0.6),
+    59vw 4vh rgba(255,255,255,0.65);
+  width: 2px;
+  height: 2px;
+  animation: drift-near 90s linear infinite;
+}
+
+/* Motion = forward + slight yaw */
+@keyframes drift-far {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-120px, 260px, 0); }
+}
+
+@keyframes drift-mid {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-220px, 420px, 0); }
+}
+
+@keyframes drift-near {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-360px, 620px, 0); }
+}
+
+/* ======================================================
+   PLANET LIMB (DEPTH ANCHOR)
+====================================================== */
+
+.planet-horizon {
+  position: absolute;
+  bottom: -45%;
+  left: -20%;
+  width: 140%;
+  height: 90%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(80, 200, 255, 0.18),
+    rgba(2, 6, 23, 0.95) 65%
+  );
+  filter: blur(50px);
+  opacity: 0.85;
+}
+
+/* ======================================================
+   COCKPIT GLASS (YOU ARE INSIDE)
+====================================================== */
+
+.cockpit-glass {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255,255,255,0.05),
+      rgba(0,0,0,0.75)
+    );
+}
+
+/* ======================================================
+   IDLE HUD (MINIMAL, SEATED)
+====================================================== */
+
+.idle-hud {
+  position: absolute;
+  bottom: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-family: monospace;
+  color: #3fffdc;
+  opacity: 0.85;
+}
+
+.idle-title {
+  font-size: 24px;
+  letter-spacing: 6px;
+  text-shadow: 0 0 18px rgba(63,255,220,0.5);
+}
+
+.idle-subtitle {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.65;
+  letter-spacing: 2px;
+}
+/* ======================================================
+   COCKPIT CANOPY (IDLE ONLY)
+====================================================== */
+
+.cockpit-canopy {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.canopy-strut {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 64px;
+  background: linear-gradient(
+    to bottom,
+    rgba(10,15,25,0.9),
+    rgba(5,8,15,0.95)
+  );
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+.canopy-strut.left {
+  left: -10px;
+  clip-path: polygon(0 0, 100% 0, 70% 100%, 0 100%);
+}
+
+.canopy-strut.right {
+  right: -10px;
+  clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%);
+}
+/* ======================================================
+   DASHBOARD SILHOUETTE
+====================================================== */
+
+.cockpit-dashboard {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -40px;
+  height: 180px;
+  background: linear-gradient(
+    to top,
+    rgba(5,8,15,0.95),
+    rgba(5,8,15,0.6),
+    transparent
+  );
+  pointer-events: none;
+}
+
+.dashboard-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  width: 320px;
+  height: 80px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(63,255,220,0.18),
+    transparent 70%
+  );
+  animation: dashboard-breath 6s ease-in-out infinite;
+}
+
+@keyframes dashboard-breath {
+  0%   { opacity: 0.3; }
+  50%  { opacity: 0.6; }
+  100% { opacity: 0.3; }
+}
+/* ======================================================
+   IDLE MODE — COCKPIT WINDOW (HARD SEPARATION)
+====================================================== */
+
+.idle-visual-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Suppress cockpit */
+.idle-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* Window aperture */
+.cockpit-window {
+  position: absolute;
+  top: 8%;
+  left: 12%;
+  right: 12%;
+  bottom: 18%;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #000;
+}
+
+/* Space outside window */
+.space-field {
+  position: absolute;
+  inset: -50%;
+  background: transparent;
+}
+
+/* Random star scatter (NO GRID) */
+.space-field.far::before,
+.space-field.mid::before,
+.space-field.near::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.space-field.far::before {
+  box-shadow:
+    12vw 8vh #fff,
+    33vw 22vh #fff,
+    61vw 12vh #fff,
+    78vw 31vh #fff,
+    19vw 41vh #fff,
+    49vw 6vh #fff;
+  width: 1px;
+  height: 1px;
+  opacity: 0.25;
+  animation: drift-far 240s linear infinite;
+}
+
+.space-field.mid::before {
+  box-shadow:
+    9vw 14vh #9ff,
+    28vw 37vh #9ff,
+    55vw 18vh #9ff,
+    73vw 44vh #9ff,
+    41vw 9vh #9ff;
+  width: 2px;
+  height: 2px;
+  opacity: 0.4;
+  animation: drift-mid 140s linear infinite;
+}
+
+.space-field.near::before {
+  box-shadow:
+    15vw 5vh #fff,
+    36vw 19vh #fff,
+    58vw 11vh #fff,
+    82vw 27vh #fff;
+  width: 3px;
+  height: 3px;
+  opacity: 0.6;
+  animation: drift-near 90s linear infinite;
+}
+
+@keyframes drift-far {
+  to { transform: translate(-200px, 400px); }
+}
+@keyframes drift-mid {
+  to { transform: translate(-320px, 620px); }
+}
+@keyframes drift-near {
+  to { transform: translate(-480px, 860px); }
+}
+
+/* Planet limb */
+.window-planet {
+  position: absolute;
+  bottom: -50%;
+  left: -20%;
+  width: 140%;
+  height: 90%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(80, 200, 255, 0.25),
+    rgba(0, 0, 0, 0.95) 65%
+  );
+  filter: blur(50px);
+}
+
+/* Window frame */
+.window-frame {
+  position: absolute;
+  background: linear-gradient(
+    to bottom,
+    #0a0f1a,
+    #020409
+  );
+}
+
+.window-frame.left {
+  top: 6%;
+  bottom: 16%;
+  left: 10%;
+  width: 26px;
+}
+
+.window-frame.right {
+  top: 6%;
+  bottom: 16%;
+  right: 10%;
+  width: 26px;
+}
+
+.window-frame.bottom {
+  left: 10%;
+  right: 10%;
+  bottom: 14%;
+  height: 38px;
+}
+
+/* HUD */
+.idle-hud {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-family: monospace;
+  color: #3fffdc;
+}
+
+.idle-title {
+  font-size: 22px;
+  letter-spacing: 6px;
+}
+
+.idle-subtitle {
+  font-size: 12px;
+  opacity: 0.6;
+}
+/* ======================================================
+   GLASS REFLECTIONS (INSTRUMENT GHOSTING)
+====================================================== */
+
+.cockpit-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(63,255,220,0.04) 45%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 30% 70%,
+      rgba(63,255,220,0.06),
+      transparent 40%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.6;
+}
+/* ======================================================
+   PERIPHERAL SYSTEM LIGHTS
+====================================================== */
+
+.system-light {
+  position: absolute;
+  top: 20%;
+  bottom: 30%;
+  width: 6px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(63,255,220,0.6),
+    transparent
+  );
+  opacity: 0.35;
+  animation: system-pulse 4s ease-in-out infinite;
+}
+
+.system-light.left {
+  left: 14%;
+}
+
+.system-light.right {
+  right: 14%;
+}
+
+@keyframes system-pulse {
+  0%   { opacity: 0.25; }
+  50%  { opacity: 0.6; }
+  100% { opacity: 0.25; }
+}
+/* ======================================================
+   FORWARD MOTION VECTOR (SUBTLE)
+====================================================== */
+
+.forward-drift {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255,255,255,0.08) 1px,
+    transparent 1px
+  );
+  background-size: 120px 120px;
+  opacity: 0.15;
+  animation: forward-motion 80s linear infinite;
+}
+
+@keyframes forward-motion {
+  from { transform: translateY(0); }
+  to   { transform: translateY(800px); }
+}
+/* ======================================================
+   CANOPY CURVATURE (REMOVE FLAT WINDOW FEEL)
+====================================================== */
+
+.cockpit-window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0,0,0,0.55) 85%
+    );
+  pointer-events: none;
+}
+/* ======================================================
+   SHIP MASS SHADING
+====================================================== */
+
+.cockpit-window::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to right,
+      rgba(0,0,0,0.35),
+      transparent 25%,
+      transparent 75%,
+      rgba(0,0,0,0.45)
+    ),
+    linear-gradient(
+      to top,
+      rgba(0,0,0,0.55),
+      transparent 40%
+    );
+  pointer-events: none;
+}
+/* ======================================================
+   LATERAL COASTING DRIFT
+====================================================== */
+
+.cockpit-window {
+  animation: cockpit-coast 180s ease-in-out infinite alternate;
+}
+
+@keyframes cockpit-coast {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-12px); }
+}
+/* ======================================================
+   ACTIVE MODE — SHIP PRESENCE (SUBTLE)
+====================================================== */
+
+/* Canopy curvature (very faint) */
+.cockpit-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 65%,
+    rgba(0,0,0,0.25) 90%
+  );
+}
+
+/* Dashboard silhouette (extremely subtle) */
+.cockpit-root::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 160px;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(5,8,15,0.55),
+    rgba(5,8,15,0.25),
+    transparent
+  );
+}
+
+/* Peripheral system glow */
+.cockpit-sidebar::before,
+.cockpit-sidebar::after {
+  content: "";
+  position: absolute;
+  top: 15%;
+  bottom: 25%;
+  width: 2px;
+  background: rgba(63,255,220,0.35);
+  opacity: 0.15;
+}
+
+.cockpit-sidebar::before {
+  left: -1px;
+}
+
+.cockpit-sidebar::after {
+  right: -1px;
+}
+
+/* Slight contrast compression */
+.cockpit-main {
+  filter: contrast(0.96) saturate(0.95);
+}
+/* ======================================================
+   IDLE INSTRUMENTATION (VISUAL ONLY)
+====================================================== */
+
+.idle-instruments {
+  position: absolute;
+  top: 18%;
+  bottom: 28%;
+  width: 120px;
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.idle-instruments.left {
+  left: 16%;
+}
+
+.idle-instruments.right {
+  right: 16%;
+}
+
+/* Telemetry lines (scrolling data feel) */
+.telemetry-line {
+  height: 1px;
+  margin: 12px 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(63,255,220,0.6),
+    transparent
+  );
+  animation: telemetry-scroll 6s linear infinite;
+}
+
+.telemetry-line:nth-child(2) {
+  animation-duration: 8s;
+  opacity: 0.5;
+}
+
+.telemetry-line:nth-child(3) {
+  animation-duration: 10s;
+  opacity: 0.35;
+}
+
+@keyframes telemetry-scroll {
+  from { transform: translateX(-40px); }
+  to   { transform: translateX(40px); }
+}
+
+/* System dots */
+.system-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(63,255,220,0.8);
+  margin: 14px auto;
+  animation: system-blink 3s infinite;
+}
+
+.system-dot:nth-child(2) {
+  animation-delay: 1.2s;
+}
+
+@keyframes system-blink {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+/* Vertical scan */
+.system-scan {
+  width: 100%;
+  height: 2px;
+  margin-top: 24px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(63,255,220,0.7),
+    transparent
+  );
+  animation: scan-sweep 4s ease-in-out infinite;
+}
+
+@keyframes scan-sweep {
+  0%   { transform: translateY(0); opacity: 0.2; }
+  50%  { transform: translateY(60px); opacity: 0.6; }
+  100% { transform: translateY(0); opacity: 0.2; }
+}
+/* ======================================================
+   SHIP HEARTBEAT (CENTER, VERY SUBTLE)
+====================================================== */
+
+.idle-heartbeat {
+  position: absolute;
+  bottom: 26%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+}
+
+.heartbeat-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid rgba(63,255,220,0.35);
+  animation: heartbeat-pulse 5.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat-pulse {
+  0%   { transform: scale(0.95); opacity: 0.25; }
+  50%  { transform: scale(1.05); opacity: 0.6; }
+  100% { transform: scale(0.95); opacity: 0.25; }
+}
+/* ======================================================
+   WINDOW-ANCHORED IDLE INSTRUMENTS (FIX)
+====================================================== */
+
+.window-instruments {
+  position: absolute;
+  top: 18%;
+  bottom: 28%;
+  width: 120px;
+  pointer-events: none;
+  z-index: 6; /* ABOVE mask, BELOW glass */
+  opacity: 0.75; /* IMPORTANT: survive dimming */
+}
+
+.window-instruments.left {
+  left: 8px; /* INSIDE window edge */
+}
+
+.window-instruments.right {
+  right: 8px;
+}
+
+/* Telemetry lines */
+.window-instruments .telemetry-line {
+  height: 1px;
+  margin: 14px 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(63,255,220,0.85),
+    transparent
+  );
+  animation: telemetry-scroll 6s linear infinite;
+}
+
+/* System dots */
+.window-instruments .system-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(63,255,220,0.95);
+  margin: 14px auto;
+  animation: system-blink 3s infinite;
+}
+
+/* Scan bar */
+.window-instruments .system-scan {
+  width: 100%;
+  height: 2px;
+  margin-top: 26px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(63,255,220,0.85),
+    transparent
+  );
+  animation: scan-sweep 4s ease-in-out infinite;
+}
+/* ======================================================
+   GLASS-PLANE INSTRUMENTS (VISIBLE FIX)
+====================================================== */
+
+.glass-instruments {
+  position: absolute;
+  top: 16%;
+  bottom: 30%;
+  width: 120px;
+  z-index: 8; /* ABOVE mask, BELOW glass */
+  pointer-events: none;
+  filter: drop-shadow(0 0 12px rgba(63,255,220,0.45));
+}
+
+.glass-instruments.left {
+  left: 18px;
+}
+
+.glass-instruments.right {
+  right: 18px;
+}
+
+/* Instrument lines */
+.instrument-line {
+  height: 1px;
+  margin: 14px 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(63,255,220,1),
+    transparent
+  );
+  animation: telemetry-scroll 5s linear infinite;
+}
+
+/* Instrument dots */
+.instrument-dot {
+  width: 6px;
+  height: 6px;
+  margin: 14px auto;
+  border-radius: 50%;
+  background: rgba(63,255,220,1);
+  box-shadow: 0 0 10px rgba(63,255,220,0.8);
+  animation: system-blink 2.6s infinite;
+}
+
+/* Scan bar */
+.instrument-scan {
+  height: 2px;
+  margin-top: 22px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(63,255,220,1),
+    transparent
+  );
+  animation: scan-sweep 3.5s ease-in-out infinite;
+}
+
+/* Reduce mask dominance locally */
+.cockpit-window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0,0,0,0.15),
+    rgba(0,0,0,0.45)
+  );
+  pointer-events: none;
+  z-index: 4;
+}
+/* ========================= */
+/* FOOTER TABS               */
+/* ========================= */
+
+.footer-tab {
+  cursor: pointer;
+  padding: 6px 14px;
+  letter-spacing: 0.25em;
+  opacity: 0.6;
+  transition: opacity 200ms ease, color 200ms ease;
+}
+
+.footer-tab:hover {
+  opacity: 1;
+}
+
+.footer-tab.active {
+  opacity: 1;
+  color: #7fe3dc;
+  text-shadow: 0 0 12px rgba(120, 220, 210, 0.4);
+}
+
+/* ========================= */
+/* DECK PANELS               */
+/* ========================= */
+
+.deck-panel {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 1200px;
+  background: rgba(10, 18, 28, 0.92);
+  border: 1px solid rgba(120, 220, 210, 0.25);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  z-index: 900;
+  padding: 18px;
+}
+
+.deck-title {
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.deck-content {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+/* ========================= */
+/* FOOTER HARD RECOVERY      */
+/* ========================= */
+
+.cockpit-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+
+  background: linear-gradient(
+    to top,
+    rgba(4, 10, 20, 0.98),
+    rgba(4, 10, 20, 0.6)
+  );
+
+  border-top: 1px solid rgba(120, 220, 210, 0.15);
+
+  z-index: 10000; /* ABOVE logs, idle, everything */
+  pointer-events: auto;
+}
+
+.footer-tab,
+.power-button {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+
+  color: #7fe3dc;
+  cursor: pointer;
+  user-select: none;
+
+  opacity: 0.65;
+  transition: opacity 160ms ease, text-shadow 160ms ease;
+}
+
+.footer-tab:hover,
+.power-button:hover {
+  opacity: 1;
+  text-shadow: 0 0 12px rgba(120, 220, 210, 0.6);
+}
+
+.power-button.active {
+  color: #ffb37a;
+  text-shadow: 0 0 16px rgba(255, 180, 120, 0.8);
+}
+.cockpit-root {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.cockpit-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #02040a;
+  color: #e6e6e6;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.cockpit-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.cockpit-sidebar {
+  width: 220px;
+  padding: 16px;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+.cockpit-main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.cockpit-footer {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}

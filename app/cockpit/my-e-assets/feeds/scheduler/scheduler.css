@@ -1,0 +1,332 @@
+/* ======================================================
+   SCHEDULER PAGE
+====================================================== */
+
+.scheduler-page {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.scheduler-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scheduler-title {
+  font-size: 2.25rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 1px;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.scheduler-subtitle {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  letter-spacing: 0.5px;
+}
+
+.scheduler-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.scheduler-action-button {
+  padding: 0.625rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #d1d5db;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scheduler-action-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.scheduler-action-button.primary {
+  background: rgba(63, 255, 220, 0.1);
+  border-color: rgba(63, 255, 220, 0.3);
+  color: #3fffdc;
+}
+
+.scheduler-action-button.primary:hover {
+  background: rgba(63, 255, 220, 0.2);
+}
+
+/* ======================================================
+   SCHEDULER CONTROLS
+====================================================== */
+
+.scheduler-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.scheduler-nav-button,
+.scheduler-today-button {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: #d1d5db;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scheduler-nav-button:hover,
+.scheduler-today-button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.scheduler-today-button {
+  background: rgba(63, 255, 220, 0.05);
+  border-color: rgba(63, 255, 220, 0.2);
+  color: #3fffdc;
+}
+
+.scheduler-today-button:hover {
+  background: rgba(63, 255, 220, 0.1);
+}
+
+/* ======================================================
+   CALENDAR
+====================================================== */
+
+.scheduler-calendar {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ======================================================
+   WEEK HEADER
+====================================================== */
+
+.week-header {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.week-header-time-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 1px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.week-header-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.5rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.week-header-day:last-child {
+  border-right: none;
+}
+
+.week-header-day.today {
+  background: rgba(63, 255, 220, 0.05);
+}
+
+.week-header-day-name {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #9ca3af;
+  letter-spacing: 1px;
+  margin-bottom: 0.25rem;
+}
+
+.week-header-day.today .week-header-day-name {
+  color: #3fffdc;
+}
+
+.week-header-day-date {
+  font-size: 0.75rem;
+  color: #d1d5db;
+  letter-spacing: 0.5px;
+}
+
+/* ======================================================
+   TIME SLOT GRID
+====================================================== */
+
+.time-slot-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-slot-row {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  min-height: 80px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.time-slot-row:last-child {
+  border-bottom: none;
+}
+
+.time-slot-hour {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+  font-size: 0.6875rem;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.time-slot-cell {
+  position: relative;
+  padding: 0.5rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.time-slot-cell:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.time-slot-cell:last-child {
+  border-right: none;
+}
+
+/* ======================================================
+   SCHEDULED POST CARD
+====================================================== */
+
+.scheduled-post-card {
+  padding: 0.625rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 3px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.scheduled-post-card:last-child {
+  margin-bottom: 0;
+}
+
+.scheduled-post-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.scheduled-post-card.status-scheduled {
+  border-left-color: #3b82f6;
+}
+
+.scheduled-post-card.status-automated {
+  border-left-color: #10b981;
+}
+
+.scheduled-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.375rem;
+}
+
+.scheduled-post-time {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #d1d5db;
+  font-family: monospace;
+}
+
+.scheduled-post-media {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.scheduled-post-caption {
+  font-size: 0.75rem;
+  color: #d1d5db;
+  line-height: 1.4;
+  margin-bottom: 0.375rem;
+}
+
+.scheduled-post-status {
+  font-size: 0.5625rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.scheduled-post-status.status-scheduled {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.scheduled-post-status.status-automated {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 1400px) {
+  .scheduler-calendar {
+    overflow-x: auto;
+  }
+
+  .week-header,
+  .time-slot-row {
+    min-width: 1200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .scheduler-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .scheduler-actions {
+    width: 100%;
+  }
+
+  .scheduler-action-button {
+    flex: 1;
+  }
+}

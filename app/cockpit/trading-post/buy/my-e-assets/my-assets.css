@@ -1,0 +1,34 @@
+.my-assets-root {
+  padding: 40px;
+}
+
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.asset-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.asset-card h3 {
+  margin-bottom: 6px;
+}
+
+.asset-card p {
+  opacity: 0.6;
+  margin-bottom: 12px;
+}
+
+.price {
+  color: #00ffff;
+}
+
+.empty {
+  opacity: 0.5;
+  margin-top: 32px;
+}

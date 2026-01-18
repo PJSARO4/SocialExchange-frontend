@@ -1,0 +1,220 @@
+/* ======================================================
+   IDLE SURFACE — VISUAL SYSTEM ONLY
+   (DOES NOT BLOCK UI INTERACTION)
+====================================================== */
+
+.system-surface {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(20, 30, 60, 0.35),
+      rgba(0, 0, 0, 0.95) 70%
+    );
+}
+
+/* ======================================================
+   STARFIELD (IRREGULAR, NON-PATTERNED)
+====================================================== */
+
+.space-layer {
+  position: absolute;
+  inset: -50%;
+  background-repeat: repeat;
+}
+
+.space-layer.far {
+  background-image:
+    radial-gradient(rgba(255,255,255,0.6) 1px, transparent 1px);
+  background-size: 280px 260px;
+  opacity: 0.08;
+  animation: drift-far 240s linear infinite;
+}
+
+.space-layer.mid {
+  background-image:
+    radial-gradient(rgba(160,220,255,0.8) 1px, transparent 1px);
+  background-size: 180px 200px;
+  opacity: 0.16;
+  animation: drift-mid 120s linear infinite;
+}
+
+.space-layer.near {
+  background-image:
+    radial-gradient(rgba(255,255,255,0.9) 1.5px, transparent 1.5px);
+  background-size: 120px 140px;
+  opacity: 0.24;
+  animation: drift-near 60s linear infinite;
+}
+
+@keyframes drift-far {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(-400px, 600px); }
+}
+
+@keyframes drift-mid {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(-700px, 900px); }
+}
+
+@keyframes drift-near {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(-1000px, 1300px); }
+}
+
+/* ======================================================
+   SOLAR HORIZON (DUAL-TONE FOCUS)
+====================================================== */
+
+.solar-horizon {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  bottom: 32%;
+  height: 180px;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 140, 60, 0.45),
+      rgba(255, 80, 20, 0.15),
+      transparent 70%
+    );
+  filter: blur(40px);
+}
+
+.solar-flare {
+  position: absolute;
+  left: 50%;
+  bottom: 34%;
+  width: 420px;
+  height: 140px;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255,180,80,0.6),
+      rgba(255,120,40,0.2),
+      transparent 70%
+    );
+  filter: blur(50px);
+  animation: solar-pulse 6s ease-in-out infinite;
+}
+
+@keyframes solar-pulse {
+  0%   { opacity: 0.6; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* ======================================================
+   COCKPIT FRAME
+====================================================== */
+
+.cockpit-frame {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(120,200,255,0.35),
+    transparent
+  );
+}
+
+.cockpit-frame.left {
+  left: 48px;
+}
+
+.cockpit-frame.right {
+  right: 48px;
+}
+
+.cockpit-frame.bottom {
+  top: auto;
+  bottom: 60px;
+  left: 80px;
+  right: 80px;
+  height: 2px;
+  width: auto;
+}
+
+/* ======================================================
+   TARGETING RETICLE
+====================================================== */
+
+.reticle {
+  position: absolute;
+  left: 50%;
+  bottom: 42%;
+  width: 120px;
+  height: 120px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 1px solid rgba(120,220,255,0.25);
+}
+
+.reticle span {
+  position: absolute;
+  background: rgba(120,220,255,0.6);
+}
+
+.reticle span:nth-child(1),
+.reticle span:nth-child(2) {
+  width: 2px;
+  height: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.reticle span:nth-child(1) { top: -6px; }
+.reticle span:nth-child(2) { bottom: -6px; }
+
+.reticle span:nth-child(3),
+.reticle span:nth-child(4) {
+  height: 2px;
+  width: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.reticle span:nth-child(3) { left: -6px; }
+.reticle span:nth-child(4) { right: -6px; }
+
+/* ======================================================
+   TELEMETRY GLYPHS
+====================================================== */
+
+.telemetry {
+  position: absolute;
+  top: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.telemetry.left {
+  left: 80px;
+}
+
+.telemetry.right {
+  right: 80px;
+}
+
+.telemetry .tick {
+  width: 24px;
+  height: 2px;
+  background: rgba(120,220,255,0.35);
+}
+
+.telemetry .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(120,220,255,0.6);
+}

@@ -3,64 +3,53 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const QUOTE = "Markets are systems. Systems require operators.";
+/* ===============================
+   QUOTE BANK
+================================ */
+const QUOTES = [
+  "Markets are systems. Systems require operators.",
+  "Liquidity is movement. Movement creates value.",
+  "Control is not speed. Control is awareness.",
+  "Every signal has a cost.",
+  "Infrastructure outlives speculation.",
+  "Silence is a form of information.",
+  "Not all assets are visible.",
+  "Stability is engineered, not assumed.",
+];
 
-type EventType =
-  | "LIGHT_SWEEP"
-  | "ORBITAL_SHADOW"
-  | "SIGNAL_PULSE"
-  | "STAR_COMPRESSION"
-  | "DEBRIS_DRIFT"
-  | "SYSTEM_PULSE"
-  | null;
+type ShootingStar = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+};
 
 export default function Entrance() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
   const [typed, setTyped] = useState("");
-  const [status, setStatus] = useState("SYSTEM STANDBY");
-  const [event, setEvent] = useState<EventType>(null);
+
+  const quoteRef = useRef(
+    QUOTES[Math.floor(Math.random() * QUOTES.length)]
+  );
 
   /* ===============================
      TYPEWRITER
   ================================ */
   useEffect(() => {
     let i = 0;
+    const text = quoteRef.current;
     const interval = setInterval(() => {
-      setTyped(QUOTE.slice(0, i));
+      setTyped(text.slice(0, i));
       i++;
-      if (i > QUOTE.length) clearInterval(interval);
+      if (i > text.length) clearInterval(interval);
     }, 40);
     return () => clearInterval(interval);
   }, []);
 
   /* ===============================
-     EVENT SELECTION (60%)
-  ================================ */
-  useEffect(() => {
-    if (Math.random() > 0.6) return;
-
-    const events: EventType[] = [
-      "LIGHT_SWEEP",
-      "ORBITAL_SHADOW",
-      "SIGNAL_PULSE",
-      "STAR_COMPRESSION",
-      "DEBRIS_DRIFT",
-      "SYSTEM_PULSE",
-    ];
-
-    const selected = events[Math.floor(Math.random() * events.length)];
-    setEvent(selected);
-
-    if (selected === "SYSTEM_PULSE") {
-      setStatus("SYSTEM READY");
-      setTimeout(() => setStatus("SYSTEM STANDBY"), 1200);
-    }
-  }, []);
-
-  /* ===============================
-     STARFIELD + EVENT RENDER
+     STARFIELD + CONTINUOUS SHOOTING STARS
   ================================ */
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -71,67 +60,113 @@ export default function Entrance() {
     let w = (canvas.width = window.innerWidth);
     let h = (canvas.height = window.innerHeight);
 
-    const stars = Array.from({ length: 140 }, () => ({
+    const stars = Array.from({ length: 180 }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      r: Math.random() * 1.3,
-      s: Math.random() * 0.35 + 0.1,
+      r: Math.random() * 1.4,
+      s: Math.random() * 0.25 + 0.1,
     }));
 
-    let frame = 0;
+    let shootingStars: ShootingStar[] = [];
+
+    const spawnShootingStar = () => {
+      if (shootingStars.length >= 2) return;
+
+      const edge = Math.floor(Math.random() * 4);
+      const speed = 14;
+
+      let x = 0,
+        y = 0,
+        vx = 0,
+        vy = 0;
+
+      switch (edge) {
+        case 0: // top
+          x = Math.random() * w;
+          y = -30;
+          vx = speed;
+          vy = speed;
+          break;
+        case 1: // left
+          x = -30;
+          y = Math.random() * h;
+          vx = speed;
+          vy = -speed;
+          break;
+        case 2: // right
+          x = w + 30;
+          y = Math.random() * h;
+          vx = -speed;
+          vy = speed;
+          break;
+        case 3: // bottom
+          x = Math.random() * w;
+          y = h + 30;
+          vx = -speed;
+          vy = -speed;
+          break;
+      }
+
+      shootingStars.push({ x, y, vx, vy, life: 0 });
+    };
+
+    // spawn immediately, then continuously
+    spawnShootingStar();
+    const spawnInterval = setInterval(spawnShootingStar, 3500);
+
+    let hue = 210;
 
     const draw = () => {
-      frame++;
       ctx.clearRect(0, 0, w, h);
 
-      // Base stars
+      /* ---------- AMBIENT COLOR FIELD ---------- */
+      hue = (hue + 0.015) % 360;
+      const ambient = ctx.createRadialGradient(
+        w / 2,
+        h / 2,
+        0,
+        w / 2,
+        h / 2,
+        w
+      );
+      ambient.addColorStop(
+        0,
+        `hsla(${hue}, 60%, 45%, 0.04)`
+      );
+      ambient.addColorStop(
+        1,
+        `hsla(${(hue + 50) % 360}, 60%, 20%, 0)`
+      );
+      ctx.fillStyle = ambient;
+      ctx.fillRect(0, 0, w, h);
+
+      /* ---------- STARS ---------- */
+      ctx.fillStyle = "#ffffff";
       stars.forEach((s) => {
         s.y += s.s;
         if (s.y > h) s.y = 0;
-        ctx.globalAlpha = 0.5;
-        ctx.fillStyle = "#ffffff";
+        ctx.globalAlpha = 0.6;
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      /* -------- EVENTS -------- */
+      /* ---------- SHOOTING STARS ---------- */
+      shootingStars.forEach((s) => {
+        if (s.life < 70) {
+          ctx.strokeStyle = "rgba(255,255,255,0.9)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          s.x += s.vx;
+          s.y += s.vy;
+          ctx.lineTo(s.x, s.y);
+          ctx.stroke();
+          s.life++;
+        }
+      });
 
-      // 1. Light Sweep
-      if (event === "LIGHT_SWEEP" && frame < 180) {
-        const grd = ctx.createLinearGradient(0, 0, w, h);
-        grd.addColorStop(0, "rgba(100,180,255,0)");
-        grd.addColorStop(0.5, "rgba(100,180,255,0.05)");
-        grd.addColorStop(1, "rgba(100,180,255,0)");
-        ctx.fillStyle = grd;
-        ctx.fillRect(0, 0, w, h);
-      }
-
-      // 2. Orbital Shadow
-      if (event === "ORBITAL_SHADOW" && frame < 220) {
-        ctx.fillStyle = "rgba(0,0,0,0.12)";
-        ctx.fillRect(0, 0, w, h);
-      }
-
-      // 3. Signal Pulse
-      if (event === "SIGNAL_PULSE" && frame % 60 < 2) {
-        ctx.fillStyle = "rgba(255,255,255,0.06)";
-        ctx.fillRect(0, Math.random() * h, w, 1);
-      }
-
-      // 4. Star Compression
-      if (event === "STAR_COMPRESSION" && frame < 160) {
-        stars.forEach((s) => {
-          s.x += (w / 2 - s.x) * 0.0005;
-          s.y += (h / 2 - s.y) * 0.0005;
-        });
-      }
-
-      // 5. Debris Drift
-      if (event === "DEBRIS_DRIFT" && frame < 200) {
-        ctx.globalAlpha = 0.08;
-        ctx.fillRect(frame % w, frame % h, 2, 2);
-      }
+      shootingStars = shootingStars.filter((s) => s.life < 70);
 
       requestAnimationFrame(draw);
     };
@@ -142,7 +177,9 @@ export default function Entrance() {
       w = canvas.width = window.innerWidth;
       h = canvas.height = window.innerHeight;
     });
-  }, [event]);
+
+    return () => clearInterval(spawnInterval);
+  }, []);
 
   /* ===============================
      UI
@@ -182,7 +219,7 @@ export default function Entrance() {
 
         <p className="typewriter">{typed}</p>
 
-        <div className="system-online">{status}</div>
+        <div className="system-online">SYSTEM STANDBY</div>
       </main>
     </>
   );

@@ -1,85 +1,419 @@
-*,
-*::before,
-*::after {
+/* =========================================================
+   GLOBAL RESET — SAFE FOR ALL CONTEXTS
+   ========================================================= */
+
+* {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html,
 body {
-  margin: 0;
-  padding: 0;
+  width: 100%;
   height: 100%;
-  background: radial-gradient(
-    ellipse at center,
-    #0b1630 0%,
-    #040812 55%,
-    #020409 100%
-  );
-  color: #e6edf7;
+  background: #020409;
+  color: #e6e6e6;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", monospace;
+    "Liberation Mono", "Courier New", monospace;
   overflow: hidden;
 }
 
-:root {
-  --accent-cyan: #36c6ff;
-  --accent-green: #38ff9c;
-  --text-muted: #9aa7bd;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-/* ---------- TYPOGRAPHY ---------- */
+/* =========================================================
+   ENTRANCE MODE (DEFAULT)
+   Applies ONLY when NOT in cockpit
+   ========================================================= */
 
-h1 {
+body:not(.cockpit-mode) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SOCIAL • EXCHANGE */
+body:not(.cockpit-mode) .entry-title {
+  font-size: 18px;
+  font-weight: 400;
   letter-spacing: 0.45em;
-  font-size: 1.6rem;
-  margin-bottom: 1.6rem;
+  text-transform: uppercase;
+  line-height: 1;
+  opacity: 0.95;
 }
 
-/* ---------- TYPEWRITER ---------- */
-
-.typewriter {
-  margin-top: 1.4rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  min-height: 1.2em;
+/* ENTER MISSION CONTROL */
+body:not(.cockpit-mode) .enter-mission-control {
+  margin-top: 12px;
+  padding: 14px 30px;
+  border: 2px solid #00ffff;
+  background: transparent;
+  color: #00ffff;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
 }
 
-/* ---------- COMMAND BUTTON ---------- */
+body:not(.cockpit-mode) .enter-mission-control:hover {
+  background: rgba(0, 255, 255, 0.08);
+}
 
-.command-button {
-  padding: 0.9rem 2.6rem;
-  border: 1px solid var(--accent-cyan);
-  background: rgba(0, 0, 0, 0.25);
-  color: var(--accent-cyan);
+/* Quote */
+body:not(.cockpit-mode) .entry-quote {
+  margin-top: 10px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  opacity: 0.75;
+}
+
+/* SYSTEM STANDBY */
+body:not(.cockpit-mode) .system-standby {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  color: #00ff88;
+}
+
+/* =========================================================
+   COCKPIT MODE
+   ========================================================= */
+
+body.cockpit-mode {
+  display: block;
+}
+
+/* ROOT */
+.cockpit-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* HEADER */
+.cockpit-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 15, 30, 0.9),
+    rgba(5, 8, 15, 0.9)
+  );
+}
+
+.cockpit-header-title {
+  font-size: 13px;
   letter-spacing: 0.25em;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  opacity: 0.85;
 }
 
-.command-button:hover {
-  background: rgba(54, 198, 255, 0.12);
-  box-shadow: 0 0 18px rgba(54, 198, 255, 0.35);
+/* FRAME */
+.cockpit-frame {
+  flex: 1;
+  display: flex;
+  height: calc(100vh - 56px - 48px);
 }
 
-/* ---------- SYSTEM STATUS ---------- */
-
-.system-online {
-  margin-top: 1.2rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.25em;
-  color: var(--accent-green);
-  animation: pulse 2.4s ease-in-out infinite;
+/* NAV */
+.cockpit-nav {
+  width: 220px;
+  padding: 24px 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(
+    to right,
+    rgba(6, 10, 20, 0.95),
+    rgba(6, 10, 20, 0.85)
+  );
 }
 
-@keyframes pulse {
-  0% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.5;
-  }
+.nav-label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  opacity: 0.5;
 }
+
+.nav-link {
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  opacity: 0.7;
+}
+
+.nav-link:hover {
+  opacity: 1;
+}
+
+/* VIEWPORT */
+.cockpit-viewport {
+  flex: 1;
+  padding: 32px;
+  overflow-y: auto;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(20, 30, 60, 0.35),
+    rgba(5, 8, 15, 0.95)
+  );
+}
+
+.cockpit-viewport::-webkit-scrollbar {
+  width: 0;
+}
+
+/* DOCK */
+.cockpit-dock {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 0 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(
+    to top,
+    rgba(10, 15, 30, 0.95),
+    rgba(5, 8, 15, 0.9)
+  );
+}
+
+.dock-item {
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  opacity: 0.6;
+}
+
+.dock-item:hover {
+  opacity: 0.9;
+}
+/* =========================================================
+   COCKPIT TYPOGRAPHY OVERRIDE — FINAL LOCK
+   This ensures the cockpit NEVER inherits entrance energy
+   ========================================================= */
+
+body.cockpit-mode h1,
+body.cockpit-mode h2,
+body.cockpit-mode h3 {
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+
+body.cockpit-mode .cockpit-header-title {
+  letter-spacing: 0.28em;
+  font-weight: 500;
+}
+
+body.cockpit-mode .nav-label {
+  letter-spacing: 0.18em;
+  font-size: 11px;
+}
+
+body.cockpit-mode .nav-link {
+  letter-spacing: 0.12em;
+  font-size: 13px;
+}
+
+body.cockpit-mode p {
+  letter-spacing: 0.06em;
+  font-size: 13px;
+}
+/* =========================================================
+   COCKPIT NAVIGATION SPINE — REFINEMENT PASS
+   ========================================================= */
+
+body.cockpit-mode .cockpit-nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 28px; /* restores vertical gravity */
+}
+
+/* NAV SECTION LABEL */
+body.cockpit-mode .cockpit-nav .nav-label {
+  margin-bottom: 6px;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  opacity: 0.45;
+}
+
+/* NAV LINK STACK */
+body.cockpit-mode .cockpit-nav .nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 14px; /* critical: prevents text collapse */
+}
+
+/* INDIVIDUAL NAV LINKS */
+body.cockpit-mode .cockpit-nav .nav-link {
+  position: relative;
+  padding-left: 8px;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+}
+
+/* SUBTLE STRUCTURAL MARKER */
+body.cockpit-mode .cockpit-nav .nav-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-50%);
+}
+
+/* HOVER — NOT A BUTTON, JUST ATTENTION */
+body.cockpit-mode .cockpit-nav .nav-link:hover {
+  opacity: 0.9;
+}
+
+/* ACTIVE STATE (NO COLOR, JUST AUTHORITY) */
+body.cockpit-mode .cockpit-nav .nav-link.active {
+  opacity: 1;
+}
+
+/* SYSTEM STATUS BLOCK */
+body.cockpit-mode .cockpit-nav .nav-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  opacity: 0.5;
+}
+/* =========================================================
+   COCKPIT HEADER — TOP-RIGHT STYLE
+   Identity > Context > Exit
+   ========================================================= */
+
+body.cockpit-mode .cockpit-header {
+  justify-content: space-between;
+}
+
+/* System identity */
+body.cockpit-mode .cockpit-header-title {
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  opacity: 0.9;
+}
+
+/* Top bar navigation (de-emphasized) */
+body.cockpit-mode .cockpit-header nav {
+  display: flex;
+  gap: 24px;
+  opacity: 0.55;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+}
+
+body.cockpit-mode .cockpit-header nav a:hover {
+  opacity: 0.85;
+}
+
+/* Exit Cockpit — isolated, deliberate */
+body.cockpit-mode .exit-cockpit {
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  opacity: 0.6;
+}
+
+body.cockpit-mode .exit-cockpit:hover {
+  opacity: 1;
+}
+/* =========================================================
+   COCKPIT VIEWPORT — TOP-RIGHT CONSOLE FRAME (TUNED)
+   ========================================================= */
+
+body.cockpit-mode .cockpit-viewport {
+  position: relative;
+  padding: 48px 56px;
+  overflow: hidden;
+
+  background: radial-gradient(
+    ellipse at center,
+    rgba(22, 34, 68, 0.45),
+    rgba(6, 10, 18, 0.98)
+  );
+}
+
+/* Edge darkening — stronger, still invisible */
+body.cockpit-mode .cockpit-viewport::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background:
+    linear-gradient(to top, rgba(0,0,0,0.7), transparent 28%),
+    linear-gradient(to bottom, rgba(0,0,0,0.6), transparent 28%),
+    linear-gradient(to left, rgba(0,0,0,0.6), transparent 28%),
+    linear-gradient(to right, rgba(0,0,0,0.6), transparent 28%);
+}
+
+/* Inner boundary — readable but restrained */
+body.cockpit-mode .cockpit-viewport::after {
+  content: '';
+  position: absolute;
+  inset: 14px;
+  pointer-events: none;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 0 24px rgba(0, 0, 0, 0.6);
+}
+/* =========================================================
+   COCKPIT — PASS 3: TYPOGRAPHY & STATE SIGNALING
+   ========================================================= */
+
+/* ---------- PAGE TITLE (AUTHORITY) ---------- */
+body.cockpit-mode .cockpit-viewport h1,
+body.cockpit-mode .cockpit-viewport .page-title {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  opacity: 0.95;
+  margin-bottom: 16px;
+}
+
+/* ---------- DASHBOARD SUBTEXT ---------- */
+body.cockpit-mode .cockpit-viewport .page-subtext,
+body.cockpit-mode .cockpit-viewport p {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+/* ---------- ACTIVE NAV (CYAN STATE) ---------- */
+body.cockpit-mode .cockpit-nav .nav-link.active {
+  opacity: 1;
+  color: #7df9ff;
+}
+
+body.cockpit-mode .cockpit-nav .nav-link.active::before {
+  width: 6px;
+  height: 2px;
+  background: #7df9ff;
+}
+
+/* ---------- SECTION GROUPING (SUBTLE STRUCTURE) ---------- */
+body.cockpit-mode .cockpit-viewport .section {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.cockpit-mode .cockpit-viewport .section-title {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  opacity: 0.6;
+  margin-bottom: 10px;
+}
+
+
