@@ -8,7 +8,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // URL is now configured in prisma.config.ts for Prisma 7.x
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ============================================
