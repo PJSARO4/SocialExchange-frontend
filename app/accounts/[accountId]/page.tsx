@@ -12,7 +12,7 @@ export default function AccountDetailPage() {
     price: 4500,
     followers: 125_000,
     engagementRate: 4.2,
-    escrowStage: "CREDENTIALS_TRANSFERRED" as EscrowStage,
+    escrowStage: EscrowStage.CREDENTIALS_TRANSFERRED,
     history: {
       ageMonths: 38,
       strikes: 0,
@@ -74,7 +74,7 @@ export default function AccountDetailPage() {
         <div className="space-y-4">
           <EscrowTimeline current={account.escrowStage} />
 
-          {account.escrowStage === "CREDENTIALS_TRANSFERRED" && (
+          {account.escrowStage === EscrowStage.CREDENTIALS_TRANSFERRED && (
             <ControlVerificationPanel />
           )}
 

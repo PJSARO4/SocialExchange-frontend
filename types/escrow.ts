@@ -5,6 +5,7 @@ export enum EscrowStage {
   PENDING = 'pending',
   FUNDED = 'funded',
   IN_PROGRESS = 'in_progress',
+  CREDENTIALS_TRANSFERRED = 'credentials_transferred',
   COMPLETED = 'completed',
   DISPUTED = 'disputed',
   CANCELLED = 'cancelled',
