@@ -46,4 +46,26 @@ export async function getNetworkInfo(): Promise<NetworkInfo> {
   };
 }
 
-export default { getFullNetworkAnalysis, measureConnectionQuality, getNetworkInfo };
+// Get icon for connection type
+export function getConnectionIcon(connectionType: string): string {
+  const icons: Record<string, string> = {
+    wifi: '📶',
+    cellular: '📱',
+    ethernet: '🔌',
+    unknown: '🌐',
+  };
+  return icons[connectionType?.toLowerCase()] || icons.unknown;
+}
+
+// Get color for quality level
+export function getQualityColor(quality: 'excellent' | 'good' | 'fair' | 'poor'): string {
+  const colors: Record<string, string> = {
+    excellent: 'text-green-500',
+    good: 'text-blue-500',
+    fair: 'text-yellow-500',
+    poor: 'text-red-500',
+  };
+  return colors[quality] || colors.fair;
+}
+
+export default { getFullNetworkAnalysis, measureConnectionQuality, getNetworkInfo, getConnectionIcon, getQualityColor };

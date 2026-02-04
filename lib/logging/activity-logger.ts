@@ -49,4 +49,27 @@ export function clearLogs(): void {
   logs.length = 0;
 }
 
-export default { log, getLogs, clearLogs, LogLevel, LogCategory };
+// Export logger as an alias for compatibility
+export const logger = {
+  log,
+  debug: (category: LogCategory, message: string, data?: any) => log(LogLevel.DEBUG, category, message, data),
+  info: (category: LogCategory, message: string, data?: any) => log(LogLevel.INFO, category, message, data),
+  warn: (category: LogCategory, message: string, data?: any) => log(LogLevel.WARN, category, message, data),
+  error: (category: LogCategory, message: string, data?: any) => log(LogLevel.ERROR, category, message, data),
+};
+
+// Seed demo logs for development/testing
+export function seedDemoLogs(): void {
+  const demoLogs = [
+    { level: LogLevel.INFO, category: LogCategory.SYSTEM, message: 'Application started' },
+    { level: LogLevel.INFO, category: LogCategory.AUTH, message: 'User authenticated successfully' },
+    { level: LogLevel.DEBUG, category: LogCategory.API, message: 'API request completed', data: { endpoint: '/api/feeds' } },
+    { level: LogLevel.WARN, category: LogCategory.SYSTEM, message: 'High memory usage detected' },
+  ];
+
+  demoLogs.forEach(({ level, category, message, data }) => {
+    log(level, category, message, data);
+  });
+}
+
+export default { log, logger, getLogs, clearLogs, seedDemoLogs, LogLevel, LogCategory };
