@@ -1,239 +1,100 @@
-'use client';
+"use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useCallback,
-  ReactNode
-} from 'react';
-import { usePathname } from 'next/navigation';
-import { getAmbientAudio, type AmbientMood } from './AmbientAudioEngine';
-
-// ============================================
-// CONTEXT TYPE
-// ============================================
+import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 
 interface AmbientAudioContextType {
   isPlaying: boolean;
-  currentMood: AmbientMood;
   volume: number;
-  isEnabled: boolean;
-  start: (mood?: AmbientMood) => Promise<void>;
-  stop: () => void;
-  toggle: () => void;
+  currentMood: string;
+  play: () => void;
+  pause: () => void;
   setVolume: (volume: number) => void;
-  setEnabled: (enabled: boolean) => void;
-  changeMood: (mood: AmbientMood) => void;
-  setMoodForPath: (path: string) => void;
-  playTransitionSound: () => void;
+  playTransition: () => void;
+  setMoodForPath: (mood: string) => void;
+  setMood: (mood: string) => void;
 }
 
-const AmbientAudioContext = createContext<AmbientAudioContextType | null>(null);
+const defaultContext: AmbientAudioContextType = {
+  isPlaying: false,
+  volume: 0.5,
+  currentMood: 'default',
+  play: () => {},
+  pause: () => {},
+  setVolume: () => {},
+  playTransition: () => {},
+  setMoodForPath: () => {},
+  setMood: () => {},
+};
 
-// ============================================
-// PROVIDER COMPONENT
-// ============================================
+const AmbientAudioContext = createContext<AmbientAudioContextType>(defaultContext);
 
 interface AmbientAudioProviderProps {
   children: ReactNode;
-  autoPlay?: boolean;
   autoChangeMood?: boolean;
   defaultVolume?: number;
 }
 
 export function AmbientAudioProvider({
   children,
-  autoPlay = false,
-  autoChangeMood = true,
-  defaultVolume = 0.7
+  autoChangeMood = false,
+  defaultVolume = 0.5
 }: AmbientAudioProviderProps) {
-  const pathname = usePathname();
-
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentMood, setCurrentMood] = useState<AmbientMood>('entrance');
   const [volume, setVolumeState] = useState(defaultVolume);
-  const [isEnabled, setIsEnabled] = useState(true);
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentMood, setCurrentMood] = useState('default');
 
-  // Initialize audio engine
-  useEffect(() => {
-    const audio = getAmbientAudio();
-
-    // Load saved preferences
-    if (typeof window !== 'undefined') {
-      const savedVolume = localStorage.getItem('se-audio-volume');
-      const savedEnabled = localStorage.getItem('se-audio-enabled');
-
-      if (savedVolume) {
-        const vol = parseFloat(savedVolume);
-        setVolumeState(vol);
-        audio.setVolume(vol);
-      }
-
-      if (savedEnabled !== null) {
-        setIsEnabled(savedEnabled === 'true');
-      }
-    }
-
-    return () => {
-      // Don't dispose - keep audio running across page navigations
-    };
-  }, []);
-
-  // Handle user interaction (required for audio autoplay policies)
-  useEffect(() => {
-    const handleInteraction = () => {
-      setHasUserInteracted(true);
-      // Remove listeners after first interaction
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('keydown', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
-
-    document.addEventListener('click', handleInteraction);
-    document.addEventListener('keydown', handleInteraction);
-    document.addEventListener('touchstart', handleInteraction);
-
-    return () => {
-      document.removeEventListener('click', handleInteraction);
-      document.removeEventListener('keydown', handleInteraction);
-      document.removeEventListener('touchstart', handleInteraction);
-    };
-  }, []);
-
-  // Auto-change mood based on pathname
-  useEffect(() => {
-    if (!autoChangeMood || !isPlaying) return;
-
-    const audio = getAmbientAudio();
-    audio.setMoodForPath(pathname);
-
-    // Update local state
-    const state = audio.getState();
-    setCurrentMood(state.currentMood);
-  }, [pathname, autoChangeMood, isPlaying]);
-
-  // Actions
-  const start = useCallback(async (mood?: AmbientMood) => {
-    if (!isEnabled) return;
-
-    const audio = getAmbientAudio();
-    await audio.start(mood || currentMood);
+  const play = useCallback(() => {
+    console.log('[AmbientAudio] Play');
     setIsPlaying(true);
+  }, []);
 
-    const state = audio.getState();
-    setCurrentMood(state.currentMood);
-  }, [isEnabled, currentMood]);
-
-  const stop = useCallback(() => {
-    const audio = getAmbientAudio();
-    audio.stop();
+  const pause = useCallback(() => {
+    console.log('[AmbientAudio] Pause');
     setIsPlaying(false);
   }, []);
 
-  const toggle = useCallback(() => {
-    if (isPlaying) {
-      stop();
-    } else {
-      start();
-    }
-  }, [isPlaying, start, stop]);
-
-  const setVolume = useCallback((vol: number) => {
-    const clampedVol = Math.max(0, Math.min(1, vol));
-    setVolumeState(clampedVol);
-
-    const audio = getAmbientAudio();
-    audio.setVolume(clampedVol);
-
-    // Save preference
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('se-audio-volume', clampedVol.toString());
-    }
+  const setVolume = useCallback((v: number) => {
+    console.log('[AmbientAudio] Set volume:', v);
+    setVolumeState(v);
   }, []);
 
-  const setEnabled = useCallback((enabled: boolean) => {
-    setIsEnabled(enabled);
+  const playTransition = useCallback(() => {
+    console.log('[AmbientAudio] Play transition');
+  }, []);
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('se-audio-enabled', enabled.toString());
+  const setMoodForPath = useCallback((mood: string) => {
+    console.log('[AmbientAudio] Set mood for path:', mood);
+    if (autoChangeMood) {
+      setCurrentMood(mood);
     }
+  }, [autoChangeMood]);
 
-    if (!enabled && isPlaying) {
-      stop();
-    }
-  }, [isPlaying, stop]);
-
-  const changeMood = useCallback((mood: AmbientMood) => {
-    const audio = getAmbientAudio();
-    audio.changeMood(mood);
+  const setMood = useCallback((mood: string) => {
+    console.log('[AmbientAudio] Set mood:', mood);
     setCurrentMood(mood);
   }, []);
 
-  const setMoodForPath = useCallback((path: string) => {
-    const audio = getAmbientAudio();
-    audio.setMoodForPath(path);
-    const state = audio.getState();
-    setCurrentMood(state.currentMood);
-  }, []);
-
-  const playTransitionSound = useCallback(() => {
-    if (!isPlaying || !isEnabled) return;
-
-    const audio = getAmbientAudio();
-    audio.playTransitionSound();
-  }, [isPlaying, isEnabled]);
+  const value: AmbientAudioContextType = {
+    isPlaying,
+    volume,
+    currentMood,
+    play,
+    pause,
+    setVolume,
+    playTransition,
+    setMoodForPath,
+    setMood,
+  };
 
   return (
-    <AmbientAudioContext.Provider
-      value={{
-        isPlaying,
-        currentMood,
-        volume,
-        isEnabled,
-        start,
-        stop,
-        toggle,
-        setVolume,
-        setEnabled,
-        changeMood,
-        setMoodForPath,
-        playTransitionSound
-      }}
-    >
+    <AmbientAudioContext.Provider value={value}>
       {children}
     </AmbientAudioContext.Provider>
   );
 }
 
-// ============================================
-// HOOK
-// ============================================
-
 export function useAmbientAudio() {
-  const context = useContext(AmbientAudioContext);
-
-  if (!context) {
-    // Return no-op functions if outside provider
-    return {
-      isPlaying: false,
-      currentMood: 'entrance' as AmbientMood,
-      volume: 0.7,
-      isEnabled: false,
-      start: async () => {},
-      stop: () => {},
-      toggle: () => {},
-      setVolume: () => {},
-      setEnabled: () => {},
-      changeMood: () => {},
-      setMoodForPath: () => {},
-      playTransitionSound: () => {}
-    };
-  }
-
-  return context;
+  return useContext(AmbientAudioContext);
 }
 
-export default AmbientAudioProvider;
+export default useAmbientAudio;
