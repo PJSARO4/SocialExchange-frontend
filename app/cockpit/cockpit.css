@@ -15,6 +15,35 @@ body {
 }
 
 /* ======================================================
+   LOADING STATE
+====================================================== */
+.cockpit-loading {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #02040a;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(63, 255, 220, 0.15);
+  border-top-color: #3fffdc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ======================================================
    ROOT LAYOUT
 ====================================================== */
 .cockpit-root {
@@ -1363,7 +1392,33 @@ body {
   height: 44px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 24px;
   padding: 0 16px;
   border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Copilot Tab Special Styling */
+.copilot-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px !important;
+  background: rgba(63, 255, 220, 0.05);
+  border: 1px solid rgba(63, 255, 220, 0.2);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.copilot-tab:hover {
+  background: rgba(63, 255, 220, 0.1);
+  border-color: rgba(63, 255, 220, 0.4);
+  box-shadow: 0 0 12px rgba(63, 255, 220, 0.2);
+}
+
+.copilot-tab.active {
+  background: rgba(63, 255, 220, 0.15);
+  border-color: rgba(63, 255, 220, 0.5);
+  color: #3fffdc !important;
+  box-shadow: 0 0 16px rgba(63, 255, 220, 0.3);
 }

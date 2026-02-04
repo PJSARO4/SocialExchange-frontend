@@ -1,4 +1,23 @@
 import "./globals.css";
+import "./mobile.css";
+import Providers from "./providers";
+
+export const metadata = {
+  title: 'Social Exchange',
+  description: 'Your Social Media Command Center',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  themeColor: '#02040a',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Social Exchange',
+  },
+};
 
 export default function RootLayout({
   children,
@@ -7,7 +26,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="breathing">{children}</body>
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="format-detection" content="telephone=no" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+      </head>
+      <body className="breathing">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

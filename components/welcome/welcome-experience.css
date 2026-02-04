@@ -1,0 +1,641 @@
+/* ======================================================
+   WELCOME EXPERIENCE - Cinematic Entry
+====================================================== */
+
+.welcome-experience {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #02040a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  opacity: 1;
+  transition: opacity 0.6s ease-out;
+}
+
+.welcome-experience.exiting {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ======================================================
+   CANVAS BACKGROUND
+====================================================== */
+
+.welcome-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ======================================================
+   SCAN LINES OVERLAY
+====================================================== */
+
+.welcome-scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  opacity: 0.5;
+}
+
+/* ======================================================
+   GRID PATTERN
+====================================================== */
+
+.welcome-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(63, 255, 220, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 255, 220, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.4;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+}
+
+/* ======================================================
+   MAIN CONTENT
+====================================================== */
+
+.welcome-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  padding: 40px;
+  padding-top: 60px;
+  padding-bottom: 100px;
+  max-width: 900px;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Mobile adjustments for welcome */
+@media (max-width: 768px) {
+  .welcome-content {
+    padding: 24px 16px;
+    padding-top: 40px;
+    padding-bottom: 120px;
+  }
+}
+
+/* ======================================================
+   LOGO SECTION
+====================================================== */
+
+.welcome-logo-section {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.welcome-logo-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 100px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(63, 255, 220, 0.15), transparent 70%);
+  filter: blur(30px);
+  animation: logo-glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes logo-glow-pulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.welcome-logo {
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 0 30px rgba(63, 255, 220, 0.4);
+  animation: logo-fade-in 1.5s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes logo-fade-in {
+  0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.logo-dot {
+  color: #3fffdc;
+  margin: 0 8px;
+}
+
+.welcome-tagline {
+  margin-top: 12px;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.5);
+  animation: tagline-fade-in 1.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes tagline-fade-in {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 0.5; transform: translateY(0); }
+}
+
+/* ======================================================
+   GREETING
+====================================================== */
+
+.welcome-greeting {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 20px;
+  animation: greeting-slide-in 1s ease-out 0.5s forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes greeting-slide-in {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.greeting-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+}
+
+.greeting-name {
+  color: #3fffdc;
+  font-weight: 500;
+  text-shadow: 0 0 20px rgba(63, 255, 220, 0.4);
+}
+
+/* ======================================================
+   TYPEWRITER QUOTE
+====================================================== */
+
+.welcome-quote {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 40px 0;
+  min-height: 24px;
+  letter-spacing: 0.05em;
+}
+
+.quote-cursor {
+  color: #3fffdc;
+  animation: cursor-blink 0.8s steps(1) infinite;
+  margin-left: 2px;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ======================================================
+   SYSTEM STATS
+====================================================== */
+
+.welcome-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 40px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease-out;
+}
+
+.welcome-stats.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(63, 255, 220, 0.15);
+  border-radius: 8px;
+  animation: stat-slide-up 0.5s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.welcome-stats.visible .stat-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stat-icon {
+  font-size: 24px;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.stat-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* ======================================================
+   QUICK DESTINATIONS
+====================================================== */
+
+.welcome-destinations {
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: 40px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease-out 0.2s;
+}
+
+.welcome-destinations.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.destinations-label {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 16px;
+}
+
+.destinations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .destinations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.destination-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  color: inherit;
+  font-family: inherit;
+  animation: dest-slide-in 0.4s ease-out forwards;
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.welcome-destinations.visible .destination-card {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.destination-card:hover,
+.destination-card.active {
+  background: rgba(63, 255, 220, 0.08);
+  border-color: rgba(63, 255, 220, 0.3);
+  transform: translateX(4px);
+}
+
+.dest-icon {
+  font-size: 28px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.destination-card:hover .dest-icon,
+.destination-card.active .dest-icon {
+  background: rgba(63, 255, 220, 0.15);
+  box-shadow: 0 0 20px rgba(63, 255, 220, 0.2);
+}
+
+.dest-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dest-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.dest-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dest-arrow {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.destination-card:hover .dest-arrow,
+.destination-card.active .dest-arrow {
+  color: #3fffdc;
+  transform: translateX(4px);
+}
+
+/* ======================================================
+   ENTER BUTTON
+====================================================== */
+
+.welcome-enter-btn {
+  position: relative;
+  padding: 16px 48px;
+  background: transparent;
+  border: 1px solid rgba(63, 255, 220, 0.4);
+  border-radius: 6px;
+  color: #3fffdc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  letter-spacing: 0.25em;
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s ease;
+}
+
+.welcome-enter-btn.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.welcome-enter-btn:hover {
+  background: rgba(63, 255, 220, 0.1);
+  border-color: rgba(63, 255, 220, 0.6);
+  box-shadow: 0 0 30px rgba(63, 255, 220, 0.2);
+}
+
+.btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(63, 255, 220, 0.3), transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+
+.welcome-enter-btn:hover .btn-glow {
+  transform: translate(-50%, -50%) scale(2);
+}
+
+/* ======================================================
+   BOTTOM HUD
+====================================================== */
+
+.welcome-hud-bottom {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  animation: hud-fade-in 1s ease-out 1s forwards;
+  opacity: 0;
+}
+
+@keyframes hud-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #666;
+}
+
+.hud-dot.online {
+  background: #3fffdc;
+  box-shadow: 0 0 10px rgba(63, 255, 220, 0.5);
+  animation: dot-pulse 2s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.hud-label {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ======================================================
+   SIDE ACCENTS
+====================================================== */
+
+.welcome-side-accent {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.3;
+  animation: accent-fade-in 2s ease-out 0.5s forwards;
+}
+
+@keyframes accent-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 0.3; }
+}
+
+.welcome-side-accent.left {
+  left: 40px;
+}
+
+.welcome-side-accent.right {
+  right: 40px;
+}
+
+.accent-line {
+  width: 1px;
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(63, 255, 220, 0.5),
+    transparent
+  );
+}
+
+.accent-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(63, 255, 220, 0.5);
+  animation: accent-dot-pulse 3s ease-in-out infinite;
+}
+
+@keyframes accent-dot-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 768px) {
+  .welcome-content {
+    padding: 24px;
+  }
+
+  .welcome-logo {
+    letter-spacing: 0.2em;
+  }
+
+  .welcome-stats {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat-card {
+    padding: 12px 16px;
+  }
+
+  .welcome-side-accent {
+    display: none;
+  }
+
+  .welcome-hud-bottom {
+    gap: 20px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-stats {
+    gap: 12px;
+    width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
+  }
+
+  .stat-card {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 130px;
+    max-width: calc(50% - 6px);
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 16px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+  }
+
+  .destinations-grid {
+    gap: 8px;
+    padding: 0 8px;
+  }
+
+  .destination-card {
+    padding: 12px 16px;
+  }
+
+  .welcome-destinations {
+    padding: 0 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* ======================================================
+   PHASE ANIMATIONS
+====================================================== */
+
+.welcome-experience.intro .welcome-content {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.welcome-experience.reveal .welcome-content,
+.welcome-experience.ready .welcome-content {
+  opacity: 1;
+  transform: scale(1);
+  transition: all 0.8s ease-out;
+}
+
+.welcome-experience.exit .welcome-content {
+  opacity: 0;
+  transform: scale(1.05);
+  transition: all 0.5s ease-in;
+}

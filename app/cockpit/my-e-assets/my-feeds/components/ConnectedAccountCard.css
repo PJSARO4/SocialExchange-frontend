@@ -1,0 +1,66 @@
+.feed-card {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: rgba(10, 14, 20, 0.6);
+  cursor: pointer;
+}
+
+.feed-card.selected {
+  border-color: rgba(0, 255, 200, 0.4);
+}
+
+.feed-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-light {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.status-light.armed {
+  color: #00ffc8;
+}
+
+.status-light.idle {
+  color: #ffb347;
+}
+
+.status-light.offline {
+  color: #ff4d4d;
+}
+
+.feed-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-handle {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.feed-platform {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.feed-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.feed-actions button {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  padding: 6px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}

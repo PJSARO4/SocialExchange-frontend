@@ -1,17 +1,27 @@
-import { Pool } from 'pg';
+import { Pool, QueryResult, QueryResultRow } from "pg";
 
 /**
- * Shared PostgreSQL connection pool
- * Used by server utilities and API routes
- *
- * Requires:
- *   DATABASE_URL in environment variables
+ * NOTE:
+ * - This file is server-only by usage (imported only in route handlers)
+ * - No "use server" directive needed
+ * - Do NOT import this from client components
  */
-export const db = new Pool({
-  connectionString: process.env.DATABASE_URL,
 
-  // Recommended defaults for serverless / Next.js
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : undefined,
 });
+
+/**
+ * Stable query helper
+ * This is the ONLY export consumers should use.
+ */
+export async function query<T extends QueryResultRow = any>(
+  text: string,
+  params?: any[]
+): Promise<QueryResult<T>> {
+  return pool.query<T>(text, params);
+}

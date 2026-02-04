@@ -1,0 +1,510 @@
+/* ======================================================
+   ACTIVITY LOGS PANEL - Color-Coded Admin Logs
+====================================================== */
+
+.logs-panel {
+  position: fixed;
+  bottom: 44px;
+  left: 0;
+  right: 0;
+  height: 350px;
+  background: linear-gradient(180deg, #0a1118 0%, #050a0f 100%);
+  border-top: 1px solid rgba(63, 255, 220, 0.2);
+  display: flex;
+  flex-direction: column;
+  z-index: 800;
+  animation: logsPanelSlideUp 0.3s ease-out;
+}
+
+@keyframes logsPanelSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   HEADER
+============================================ */
+
+.logs-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background: rgba(63, 255, 220, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.logs-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.logs-panel-icon {
+  font-size: 1.125rem;
+}
+
+.logs-panel-title h2 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.logs-count {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+}
+
+.logs-panel-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.logs-control-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #6b7280;
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.logs-control-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.logs-control-btn.active {
+  background: rgba(63, 255, 220, 0.15);
+  border-color: rgba(63, 255, 220, 0.4);
+  color: #3fffdc;
+}
+
+.logs-control-btn.paused {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+}
+
+/* ============================================
+   FILTERS
+============================================ */
+
+.logs-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.logs-filter-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.logs-filter-select {
+  padding: 0.375rem 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #d1d5db;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logs-filter-select:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.logs-filter-select:focus {
+  outline: none;
+  border-color: rgba(63, 255, 220, 0.4);
+}
+
+.logs-filter-select option {
+  background: #0a1118;
+  color: #d1d5db;
+}
+
+.logs-search {
+  flex: 1;
+  max-width: 250px;
+  padding: 0.375rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.logs-search::placeholder {
+  color: #4b5563;
+}
+
+.logs-search:focus {
+  outline: none;
+  border-color: rgba(63, 255, 220, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================
+   LOGS LIST
+============================================ */
+
+.logs-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.logs-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.logs-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.logs-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.logs-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Empty State */
+.logs-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #4b5563;
+  gap: 0.5rem;
+}
+
+.logs-empty-icon {
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+.logs-empty p {
+  margin: 0;
+  font-size: 0.8125rem;
+}
+
+/* ============================================
+   LOG ENTRY
+============================================ */
+
+.log-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--log-bg);
+  border: 1px solid var(--log-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  animation: logEntryIn 0.3s ease-out;
+}
+
+@keyframes logEntryIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.log-entry:hover {
+  background: var(--log-bg);
+  border-color: var(--log-text);
+}
+
+.log-entry.expanded {
+  border-color: var(--log-text);
+}
+
+/* Level Indicator */
+.log-level-indicator {
+  width: 4px;
+  height: 100%;
+  min-height: 40px;
+  background: var(--level-color);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.log-level-indicator.pulse {
+  animation: levelPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes levelPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Log Content */
+.log-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.log-category-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--log-text);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.log-action {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #d1d5db;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.5px;
+}
+
+.log-time {
+  font-size: 0.625rem;
+  color: #4b5563;
+  font-family: ui-monospace, monospace;
+  margin-left: auto;
+}
+
+.log-message {
+  font-size: 0.8125rem;
+  color: #e5e7eb;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.log-user {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.375rem;
+  font-size: 0.6875rem;
+  color: #6b7280;
+}
+
+.log-user-icon {
+  font-size: 0.625rem;
+}
+
+/* Expand Icon */
+.log-expand-icon {
+  font-size: 0.625rem;
+  color: #4b5563;
+  transition: transform 0.2s ease;
+}
+
+.log-entry.expanded .log-expand-icon {
+  transform: rotate(0deg);
+}
+
+/* ============================================
+   EXPANDED DETAILS
+============================================ */
+
+.log-details {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  animation: detailsIn 0.2s ease-out;
+}
+
+@keyframes detailsIn {
+  from {
+    opacity: 0;
+    height: 0;
+  }
+  to {
+    opacity: 1;
+    height: auto;
+  }
+}
+
+.log-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.625rem;
+  margin-bottom: 0.75rem;
+}
+
+.log-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.log-detail-label {
+  font-size: 0.5625rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.log-detail-value {
+  font-size: 0.75rem;
+  color: #d1d5db;
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+
+.log-detail-value.level-info { color: #60a5fa; }
+.log-detail-value.level-success { color: #34d399; }
+.log-detail-value.level-warning { color: #fbbf24; }
+.log-detail-value.level-error { color: #f87171; }
+.log-detail-value.level-critical { color: #ef4444; font-weight: 600; }
+
+/* Metadata */
+.log-metadata {
+  margin-top: 0.5rem;
+}
+
+.log-metadata-label {
+  display: block;
+  font-size: 0.5625rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.375rem;
+}
+
+.log-metadata-content {
+  margin: 0;
+  padding: 0.625rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  color: #9ca3af;
+  font-family: ui-monospace, monospace;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ============================================
+   LIVE INDICATOR
+============================================ */
+
+.logs-live-indicator {
+  position: absolute;
+  top: 0.75rem;
+  right: 6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: #34d399;
+  letter-spacing: 1px;
+}
+
+.logs-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  animation: livePulse 1s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+
+@media (max-width: 640px) {
+  .logs-panel {
+    height: 300px;
+  }
+
+  .logs-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .logs-filter-group {
+    width: 100%;
+  }
+
+  .logs-filter-select {
+    flex: 1;
+  }
+
+  .logs-search {
+    max-width: none;
+    width: 100%;
+  }
+
+  .log-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .log-time {
+    margin-left: 0;
+  }
+}

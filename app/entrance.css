@@ -1,0 +1,459 @@
+/* ======================================================
+   ENTRANCE PAGE - Cinematic Landing
+====================================================== */
+
+.entrance-page {
+  position: fixed;
+  inset: 0;
+  background: #02040a;
+  overflow: hidden;
+  transition: opacity 0.6s ease-out;
+}
+
+.entrance-page.exiting {
+  pointer-events: none;
+}
+
+.entrance-page.exiting .entrance-main {
+  opacity: 0;
+  transform: scale(1.1);
+  transition: all 0.5s ease-in;
+}
+
+/* ======================================================
+   CANVAS BACKGROUND
+====================================================== */
+
+.entrance-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ======================================================
+   MAIN CONTENT
+====================================================== */
+
+.entrance-main {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.5s ease-out;
+}
+
+/* ======================================================
+   TITLE
+====================================================== */
+
+.entrance-title {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  margin: 0 0 24px 0;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(63, 255, 220, 0.3);
+  animation: title-fade-in 1.5s ease-out forwards;
+}
+
+@keyframes title-fade-in {
+  0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ======================================================
+   USER GREETING
+====================================================== */
+
+.user-greeting {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 20px;
+  animation: fade-in-up 0.8s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.user-name {
+  color: #3fffdc;
+  font-weight: 500;
+  text-shadow: 0 0 15px rgba(63, 255, 220, 0.4);
+}
+
+/* ======================================================
+   COMMAND BUTTON
+====================================================== */
+
+.command-button {
+  position: relative;
+  padding: 18px 48px;
+  background: transparent;
+  border: 1px solid rgba(63, 255, 220, 0.4);
+  border-radius: 6px;
+  color: #3fffdc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  animation: button-fade-in 0.8s ease-out 0.5s forwards;
+  opacity: 0;
+}
+
+@keyframes button-fade-in {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.command-button:hover:not(:disabled) {
+  background: rgba(63, 255, 220, 0.1);
+  border-color: rgba(63, 255, 220, 0.7);
+  box-shadow:
+    0 0 30px rgba(63, 255, 220, 0.25),
+    inset 0 0 20px rgba(63, 255, 220, 0.05);
+  transform: scale(1.02);
+}
+
+.command-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.command-button .btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+.command-button .btn-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(63, 255, 220, 0.3), transparent 70%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+
+.command-button:hover .btn-glow {
+  transform: translate(-50%, -50%) scale(2);
+}
+
+/* ======================================================
+   AUTH LINKS
+====================================================== */
+
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  animation: fade-in-up 0.8s ease-out 0.7s forwards;
+  opacity: 0;
+}
+
+.auth-link {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.auth-link:hover {
+  color: #3fffdc;
+}
+
+.auth-separator {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ======================================================
+   TYPEWRITER
+====================================================== */
+
+.typewriter {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 32px 0 0 0;
+  min-height: 20px;
+  letter-spacing: 0.05em;
+}
+
+.typewriter .cursor {
+  color: #3fffdc;
+  animation: cursor-blink 0.8s steps(1) infinite;
+  margin-left: 2px;
+}
+
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ======================================================
+   SYSTEM STATUS
+====================================================== */
+
+.system-online {
+  position: absolute;
+  bottom: 80px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.3);
+  animation: fade-in 1s ease-out 1s forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 0.3; }
+}
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
+.entrance-footer {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  animation: fade-in 1s ease-out 1.2s forwards;
+  opacity: 0;
+}
+
+.footer-line {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(63, 255, 220, 0.3),
+    transparent
+  );
+}
+
+.footer-text {
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ======================================================
+   EXIT TRANSITION OVERLAY
+====================================================== */
+
+.entrance-exit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.entrance-exit-overlay.active {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, rgba(2, 4, 10, 0.9), #02040a);
+}
+
+/* Warp lines */
+.exit-warp-lines {
+  position: absolute;
+  inset: 0;
+  perspective: 500px;
+  overflow: hidden;
+}
+
+.entrance-exit-overlay .warp-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(63, 255, 220, 0.9),
+    transparent
+  );
+  transform-origin: center;
+  opacity: 0;
+}
+
+.entrance-exit-overlay.active .warp-line {
+  animation: warp-enter 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--index) * 25ms);
+}
+
+@keyframes warp-enter {
+  0% {
+    height: 0;
+    opacity: 0;
+    transform: translateX(-50%) translateY(-50%) rotate(calc(var(--index) * 18deg));
+  }
+  30% {
+    height: 50vh;
+    opacity: 1;
+  }
+  100% {
+    height: 200vh;
+    opacity: 0.6;
+    transform: translateX(-50%) translateY(-50%) rotate(calc(var(--index) * 18deg)) scale(0.3);
+  }
+}
+
+/* Center glow */
+.exit-center-glow {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(63, 255, 220, 0.6),
+    transparent 70%
+  );
+  filter: blur(30px);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.4s ease-out;
+}
+
+.entrance-exit-overlay.active .exit-center-glow {
+  opacity: 1;
+  transform: scale(5);
+}
+
+/* Exit text */
+.exit-text {
+  position: relative;
+  z-index: 10;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 14px;
+  letter-spacing: 0.3em;
+  color: #3fffdc;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease-out 0.2s;
+  text-shadow: 0 0 20px rgba(63, 255, 220, 0.5);
+}
+
+.entrance-exit-overlay.active .exit-text {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 600px) {
+  .entrance-title {
+    letter-spacing: 0.2em;
+  }
+
+  .command-button {
+    padding: 14px 32px;
+    font-size: 12px;
+  }
+
+  .entrance-footer {
+    gap: 12px;
+  }
+
+  .footer-line {
+    width: 40px;
+  }
+
+  .footer-text {
+    font-size: 9px;
+  }
+}
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+/* ======================================================
+   AUDIO HINT
+====================================================== */
+
+.audio-hint {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(10, 15, 25, 0.9);
+  border: 1px solid rgba(63, 255, 220, 0.2);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: audio-hint-pulse 3s ease-in-out infinite;
+  backdrop-filter: blur(8px);
+}
+
+@keyframes audio-hint-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.audio-hint:hover {
+  border-color: rgba(63, 255, 220, 0.5);
+  background: rgba(63, 255, 220, 0.1);
+  animation: none;
+  opacity: 1;
+}
+
+.audio-hint-icon {
+  font-size: 16px;
+}
+
+.audio-hint-text {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .entrance-title,
+  .user-greeting,
+  .command-button,
+  .auth-links,
+  .system-online,
+  .entrance-footer,
+  .audio-hint {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  .entrance-exit-overlay.active .warp-line {
+    animation: none !important;
+  }
+}

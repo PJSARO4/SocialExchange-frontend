@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/app/lib/db";
+import { query } from "@/app/lib/db";
 import { logEvent } from "@/app/lib/logEvent";
 import { LogCategory, LogLevel } from "@/app/types/SystemLog";
 
@@ -15,7 +15,7 @@ const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
  */
 export async function GET() {
   try {
-    const { rows } = await db.query(
+    const { rows } = await query(
       `
       SELECT
         id,

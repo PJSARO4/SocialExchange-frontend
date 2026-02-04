@@ -1,0 +1,298 @@
+// ===========================================
+// Social Exchange - Extended Schema for Scalability
+// ===========================================
+//
+// This file contains the new models needed for:
+// - Scheduled Posts (with job queue integration)
+// - Automation Rules (with execution tracking)
+// - Rate Limiting (per user and global)
+//
+// MERGE THESE INTO schema.prisma MANUALLY:
+// Copy everything below into your existing schema.prisma file
+// ===========================================
+
+// Existing models should be in your schema.prisma:
+// - User
+// - Account
+// - Session
+// - Feed (instagram account connection)
+// - Post (instagram posts)
+
+// ===========================================
+// SCHEDULED POSTS
+// ===========================================
+
+model ScheduledPost {
+  id              String           @id @default(cuid())
+  feedId          String           @map("feed_id")
+
+  // Content
+  caption         String           @db.Text
+  mediaUrls       String[]         @map("media_urls")
+  mediaType       MediaType        @default(IMAGE) @map("media_type")
+
+  // Scheduling
+  scheduledFor    DateTime         @map("scheduled_for")
+  timezone        String           @default("UTC")
+
+  // Status tracking
+  status          PostStatus       @default(PENDING)
+  publishedAt     DateTime?        @map("published_at")
+  instagramPostId String?          @map("instagram_post_id")
+
+  // Job queue tracking
+  jobId           String?          @map("job_id")
+  attempts        Int              @default(0)
+  lastError       String?          @map("last_error") @db.Text
+
+  // Timestamps
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  @@index([feedId, status])
+  @@index([scheduledFor, status])
+  @@index([jobId])
+  @@map("scheduled_posts")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+  REELS
+}
+
+enum PostStatus {
+  PENDING
+  QUEUED
+  PROCESSING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+// ===========================================
+// AUTOMATION RULES
+// ===========================================
+
+model AutomationRule {
+  id              String              @id @default(cuid())
+  feedId          String              @map("feed_id")
+
+  // Rule definition
+  name            String
+  type            AutomationType
+  enabled         Boolean             @default(false)
+
+  // Rule settings (JSON for flexibility)
+  settings        Json                @default("{}")
+
+  // Execution schedule
+  runInterval     Int?                @map("run_interval") // minutes between runs
+  lastRunAt       DateTime?           @map("last_run_at")
+  nextRunAt       DateTime?           @map("next_run_at")
+
+  // Stats tracking
+  actionsToday    Int                 @default(0) @map("actions_today")
+  actionsTotal    Int                 @default(0) @map("actions_total")
+  statsResetAt    DateTime            @default(now()) @map("stats_reset_at")
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  // Relations
+  actions         AutomationAction[]
+
+  @@index([feedId, enabled])
+  @@index([nextRunAt, enabled])
+  @@map("automation_rules")
+}
+
+enum AutomationType {
+  ENGAGEMENT      // Auto-like, auto-comment
+  FOLLOW          // Auto-follow based on criteria
+  DM              // Automated DMs
+  COMMENT         // Auto-comment templates
+}
+
+// ===========================================
+// AUTOMATION ACTIONS (Execution Log)
+// ===========================================
+
+model AutomationAction {
+  id              String              @id @default(cuid())
+  ruleId          String              @map("rule_id")
+  feedId          String              @map("feed_id")
+
+  // Action details
+  actionType      ActionType          @map("action_type")
+  targetType      TargetType          @map("target_type")
+  targetId        String?             @map("target_id")
+  targetUsername  String?             @map("target_username")
+
+  // For comments/DMs
+  content         String?             @db.Text
+
+  // Status tracking
+  status          ActionStatus        @default(PENDING)
+  executedAt      DateTime?           @map("executed_at")
+  errorMessage    String?             @map("error_message") @db.Text
+
+  // Job queue tracking
+  jobId           String?             @map("job_id")
+  attempts        Int                 @default(0)
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  // Relations
+  rule            AutomationRule      @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleId])
+  @@index([feedId, actionType])
+  @@index([status, createdAt])
+  @@index([jobId])
+  @@map("automation_actions")
+}
+
+enum ActionType {
+  LIKE
+  COMMENT
+  FOLLOW
+  UNFOLLOW
+  DM
+}
+
+enum TargetType {
+  POST
+  USER
+  STORY
+}
+
+enum ActionStatus {
+  PENDING
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+  RATE_LIMITED
+}
+
+// ===========================================
+// RATE LIMITING
+// ===========================================
+
+model RateLimit {
+  id              String              @id @default(cuid())
+  feedId          String              @map("feed_id")
+
+  // Action type being limited
+  actionType      ActionType          @map("action_type")
+
+  // Limits
+  dailyLimit      Int                 @default(100) @map("daily_limit")
+  hourlyLimit     Int                 @default(30) @map("hourly_limit")
+
+  // Current counts
+  dailyCount      Int                 @default(0) @map("daily_count")
+  hourlyCount     Int                 @default(0) @map("hourly_count")
+
+  // Reset timestamps
+  dailyResetAt    DateTime            @map("daily_reset_at")
+  hourlyResetAt   DateTime            @map("hourly_reset_at")
+
+  // Temporary blocks
+  blockedUntil    DateTime?           @map("blocked_until")
+  blockReason     String?             @map("block_reason")
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  @@unique([feedId, actionType])
+  @@index([feedId])
+  @@map("rate_limits")
+}
+
+// ===========================================
+// JOB QUEUE TRACKING
+// ===========================================
+
+model JobQueue {
+  id              String              @id @default(cuid())
+
+  // Job identification
+  queueName       String              @map("queue_name")
+  jobType         JobType             @map("job_type")
+
+  // Related entity
+  entityType      String              @map("entity_type") // 'scheduled_post' | 'automation_action'
+  entityId        String              @map("entity_id")
+  feedId          String              @map("feed_id")
+
+  // Job data (serialized)
+  payload         Json                @default("{}")
+
+  // Scheduling
+  scheduledFor    DateTime?           @map("scheduled_for")
+  priority        Int                 @default(0)
+
+  // Status
+  status          JobStatus           @default(PENDING)
+  processedAt     DateTime?           @map("processed_at")
+  completedAt     DateTime?           @map("completed_at")
+
+  // Retry handling
+  attempts        Int                 @default(0)
+  maxAttempts     Int                 @default(3) @map("max_attempts")
+  lastError       String?             @map("last_error") @db.Text
+
+  // Worker tracking
+  workerId        String?             @map("worker_id")
+  lockedAt        DateTime?           @map("locked_at")
+  lockExpiry      DateTime?           @map("lock_expiry")
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  @@index([queueName, status, scheduledFor])
+  @@index([feedId])
+  @@index([status, lockedAt])
+  @@map("job_queue")
+}
+
+enum JobType {
+  PUBLISH_POST
+  AUTO_LIKE
+  AUTO_COMMENT
+  AUTO_FOLLOW
+  AUTO_DM
+  FETCH_ANALYTICS
+}
+
+enum JobStatus {
+  PENDING
+  LOCKED
+  PROCESSING
+  COMPLETED
+  FAILED
+  DEAD_LETTER
+}
+
+// ===========================================
+// GLOBAL SETTINGS & LIMITS
+// ===========================================
+
+model SystemConfig {
+  id              String              @id @default(cuid())
+  key             String              @unique
+  value           Json
+  description     String?
+
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  @@map("system_config")
+}

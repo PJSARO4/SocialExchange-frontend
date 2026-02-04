@@ -1,0 +1,238 @@
+/* ======================================================
+   COMMAND CENTER — BASE
+====================================================== */
+
+.command-center {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.command-center-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.command-center-title {
+  font-size: 2.25rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.command-center-subtitle {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+.command-center-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.command-center-panels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* ======================================================
+   PANELS
+====================================================== */
+
+.command-center .panel {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.panel-title {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.panel-action-button {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #3fffdc;
+  cursor: pointer;
+}
+
+/* ======================================================
+   MANAGEMENT HUB
+====================================================== */
+
+.panel-management-hub {
+  grid-column: 1 / -1;
+}
+
+.management-hub-post {
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.management-hub-post:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(63, 255, 220, 0.2);
+}
+
+.management-hub-post-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.platform-feed-name {
+  font-weight: 600;
+}
+
+.management-hub-post-status {
+  font-size: 0.625rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.status-scheduled {
+  color: #3b82f6;
+}
+
+.status-draft {
+  color: #9ca3af;
+}
+
+.status-automated {
+  color: #10b981;
+}
+
+.management-hub-post-caption {
+  font-size: 0.8125rem;
+  color: #d1d5db;
+  margin-top: 0.5rem;
+}
+
+/* ======================================================
+   EMPTY STATE
+====================================================== */
+
+.management-hub-empty {
+  padding: 3rem;
+  text-align: center;
+  color: #6b7280;
+}
+/* ===============================
+   MANAGEMENT HUB PANEL
+=============================== */
+
+.panel-management-hub {
+  grid-column: 1 / -1;
+}
+
+.management-hub-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.management-hub-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+
+.management-hub-empty-text {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+
+.management-hub-post {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.management-hub-post:hover {
+  border-color: rgba(63, 255, 220, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.management-hub-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.management-hub-post-platform {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.platform-feed-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.management-hub-post-status {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.status-scheduled {
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.status-draft {
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+.status-automated {
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.management-hub-post-schedule {
+  margin: 0.4rem 0;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-family: monospace;
+}
+
+.management-hub-post-caption {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 0.6rem;
+  font-size: 0.8rem;
+  color: #d1d5db;
+}

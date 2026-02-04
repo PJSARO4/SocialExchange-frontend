@@ -1,238 +1,796 @@
 /* ======================================================
-   COMMAND CENTER — BASE
+   COMMAND CENTER V2 — COMPREHENSIVE DASHBOARD
 ====================================================== */
 
-.command-center {
-  max-width: 1400px;
-  margin: 0 auto;
+.command-center-v2 {
+  min-height: 100vh;
+  padding: 0;
+  background: linear-gradient(135deg, #020409 0%, #0a1118 50%, #020409 100%);
 }
 
-.command-center-header {
-  margin-bottom: 2.5rem;
-  padding-bottom: 1rem;
+/* ============================================
+   LOADING STATE
+============================================ */
+
+.cc-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.cc-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #3fffdc;
+  border-radius: 50%;
+  animation: ccSpin 0.8s linear infinite;
+}
+
+@keyframes ccSpin {
+  to { transform: rotate(360deg); }
+}
+
+.cc-loading span {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   TOP BAR
+============================================ */
+
+.cc-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(0, 0, 0, 0.4);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.command-center-title {
-  font-size: 2.25rem;
+.cc-topbar-left,
+.cc-topbar-right {
+  flex: 1;
+}
+
+.cc-topbar-center {
+  flex: 1;
+  text-align: center;
+}
+
+.cc-topbar-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cc-time {
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-time-value {
+  font-size: 1.25rem;
   font-weight: 600;
-  letter-spacing: 1px;
+  color: #fff;
+  font-family: ui-monospace, monospace;
+}
+
+.cc-time-date {
+  font-size: 0.6875rem;
+  color: #6b7280;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.command-center-subtitle {
+.cc-system-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  color: #10b981;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.cc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: statusPulse 2s ease-in-out infinite;
+}
+
+.cc-status-dot.online {
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.cc-user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cc-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.cc-user-name {
   font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.cc-user-role {
+  font-size: 0.625rem;
+  color: #3fffdc;
+  letter-spacing: 1px;
+}
+
+.cc-logout-btn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 4px;
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cc-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+}
+
+/* ============================================
+   WELCOME SECTION
+============================================ */
+
+.cc-welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cc-welcome-greeting {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.5rem;
+}
+
+.cc-welcome-summary {
+  font-size: 0.9375rem;
   color: #9ca3af;
-  margin-top: 0.25rem;
+  margin: 0;
 }
 
-.command-center-grid {
+.cc-welcome-summary strong {
+  color: #3fffdc;
+}
+
+.cc-quick-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.cc-quick-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #d1d5db;
+  text-decoration: none;
+  font-size: 0.8125rem;
+  transition: all 0.2s ease;
+}
+
+.cc-quick-action:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(63, 255, 220, 0.3);
+  color: #fff;
+}
+
+.cc-quick-action.owner {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.cc-quick-action.owner:hover {
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.cc-qa-icon {
+  font-size: 1rem;
+}
+
+.cc-qa-label {
+  font-weight: 500;
+}
+
+/* ============================================
+   STATS GRID
+============================================ */
+
+.cc-stats-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.command-center-panels {
+.cc-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  position: relative;
+}
+
+.cc-stat-icon {
+  font-size: 1.5rem;
+  opacity: 0.8;
+}
+
+.cc-stat-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cc-stat-value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.cc-stat-label {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cc-stat-change {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.cc-stat-change.up {
+  color: #10b981;
+}
+
+.cc-stat-change.down {
+  color: #ef4444;
+}
+
+.cc-stat-change.neutral {
+  color: #6b7280;
+}
+
+/* ============================================
+   MAIN GRID
+============================================ */
+
+.cc-main-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 2rem;
 }
 
-/* ======================================================
+/* ============================================
    PANELS
-====================================================== */
+============================================ */
 
-.command-center .panel {
+.cc-panel {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.panel-header {
+.cc-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.panel-title {
+.cc-panel-title {
   font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin: 0;
 }
 
-.panel-action-button {
-  margin-top: 1rem;
-  width: 100%;
-  padding: 0.6rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  color: #3fffdc;
-  cursor: pointer;
-}
-
-/* ======================================================
-   MANAGEMENT HUB
-====================================================== */
-
-.panel-management-hub {
-  grid-column: 1 / -1;
-}
-
-.management-hub-post {
-  padding: 1rem;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.02);
-  margin-bottom: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.management-hub-post:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(63, 255, 220, 0.2);
-}
-
-.management-hub-post-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.platform-feed-name {
-  font-weight: 600;
-}
-
-.management-hub-post-status {
+.cc-panel-badge {
   font-size: 0.625rem;
   padding: 0.25rem 0.5rem;
-  border-radius: 3px;
-  text-transform: uppercase;
-}
-
-.status-scheduled {
-  color: #3b82f6;
-}
-
-.status-draft {
-  color: #9ca3af;
-}
-
-.status-automated {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 4px;
   color: #10b981;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.management-hub-post-caption {
+.cc-panel-action {
+  font-size: 0.75rem;
+  color: #3fffdc;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cc-panel-action:hover {
+  text-decoration: underline;
+}
+
+.cc-panel-link {
+  display: block;
+  margin-top: auto;
+  padding-top: 1rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-decoration: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.cc-panel-link:hover {
+  color: #3fffdc;
+}
+
+/* Activity Panel */
+.cc-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.cc-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  border-left: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.cc-activity-item.post { border-left-color: #3b82f6; }
+.cc-activity-item.transaction { border-left-color: #10b981; }
+.cc-activity-item.follower { border-left-color: #8b5cf6; }
+.cc-activity-item.alert { border-left-color: #f59e0b; }
+.cc-activity-item.system { border-left-color: #6b7280; }
+
+.cc-activity-icon {
+  font-size: 1rem;
+}
+
+.cc-activity-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cc-activity-message {
   font-size: 0.8125rem;
   color: #d1d5db;
-  margin-top: 0.5rem;
 }
 
-/* ======================================================
-   EMPTY STATE
-====================================================== */
-
-.management-hub-empty {
-  padding: 3rem;
-  text-align: center;
+.cc-activity-time {
+  font-size: 0.6875rem;
   color: #6b7280;
 }
-/* ===============================
-   MANAGEMENT HUB PANEL
-=============================== */
 
-.panel-management-hub {
-  grid-column: 1 / -1;
+/* Schedule Panel */
+.cc-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
 }
 
-.management-hub-empty {
-  padding: 3rem 1rem;
-  text-align: center;
-  opacity: 0.6;
-}
-
-.management-hub-empty-icon {
-  font-size: 3rem;
-  margin-bottom: 0.75rem;
-}
-
-.management-hub-empty-text {
-  font-size: 0.85rem;
-  color: #9ca3af;
-}
-
-.management-hub-post {
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  border-radius: 6px;
+.cc-schedule-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  cursor: pointer;
-  transition: all 0.2s ease;
+  border-radius: 6px;
 }
 
-.management-hub-post:hover {
-  border-color: rgba(63, 255, 220, 0.25);
-  background: rgba(255, 255, 255, 0.04);
+.cc-schedule-platform {
+  font-size: 1.25rem;
 }
 
-.management-hub-post-header {
+.cc-schedule-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cc-schedule-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.management-hub-post-platform {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.platform-feed-name {
+.cc-schedule-account {
+  font-size: 0.8125rem;
   font-weight: 600;
-  font-size: 0.85rem;
+  color: #fff;
 }
 
-.management-hub-post-status {
-  font-size: 0.65rem;
+.cc-schedule-status {
+  font-size: 0.5625rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
   text-transform: uppercase;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  letter-spacing: 0.5px;
   font-weight: 600;
 }
 
-.status-scheduled {
+.cc-schedule-status.scheduled {
+  background: rgba(59, 130, 246, 0.2);
   color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-.status-draft {
-  color: #9ca3af;
-  border: 1px solid rgba(156, 163, 175, 0.3);
-}
-
-.status-automated {
+.cc-schedule-status.automated {
+  background: rgba(16, 185, 129, 0.2);
   color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-.management-hub-post-schedule {
-  margin: 0.4rem 0;
+.cc-schedule-status.draft {
+  background: rgba(107, 114, 128, 0.2);
+  color: #9ca3af;
+}
+
+.cc-schedule-time {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  font-family: ui-monospace, monospace;
+}
+
+.cc-schedule-caption {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Market Panel */
+.cc-market-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.cc-market-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+}
+
+.cc-market-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.cc-market-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.cc-market-meta {
+  font-size: 0.6875rem;
+  color: #6b7280;
+}
+
+.cc-market-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.cc-market-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #3fffdc;
+}
+
+.cc-market-change {
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.cc-market-change.up { color: #10b981; }
+.cc-market-change.down { color: #ef4444; }
+
+/* Shares Panel */
+.cc-shares-overview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cc-shares-stat {
+  text-align: center;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+}
+
+.cc-shares-value {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #3fffdc;
+}
+
+.cc-shares-label {
+  font-size: 0.625rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cc-shares-communities {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.cc-shares-community {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.625rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+}
+
+.cc-community-name {
+  font-size: 0.8125rem;
+  color: #d1d5db;
+}
+
+.cc-community-credits {
   font-size: 0.75rem;
   color: #6b7280;
-  font-family: monospace;
+  font-family: ui-monospace, monospace;
 }
 
-.management-hub-post-caption {
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding-top: 0.6rem;
-  font-size: 0.8rem;
-  color: #d1d5db;
+/* ============================================
+   NAVIGATION CARDS
+============================================ */
+
+.cc-nav-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 0 2rem 2rem;
+}
+
+.cc-nav-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.cc-nav-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(63, 255, 220, 0.3);
+  transform: translateY(-2px);
+}
+
+.cc-nav-card.feeds:hover { border-color: rgba(59, 130, 246, 0.5); }
+.cc-nav-card.shares:hover { border-color: rgba(139, 92, 246, 0.5); }
+.cc-nav-card.market:hover { border-color: rgba(16, 185, 129, 0.5); }
+.cc-nav-card.about:hover { border-color: rgba(245, 158, 11, 0.5); }
+
+.cc-nav-card-icon {
+  font-size: 2rem;
+}
+
+.cc-nav-card-content {
+  flex: 1;
+}
+
+.cc-nav-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.25rem;
+}
+
+.cc-nav-card-desc {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.cc-nav-card-arrow {
+  font-size: 1.25rem;
+  color: #4b5563;
+  transition: all 0.2s ease;
+}
+
+.cc-nav-card:hover .cc-nav-card-arrow {
+  color: #3fffdc;
+  transform: translateX(4px);
+}
+
+/* ============================================
+   FOOTER
+============================================ */
+
+.cc-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.cc-footer-brand {
+  font-size: 0.6875rem;
+  color: #4b5563;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.cc-footer-version {
+  font-size: 0.625rem;
+  color: #374151;
+  font-family: ui-monospace, monospace;
+}
+
+.cc-footer-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  color: #10b981;
+}
+
+.cc-status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+
+@media (max-width: 1400px) {
+  .cc-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cc-nav-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .cc-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cc-welcome {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .cc-quick-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .cc-topbar {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .cc-topbar-left,
+  .cc-topbar-center,
+  .cc-topbar-right {
+    flex: none;
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .cc-user-info {
+    align-items: center;
+  }
+
+  .cc-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 1rem;
+  }
+
+  .cc-main-grid {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .cc-nav-cards {
+    grid-template-columns: 1fr;
+    padding: 0 1rem 1rem;
+  }
+
+  .cc-footer {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }

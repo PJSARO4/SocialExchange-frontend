@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { getCurrentUser, isAuthenticated, seedAuthIfEmpty, repairAuthIfNeeded } from "@/app/lib/auth/auth-store";
+import { getAmbientAudio } from "@/lib/audio/AmbientAudioEngine";
+import "./entrance.css";
 
 /* ===============================
    QUOTE BANK
@@ -29,10 +32,71 @@ export default function Entrance() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [typed, setTyped] = useState("");
+  const [user, setUser] = useState<ReturnType<typeof getCurrentUser>>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+  const [exitTarget, setExitTarget] = useState<string | null>(null);
+  const [audioStarted, setAudioStarted] = useState(false);
 
   const quoteRef = useRef(
     QUOTES[Math.floor(Math.random() * QUOTES.length)]
   );
+
+  // Check authentication on mount
+  useEffect(() => {
+    seedAuthIfEmpty();
+    repairAuthIfNeeded(); // Ensure auth data is valid
+    const currentUser = getCurrentUser();
+    setUser(currentUser);
+    setAuthChecked(true);
+  }, []);
+
+  // Start ambient audio on user interaction
+  const startAudio = useCallback(async () => {
+    if (audioStarted) return;
+
+    try {
+      const audio = getAmbientAudio();
+      await audio.start('entrance');
+      setAudioStarted(true);
+    } catch (error) {
+      console.warn('Could not start ambient audio:', error);
+    }
+  }, [audioStarted]);
+
+  // Handle navigation with exit animation
+  const navigateWithTransition = useCallback((path: string) => {
+    // Start audio if not already started (user clicked something)
+    startAudio();
+
+    // Play transition sound
+    try {
+      const audio = getAmbientAudio();
+      audio.playTransitionSound();
+    } catch (e) {
+      // Ignore audio errors
+    }
+
+    setIsExiting(true);
+    setExitTarget(path);
+
+    // Wait for exit animation to complete
+    setTimeout(() => {
+      router.push(path);
+    }, 800);
+  }, [router, startAudio]);
+
+  // Handle enter button click
+  const handleEnter = async () => {
+    // Start audio on click (required by browser autoplay policies)
+    await startAudio();
+
+    if (isAuthenticated()) {
+      navigateWithTransition("/cockpit/dashboard");
+    } else {
+      navigateWithTransition("/auth/login");
+    }
+  };
 
   /* ===============================
      TYPEWRITER
@@ -185,42 +249,81 @@ export default function Entrance() {
      UI
   ================================ */
   return (
-    <>
+    <div className={`entrance-page ${isExiting ? 'exiting' : ''}`}>
       <canvas
         ref={canvasRef}
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
+        className="entrance-canvas"
       />
 
-      <main
-        style={{
-          position: "relative",
-          zIndex: 1,
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-        }}
-      >
-        <h1>SOCIAL • EXCHANGE</h1>
+      {/* Exit transition overlay */}
+      <div className={`entrance-exit-overlay ${isExiting ? 'active' : ''}`}>
+        <div className="exit-warp-lines">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div key={i} className="warp-line" style={{ '--index': i } as React.CSSProperties} />
+          ))}
+        </div>
+        <div className="exit-center-glow" />
+        <div className="exit-text">
+          {exitTarget?.includes('cockpit') ? 'ENTERING COCKPIT' : 'AUTHENTICATING'}
+        </div>
+      </div>
 
-        <button
-          className="command-button"
-          onClick={() => router.push("/cockpit/dashboard")}
-        >
-          ENTER MISSION CONTROL
-        </button>
+      <main className="entrance-main">
+        <h1 className="entrance-title">SOCIAL • EXCHANGE</h1>
 
-        <p className="typewriter">{typed}</p>
+        {user ? (
+          <>
+            <div className="user-greeting">
+              Welcome back, <span className="user-name">{user.displayName}</span>
+            </div>
+            <button
+              className="command-button"
+              onClick={handleEnter}
+              disabled={isExiting}
+            >
+              <span className="btn-text">ENTER MISSION CONTROL</span>
+              <span className="btn-glow" />
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              className="command-button"
+              onClick={handleEnter}
+              disabled={isExiting}
+            >
+              <span className="btn-text">{authChecked ? "AUTHENTICATE" : "INITIALIZING..."}</span>
+              <span className="btn-glow" />
+            </button>
+            <div className="auth-links">
+              <span onClick={() => navigateWithTransition("/auth/login")} className="auth-link">Sign In</span>
+              <span className="auth-separator">•</span>
+              <span onClick={() => navigateWithTransition("/auth/signup")} className="auth-link">Create Account</span>
+            </div>
+          </>
+        )}
 
-        <div className="system-online">SYSTEM STANDBY</div>
+        <p className="typewriter">{typed}<span className="cursor">|</span></p>
+
+        <div className="system-online">
+          {user ? `OPERATOR: ${user.username.toUpperCase()}` : "SYSTEM STANDBY"}
+        </div>
       </main>
-    </>
+
+      {/* Bottom decoration */}
+      <div className="entrance-footer">
+        <div className="footer-line" />
+        <span className="footer-text">DIGITAL ASSET COMMAND CENTER</span>
+        <div className="footer-line" />
+      </div>
+
+      {/* Audio hint - only show if audio not started */}
+      {!audioStarted && (
+        <div className="audio-hint" onClick={startAudio}>
+          <span className="audio-hint-icon">🔊</span>
+          <span className="audio-hint-text">Click for ambient audio</span>
+        </div>
+      )}
+    </div>
   );
 }

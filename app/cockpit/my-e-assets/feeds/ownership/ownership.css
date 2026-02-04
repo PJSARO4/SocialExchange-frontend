@@ -1,0 +1,186 @@
+/* =========================
+   FEED OWNERSHIP PAGE
+========================= */
+
+.ownership-page {
+  height: 100%;
+  padding: 2rem;
+  color: #e6e6e6;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(20, 40, 80, 0.35),
+    rgba(2, 4, 10, 1) 70%
+  );
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.ownership-header {
+  margin-bottom: 2rem;
+}
+
+.ownership-header h1 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.ownership-header p {
+  margin-top: 0.5rem;
+  color: #9aa4b2;
+  font-size: 0.9rem;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.ownership-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* =========================
+   OWNERSHIP CARD
+========================= */
+
+.feed-ownership-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(18, 30, 55, 0.85),
+    rgba(6, 10, 20, 0.9)
+  );
+  border: 1px solid rgba(120, 180, 255, 0.15);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+    0 10px 40px rgba(0, 0, 0, 0.6);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.feed-ownership-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(120, 200, 255, 0.35);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 18px 60px rgba(0, 0, 0, 0.75);
+}
+
+/* =========================
+   CARD HEADER
+========================= */
+
+.feed-ownership-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.feed-platform {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.feed-status {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(0, 255, 140, 0.15);
+  color: #5eead4;
+}
+
+/* =========================
+   FEED HANDLE
+========================= */
+
+.feed-handle {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+  color: #e5e7eb;
+}
+
+/* =========================
+   METRICS
+========================= */
+
+.feed-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem 1rem;
+}
+
+.feed-metric {
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-metric-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.feed-metric-value {
+  margin-top: 0.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e6f0ff;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.feed-ownership-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.feed-ownership-actions button {
+  background: linear-gradient(
+    180deg,
+    rgba(56, 189, 248, 0.9),
+    rgba(14, 165, 233, 0.9)
+  );
+  color: #02040a;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.feed-ownership-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+}
+
+.feed-ownership-actions button:active {
+  transform: translateY(0);
+  opacity: 0.85;
+}

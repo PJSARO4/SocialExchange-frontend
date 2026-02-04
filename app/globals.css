@@ -78,6 +78,87 @@ body:not(.cockpit-mode) .system-standby {
 }
 
 /* =========================================================
+   ENTRANCE PAGE — AUTH ELEMENTS
+   ========================================================= */
+
+/* Command Button (Primary CTA) */
+.command-button {
+  margin-top: 16px;
+  padding: 16px 40px;
+  border: 2px solid #3fffdc;
+  background: transparent;
+  color: #3fffdc;
+  font-size: 12px;
+  font-family: inherit;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.command-button:hover {
+  background: rgba(63, 255, 220, 0.12);
+  box-shadow: 0 0 30px rgba(63, 255, 220, 0.2);
+}
+
+/* User Greeting */
+.user-greeting {
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.user-name {
+  color: #3fffdc;
+  font-weight: 500;
+}
+
+/* Auth Links */
+.auth-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.auth-link {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  opacity: 0.5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-link:hover {
+  opacity: 1;
+  color: #3fffdc;
+}
+
+.auth-separator {
+  opacity: 0.3;
+  font-size: 8px;
+}
+
+/* Typewriter Quote */
+.typewriter {
+  margin-top: 24px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  opacity: 0.6;
+  min-height: 1.5em;
+}
+
+/* System Status */
+.system-online {
+  margin-top: 16px;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  color: #10b981;
+  text-transform: uppercase;
+}
+
+/* =========================================================
    COCKPIT MODE
    ========================================================= */
 

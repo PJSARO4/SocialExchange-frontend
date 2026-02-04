@@ -1,0 +1,408 @@
+/* ======================================================
+   PAGE TRANSITION OVERLAY
+====================================================== */
+
+.page-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ======================================================
+   TRANSITION BACKGROUNDS
+====================================================== */
+
+.transition-bg {
+  position: absolute;
+  inset: 0;
+  transform-origin: center;
+}
+
+.transition-bg.primary {
+  background: #02040a;
+}
+
+.transition-bg.secondary {
+  background: linear-gradient(
+    135deg,
+    rgba(63, 255, 220, 0.1) 0%,
+    rgba(2, 4, 10, 0.95) 50%,
+    rgba(63, 255, 220, 0.05) 100%
+  );
+}
+
+/* ======================================================
+   IDLE STATE (NO TRANSITION)
+====================================================== */
+
+.page-transition-overlay.idle {
+  visibility: hidden;
+}
+
+.page-transition-overlay.idle .transition-bg {
+  opacity: 0;
+}
+
+/* ======================================================
+   FADE TRANSITION
+====================================================== */
+
+.page-transition-overlay.fade .transition-bg.primary {
+  transition: opacity 400ms ease-in-out;
+}
+
+.page-transition-overlay.fade.out .transition-bg.primary {
+  opacity: 1;
+}
+
+.page-transition-overlay.fade.in .transition-bg.primary {
+  opacity: 0;
+}
+
+/* ======================================================
+   SLIDE UP TRANSITION
+====================================================== */
+
+.page-transition-overlay.slide-up .transition-bg.primary {
+  transform: translateY(100%);
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-overlay.slide-up.out .transition-bg.primary {
+  transform: translateY(0);
+}
+
+.page-transition-overlay.slide-up.in .transition-bg.primary {
+  transform: translateY(-100%);
+}
+
+/* ======================================================
+   SLIDE DOWN TRANSITION
+====================================================== */
+
+.page-transition-overlay.slide-down .transition-bg.primary {
+  transform: translateY(-100%);
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-overlay.slide-down.out .transition-bg.primary {
+  transform: translateY(0);
+}
+
+.page-transition-overlay.slide-down.in .transition-bg.primary {
+  transform: translateY(100%);
+}
+
+/* ======================================================
+   SLIDE LEFT TRANSITION
+====================================================== */
+
+.page-transition-overlay.slide-left .transition-bg.primary {
+  transform: translateX(100%);
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-overlay.slide-left.out .transition-bg.primary {
+  transform: translateX(0);
+}
+
+.page-transition-overlay.slide-left.in .transition-bg.primary {
+  transform: translateX(-100%);
+}
+
+/* ======================================================
+   SLIDE RIGHT TRANSITION
+====================================================== */
+
+.page-transition-overlay.slide-right .transition-bg.primary {
+  transform: translateX(-100%);
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-overlay.slide-right.out .transition-bg.primary {
+  transform: translateX(0);
+}
+
+.page-transition-overlay.slide-right.in .transition-bg.primary {
+  transform: translateX(100%);
+}
+
+/* ======================================================
+   ZOOM TRANSITION
+====================================================== */
+
+.page-transition-overlay.zoom .transition-bg.primary {
+  transform: scale(0);
+  border-radius: 50%;
+  transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-transition-overlay.zoom.out .transition-bg.primary {
+  transform: scale(3);
+  border-radius: 0;
+}
+
+.page-transition-overlay.zoom.in .transition-bg.primary {
+  transform: scale(0);
+  border-radius: 50%;
+}
+
+/* ======================================================
+   CINEMATIC TRANSITION (Premium)
+====================================================== */
+
+.page-transition-overlay.cinematic .transition-bg.primary {
+  opacity: 0;
+  transition: opacity 300ms ease-in-out;
+}
+
+.page-transition-overlay.cinematic .transition-bg.secondary {
+  opacity: 0;
+  transition: opacity 300ms ease-in-out 100ms;
+}
+
+.page-transition-overlay.cinematic.out .transition-bg.primary {
+  opacity: 1;
+}
+
+.page-transition-overlay.cinematic.out .transition-bg.secondary {
+  opacity: 1;
+}
+
+.page-transition-overlay.cinematic.in .transition-bg.primary {
+  opacity: 0;
+  transition-delay: 100ms;
+}
+
+.page-transition-overlay.cinematic.in .transition-bg.secondary {
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* ======================================================
+   WARP TRANSITION (Sci-fi)
+====================================================== */
+
+.page-transition-overlay.warp .transition-bg.primary {
+  background: radial-gradient(ellipse at center, #02040a 0%, #000 100%);
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+.page-transition-overlay.warp.out .transition-bg.primary {
+  opacity: 1;
+}
+
+.page-transition-overlay.warp.in .transition-bg.primary {
+  opacity: 0;
+  transition-delay: 300ms;
+}
+
+/* ======================================================
+   CINEMATIC ELEMENTS
+====================================================== */
+
+.transition-cinematic {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.cinematic-lines {
+  position: absolute;
+  inset: 0;
+  perspective: 500px;
+  overflow: hidden;
+}
+
+.warp-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(63, 255, 220, 0.8),
+    transparent
+  );
+  transform-origin: center;
+  opacity: 0;
+}
+
+.page-transition-overlay.warp.out .warp-line {
+  animation: warp-line-out 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--index) * 30ms);
+}
+
+.page-transition-overlay.warp.in .warp-line {
+  animation: warp-line-in 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: calc(var(--index) * 20ms);
+}
+
+@keyframes warp-line-out {
+  0% {
+    height: 0;
+    opacity: 0;
+    transform: translateX(-50%) translateY(-50%) rotate(calc(var(--index) * 18deg));
+  }
+  50% {
+    height: 200vh;
+    opacity: 0.8;
+    transform: translateX(-50%) translateY(-50%) rotate(calc(var(--index) * 18deg));
+  }
+  100% {
+    height: 200vh;
+    opacity: 0.3;
+    transform: translateX(-50%) translateY(-50%) rotate(calc(var(--index) * 18deg)) scale(0.5);
+  }
+}
+
+@keyframes warp-line-in {
+  0% {
+    height: 200vh;
+    opacity: 0.5;
+    transform: translateX(-50%) translateY(-50%) rotate(calc(var(--index) * 18deg)) scale(0.5);
+  }
+  100% {
+    height: 0;
+    opacity: 0;
+    transform: translateX(-50%) translateY(-50%) rotate(calc(var(--index) * 18deg)) scale(1);
+  }
+}
+
+.cinematic-glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(63, 255, 220, 0.4),
+    transparent 70%
+  );
+  filter: blur(40px);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 400ms ease-out;
+}
+
+.page-transition-overlay.warp.out .cinematic-glow,
+.page-transition-overlay.cinematic.out .cinematic-glow {
+  opacity: 1;
+  transform: scale(3);
+}
+
+.page-transition-overlay.warp.in .cinematic-glow,
+.page-transition-overlay.cinematic.in .cinematic-glow {
+  opacity: 0;
+  transform: scale(0);
+  transition-delay: 200ms;
+}
+
+/* ======================================================
+   ANIMATED PAGE WRAPPER
+====================================================== */
+
+.animated-page {
+  opacity: 0;
+  transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition-delay: var(--delay, 0ms);
+}
+
+.animated-page.visible {
+  opacity: 1;
+}
+
+/* Fade animation */
+.animated-page.fade {
+  transform: none;
+}
+
+/* Slide up animation */
+.animated-page.slide-up {
+  transform: translateY(30px);
+}
+
+.animated-page.slide-up.visible {
+  transform: translateY(0);
+}
+
+/* Scale animation */
+.animated-page.scale {
+  transform: scale(0.95);
+}
+
+.animated-page.scale.visible {
+  transform: scale(1);
+}
+
+/* ======================================================
+   STAGGER CHILDREN UTILITY
+====================================================== */
+
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: stagger-item 0.5s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+
+@keyframes stagger-item {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ======================================================
+   GLOBAL PAGE ENTER ANIMATION
+====================================================== */
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.5s ease-out forwards;
+}
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-overlay,
+  .animated-page,
+  .stagger-children > *,
+  .warp-line {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .animated-page {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

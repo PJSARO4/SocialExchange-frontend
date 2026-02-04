@@ -1,0 +1,519 @@
+/* ======================================================
+   AUDIO CONTROL COMPONENT
+====================================================== */
+
+.audio-control {
+  position: fixed;
+  z-index: 9000;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* Positions */
+.audio-control.bottom-left {
+  bottom: 70px;
+  left: 20px;
+}
+
+.audio-control.bottom-right {
+  bottom: 70px;
+  right: 20px;
+}
+
+.audio-control.top-left {
+  top: 70px;
+  left: 20px;
+}
+
+.audio-control.top-right {
+  top: 70px;
+  right: 20px;
+}
+
+/* ======================================================
+   MAIN TOGGLE BUTTON
+====================================================== */
+
+.audio-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(10, 15, 25, 0.9);
+  border: 1px solid rgba(63, 255, 220, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+.audio-toggle:hover {
+  border-color: rgba(63, 255, 220, 0.5);
+  box-shadow: 0 0 20px rgba(63, 255, 220, 0.15);
+}
+
+.audio-toggle.playing {
+  border-color: rgba(63, 255, 220, 0.4);
+  box-shadow: 0 0 15px rgba(63, 255, 220, 0.1);
+}
+
+/* Audio icon container */
+.audio-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+/* Animated sound waves */
+.wave {
+  display: inline-block;
+  width: 3px;
+  background: #3fffdc;
+  border-radius: 2px;
+  animation: wave 1s ease-in-out infinite;
+}
+
+.wave-1 {
+  height: 8px;
+  animation-delay: 0s;
+}
+
+.wave-2 {
+  height: 14px;
+  animation-delay: 0.15s;
+}
+
+.wave-3 {
+  height: 10px;
+  animation-delay: 0.3s;
+}
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+
+/* Muted icon */
+.muted-icon {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 16px;
+}
+
+/* ======================================================
+   EXPAND BUTTON
+====================================================== */
+
+.audio-expand-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(10, 15, 25, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.audio-expand-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.audio-control.expanded .audio-expand-btn {
+  background: rgba(63, 255, 220, 0.1);
+  border-color: rgba(63, 255, 220, 0.3);
+  color: #3fffdc;
+}
+
+/* ======================================================
+   TOOLTIP
+====================================================== */
+
+.audio-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+  padding: 6px 12px;
+  background: rgba(10, 15, 25, 0.95);
+  border: 1px solid rgba(63, 255, 220, 0.2);
+  border-radius: 4px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  animation: tooltip-fade-in 0.2s ease-out;
+}
+
+@keyframes tooltip-fade-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(5px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ======================================================
+   EXPANDED PANEL
+====================================================== */
+
+.audio-panel {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 12px;
+  padding: 16px;
+  background: rgba(10, 15, 25, 0.95);
+  border: 1px solid rgba(63, 255, 220, 0.2);
+  border-radius: 8px;
+  min-width: 280px;
+  backdrop-filter: blur(12px);
+  animation: panel-slide-up 0.3s ease-out;
+}
+
+@keyframes panel-slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.audio-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.panel-title {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mood-indicator {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: #3fffdc;
+  padding: 3px 8px;
+  background: rgba(63, 255, 220, 0.1);
+  border-radius: 3px;
+  border: none;
+}
+
+.mood-indicator.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.mood-indicator.clickable:hover {
+  background: rgba(63, 255, 220, 0.2);
+  border-color: rgba(63, 255, 220, 0.4);
+}
+
+/* ======================================================
+   MOOD SELECTOR
+====================================================== */
+
+.mood-selector {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  animation: mood-fade-in 0.2s ease-out;
+}
+
+@keyframes mood-fade-in {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mood-selector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.mood-selector-header span {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.mood-selector-close {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.mood-selector-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.mood-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.mood-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+}
+
+.mood-grid::-webkit-scrollbar-thumb {
+  background: rgba(63, 255, 220, 0.3);
+  border-radius: 2px;
+}
+
+.mood-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mood-option:hover {
+  background: rgba(63, 255, 220, 0.1);
+  border-color: rgba(63, 255, 220, 0.3);
+}
+
+.mood-option.active {
+  background: rgba(63, 255, 220, 0.15);
+  border-color: rgba(63, 255, 220, 0.5);
+}
+
+.mood-option-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.mood-option-name {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.mood-option.active .mood-option-name {
+  color: #3fffdc;
+}
+
+/* ======================================================
+   SETTINGS
+====================================================== */
+
+.audio-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.setting-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.setting-toggle {
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.setting-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.setting-toggle.active {
+  background: rgba(63, 255, 220, 0.15);
+  border-color: rgba(63, 255, 220, 0.4);
+  color: #3fffdc;
+}
+
+/* Volume control */
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.volume-slider {
+  width: 80px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3fffdc;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #3fffdc;
+  cursor: pointer;
+  border: none;
+}
+
+.volume-slider:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.volume-value {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  min-width: 35px;
+  text-align: right;
+}
+
+/* ======================================================
+   STATUS
+====================================================== */
+
+.audio-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.status-dot.active {
+  background: #3fffdc;
+  box-shadow: 0 0 8px rgba(63, 255, 220, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.status-text {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ======================================================
+   MINIMAL VERSION
+====================================================== */
+
+.audio-control-minimal {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(10, 15, 25, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.audio-control-minimal:hover {
+  border-color: rgba(63, 255, 220, 0.4);
+  background: rgba(63, 255, 220, 0.1);
+}
+
+.audio-control-minimal.playing {
+  border-color: rgba(63, 255, 220, 0.3);
+}
+
+.audio-control-minimal svg {
+  width: 16px;
+  height: 16px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.audio-control-minimal.playing svg {
+  color: #3fffdc;
+}
+
+/* ======================================================
+   RESPONSIVE
+====================================================== */
+
+@media (max-width: 600px) {
+  .audio-control.bottom-left,
+  .audio-control.bottom-right {
+    bottom: 80px;
+  }
+
+  .audio-panel {
+    min-width: 180px;
+    padding: 12px;
+  }
+
+  .volume-slider {
+    width: 60px;
+  }
+}
