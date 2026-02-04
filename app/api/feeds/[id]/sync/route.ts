@@ -9,10 +9,10 @@ import { normalizeFeed } from '@/app/lib/feeds';
  */
 export async function POST(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const feedId = params.id;
+    const { id: feedId } = await params;
 
     // For now, we simulate a sync by touching last_sync.
     // Platform adapters will be invoked here later.

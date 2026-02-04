@@ -4,10 +4,10 @@ import { normalizeFeed } from '@/app/lib/feeds';
 
 export async function POST(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const feedId = params.id;
+    const { id: feedId } = await params;
 
     const result = await query(
       `
