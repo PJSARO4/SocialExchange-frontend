@@ -13,6 +13,9 @@ import { getWalletBalance } from '@/lib/market/wallet-service';
 import { IS_DEMO_MODE, DEMO_DISCLAIMER } from '@/lib/market/constants';
 import type { CreateOrderRequest } from '@/lib/market/types';
 
+// Force dynamic rendering - prevent build-time pre-rendering
+export const dynamic = 'force-dynamic';
+
 const DEMO_USER_ID = 'demo-user-001';
 
 async function getUserId(req: NextRequest): Promise<string | null> {

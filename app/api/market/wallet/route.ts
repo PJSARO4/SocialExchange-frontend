@@ -16,6 +16,9 @@ import {
 } from '@/lib/market/wallet-service';
 import { DEMO_DISCLAIMER, IS_DEMO_MODE } from '@/lib/market/constants';
 
+// Force dynamic rendering - prevent build-time pre-rendering
+export const dynamic = 'force-dynamic';
+
 // Demo user ID for testing without auth
 const DEMO_USER_ID = 'demo-user-001';
 

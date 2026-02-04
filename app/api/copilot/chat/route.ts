@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Force dynamic rendering
+// Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
+
 
 // Using direct fetch to Anthropic API
 

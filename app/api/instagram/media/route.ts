@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Force dynamic rendering
+// Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
+
 
 // Instagram Graph API endpoint to fetch user's media/posts
 export async function GET(request: NextRequest) {

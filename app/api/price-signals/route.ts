@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 
-// Force dynamic rendering
+// Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
+
 
 export async function GET() {
   // Mock live market data (safe, deterministic)

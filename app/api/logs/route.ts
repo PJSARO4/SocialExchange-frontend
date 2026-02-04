@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
 import { query } from "@/app/lib/db";
 import { logEvent } from "@/app/lib/logEvent";
 import { LogCategory, LogLevel } from "@/app/types/SystemLog";
+
+// Force dynamic rendering - prevent build-time pre-rendering
+export const dynamic = 'force-dynamic';
 
 /**
  * TEMP USER HANDLING

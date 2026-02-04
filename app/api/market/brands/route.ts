@@ -8,6 +8,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getActiveBrands, getBrand, getPriceHistory, getRecentTrades } from '@/lib/market/trading-service';
 import { IS_DEMO_MODE } from '@/lib/market/constants';
 
+// Force dynamic rendering - prevent build-time pre-rendering
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/market/brands
  * List all active brands for the trading floor

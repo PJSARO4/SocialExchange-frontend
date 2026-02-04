@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
 import { jobQueue } from '@/lib/queue';
+
+// Force dynamic rendering - prevent build-time pre-rendering
+export const dynamic = 'force-dynamic';
 
 /**
  * Job Queue API

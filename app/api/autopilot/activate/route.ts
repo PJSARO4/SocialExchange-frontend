@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jobQueue } from '@/lib/queue';
 
-// Force dynamic rendering - don't try to pre-render at build time
+// Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
+
 
 /**
  * Autopilot Activation API

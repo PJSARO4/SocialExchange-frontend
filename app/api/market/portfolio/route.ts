@@ -11,6 +11,9 @@ import { getPortfolio } from '@/lib/market/trading-service';
 import { getWalletBalance } from '@/lib/market/wallet-service';
 import { IS_DEMO_MODE } from '@/lib/market/constants';
 
+// Force dynamic rendering - prevent build-time pre-rendering
+export const dynamic = 'force-dynamic';
+
 const DEMO_USER_ID = 'demo-user-001';
 
 async function getUserId(req: NextRequest): Promise<string | null> {

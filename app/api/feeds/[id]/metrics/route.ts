@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import { getAccountInsights, getRecentMedia } from '@/app/lib/social/instagram';
+
+// Force dynamic rendering - prevent build-time pre-rendering
+export const dynamic = 'force-dynamic';
 
 const prisma = new PrismaClient();
 

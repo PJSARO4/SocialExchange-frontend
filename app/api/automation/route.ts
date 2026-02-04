@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { rateLimiter } from '@/lib/rate-limit';
 
-// Force dynamic rendering - don't try to pre-render at build time
+// Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
+
 
 /**
  * Automation Engine API
