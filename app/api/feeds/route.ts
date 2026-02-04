@@ -1,13 +1,10 @@
 import { NextResponse } from 'next/server';
-
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 /**
  * GET /api/feeds
