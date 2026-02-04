@@ -68,4 +68,16 @@ export function getQualityColor(quality: 'excellent' | 'good' | 'fair' | 'poor')
   return colors[quality] || colors.fair;
 }
 
-export default { getFullNetworkAnalysis, measureConnectionQuality, getNetworkInfo, getConnectionIcon, getQualityColor };
+// Get color for threat level
+export function getThreatColor(threatLevel: 'none' | 'low' | 'medium' | 'high' | 'critical'): string {
+  const colors: Record<string, string> = {
+    none: 'text-green-500',
+    low: 'text-blue-500',
+    medium: 'text-yellow-500',
+    high: 'text-orange-500',
+    critical: 'text-red-500',
+  };
+  return colors[threatLevel] || colors.medium;
+}
+
+export default { getFullNetworkAnalysis, measureConnectionQuality, getNetworkInfo, getConnectionIcon, getQualityColor, getThreatColor };

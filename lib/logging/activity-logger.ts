@@ -72,4 +72,29 @@ export function seedDemoLogs(): void {
   });
 }
 
-export default { log, logger, getLogs, clearLogs, seedDemoLogs, LogLevel, LogCategory };
+// Color mapping for log levels
+export const LEVEL_COLORS: Record<LogLevel, string> = {
+  [LogLevel.DEBUG]: 'text-gray-400',
+  [LogLevel.INFO]: 'text-blue-400',
+  [LogLevel.WARN]: 'text-yellow-400',
+  [LogLevel.ERROR]: 'text-red-400',
+};
+
+// Subscribe to log updates (stub - returns unsubscribe function)
+type LogSubscriber = (logs: ActivityLog[]) => void;
+const subscribers: LogSubscriber[] = [];
+
+export function subscribeToLogs(callback: LogSubscriber): () => void {
+  subscribers.push(callback);
+  // Immediately call with current logs
+  callback(getLogs());
+  // Return unsubscribe function
+  return () => {
+    const index = subscribers.indexOf(callback);
+    if (index > -1) {
+      subscribers.splice(index, 1);
+    }
+  };
+}
+
+export default { log, logger, getLogs, clearLogs, seedDemoLogs, LEVEL_COLORS, subscribeToLogs, LogLevel, LogCategory };

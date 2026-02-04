@@ -1,5 +1,8 @@
 "use client";
 
+// Force dynamic rendering - prevent build-time pre-rendering
+export const dynamic = 'force-dynamic';
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
