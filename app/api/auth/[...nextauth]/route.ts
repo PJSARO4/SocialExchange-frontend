@@ -21,6 +21,13 @@ const InstagramDirectProvider = {
     url: 'https://api.instagram.com/oauth/access_token',
     async request({ client, params, checks, provider }: any) {
       // Instagram token endpoint requires form-urlencoded POST
+      const redirectUri = `${process.env.NEXTAUTH_URL}/api/auth/callback/instagram-direct`;
+
+      console.log('🔄 Instagram Token Exchange:');
+      console.log('  - client_id:', provider.clientId);
+      console.log('  - redirect_uri:', redirectUri);
+      console.log('  - code:', params.code?.substring(0, 20) + '...');
+
       const response = await fetch('https://api.instagram.com/oauth/access_token', {
         method: 'POST',
         headers: {
@@ -30,18 +37,46 @@ const InstagramDirectProvider = {
           client_id: provider.clientId,
           client_secret: provider.clientSecret,
           grant_type: 'authorization_code',
-          redirect_uri: params.redirect_uri,
+          redirect_uri: redirectUri,
           code: params.code,
         }),
       });
+
       const tokens = await response.json();
-      return { tokens };
+      console.log('📦 Instagram Token Response:', JSON.stringify(tokens, null, 2));
+
+      if (tokens.error_type || tokens.error_message) {
+        console.error('❌ Instagram Token Error:', tokens.error_message);
+        throw new Error(tokens.error_message || 'Failed to get Instagram token');
+      }
+
+      // Instagram returns access_token and user_id directly
+      return {
+        tokens: {
+          access_token: tokens.access_token,
+          token_type: 'bearer',
+          user_id: tokens.user_id,
+        }
+      };
     },
   },
   userinfo: {
-    url: 'https://graph.instagram.com/me',
-    params: {
-      fields: 'id,username,account_type,name',
+    async request({ tokens, provider }: any) {
+      // Instagram Graph API requires access_token as query param, not header
+      const url = `https://graph.instagram.com/me?fields=id,username,account_type&access_token=${tokens.access_token}`;
+      console.log('🔍 Fetching Instagram userinfo...');
+
+      const response = await fetch(url);
+      const profile = await response.json();
+
+      console.log('👤 Instagram Profile:', JSON.stringify(profile, null, 2));
+
+      if (profile.error) {
+        console.error('❌ Instagram Profile Error:', profile.error);
+        throw new Error(profile.error.message || 'Failed to fetch Instagram profile');
+      }
+
+      return profile;
     },
   },
   profile(profile: any) {
@@ -126,6 +161,11 @@ const FacebookBusinessProvider = {
   clientSecret: process.env.META_CLIENT_SECRET!,
 };
 
+// Determine if we're using a tunneling service (localtunnel, ngrok, etc.)
+const isUsingTunnel = process.env.NEXTAUTH_URL?.includes('.loca.lt') ||
+                      process.env.NEXTAUTH_URL?.includes('ngrok') ||
+                      process.env.NEXTAUTH_URL?.includes('tunnel');
+
 export const authOptions: NextAuthOptions = {
   providers: [
     InstagramDirectProvider,      // Instagram Direct Login (no Facebook Page required!)
@@ -136,7 +176,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       // Log the successful sign in (we'll add DB storage later)
       if (account && user) {
-        console.log('✅ User signed in:', user.email);
+        console.log('✅ User signed in:', user.name || user.email);
         console.log('✅ Provider:', account.provider);
         console.log('✅ Access token received:', !!account.access_token);
       }
@@ -171,6 +211,65 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  // Cookie configuration for tunneling services (localtunnel, ngrok)
+  // This fixes "State cookie was missing" errors with cross-origin OAuth
+  cookies: {
+    sessionToken: {
+      name: isUsingTunnel ? `next-auth.session-token` : `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: !isUsingTunnel, // Disable secure in tunnel mode for compatibility
+      },
+    },
+    callbackUrl: {
+      name: isUsingTunnel ? `next-auth.callback-url` : `__Secure-next-auth.callback-url`,
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: !isUsingTunnel,
+      },
+    },
+    csrfToken: {
+      name: isUsingTunnel ? `next-auth.csrf-token` : `__Host-next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: !isUsingTunnel,
+      },
+    },
+    pkceCodeVerifier: {
+      name: isUsingTunnel ? `next-auth.pkce.code_verifier` : `__Secure-next-auth.pkce.code_verifier`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: !isUsingTunnel,
+        maxAge: 60 * 15, // 15 minutes
+      },
+    },
+    state: {
+      name: isUsingTunnel ? `next-auth.state` : `__Secure-next-auth.state`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: !isUsingTunnel,
+        maxAge: 60 * 15, // 15 minutes
+      },
+    },
+    nonce: {
+      name: isUsingTunnel ? `next-auth.nonce` : `__Secure-next-auth.nonce`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: !isUsingTunnel,
+      },
+    },
   },
   debug: process.env.NODE_ENV === 'development',
 };

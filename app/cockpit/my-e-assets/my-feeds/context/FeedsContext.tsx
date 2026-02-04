@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   ReactNode,
 } from 'react';
 import {
@@ -22,6 +23,7 @@ import {
   UploadProgress,
   CSVImportResult,
 } from '../types/content';
+import { logger } from '@/lib/logging/activity-logger';
 
 // ============================================
 // MOCK DATA GENERATOR
@@ -37,15 +39,22 @@ const generateMockFeed = (payload: CreateFeedPayload): Feed => ({
   isConnected: true,
   connectionStatus: 'active',
   lastSync: new Date().toISOString(),
+  // OAuth fields
+  platformUserId: payload.platformUserId,
+  accessToken: payload.accessToken,
+  refreshToken: payload.refreshToken,
+  isOAuth: payload.isOAuth || false,
+  // Automation
   automationEnabled: false,
   controlMode: 'manual',
   metrics: {
-    followers: Math.floor(Math.random() * 10000),
-    following: Math.floor(Math.random() * 1000),
-    engagement: Math.round(Math.random() * 10 * 100) / 100,
-    postsPerWeek: Math.floor(Math.random() * 10),
-    totalPosts: Math.floor(Math.random() * 500),
-    uptime: 99.5,
+    // Start with zeros - real metrics come from platform API
+    followers: payload.initialMetrics?.followers ?? 0,
+    following: payload.initialMetrics?.following ?? 0,
+    engagement: 0,
+    postsPerWeek: 0,
+    totalPosts: payload.initialMetrics?.totalPosts ?? 0,
+    uptime: 0,
   },
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
@@ -121,12 +130,17 @@ const FeedsContext = createContext<FeedsContextType | null>(null);
 // PROVIDER
 // ============================================
 
+// LocalStorage keys
+const FEEDS_STORAGE_KEY = 'socialexchange_feeds';
+const CONTENT_STORAGE_KEY = 'socialexchange_content';
+
 export function FeedsProvider({ children }: { children: ReactNode }) {
-  // Feeds state
+  // Feeds state - initialize from localStorage
   const [feeds, setFeeds] = useState<Feed[]>([]);
   const [selectedFeedId, setSelectedFeedId] = useState<string | null>(null);
-  const [feedsLoading, setFeedsLoading] = useState(false);
+  const [feedsLoading, setFeedsLoading] = useState(true); // Start true for initial load
   const [feedsError, setFeedsError] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Content state
   const [content, setContent] = useState<ContentItem[]>([]);
@@ -135,6 +149,51 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
   const [contentError, setContentError] = useState<string | null>(null);
   const [contentFilters, setContentFilters] = useState<ContentFilters>({});
   const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const storedFeeds = localStorage.getItem(FEEDS_STORAGE_KEY);
+      const storedContent = localStorage.getItem(CONTENT_STORAGE_KEY);
+
+      if (storedFeeds) {
+        const parsedFeeds = JSON.parse(storedFeeds);
+        console.log('📂 Loaded feeds from storage:', parsedFeeds.length);
+        setFeeds(parsedFeeds);
+      }
+
+      if (storedContent) {
+        const parsedContent = JSON.parse(storedContent);
+        console.log('📂 Loaded content from storage:', parsedContent.length);
+        setContent(parsedContent);
+      }
+    } catch (err) {
+      console.error('Failed to load from localStorage:', err);
+    } finally {
+      setIsHydrated(true);
+      setFeedsLoading(false);
+    }
+  }, []);
+
+  // Save feeds to localStorage whenever they change
+  useEffect(() => {
+    if (isHydrated && feeds.length > 0) {
+      console.log('💾 Saving feeds to storage:', feeds.length);
+      localStorage.setItem(FEEDS_STORAGE_KEY, JSON.stringify(feeds));
+    } else if (isHydrated && feeds.length === 0) {
+      // Clear storage if no feeds
+      localStorage.removeItem(FEEDS_STORAGE_KEY);
+    }
+  }, [feeds, isHydrated]);
+
+  // Save content to localStorage whenever it changes
+  useEffect(() => {
+    if (isHydrated && content.length > 0) {
+      localStorage.setItem(CONTENT_STORAGE_KEY, JSON.stringify(content));
+    } else if (isHydrated && content.length === 0) {
+      localStorage.removeItem(CONTENT_STORAGE_KEY);
+    }
+  }, [content, isHydrated]);
 
   // Computed
   const selectedFeed = feeds.find(f => f.id === selectedFeedId) ?? null;
@@ -155,6 +214,10 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
       await new Promise(resolve => setTimeout(resolve, 500));
       const newFeed = generateMockFeed(payload);
       setFeeds(prev => [...prev, newFeed]);
+
+      // Log the feed connection
+      logger.feeds.connected('demo-user', 'Demo User', payload.platform, payload.handle);
+
       return newFeed;
     } catch (err) {
       setFeedsError(err instanceof Error ? err.message : 'Failed to add feed');
@@ -192,17 +255,25 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
   const removeFeed = useCallback(async (id: string): Promise<void> => {
     setFeedsLoading(true);
     try {
+      // Get feed info before removing for logging
+      const feedToRemove = feeds.find(f => f.id === id);
+
       // TODO: Replace with actual API call
       await new Promise(resolve => setTimeout(resolve, 300));
       setFeeds(prev => prev.filter(f => f.id !== id));
       if (selectedFeedId === id) setSelectedFeedId(null);
+
+      // Log the disconnection
+      if (feedToRemove) {
+        logger.feeds.disconnected('demo-user', 'Demo User', feedToRemove.platform, feedToRemove.handle);
+      }
     } catch (err) {
       setFeedsError(err instanceof Error ? err.message : 'Failed to remove feed');
       throw err;
     } finally {
       setFeedsLoading(false);
     }
-  }, [selectedFeedId]);
+  }, [selectedFeedId, feeds]);
 
   const setControlMode = useCallback(async (id: string, mode: ControlMode): Promise<void> => {
     await updateFeed(id, { controlMode: mode });
@@ -212,6 +283,13 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
     const feed = feeds.find(f => f.id === id);
     if (feed) {
       await updateFeed(id, { automationEnabled: !feed.automationEnabled });
+
+      // Log automation toggle
+      if (!feed.automationEnabled) {
+        logger.automation.enabled('demo-user', 'Demo User', feed.handle);
+      } else {
+        logger.automation.disabled('demo-user', 'Demo User', feed.handle);
+      }
     }
   }, [feeds, updateFeed]);
 
