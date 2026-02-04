@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Using direct fetch to Anthropic API
 
 const GENERATION_PROMPTS = {

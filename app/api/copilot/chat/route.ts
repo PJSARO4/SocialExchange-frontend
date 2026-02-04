@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Using direct fetch to Anthropic API
 
 const SYSTEM_PROMPT = `You are an expert social media strategist and content coach for Instagram. Your name is "Social Exchange Copilot". You help creators grow their accounts, write engaging content, and develop winning strategies.

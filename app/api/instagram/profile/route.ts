@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Instagram Graph API endpoint to fetch user profile with metrics
 export async function GET(request: NextRequest) {
   const accessToken = request.nextUrl.searchParams.get('access_token');
