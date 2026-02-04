@@ -47,12 +47,13 @@ const FEEDS: Record<string, FeedData> = {
   },
 };
 
-export default function MarketFeedDetailPage({
+export default async function MarketFeedDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const feed = FEEDS[params.id];
+  const { id } = await params;
+  const feed = FEEDS[id];
 
   if (!feed) {
     return (

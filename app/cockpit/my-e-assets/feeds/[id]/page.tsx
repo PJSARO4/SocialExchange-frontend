@@ -5,13 +5,14 @@
  * E-Feed Detail View — asset state and verification surface.
  */
 
-export default function FeedDetailPage({
+export default async function FeedDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const platform =
-    params.id.includes("instagram") ? "Instagram" : "X (Twitter)";
+    id.includes("instagram") ? "Instagram" : "X (Twitter)";
 
   return (
     <div>
@@ -23,7 +24,7 @@ export default function FeedDetailPage({
         <p>
           Platform: {platform}
           <br />
-          Handle: @{params.id}
+          Handle: @{id}
           <br />
           Category: Lifestyle / Media
         </p>

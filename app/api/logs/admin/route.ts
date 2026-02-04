@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../lib/db';
+import { query } from '@/app/lib/db';
 
 
 /**
@@ -7,7 +7,7 @@ import { db } from '../../../lib/db';
  * NOTE: Protect this route with admin auth later.
  */
 export async function GET() {
-  const { rows } = await db.query(
+  const { rows } = await query(
     `
     SELECT
       id,
