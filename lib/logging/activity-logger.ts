@@ -80,6 +80,17 @@ export const LEVEL_COLORS: Record<LogLevel, string> = {
   [LogLevel.ERROR]: 'text-red-400',
 };
 
+// Color mapping for log categories
+export const LOG_COLORS: Record<LogCategory, string> = {
+  [LogCategory.AUTH]: 'text-purple-400',
+  [LogCategory.NAVIGATION]: 'text-cyan-400',
+  [LogCategory.API]: 'text-green-400',
+  [LogCategory.USER]: 'text-pink-400',
+  [LogCategory.SYSTEM]: 'text-orange-400',
+  [LogCategory.AUDIO]: 'text-yellow-400',
+  [LogCategory.UI]: 'text-blue-400',
+};
+
 // Subscribe to log updates (stub - returns unsubscribe function)
 type LogSubscriber = (logs: ActivityLog[]) => void;
 const subscribers: LogSubscriber[] = [];
@@ -97,4 +108,4 @@ export function subscribeToLogs(callback: LogSubscriber): () => void {
   };
 }
 
-export default { log, logger, getLogs, clearLogs, seedDemoLogs, LEVEL_COLORS, subscribeToLogs, LogLevel, LogCategory };
+export default { log, logger, getLogs, clearLogs, seedDemoLogs, LEVEL_COLORS, LOG_COLORS, subscribeToLogs, LogLevel, LogCategory };
