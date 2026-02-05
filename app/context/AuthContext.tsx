@@ -7,7 +7,7 @@ import {
   useState,
   ReactNode,
 } from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 type User = {
   email: string
@@ -22,38 +22,17 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
-function getCookie(name: string): string | null {
-  if (typeof document === "undefined") return null
-  const match = document.cookie
-    .split("; ")
-    .find((c) => c.startsWith(name + "="))
-  return match ? match.split("=")[1] : null
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
-  const pathname = usePathname()
 
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [devUnlocked, setDevUnlocked] = useState(false)
 
   // ----------------------------------
   // INITIAL SESSION RESOLUTION (ONCE)
   // ----------------------------------
   useEffect(() => {
-    const devKey = getCookie("sx_dev_key")
-
-    if (
-      devKey &&
-      devKey === process.env.NEXT_PUBLIC_DEV_MASTER_KEY
-    ) {
-      setDevUnlocked(true)
-      setLoading(false)
-      return
-    }
-
-    // no backend auth yet
+    // No backend auth yet - just mark as loaded
     setUser(null)
     setLoading(false)
   }, [])
@@ -71,29 +50,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push("/login")
   }
 
-  // ----------------------------------
-  // ROUTE GUARD (STABLE)
-  // ----------------------------------
-  useEffect(() => {
-    if (loading) return
-
-    // 🔑 DEV MASTER KEY = FULL ACCESS
-    if (devUnlocked) return
-
-    // HARD BYPASS — FOUNDER OPS
-    if (pathname.startsWith("/founder")) return
-
-    // PUBLIC ROUTES
-    const isPublic =
-      pathname === "/" ||
-      pathname.startsWith("/login") ||
-      pathname.startsWith("/auth/") ||
-      pathname.startsWith("/marketplace")
-
-    if (!user && !isPublic) {
-      router.replace("/login")
-    }
-  }, [loading, devUnlocked, user, pathname, router])
+  // NOTE: Route guard removed - app uses auth-store for authentication,
+  // not this AuthContext. Each protected page handles its own auth check.
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>
