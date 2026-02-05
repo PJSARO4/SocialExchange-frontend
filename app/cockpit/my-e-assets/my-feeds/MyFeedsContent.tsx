@@ -13,6 +13,7 @@ import { SchedulerModal } from './components/scheduler/SchedulerModal';
 import { CopilotModal } from './components/copilot/CopilotModal';
 import { AutomationModal } from './components/automation/AutomationModal';
 import { ContentFinderModal } from './components/content-finder/ContentFinderModal';
+import { LinkExModal } from './components/linkex';
 import { EarnExTab } from './components/earnex';
 import { CompetitorsTab } from './components/competitors';
 import { PageTutorial } from './components/PageTutorial';
@@ -30,6 +31,7 @@ export default function MyFeedsContent() {
   const [copilotModalOpen, setCopilotModalOpen] = useState(false);
   const [automationOpen, setAutomationOpen] = useState(false);
   const [contentFinderOpen, setContentFinderOpen] = useState(false);
+  const [linkExOpen, setLinkExOpen] = useState(false);
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [oauthProcessed, setOauthProcessed] = useState(false);
@@ -298,6 +300,7 @@ export default function MyFeedsContent() {
                 onOpenCopilot={() => setCopilotModalOpen(true)}
                 onOpenAutomation={() => setAutomationOpen(true)}
                 onOpenContentFinder={() => setContentFinderOpen(true)}
+                onOpenLinkEx={() => setLinkExOpen(true)}
               />
             ) : (
               <div className="feeds-empty-state">
@@ -359,6 +362,15 @@ export default function MyFeedsContent() {
           feed={selectedFeed}
           isOpen={contentFinderOpen}
           onClose={() => setContentFinderOpen(false)}
+        />
+      )}
+
+      {/* LinkEx Modal */}
+      {linkExOpen && selectedFeed && (
+        <LinkExModal
+          feed={selectedFeed}
+          isOpen={linkExOpen}
+          onClose={() => setLinkExOpen(false)}
         />
       )}
 

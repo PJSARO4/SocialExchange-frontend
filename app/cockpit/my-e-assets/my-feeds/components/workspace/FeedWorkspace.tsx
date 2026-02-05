@@ -27,6 +27,7 @@ interface FeedWorkspaceProps {
   onOpenCopilot?: () => void;
   onOpenAutomation?: () => void;
   onOpenContentFinder?: () => void;
+  onOpenLinkEx?: () => void;
 }
 
 export default function FeedWorkspace({
@@ -39,6 +40,7 @@ export default function FeedWorkspace({
   onOpenCopilot,
   onOpenAutomation,
   onOpenContentFinder,
+  onOpenLinkEx,
 }: FeedWorkspaceProps) {
   const { updateFeed, toggleAutomation, setControlMode, removeFeed } = useFeeds();
   const platform = PLATFORMS[feed.platform];
@@ -246,6 +248,13 @@ export default function FeedWorkspace({
           >
             <span className="workspace-action-icon">🔍</span>
             <span className="workspace-action-label">Content Finder</span>
+          </button>
+          <button
+            className="workspace-action-btn linkex"
+            onClick={onOpenLinkEx}
+          >
+            <span className="workspace-action-icon">🔗</span>
+            <span className="workspace-action-label">LinkEx</span>
           </button>
         </div>
       </section>
