@@ -13068,3 +13068,526 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 255, 200, 0.3);
 }
+
+/* ======================================================
+   30. ACCOUNT-CENTRIC WORKSPACE
+   New layout that prioritizes account selection and
+   makes the workspace the primary interface
+====================================================== */
+
+/* Compact Header */
+.feeds-deck-header.compact {
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--tac-border-primary);
+  background: var(--tac-bg-surface);
+}
+
+.feeds-deck-header.compact .feeds-deck-title {
+  font-size: 1rem;
+}
+
+/* Account Workspace Container */
+.account-workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100vh - 60px);
+}
+
+/* Account Header Bar */
+.workspace-account-bar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 1.5rem;
+  background: var(--tac-bg-surface);
+  border-bottom: 1px solid var(--tac-border-primary);
+}
+
+.workspace-account-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.workspace-avatar-container {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.workspace-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--tac-border-primary);
+}
+
+.workspace-platform-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  border: 2px solid var(--tac-bg-surface);
+}
+
+.workspace-platform-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.workspace-account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.workspace-handle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--tac-text-critical);
+  margin: 0;
+}
+
+.workspace-display-name {
+  font-size: 0.8rem;
+  color: var(--tac-text-secondary);
+}
+
+/* Quick Metrics in Header */
+.workspace-quick-metrics {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+
+.quick-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.quick-metric-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--tac-text-critical);
+}
+
+.quick-metric-value.status {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  background: var(--tac-status-armed);
+  color: #000;
+}
+
+.quick-metric-value.status.connected {
+  background: var(--tac-status-armed);
+}
+
+.quick-metric-value.status.disconnected {
+  background: var(--tac-status-offline);
+  color: #fff;
+}
+
+.quick-metric-label {
+  font-size: 0.65rem;
+  color: var(--tac-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.125rem;
+}
+
+/* Mode Control in Header */
+.workspace-mode-control {
+  margin-left: 1rem;
+}
+
+/* Workspace Navigation */
+.workspace-nav {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 1rem;
+  background: var(--tac-bg-panel);
+  border-bottom: 1px solid var(--tac-border-primary);
+}
+
+.workspace-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--tac-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.workspace-nav-item:hover {
+  color: var(--tac-text-primary);
+  background: var(--tac-surface-hover);
+}
+
+.workspace-nav-item.active {
+  color: var(--tac-accent-system);
+  border-bottom-color: var(--tac-accent-system);
+  background: var(--tac-surface-active);
+}
+
+.workspace-nav-item .nav-icon {
+  font-size: 1rem;
+}
+
+.workspace-nav-item .nav-label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Workspace Content Area */
+.workspace-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: var(--tac-bg-deep);
+}
+
+/* Workspace Overview */
+.workspace-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Workspace Sections */
+.workspace-section {
+  background: var(--tac-bg-surface);
+  border: 1px solid var(--tac-border-primary);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.workspace-section .section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tac-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 1rem 0;
+}
+
+/* Quick Actions Grid */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.quick-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--tac-bg-panel);
+  border: 1px solid var(--tac-border-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.quick-action-card:hover {
+  background: var(--tac-surface-hover);
+  border-color: var(--tac-accent-system);
+  transform: translateY(-2px);
+}
+
+.quick-action-card .action-icon {
+  font-size: 1.5rem;
+}
+
+.quick-action-card .action-label {
+  font-size: 0.75rem;
+  color: var(--tac-text-secondary);
+  text-align: center;
+}
+
+/* Telemetry Grid */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.telemetry-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: var(--tac-bg-panel);
+  border: 1px solid var(--tac-border-secondary);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.telemetry-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--tac-text-critical);
+}
+
+.telemetry-label {
+  font-size: 0.7rem;
+  color: var(--tac-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.25rem;
+}
+
+/* Automation Panel */
+.automation-panel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.automation-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.automation-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--tac-border-secondary);
+  background: var(--tac-bg-panel);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  color: var(--tac-text-secondary);
+}
+
+.automation-toggle.armed {
+  border-color: var(--tac-status-armed);
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--tac-status-armed);
+}
+
+.automation-toggle.idle {
+  border-color: var(--tac-status-idle);
+}
+
+.automation-toggle:hover {
+  transform: scale(1.02);
+}
+
+.toggle-indicator {
+  font-size: 1rem;
+}
+
+.toggle-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.automation-hint {
+  font-size: 0.75rem;
+  color: var(--tac-text-tertiary);
+}
+
+/* Upcoming Panel */
+.upcoming-panel {
+  min-height: 100px;
+}
+
+.upcoming-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  gap: 0.5rem;
+}
+
+.upcoming-empty-icon {
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+.upcoming-empty-text {
+  font-size: 0.875rem;
+  color: var(--tac-text-tertiary);
+}
+
+.upcoming-action {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--tac-accent-system);
+  border-radius: 6px;
+  color: var(--tac-accent-system);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.upcoming-action:hover {
+  background: var(--tac-accent-system);
+  color: #000;
+}
+
+/* No Account Selected State */
+.no-account-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: 2rem;
+  text-align: center;
+}
+
+.no-account-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 400px;
+}
+
+.no-account-icon {
+  font-size: 4rem;
+  opacity: 0.4;
+}
+
+.no-account-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--tac-text-critical);
+  margin: 0;
+}
+
+.no-account-text {
+  font-size: 0.9rem;
+  color: var(--tac-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.no-account-hint {
+  font-size: 0.8rem;
+  color: var(--tac-text-tertiary);
+  margin: 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--tac-border-secondary);
+}
+
+/* All Accounts Summary */
+.all-accounts-summary {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--tac-bg-surface);
+  border: 1px solid var(--tac-border-primary);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.all-accounts-summary h3 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tac-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 1rem 0;
+}
+
+.summary-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--tac-accent-system);
+}
+
+.summary-label {
+  font-size: 0.7rem;
+  color: var(--tac-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .workspace-account-bar {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .workspace-quick-metrics {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-around;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--tac-border-secondary);
+  }
+
+  .telemetry-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .workspace-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workspace-nav-item .nav-label {
+    display: none;
+  }
+
+  .quick-actions-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .quick-action-card .action-label {
+    font-size: 0.65rem;
+  }
+}

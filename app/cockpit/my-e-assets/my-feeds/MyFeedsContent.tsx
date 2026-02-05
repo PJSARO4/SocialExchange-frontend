@@ -7,7 +7,6 @@ import { useFeeds } from './context/FeedsContext';
 import { FeedsList } from './components/feeds-panel';
 import { ContentLibrary } from './components/content-library';
 import { Scheduler } from './components/scheduler';
-import FeedWorkspace from './components/workspace/FeedWorkspace';
 import { AnalyticsModal } from './components/analytics';
 import { SchedulerModal } from './components/scheduler/SchedulerModal';
 import { CopilotModal } from './components/copilot/CopilotModal';
@@ -17,13 +16,15 @@ import { LinkExModal } from './components/linkex';
 import { EarnExTab } from './components/earnex';
 import { CompetitorsTab } from './components/competitors';
 import { PageTutorial } from './components/PageTutorial';
-import { Platform } from './types/feed';
+import { Platform, PLATFORMS } from './types/feed';
+import ModeSelector from './components/ModeSelector';
 
-type ActiveTab = 'dashboard' | 'workspace' | 'content' | 'scheduler' | 'earnex' | 'competitors';
+// Workspace section type - these are internal to the workspace, not top-level tabs
+type WorkspaceSection = 'overview' | 'content' | 'scheduler' | 'earnex' | 'competitors';
 
 export default function MyFeedsContent() {
-  const { feeds, selectedFeed, selectedFeedId, feedsLoading, addFeed } = useFeeds();
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
+  const { feeds, selectedFeed, selectedFeedId, feedsLoading, addFeed, toggleAutomation, setControlMode } = useFeeds();
+  const [workspaceSection, setWorkspaceSection] = useState<WorkspaceSection>('overview');
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [createPostOpen, setCreatePostOpen] = useState(false);
@@ -115,10 +116,12 @@ export default function MyFeedsContent() {
     );
   }
 
+  const platform = selectedFeed ? PLATFORMS[selectedFeed.platform] : null;
+
   return (
     <div className="feeds-deck">
-      {/* Header */}
-      <header className="feeds-deck-header">
+      {/* Minimal Header */}
+      <header className="feeds-deck-header compact">
         <div className="feeds-deck-title-group">
           <h1 className="feeds-deck-title">MY FEEDS</h1>
           <div className="feeds-deck-status-bar">
@@ -129,34 +132,6 @@ export default function MyFeedsContent() {
             </span>
           </div>
         </div>
-
-        {/* Tab Navigation */}
-        <nav className="feeds-deck-tabs">
-          <button
-            className={`feeds-deck-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            DASHBOARD
-          </button>
-          <button
-            className={`feeds-deck-tab ${activeTab === 'workspace' ? 'active' : ''}`}
-            onClick={() => setActiveTab('workspace')}
-          >
-            MY WORKSPACE
-          </button>
-          <button
-            className={`feeds-deck-tab ${activeTab === 'earnex' ? 'active' : ''}`}
-            onClick={() => setActiveTab('earnex')}
-          >
-            EARNEX
-          </button>
-          <button
-            className={`feeds-deck-tab ${activeTab === 'competitors' ? 'active' : ''}`}
-            onClick={() => setActiveTab('competitors')}
-          >
-            COMPETITORS
-          </button>
-        </nav>
       </header>
 
       {/* Body */}
@@ -166,162 +141,278 @@ export default function MyFeedsContent() {
           <FeedsList />
         </aside>
 
-        {/* Main Content Area */}
+        {/* Main Content Area - Account Workspace */}
         <main className="feeds-deck-main">
-          {activeTab === 'dashboard' ? (
-            /* Account Dashboard - Bird's Eye View */
-            <div className="account-dashboard">
-              <div className="dashboard-header">
-                <h2 className="dashboard-title">Account Dashboard</h2>
-                <p className="dashboard-subtitle">Your bird's eye view of everything</p>
-              </div>
-
-              <div className="dashboard-grid">
-                {/* My Workspace Tile */}
-                <div
-                  className="dashboard-tile workspace-tile"
-                  onClick={() => setActiveTab('workspace')}
-                >
-                  <div className="tile-icon">🎯</div>
-                  <h3 className="tile-title">My Workspace</h3>
-                  <p className="tile-description">
-                    Content management, scheduling, automation, and all your creative tools
-                  </p>
-                  <div className="tile-stats">
-                    <span className="stat-item">
-                      <span className="stat-value">{feeds.length}</span>
-                      <span className="stat-label">Accounts</span>
-                    </span>
-                    <span className="stat-item">
-                      <span className="stat-value">{feeds.filter(f => f.automationEnabled).length}</span>
-                      <span className="stat-label">Automated</span>
-                    </span>
+          {selectedFeed ? (
+            <div className="account-workspace">
+              {/* Account Header Bar */}
+              <div className="workspace-account-bar">
+                <div className="workspace-account-identity">
+                  {selectedFeed.avatarUrl ? (
+                    <div className="workspace-avatar-container">
+                      <img
+                        src={selectedFeed.avatarUrl}
+                        alt={selectedFeed.displayName || selectedFeed.handle}
+                        className="workspace-avatar"
+                      />
+                      <div
+                        className="workspace-platform-badge"
+                        style={{ backgroundColor: platform?.color }}
+                      >
+                        {platform?.icon}
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="workspace-platform-icon"
+                      style={{ backgroundColor: platform?.color }}
+                    >
+                      {platform?.icon}
+                    </div>
+                  )}
+                  <div className="workspace-account-info">
+                    <h2 className="workspace-handle">{selectedFeed.handle}</h2>
+                    <span className="workspace-display-name">{selectedFeed.displayName}</span>
                   </div>
-                  <div className="tile-arrow">→</div>
                 </div>
 
-                {/* EarnEx Tile */}
-                <div
-                  className="dashboard-tile earnex-tile"
-                  onClick={() => setActiveTab('earnex')}
-                >
-                  <div className="tile-icon">💰</div>
-                  <h3 className="tile-title">EarnEx</h3>
-                  <p className="tile-description">
-                    Manage campaigns, find opportunities, and track your earnings
-                  </p>
-                  <div className="tile-stats">
-                    <span className="stat-item">
-                      <span className="stat-value">0</span>
-                      <span className="stat-label">Owned</span>
+                {/* Quick Metrics */}
+                <div className="workspace-quick-metrics">
+                  <div className="quick-metric">
+                    <span className="quick-metric-value">
+                      {(selectedFeed.metrics?.followers || 0).toLocaleString()}
                     </span>
-                    <span className="stat-item">
-                      <span className="stat-value">0</span>
-                      <span className="stat-label">Participating</span>
-                    </span>
+                    <span className="quick-metric-label">Followers</span>
                   </div>
-                  <div className="tile-arrow">→</div>
+                  <div className="quick-metric">
+                    <span className="quick-metric-value">
+                      {(selectedFeed.metrics?.engagement || 0).toFixed(1)}%
+                    </span>
+                    <span className="quick-metric-label">Engagement</span>
+                  </div>
+                  <div className="quick-metric">
+                    <span className={`quick-metric-value status ${selectedFeed.connectionStatus}`}>
+                      {selectedFeed.connectionStatus.toUpperCase()}
+                    </span>
+                    <span className="quick-metric-label">Status</span>
+                  </div>
                 </div>
 
-                {/* Competitors Tile */}
-                <div
-                  className="dashboard-tile competitors-tile"
-                  onClick={() => setActiveTab('competitors')}
-                >
-                  <div className="tile-icon">👁️</div>
-                  <h3 className="tile-title">Competitors</h3>
-                  <p className="tile-description">
-                    Track competitors, analyze strategies, and stay ahead
-                  </p>
-                  <div className="tile-stats">
-                    <span className="stat-item">
-                      <span className="stat-value">0</span>
-                      <span className="stat-label">Tracking</span>
-                    </span>
-                    <span className="stat-item">
-                      <span className="stat-value">--</span>
-                      <span className="stat-label">Insights</span>
-                    </span>
-                  </div>
-                  <div className="tile-arrow">→</div>
+                {/* Mode Selector */}
+                <div className="workspace-mode-control">
+                  <ModeSelector
+                    currentMode={selectedFeed.controlMode}
+                    onModeChange={(mode) => setControlMode(selectedFeed.id, mode)}
+                    compact
+                  />
                 </div>
               </div>
 
-              {/* Quick Stats Overview */}
-              <div className="dashboard-overview">
-                <h3 className="overview-title">Quick Overview</h3>
-                <div className="overview-cards">
-                  <div className="overview-card">
-                    <span className="overview-icon">📊</span>
-                    <div className="overview-info">
-                      <span className="overview-value">
-                        {feeds.reduce((sum, f) => sum + (f.metrics?.followers || 0), 0).toLocaleString()}
-                      </span>
-                      <span className="overview-label">Total Followers</span>
-                    </div>
+              {/* Workspace Navigation */}
+              <nav className="workspace-nav">
+                <button
+                  className={`workspace-nav-item ${workspaceSection === 'overview' ? 'active' : ''}`}
+                  onClick={() => setWorkspaceSection('overview')}
+                >
+                  <span className="nav-icon">🏠</span>
+                  <span className="nav-label">Overview</span>
+                </button>
+                <button
+                  className={`workspace-nav-item ${workspaceSection === 'content' ? 'active' : ''}`}
+                  onClick={() => setWorkspaceSection('content')}
+                >
+                  <span className="nav-icon">📚</span>
+                  <span className="nav-label">Content</span>
+                </button>
+                <button
+                  className={`workspace-nav-item ${workspaceSection === 'scheduler' ? 'active' : ''}`}
+                  onClick={() => setWorkspaceSection('scheduler')}
+                >
+                  <span className="nav-icon">📅</span>
+                  <span className="nav-label">Scheduler</span>
+                </button>
+                <button
+                  className={`workspace-nav-item ${workspaceSection === 'earnex' ? 'active' : ''}`}
+                  onClick={() => setWorkspaceSection('earnex')}
+                >
+                  <span className="nav-icon">💰</span>
+                  <span className="nav-label">EarnEx</span>
+                </button>
+                <button
+                  className={`workspace-nav-item ${workspaceSection === 'competitors' ? 'active' : ''}`}
+                  onClick={() => setWorkspaceSection('competitors')}
+                >
+                  <span className="nav-icon">👁️</span>
+                  <span className="nav-label">Competitors</span>
+                </button>
+              </nav>
+
+              {/* Workspace Content */}
+              <div className="workspace-content">
+                {workspaceSection === 'overview' && (
+                  <div className="workspace-overview">
+                    {/* Quick Actions Grid */}
+                    <section className="workspace-section">
+                      <h3 className="section-title">Quick Actions</h3>
+                      <div className="quick-actions-grid">
+                        <button className="quick-action-card" onClick={() => setCreatePostOpen(true)}>
+                          <span className="action-icon">📝</span>
+                          <span className="action-label">Create Post</span>
+                        </button>
+                        <button className="quick-action-card" onClick={() => setSchedulerOpen(true)}>
+                          <span className="action-icon">📆</span>
+                          <span className="action-label">Schedule</span>
+                        </button>
+                        <button className="quick-action-card" onClick={() => setAnalyticsOpen(true)}>
+                          <span className="action-icon">📊</span>
+                          <span className="action-label">Analytics</span>
+                        </button>
+                        <button className="quick-action-card" onClick={() => setCopilotModalOpen(true)}>
+                          <span className="action-icon">🤖</span>
+                          <span className="action-label">AI Copilot</span>
+                        </button>
+                        <button className="quick-action-card" onClick={() => setAutomationOpen(true)}>
+                          <span className="action-icon">⚡</span>
+                          <span className="action-label">Automation</span>
+                        </button>
+                        <button className="quick-action-card" onClick={() => setContentFinderOpen(true)}>
+                          <span className="action-icon">🔍</span>
+                          <span className="action-label">Find Content</span>
+                        </button>
+                        <button className="quick-action-card" onClick={() => setLinkExOpen(true)}>
+                          <span className="action-icon">🔗</span>
+                          <span className="action-label">LinkEx</span>
+                        </button>
+                        <button className="quick-action-card" onClick={() => setSettingsOpen(true)}>
+                          <span className="action-icon">⚙️</span>
+                          <span className="action-label">Settings</span>
+                        </button>
+                      </div>
+                    </section>
+
+                    {/* Telemetry */}
+                    <section className="workspace-section">
+                      <h3 className="section-title">Telemetry</h3>
+                      <div className="telemetry-grid">
+                        <div className="telemetry-card">
+                          <span className="telemetry-value">{(selectedFeed.metrics?.followers || 0).toLocaleString()}</span>
+                          <span className="telemetry-label">Followers</span>
+                        </div>
+                        <div className="telemetry-card">
+                          <span className="telemetry-value">{(selectedFeed.metrics?.engagement || 0).toFixed(1)}%</span>
+                          <span className="telemetry-label">Engagement</span>
+                        </div>
+                        <div className="telemetry-card">
+                          <span className="telemetry-value">{selectedFeed.metrics?.postsPerWeek || 0}</span>
+                          <span className="telemetry-label">Posts/Week</span>
+                        </div>
+                        <div className="telemetry-card">
+                          <span className="telemetry-value">{(selectedFeed.metrics?.uptime || 0).toFixed(0)}%</span>
+                          <span className="telemetry-label">Uptime</span>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Automation Status */}
+                    <section className="workspace-section">
+                      <h3 className="section-title">Automation</h3>
+                      <div className="automation-panel">
+                        <div className="automation-status">
+                          <button
+                            className={`automation-toggle ${selectedFeed.automationEnabled ? 'armed' : 'idle'}`}
+                            onClick={() => toggleAutomation(selectedFeed.id)}
+                          >
+                            <span className="toggle-indicator">⦿</span>
+                            <span className="toggle-label">
+                              {selectedFeed.automationEnabled ? 'ARMED' : 'IDLE'}
+                            </span>
+                          </button>
+                          <span className="automation-hint">
+                            {selectedFeed.automationEnabled ? 'Automation is active' : 'Click to enable automation'}
+                          </span>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Recent Activity / Upcoming */}
+                    <section className="workspace-section">
+                      <h3 className="section-title">Upcoming</h3>
+                      <div className="upcoming-panel">
+                        <div className="upcoming-empty">
+                          <span className="upcoming-empty-icon">📭</span>
+                          <span className="upcoming-empty-text">No scheduled posts</span>
+                          <button className="upcoming-action" onClick={() => setSchedulerOpen(true)}>
+                            + Schedule Post
+                          </button>
+                        </div>
+                      </div>
+                    </section>
                   </div>
-                  <div className="overview-card">
-                    <span className="overview-icon">💬</span>
-                    <div className="overview-info">
-                      <span className="overview-value">
-                        {feeds.length > 0
-                          ? (feeds.reduce((sum, f) => sum + (f.metrics?.engagement || 0), 0) / feeds.length).toFixed(1)
-                          : '0'}%
-                      </span>
-                      <span className="overview-label">Avg Engagement</span>
-                    </div>
-                  </div>
-                  <div className="overview-card">
-                    <span className="overview-icon">📅</span>
-                    <div className="overview-info">
-                      <span className="overview-value">0</span>
-                      <span className="overview-label">Scheduled Posts</span>
-                    </div>
-                  </div>
-                  <div className="overview-card">
-                    <span className="overview-icon">💵</span>
-                    <div className="overview-info">
-                      <span className="overview-value">$0</span>
-                      <span className="overview-label">Pending Earnings</span>
-                    </div>
-                  </div>
-                </div>
+                )}
+
+                {workspaceSection === 'content' && (
+                  <ContentLibrary />
+                )}
+
+                {workspaceSection === 'scheduler' && (
+                  <Scheduler />
+                )}
+
+                {workspaceSection === 'earnex' && (
+                  <EarnExTab feed={selectedFeed} feeds={feeds} />
+                )}
+
+                {workspaceSection === 'competitors' && (
+                  <CompetitorsTab feed={selectedFeed} feeds={feeds} />
+                )}
               </div>
             </div>
-          ) : activeTab === 'workspace' ? (
-            selectedFeed ? (
-              <FeedWorkspace
-                feed={selectedFeed}
-                onNavigate={setActiveTab}
-                onCreatePost={() => setCreatePostOpen(true)}
-                onOpenAnalytics={() => setAnalyticsOpen(true)}
-                onOpenSettings={() => setSettingsOpen(true)}
-                onOpenScheduler={() => setSchedulerOpen(true)}
-                onOpenCopilot={() => setCopilotModalOpen(true)}
-                onOpenAutomation={() => setAutomationOpen(true)}
-                onOpenContentFinder={() => setContentFinderOpen(true)}
-                onOpenLinkEx={() => setLinkExOpen(true)}
-              />
-            ) : (
-              <div className="feeds-empty-state">
-                <div className="feeds-empty-icon">📡</div>
-                <div className="feeds-empty-title">SELECT AN ACCOUNT</div>
-                <div className="feeds-empty-text">
-                  Choose an account from the left panel to view its workspace
-                </div>
-              </div>
-            )
-          ) : activeTab === 'earnex' ? (
-            <EarnExTab feed={selectedFeed} feeds={feeds} />
-          ) : activeTab === 'competitors' ? (
-            <CompetitorsTab feed={selectedFeed} feeds={feeds} />
           ) : (
-            <ContentLibrary />
+            /* No Account Selected State */
+            <div className="no-account-selected">
+              <div className="no-account-content">
+                <div className="no-account-icon">📡</div>
+                <h2 className="no-account-title">Select an Account</h2>
+                <p className="no-account-text">
+                  Choose an account from the left panel to start managing your content
+                </p>
+                {feeds.length === 0 && (
+                  <p className="no-account-hint">
+                    No accounts connected yet. Click the + button to add your first account.
+                  </p>
+                )}
+              </div>
+
+              {/* Quick Stats for all accounts */}
+              {feeds.length > 0 && (
+                <div className="all-accounts-summary">
+                  <h3>All Accounts Overview</h3>
+                  <div className="summary-stats">
+                    <div className="summary-stat">
+                      <span className="summary-value">{feeds.length}</span>
+                      <span className="summary-label">Connected</span>
+                    </div>
+                    <div className="summary-stat">
+                      <span className="summary-value">
+                        {feeds.reduce((sum, f) => sum + (f.metrics?.followers || 0), 0).toLocaleString()}
+                      </span>
+                      <span className="summary-label">Total Followers</span>
+                    </div>
+                    <div className="summary-stat">
+                      <span className="summary-value">
+                        {feeds.filter(f => f.automationEnabled).length}
+                      </span>
+                      <span className="summary-label">Automated</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </main>
       </div>
 
-      {/* Analytics Modal */}
+      {/* Modals */}
       {analyticsOpen && selectedFeed && (
         <AnalyticsModal
           feed={selectedFeed}
@@ -329,7 +420,6 @@ export default function MyFeedsContent() {
         />
       )}
 
-      {/* Scheduler Modal */}
       {schedulerOpen && selectedFeed && (
         <SchedulerModal
           feed={selectedFeed}
@@ -338,7 +428,6 @@ export default function MyFeedsContent() {
         />
       )}
 
-      {/* AI Copilot Modal */}
       {copilotModalOpen && selectedFeed && (
         <CopilotModal
           feed={selectedFeed}
@@ -347,7 +436,6 @@ export default function MyFeedsContent() {
         />
       )}
 
-      {/* Automation Modal */}
       {automationOpen && selectedFeed && (
         <AutomationModal
           feed={selectedFeed}
@@ -356,7 +444,6 @@ export default function MyFeedsContent() {
         />
       )}
 
-      {/* Content Finder Modal */}
       {contentFinderOpen && selectedFeed && (
         <ContentFinderModal
           feed={selectedFeed}
@@ -365,7 +452,6 @@ export default function MyFeedsContent() {
         />
       )}
 
-      {/* LinkEx Modal */}
       {linkExOpen && selectedFeed && (
         <LinkExModal
           feed={selectedFeed}
@@ -374,7 +460,6 @@ export default function MyFeedsContent() {
         />
       )}
 
-      {/* Page Tutorial */}
       <PageTutorial />
     </div>
   );
