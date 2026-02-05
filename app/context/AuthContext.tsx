@@ -87,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isPublic =
       pathname === "/" ||
       pathname.startsWith("/login") ||
+      pathname.startsWith("/auth/") ||
       pathname.startsWith("/marketplace")
 
     if (!user && !isPublic) {
