@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import type { DragEvent } from 'react';
 import {
   CalendarView as ViewType,
   CalendarDay,
@@ -12,18 +13,42 @@ import {
 } from '../../types/schedule';
 import { PLATFORMS } from '../../types/feed';
 
+// Optimal posting times by day of week (based on typical engagement data)
+const OPTIMAL_TIMES: Record<number, string[]> = {
+  0: ['10:00', '19:00'], // Sunday
+  1: ['11:00', '13:00', '19:00'], // Monday
+  2: ['09:00', '13:00', '19:00'], // Tuesday
+  3: ['11:00', '13:00', '21:00'], // Wednesday
+  4: ['12:00', '14:00', '19:00'], // Thursday
+  5: ['09:00', '14:00', '17:00'], // Friday
+  6: ['11:00', '19:00'], // Saturday
+};
+
+// Check if a day has optimal posting times
+function getDayOptimalLevel(date: Date): 'high' | 'medium' | 'low' {
+  const day = date.getDay();
+  const times = OPTIMAL_TIMES[day];
+  if (times.length >= 3) return 'high';
+  if (times.length >= 2) return 'medium';
+  return 'low';
+}
+
 interface CalendarViewProps {
   posts: ScheduledPost[];
   onDayClick: (date: Date) => void;
   onPostClick: (post: ScheduledPost) => void;
+  onDropOnDay?: (date: Date, contentId: string) => void;
   selectedDate?: Date;
+  showOptimalTimes?: boolean;
 }
 
 export default function CalendarView({
   posts,
   onDayClick,
   onPostClick,
+  onDropOnDay,
   selectedDate,
+  showOptimalTimes = true,
 }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<ViewType>('month');
@@ -125,6 +150,19 @@ export default function CalendarView({
           <span className="calendar-legend-dot failed" />
           <span>Failed</span>
         </div>
+        {showOptimalTimes && (
+          <>
+            <div className="calendar-legend-separator" />
+            <div className="calendar-legend-item">
+              <span className="calendar-legend-dot optimal-high" />
+              <span>Best Time</span>
+            </div>
+            <div className="calendar-legend-item">
+              <span className="calendar-legend-dot optimal-medium" />
+              <span>Good Time</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -139,6 +177,8 @@ interface CalendarDayCellProps {
   isSelected: boolean;
   onClick: () => void;
   onPostClick: (post: ScheduledPost) => void;
+  onDrop?: (contentId: string) => void;
+  showOptimalTimes?: boolean;
 }
 
 function CalendarDayCell({
@@ -146,19 +186,62 @@ function CalendarDayCell({
   isSelected,
   onClick,
   onPostClick,
+  onDrop,
+  showOptimalTimes = true,
 }: CalendarDayCellProps) {
+  const [isDragOver, setIsDragOver] = useState(false);
   const dayNumber = day.date.getDate();
   const hasMultiplePosts = day.posts.length > 3;
   const visiblePosts = hasMultiplePosts ? day.posts.slice(0, 2) : day.posts;
+
+  // Get optimal posting level for this day
+  const optimalLevel = showOptimalTimes && day.isCurrentMonth
+    ? getDayOptimalLevel(day.date)
+    : null;
+  const optimalTimes = day.isCurrentMonth ? OPTIMAL_TIMES[day.date.getDay()] : [];
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (onDrop) setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const contentId = e.dataTransfer.getData('contentId');
+    if (contentId && onDrop) {
+      onDrop(contentId);
+    }
+  };
 
   return (
     <div
       className={`calendar-day ${!day.isCurrentMonth ? 'other-month' : ''} ${
         day.isToday ? 'today' : ''
-      } ${isSelected ? 'selected' : ''} ${day.posts.length > 0 ? 'has-posts' : ''}`}
+      } ${isSelected ? 'selected' : ''} ${day.posts.length > 0 ? 'has-posts' : ''} ${
+        isDragOver ? 'drag-over' : ''
+      } ${optimalLevel ? `optimal-${optimalLevel}` : ''}`}
       onClick={onClick}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
-      <span className="calendar-day-number">{dayNumber}</span>
+      <div className="calendar-day-header">
+        <span className="calendar-day-number">{dayNumber}</span>
+        {/* Optimal time indicator */}
+        {optimalLevel && day.isCurrentMonth && (
+          <span
+            className={`calendar-optimal-indicator ${optimalLevel}`}
+            title={`Best times: ${optimalTimes.join(', ')}`}
+          >
+            {optimalLevel === 'high' ? '🔥' : optimalLevel === 'medium' ? '✨' : ''}
+          </span>
+        )}
+      </div>
 
       {day.posts.length > 0 && (
         <div className="calendar-day-posts">
@@ -169,6 +252,11 @@ function CalendarDayCell({
               onClick={(e) => {
                 e.stopPropagation();
                 onPostClick(post);
+              }}
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData('postId', post.id);
+                e.dataTransfer.setData('contentId', post.contentId);
               }}
               title={`${new Date(post.scheduledFor).toLocaleTimeString([], {
                 hour: '2-digit',
@@ -191,6 +279,13 @@ function CalendarDayCell({
               +{day.posts.length - 2} more
             </div>
           )}
+        </div>
+      )}
+
+      {/* Drag & drop overlay */}
+      {isDragOver && (
+        <div className="calendar-day-drop-overlay">
+          <span>📅 Drop to schedule</span>
         </div>
       )}
     </div>

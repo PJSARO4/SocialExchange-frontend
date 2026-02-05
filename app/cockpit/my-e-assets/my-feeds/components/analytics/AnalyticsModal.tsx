@@ -9,7 +9,7 @@ interface AnalyticsModalProps {
 }
 
 export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'growth' | 'content' | 'audience'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'growth' | 'content' | 'audience' | 'compare'>('overview');
   const platform = PLATFORMS[feed.platform];
 
   // Calculate some derived metrics
@@ -98,6 +98,12 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
             onClick={() => setActiveTab('audience')}
           >
             👥 Audience
+          </button>
+          <button
+            className={`analytics-tab ${activeTab === 'compare' ? 'active' : ''}`}
+            onClick={() => setActiveTab('compare')}
+          >
+            ⚖️ Compare
           </button>
         </div>
 
@@ -529,6 +535,106 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                       <span className="activity-value">PST (UTC-8)</span>
                     </div>
                   </div>
+                </div>
+              </section>
+            </>
+          )}
+
+          {activeTab === 'compare' && (
+            <>
+              <section className="analytics-section">
+                <h3 className="analytics-section-title">COMPARE ACCOUNTS</h3>
+                <p className="analytics-section-desc">
+                  Compare your metrics against competitors or your other accounts
+                </p>
+
+                <div className="compare-accounts-selector">
+                  <div className="compare-account-card selected">
+                    <span className="compare-account-avatar" style={{ backgroundColor: platform.color }}>
+                      {platform.icon}
+                    </span>
+                    <div className="compare-account-info">
+                      <span className="compare-account-handle">{feed.handle}</span>
+                      <span className="compare-account-label">Your Account</span>
+                    </div>
+                    <span className="compare-account-check">✓</span>
+                  </div>
+                  <div className="compare-vs">VS</div>
+                  <div className="compare-account-card add-account">
+                    <span className="compare-account-avatar">+</span>
+                    <div className="compare-account-info">
+                      <span className="compare-account-handle">Add Account</span>
+                      <span className="compare-account-label">Click to compare</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="analytics-section">
+                <h3 className="analytics-section-title">BENCHMARKS</h3>
+                <p className="analytics-section-desc">How you compare to average accounts in your niche</p>
+
+                <div className="benchmark-grid">
+                  <div className="benchmark-item">
+                    <div className="benchmark-header">
+                      <span className="benchmark-metric">Engagement Rate</span>
+                      <span className="benchmark-badge above">Above Avg</span>
+                    </div>
+                    <div className="benchmark-bar-container">
+                      <div className="benchmark-bar-bg">
+                        <div className="benchmark-bar-avg" style={{ left: '50%' }}>
+                          <span className="benchmark-avg-label">Avg: 3.5%</span>
+                        </div>
+                        <div className="benchmark-bar-yours" style={{ width: '70%' }}>
+                          <span className="benchmark-yours-value">{engagementRate.toFixed(1)}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="benchmark-item">
+                    <div className="benchmark-header">
+                      <span className="benchmark-metric">Posting Frequency</span>
+                      <span className="benchmark-badge at">At Avg</span>
+                    </div>
+                    <div className="benchmark-bar-container">
+                      <div className="benchmark-bar-bg">
+                        <div className="benchmark-bar-avg" style={{ left: '50%' }}>
+                          <span className="benchmark-avg-label">Avg: 3/week</span>
+                        </div>
+                        <div className="benchmark-bar-yours" style={{ width: '50%' }}>
+                          <span className="benchmark-yours-value">{feed.metrics.postsPerWeek || 3}/week</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="benchmark-item">
+                    <div className="benchmark-header">
+                      <span className="benchmark-metric">Follower Growth</span>
+                      <span className="benchmark-badge above">Above Avg</span>
+                    </div>
+                    <div className="benchmark-bar-container">
+                      <div className="benchmark-bar-bg">
+                        <div className="benchmark-bar-avg" style={{ left: '50%' }}>
+                          <span className="benchmark-avg-label">Avg: +5%</span>
+                        </div>
+                        <div className="benchmark-bar-yours" style={{ width: '80%' }}>
+                          <span className="benchmark-yours-value">+12%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="analytics-section">
+                <h3 className="analytics-section-title">COMPETITOR INSIGHTS</h3>
+                <div className="competitor-insights-empty">
+                  <span className="competitor-insights-icon">👁️</span>
+                  <h4>Track Competitors</h4>
+                  <p>Add accounts in Observe mode to see competitor analytics</p>
+                  <button className="competitor-add-btn">+ Add Competitor</button>
                 </div>
               </section>
             </>

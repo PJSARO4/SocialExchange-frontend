@@ -1,93 +1,282 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Feed } from '../../types/feed';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Feed, PLATFORMS } from '../../types/feed';
+
+// ============================================
+// TYPES
+// ============================================
 
 interface CopilotModalProps {
-  feed: Feed;
+  feed?: Feed;
+  feeds?: Feed[];
   isOpen: boolean;
   onClose: () => void;
+  onNavigate?: (destination: string) => void;
+  onExecuteAction?: (actionId: string, payload?: unknown) => Promise<boolean>;
 }
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
+  actions?: CopilotAction[];
+  isExecuting?: boolean;
+}
+
+interface CopilotAction {
+  id: string;
+  label: string;
+  type: 'navigate' | 'execute' | 'confirm' | 'generate';
+  payload?: unknown;
+  requiresConfirmation?: boolean;
+  confirmationMessage?: string;
 }
 
 interface GeneratedContent {
-  type: 'caption' | 'hashtags' | 'strategy' | 'bio';
+  type: 'caption' | 'hashtags' | 'strategy' | 'bio' | 'post-ideas';
   content: string;
 }
 
-export const CopilotModal: React.FC<CopilotModalProps> = ({ feed, isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState<'chat' | 'generate' | 'ideas'>('chat');
+interface PendingAction {
+  action: CopilotAction;
+  messageId: string;
+}
+
+interface PerformanceInsight {
+  type: 'positive' | 'negative' | 'neutral';
+  metric: string;
+  message: string;
+  suggestion?: string;
+}
+
+type TabType = 'chat' | 'generate' | 'actions' | 'insights';
+
+// ============================================
+// KNOWLEDGE BASE
+// ============================================
+
+const GENERATION_TYPES = [
+  { type: 'caption', label: 'Caption', icon: '✍️', description: 'Engaging post captions' },
+  { type: 'hashtags', label: 'Hashtags', icon: '#️⃣', description: 'Strategic hashtag sets' },
+  { type: 'bio', label: 'Bio', icon: '👤', description: 'Profile bio options' },
+  { type: 'strategy', label: 'Strategy', icon: '📊', description: 'Content strategy' },
+  { type: 'post-ideas', label: 'Post Ideas', icon: '💡', description: 'Content ideas for the week' },
+];
+
+const ACTION_CATEGORIES = [
+  {
+    id: 'scheduling',
+    label: 'Scheduling',
+    icon: '📅',
+    actions: [
+      { id: 'schedule-optimal', label: 'Schedule at Optimal Times', description: 'Auto-schedule posts for best engagement' },
+      { id: 'fill-content-gap', label: 'Fill Content Gaps', description: 'Generate posts for empty days' },
+      { id: 'reschedule-underperforming', label: 'Reschedule Posts', description: 'Move posts to better times' },
+    ]
+  },
+  {
+    id: 'automation',
+    label: 'Automation',
+    icon: '🤖',
+    actions: [
+      { id: 'enable-autopilot', label: 'Enable Autopilot', description: 'Turn on automated posting' },
+      { id: 'create-workflow', label: 'Create Workflow', description: 'Build an automation workflow' },
+      { id: 'set-posting-rules', label: 'Set Posting Rules', description: 'Configure auto-posting rules' },
+    ]
+  },
+  {
+    id: 'content',
+    label: 'Content',
+    icon: '📝',
+    actions: [
+      { id: 'generate-week-content', label: 'Generate Week\'s Content', description: 'Create 7 days of posts' },
+      { id: 'repurpose-top-posts', label: 'Repurpose Top Posts', description: 'Create variations of best content' },
+      { id: 'curate-from-sources', label: 'Curate Content', description: 'Find content from your sources' },
+    ]
+  },
+  {
+    id: 'engagement',
+    label: 'Engagement',
+    icon: '💬',
+    actions: [
+      { id: 'analyze-best-times', label: 'Find Best Times', description: 'Analyze optimal posting times' },
+      { id: 'hashtag-research', label: 'Research Hashtags', description: 'Find trending hashtags' },
+      { id: 'competitor-analysis', label: 'Analyze Competitors', description: 'Study competitor strategies' },
+    ]
+  },
+];
+
+const QUICK_PROMPTS = [
+  { prompt: 'Analyze my account performance', category: 'analytics' },
+  { prompt: 'Write me a caption for today\'s post', category: 'content' },
+  { prompt: 'What hashtags should I use?', category: 'content' },
+  { prompt: 'Help me set up automation', category: 'automation' },
+  { prompt: 'Give me content ideas for this week', category: 'content' },
+  { prompt: 'What\'s my best time to post?', category: 'analytics' },
+  { prompt: 'Compare my accounts\' performance', category: 'analytics' },
+  { prompt: 'Create a growth plan for me', category: 'strategy' },
+];
+
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+function generateInsights(feeds: Feed[]): PerformanceInsight[] {
+  const insights: PerformanceInsight[] = [];
+
+  if (feeds.length === 0) return insights;
+
+  // Aggregate metrics
+  const totalFollowers = feeds.reduce((sum, f) => sum + (f.metrics.followers || 0), 0);
+  const avgEngagement = feeds.reduce((sum, f) => sum + (f.metrics.engagement || 0), 0) / feeds.length;
+  const totalPosts = feeds.reduce((sum, f) => sum + (f.metrics.totalPosts || 0), 0);
+  const avgPostsPerWeek = feeds.reduce((sum, f) => sum + (f.metrics.postsPerWeek || 0), 0) / feeds.length;
+
+  // Engagement insights
+  if (avgEngagement < 2) {
+    insights.push({
+      type: 'negative',
+      metric: 'Engagement Rate',
+      message: `Your average engagement rate is ${avgEngagement.toFixed(2)}%, which is below the industry average.`,
+      suggestion: 'Try posting more carousel posts and ask questions in your captions to boost engagement.'
+    });
+  } else if (avgEngagement > 5) {
+    insights.push({
+      type: 'positive',
+      metric: 'Engagement Rate',
+      message: `Excellent! Your ${avgEngagement.toFixed(2)}% engagement rate is well above average.`,
+      suggestion: 'Keep up the great work! Consider documenting what\'s working to replicate success.'
+    });
+  }
+
+  // Posting frequency
+  if (avgPostsPerWeek < 3) {
+    insights.push({
+      type: 'negative',
+      metric: 'Posting Frequency',
+      message: `You're posting ${avgPostsPerWeek.toFixed(1)} times per week on average.`,
+      suggestion: 'Increase to at least 4-5 posts per week for better algorithm visibility.'
+    });
+  } else if (avgPostsPerWeek >= 7) {
+    insights.push({
+      type: 'positive',
+      metric: 'Posting Frequency',
+      message: `Great consistency! ${avgPostsPerWeek.toFixed(1)} posts per week shows commitment.`,
+    });
+  }
+
+  // Multi-account insights
+  if (feeds.length > 1) {
+    const bestPerformer = feeds.reduce((best, f) =>
+      (f.metrics.engagement || 0) > (best.metrics.engagement || 0) ? f : best
+    );
+    const worstPerformer = feeds.reduce((worst, f) =>
+      (f.metrics.engagement || 0) < (worst.metrics.engagement || 0) ? f : worst
+    );
+
+    if (bestPerformer.id !== worstPerformer.id) {
+      insights.push({
+        type: 'neutral',
+        metric: 'Account Comparison',
+        message: `@${bestPerformer.handle} outperforms @${worstPerformer.handle} by ${((bestPerformer.metrics.engagement || 0) - (worstPerformer.metrics.engagement || 0)).toFixed(2)}% engagement.`,
+        suggestion: `Apply strategies from @${bestPerformer.handle} to @${worstPerformer.handle}.`
+      });
+    }
+  }
+
+  // Growth insights
+  feeds.forEach(feed => {
+    if (feed.metrics.recentGrowth !== undefined) {
+      if (feed.metrics.recentGrowth > 5) {
+        insights.push({
+          type: 'positive',
+          metric: 'Growth',
+          message: `@${feed.handle} is growing at ${feed.metrics.recentGrowth}% - keep it up!`,
+        });
+      } else if (feed.metrics.recentGrowth < -2) {
+        insights.push({
+          type: 'negative',
+          metric: 'Growth',
+          message: `@${feed.handle} has declined ${Math.abs(feed.metrics.recentGrowth)}% recently.`,
+          suggestion: 'Review recent content and engagement patterns.'
+        });
+      }
+    }
+  });
+
+  return insights;
+}
+
+function getContextSummary(feeds: Feed[]): string {
+  if (feeds.length === 0) return 'No accounts connected.';
+
+  const totalFollowers = feeds.reduce((sum, f) => sum + (f.metrics.followers || 0), 0);
+  const avgEngagement = feeds.reduce((sum, f) => sum + (f.metrics.engagement || 0), 0) / feeds.length;
+  const platforms = [...new Set(feeds.map(f => f.platform))];
+
+  return `${feeds.length} account${feeds.length > 1 ? 's' : ''} connected across ${platforms.map(p => PLATFORMS[p].label).join(', ')}. Total: ${totalFollowers.toLocaleString()} followers, ${avgEngagement.toFixed(2)}% avg engagement.`;
+}
+
+// ============================================
+// COMPONENT
+// ============================================
+
+export const CopilotModal: React.FC<CopilotModalProps> = ({
+  feed,
+  feeds = [],
+  isOpen,
+  onClose,
+  onNavigate,
+  onExecuteAction
+}) => {
+  const [activeTab, setActiveTab] = useState<TabType>('chat');
   const [inputValue, setInputValue] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationType, setGenerationType] = useState<'caption' | 'hashtags' | 'bio' | 'strategy'>('caption');
+  const [generationType, setGenerationType] = useState<string>('caption');
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null);
   const [topicInput, setTopicInput] = useState('');
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Use all feeds if provided, otherwise use single feed
+  const allFeeds = feeds.length > 0 ? feeds : (feed ? [feed] : []);
+  const primaryFeed = feed || (allFeeds[0] as Feed | undefined);
 
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: `Hey @${feed.handle}! 👋 I'm your Social Exchange Copilot. I can help you with:\n\n• Writing engaging captions\n• Finding the perfect hashtags\n• Content strategy tips\n• Optimizing your posting schedule\n• Growing your engagement\n\nWhat would you like help with today?`,
-      timestamp: new Date()
+      content: `Hey! 👋 I'm your Social Exchange Copilot. I have access to ${allFeeds.length > 0 ? `your ${allFeeds.length} connected account${allFeeds.length > 1 ? 's' : ''}` : 'your accounts'} and can help you with:
+
+• **Content**: Write captions, find hashtags, generate ideas
+• **Strategy**: Analyze performance, plan growth
+• **Automation**: Set up autopilot, create workflows
+• **Analytics**: Compare accounts, track metrics
+
+What would you like to work on today?`,
+      timestamp: new Date(),
+      actions: [
+        { id: 'analyze', label: 'Analyze Performance', type: 'navigate', payload: 'insights' },
+        { id: 'generate', label: 'Generate Content', type: 'navigate', payload: 'generate' },
+      ]
     }
   ]);
 
-  const contentIdeas = [
-    {
-      category: 'Trending',
-      icon: '🔥',
-      ideas: [
-        'Behind-the-scenes content',
-        'Day in the life',
-        'Before & After transformations',
-        'Quick tips / How-to'
-      ]
-    },
-    {
-      category: 'Engagement',
-      icon: '💬',
-      ideas: [
-        'This or That polls',
-        'Ask me anything',
-        'Caption this photo',
-        'Unpopular opinions'
-      ]
-    },
-    {
-      category: 'Personal Brand',
-      icon: '✨',
-      ideas: [
-        'Your story / journey',
-        'Lessons learned',
-        'Milestone celebrations',
-        'Gratitude posts'
-      ]
-    },
-    {
-      category: 'Value Content',
-      icon: '📚',
-      ideas: [
-        'Industry tips',
-        'Resource recommendations',
-        'Common mistakes to avoid',
-        'Step-by-step tutorials'
-      ]
-    }
-  ];
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-  const hashtagSuggestions = {
-    lifestyle: ['#lifestyle', '#dailylife', '#livingmybestlife', '#goodvibes', '#positivevibes', '#mindset', '#motivation', '#inspired'],
-    photography: ['#photography', '#photooftheday', '#picoftheday', '#instagood', '#beautiful', '#art', '#creative', '#visualsoflife'],
-    fitness: ['#fitness', '#workout', '#fitnessmotivation', '#gym', '#health', '#fitlife', '#training', '#exercise'],
-    food: ['#foodie', '#foodporn', '#instafood', '#yummy', '#delicious', '#homemade', '#foodphotography', '#foodlover'],
-    travel: ['#travel', '#wanderlust', '#adventure', '#explore', '#travelgram', '#vacation', '#travelphotography', '#instatravel']
-  };
+  // Focus input when opened or tab changes
+  useEffect(() => {
+    if (isOpen && activeTab === 'chat') {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [isOpen, activeTab]);
 
   if (!isOpen) return null;
 
@@ -101,70 +290,100 @@ export const CopilotModal: React.FC<CopilotModalProps> = ({ feed, isOpen, onClos
       timestamp: new Date()
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsGenerating(true);
 
     try {
+      const context = primaryFeed ? {
+        handle: primaryFeed.handle,
+        followers: primaryFeed.metrics.followers,
+        following: primaryFeed.metrics.following,
+        totalPosts: primaryFeed.metrics.totalPosts,
+        engagement: primaryFeed.metrics.engagement,
+        allAccounts: allFeeds.map(f => ({
+          handle: f.handle,
+          platform: f.platform,
+          followers: f.metrics.followers,
+          engagement: f.metrics.engagement,
+        }))
+      } : { allAccounts: [] };
+
       const response = await fetch('/api/copilot/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: inputValue,
-          context: {
-            handle: feed.handle,
-            followers: feed.metrics.followers,
-            following: feed.metrics.following,
-            totalPosts: feed.metrics.totalPosts,
-            engagement: feed.metrics.engagement,
-          },
+          context,
         }),
       });
 
       const data = await response.json();
 
+      // Parse response for potential actions
+      const actions: CopilotAction[] = [];
+      const content = data.reply || data.error || 'Sorry, I encountered an error. Please try again.';
+
+      // Detect if response suggests actions
+      if (content.toLowerCase().includes('schedule') || content.toLowerCase().includes('posting')) {
+        actions.push({ id: 'go-scheduler', label: 'Open Scheduler', type: 'navigate', payload: 'scheduler' });
+      }
+      if (content.toLowerCase().includes('hashtag')) {
+        actions.push({ id: 'gen-hashtags', label: 'Generate Hashtags', type: 'generate', payload: 'hashtags' });
+      }
+      if (content.toLowerCase().includes('caption') || content.toLowerCase().includes('write')) {
+        actions.push({ id: 'gen-caption', label: 'Write Caption', type: 'generate', payload: 'caption' });
+      }
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.reply || data.error || 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date()
+        content,
+        timestamp: new Date(),
+        actions: actions.length > 0 ? actions : undefined
       };
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
-      const errorMessage: Message = {
+      // Fallback to local response if API fails
+      const localResponse = generateLocalResponse(inputValue, allFeeds);
+
+      const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Sorry, I\'m having trouble connecting. Please check your internet connection and try again.',
-        timestamp: new Date()
+        content: localResponse.content,
+        timestamp: new Date(),
+        actions: localResponse.actions
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, assistantMessage]);
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleGenerate = async () => {
-    if (!topicInput.trim() && generationType !== 'bio' && generationType !== 'strategy') return;
+    if (!topicInput.trim() && generationType !== 'bio' && generationType !== 'strategy' && generationType !== 'post-ideas') return;
 
     setIsGenerating(true);
     setGeneratedContent(null);
 
     try {
+      const context = primaryFeed ? {
+        handle: primaryFeed.handle,
+        followers: primaryFeed.metrics.followers,
+        following: primaryFeed.metrics.following,
+        totalPosts: primaryFeed.metrics.totalPosts,
+        engagement: primaryFeed.metrics.engagement,
+        postsPerWeek: primaryFeed.metrics.postsPerWeek,
+      } : {};
+
       const response = await fetch('/api/copilot/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: generationType,
-          topic: topicInput,
-          context: {
-            handle: feed.handle,
-            followers: feed.metrics.followers,
-            following: feed.metrics.following,
-            totalPosts: feed.metrics.totalPosts,
-            engagement: feed.metrics.engagement,
-            postsPerWeek: feed.metrics.postsPerWeek,
-          },
+          type: generationType === 'post-ideas' ? 'strategy' : generationType,
+          topic: generationType === 'post-ideas' ? 'content ideas for the week' : topicInput,
+          context,
         }),
       });
 
@@ -172,22 +391,81 @@ export const CopilotModal: React.FC<CopilotModalProps> = ({ feed, isOpen, onClos
 
       if (data.error) {
         setGeneratedContent({
-          type: generationType,
+          type: generationType as GeneratedContent['type'],
           content: `Error: ${data.error}`,
         });
       } else {
         setGeneratedContent({
-          type: generationType,
+          type: generationType as GeneratedContent['type'],
           content: data.content,
         });
       }
     } catch (error) {
+      // Fallback content
       setGeneratedContent({
-        type: generationType,
-        content: 'Failed to generate content. Please check your connection and try again.',
+        type: generationType as GeneratedContent['type'],
+        content: generateFallbackContent(generationType, topicInput, primaryFeed),
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleActionClick = async (action: CopilotAction, messageId?: string) => {
+    if (action.type === 'navigate') {
+      if (action.payload === 'insights') {
+        setActiveTab('insights');
+      } else if (action.payload === 'generate') {
+        setActiveTab('generate');
+      } else if (onNavigate) {
+        onNavigate(action.payload as string);
+      }
+    } else if (action.type === 'generate') {
+      setActiveTab('generate');
+      setGenerationType(action.payload as string);
+    } else if (action.type === 'execute') {
+      if (action.requiresConfirmation) {
+        setPendingAction({ action, messageId: messageId || '' });
+      } else {
+        await executeAction(action);
+      }
+    } else if (action.type === 'confirm') {
+      await executeAction(action);
+    }
+  };
+
+  const executeAction = async (action: CopilotAction) => {
+    if (onExecuteAction) {
+      const success = await onExecuteAction(action.id, action.payload);
+
+      const resultMessage: Message = {
+        id: Date.now().toString(),
+        role: 'system',
+        content: success
+          ? `✅ Action "${action.label}" completed successfully.`
+          : `❌ Action "${action.label}" could not be completed.`,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, resultMessage]);
+    }
+    setPendingAction(null);
+  };
+
+  const handleQuickAction = (actionId: string) => {
+    const allActions = ACTION_CATEGORIES.flatMap(cat => cat.actions);
+    const action = allActions.find(a => a.id === actionId);
+
+    if (action) {
+      const confirmAction: CopilotAction = {
+        id: action.id,
+        label: action.label,
+        type: 'execute',
+        requiresConfirmation: true,
+        confirmationMessage: `Are you sure you want to ${action.label.toLowerCase()}? This will affect your connected accounts.`
+      };
+
+      setPendingAction({ action: confirmAction, messageId: 'quick-action' });
     }
   };
 
@@ -195,164 +473,171 @@ export const CopilotModal: React.FC<CopilotModalProps> = ({ feed, isOpen, onClos
     navigator.clipboard.writeText(text);
   };
 
+  const insights = generateInsights(allFeeds);
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="copilot-modal" onClick={e => e.stopPropagation()}>
-        <div className="copilot-header">
-          <div className="copilot-title">
-            <div className="copilot-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                <path d="M2 17l10 5 10-5"/>
-                <path d="M2 12l10 5 10-5"/>
-              </svg>
+    <div className="copilot-modal-overlay" onClick={onClose}>
+      <div className="copilot-modal-panel" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <header className="copilot-modal-header">
+          <div className="copilot-header-left">
+            <div className="copilot-avatar">
+              <span className="copilot-avatar-icon">🧠</span>
+              <span className="copilot-avatar-pulse" />
             </div>
-            <h2>AI Copilot</h2>
-            <span className="copilot-badge">BETA</span>
+            <div className="copilot-header-info">
+              <h2>AI Copilot</h2>
+              <span className="copilot-status">
+                <span className="copilot-status-dot" />
+                {getContextSummary(allFeeds)}
+              </span>
+            </div>
           </div>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
+          <button className="copilot-close-btn" onClick={onClose}>×</button>
+        </header>
 
-        <div className="copilot-tabs">
-          <button
-            className={`copilot-tab ${activeTab === 'chat' ? 'active' : ''}`}
-            onClick={() => setActiveTab('chat')}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            Chat
-          </button>
-          <button
-            className={`copilot-tab ${activeTab === 'generate' ? 'active' : ''}`}
-            onClick={() => setActiveTab('generate')}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-            Generate
-          </button>
-          <button
-            className={`copilot-tab ${activeTab === 'ideas' ? 'active' : ''}`}
-            onClick={() => setActiveTab('ideas')}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-            Ideas
-          </button>
-        </div>
+        {/* Tabs */}
+        <nav className="copilot-tabs">
+          {(['chat', 'generate', 'actions', 'insights'] as TabType[]).map(tab => (
+            <button
+              key={tab}
+              className={`copilot-tab ${activeTab === tab ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === 'chat' && '💬'}
+              {tab === 'generate' && '⚡'}
+              {tab === 'actions' && '🎯'}
+              {tab === 'insights' && '📊'}
+              <span>{tab.charAt(0).toUpperCase() + tab.slice(1)}</span>
+            </button>
+          ))}
+        </nav>
 
+        {/* Content */}
         <div className="copilot-content">
+          {/* CHAT TAB */}
           {activeTab === 'chat' && (
-            <div className="chat-view">
-              <div className="messages-container">
+            <div className="copilot-chat-view">
+              <div className="copilot-messages">
                 {messages.map(message => (
-                  <div key={message.id} className={`message ${message.role}`}>
+                  <div key={message.id} className={`copilot-message ${message.role}`}>
                     {message.role === 'assistant' && (
-                      <div className="message-avatar">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                          <path d="M2 17l10 5 10-5"/>
-                          <path d="M2 12l10 5 10-5"/>
-                        </svg>
-                      </div>
+                      <div className="copilot-message-avatar">🧠</div>
                     )}
-                    <div className="message-content">
-                      <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
-                      <span className="message-time">
+                    <div className="copilot-message-content">
+                      <div className="copilot-message-text">
+                        {message.content.split('\n').map((line, i) => (
+                          <p key={i}>
+                            {line.split('**').map((part, j) =>
+                              j % 2 === 1 ? <strong key={j}>{part}</strong> : part
+                            )}
+                          </p>
+                        ))}
+                      </div>
+                      {message.actions && message.actions.length > 0 && (
+                        <div className="copilot-message-actions">
+                          {message.actions.map(action => (
+                            <button
+                              key={action.id}
+                              className={`copilot-action-btn ${action.type}`}
+                              onClick={() => handleActionClick(action, message.id)}
+                            >
+                              {action.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      <span className="copilot-message-time">
                         {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
                   </div>
                 ))}
                 {isGenerating && (
-                  <div className="message assistant">
-                    <div className="message-avatar">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                        <path d="M2 17l10 5 10-5"/>
-                        <path d="M2 12l10 5 10-5"/>
-                      </svg>
-                    </div>
-                    <div className="message-content typing">
-                      <span className="typing-dot"></span>
-                      <span className="typing-dot"></span>
-                      <span className="typing-dot"></span>
+                  <div className="copilot-message assistant">
+                    <div className="copilot-message-avatar">🧠</div>
+                    <div className="copilot-message-content">
+                      <div className="copilot-typing">
+                        <span className="copilot-typing-dot" />
+                        <span className="copilot-typing-dot" />
+                        <span className="copilot-typing-dot" />
+                      </div>
                     </div>
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
-              <div className="chat-input-container">
-                <div className="quick-prompts">
-                  {['Write me a caption', 'Hashtag suggestions', 'Content ideas', 'Best time to post'].map(prompt => (
-                    <button
-                      key={prompt}
-                      className="quick-prompt"
-                      onClick={() => setInputValue(prompt)}
-                    >
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-                <div className="chat-input">
-                  <input
-                    type="text"
-                    placeholder="Ask me anything..."
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  />
+              {/* Quick Prompts */}
+              <div className="copilot-quick-prompts">
+                {QUICK_PROMPTS.slice(0, 4).map((item, i) => (
                   <button
-                    className="send-btn"
-                    onClick={handleSendMessage}
-                    disabled={!inputValue.trim() || isGenerating}
+                    key={i}
+                    className="copilot-quick-prompt-btn"
+                    onClick={() => {
+                      setInputValue(item.prompt);
+                      setTimeout(() => inputRef.current?.focus(), 50);
+                    }}
                   >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="22" y1="2" x2="11" y2="13"/>
-                      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                    </svg>
+                    {item.prompt}
                   </button>
-                </div>
+                ))}
+              </div>
+
+              {/* Input */}
+              <div className="copilot-input-area">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Ask me anything about your social media..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  disabled={isGenerating}
+                />
+                <button
+                  className="copilot-send-btn"
+                  onClick={handleSendMessage}
+                  disabled={!inputValue.trim() || isGenerating}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                </button>
               </div>
             </div>
           )}
 
+          {/* GENERATE TAB */}
           {activeTab === 'generate' && (
-            <div className="generate-view">
-              <div className="generate-types">
-                {[
-                  { type: 'caption', label: 'Caption', icon: '✍️' },
-                  { type: 'hashtags', label: 'Hashtags', icon: '#️⃣' },
-                  { type: 'bio', label: 'Bio', icon: '👤' },
-                  { type: 'strategy', label: 'Strategy', icon: '📊' }
-                ].map(item => (
+            <div className="copilot-generate-view">
+              <div className="generate-types-grid">
+                {GENERATION_TYPES.map(item => (
                   <button
                     key={item.type}
-                    className={`generate-type ${generationType === item.type ? 'active' : ''}`}
+                    className={`generate-type-btn ${generationType === item.type ? 'active' : ''}`}
                     onClick={() => {
-                      setGenerationType(item.type as typeof generationType);
+                      setGenerationType(item.type);
                       setGeneratedContent(null);
                     }}
                   >
-                    <span className="type-icon">{item.icon}</span>
-                    <span>{item.label}</span>
+                    <span className="generate-type-icon">{item.icon}</span>
+                    <span className="generate-type-label">{item.label}</span>
+                    <span className="generate-type-desc">{item.description}</span>
                   </button>
                 ))}
               </div>
 
               <div className="generate-form">
-                {generationType !== 'bio' && generationType !== 'strategy' && (
-                  <div className="form-group">
+                {generationType !== 'bio' && generationType !== 'strategy' && generationType !== 'post-ideas' && (
+                  <div className="generate-input-group">
                     <label>
                       {generationType === 'caption' ? 'What is your post about?' : 'Enter topic or niche'}
                     </label>
                     <input
                       type="text"
-                      placeholder={generationType === 'caption' ? 'e.g., Beach sunset, New product launch, Monday motivation' : 'e.g., fitness, travel, food'}
+                      placeholder={generationType === 'caption' ? 'e.g., Beach sunset, New product launch' : 'e.g., fitness, travel, food'}
                       value={topicInput}
                       onChange={(e) => setTopicInput(e.target.value)}
                     />
@@ -362,7 +647,7 @@ export const CopilotModal: React.FC<CopilotModalProps> = ({ feed, isOpen, onClos
                 <button
                   className="generate-btn"
                   onClick={handleGenerate}
-                  disabled={isGenerating || (generationType !== 'bio' && generationType !== 'strategy' && !topicInput.trim())}
+                  disabled={isGenerating || (generationType !== 'bio' && generationType !== 'strategy' && generationType !== 'post-ideas' && !topicInput.trim())}
                 >
                   {isGenerating ? (
                     <>
@@ -371,10 +656,8 @@ export const CopilotModal: React.FC<CopilotModalProps> = ({ feed, isOpen, onClos
                     </>
                   ) : (
                     <>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                      </svg>
-                      Generate {generationType.charAt(0).toUpperCase() + generationType.slice(1)}
+                      <span>⚡</span>
+                      Generate {GENERATION_TYPES.find(t => t.type === generationType)?.label}
                     </>
                   )}
                 </button>
@@ -382,89 +665,257 @@ export const CopilotModal: React.FC<CopilotModalProps> = ({ feed, isOpen, onClos
 
               {generatedContent && (
                 <div className="generated-result">
-                  <div className="result-header">
-                    <h4>Generated {generatedContent.type.charAt(0).toUpperCase() + generatedContent.type.slice(1)}</h4>
-                    <button
-                      className="copy-btn"
-                      onClick={() => copyToClipboard(generatedContent.content)}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                      </svg>
-                      Copy
+                  <div className="generated-result-header">
+                    <h4>Generated {GENERATION_TYPES.find(t => t.type === generatedContent.type)?.label}</h4>
+                    <button className="copy-btn" onClick={() => copyToClipboard(generatedContent.content)}>
+                      📋 Copy
                     </button>
                   </div>
-                  <div className="result-content">
-                    <p style={{ whiteSpace: 'pre-wrap' }}>{generatedContent.content}</p>
+                  <div className="generated-result-content">
+                    <pre>{generatedContent.content}</pre>
                   </div>
-                  <button
-                    className="regenerate-btn"
-                    onClick={handleGenerate}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="23 4 23 10 17 10"/>
-                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-                    </svg>
-                    Regenerate
-                  </button>
+                  <div className="generated-result-actions">
+                    <button className="regenerate-btn" onClick={handleGenerate}>
+                      🔄 Regenerate
+                    </button>
+                    <button className="use-btn" onClick={() => {
+                      // Add to message as confirmation
+                      const msg: Message = {
+                        id: Date.now().toString(),
+                        role: 'system',
+                        content: `✅ Generated ${generatedContent.type} copied and ready to use!`,
+                        timestamp: new Date()
+                      };
+                      setMessages(prev => [...prev, msg]);
+                      setActiveTab('chat');
+                    }}>
+                      ✓ Use This
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {activeTab === 'ideas' && (
-            <div className="ideas-view">
-              <div className="ideas-intro">
-                <h3>💡 Content Ideas for @{feed.handle}</h3>
-                <p>Stuck on what to post? Here are some trending ideas in your niche!</p>
+          {/* ACTIONS TAB */}
+          {activeTab === 'actions' && (
+            <div className="copilot-actions-view">
+              <div className="actions-intro">
+                <h3>🎯 Quick Actions</h3>
+                <p>Execute actions across your connected accounts with AI assistance.</p>
               </div>
 
-              <div className="ideas-grid">
-                {contentIdeas.map(category => (
-                  <div key={category.category} className="idea-category">
-                    <h4>
-                      <span className="category-icon">{category.icon}</span>
-                      {category.category}
-                    </h4>
-                    <ul>
-                      {category.ideas.map(idea => (
-                        <li key={idea}>
-                          <button
-                            className="idea-btn"
-                            onClick={() => {
-                              setActiveTab('generate');
-                              setGenerationType('caption');
-                              setTopicInput(idea);
-                            }}
-                          >
-                            {idea}
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <line x1="5" y1="12" x2="19" y2="12"/>
-                              <polyline points="12 5 19 12 12 19"/>
-                            </svg>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+              {ACTION_CATEGORIES.map(category => (
+                <div key={category.id} className="action-category">
+                  <h4>
+                    <span className="category-icon">{category.icon}</span>
+                    {category.label}
+                  </h4>
+                  <div className="action-list">
+                    {category.actions.map(action => (
+                      <button
+                        key={action.id}
+                        className="action-item"
+                        onClick={() => handleQuickAction(action.id)}
+                      >
+                        <div className="action-item-info">
+                          <span className="action-item-label">{action.label}</span>
+                          <span className="action-item-desc">{action.description}</span>
+                        </div>
+                        <span className="action-item-arrow">→</span>
+                      </button>
+                    ))}
                   </div>
-                ))}
+                </div>
+              ))}
+
+              {/* Affected accounts indicator */}
+              {allFeeds.length > 0 && (
+                <div className="actions-affected">
+                  <span className="affected-label">Actions will affect:</span>
+                  <div className="affected-accounts">
+                    {allFeeds.map(f => (
+                      <span key={f.id} className="affected-account">
+                        {PLATFORMS[f.platform].icon} @{f.handle}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* INSIGHTS TAB */}
+          {activeTab === 'insights' && (
+            <div className="copilot-insights-view">
+              <div className="insights-header">
+                <h3>📊 Performance Insights</h3>
+                <p>AI-generated analysis of your accounts</p>
               </div>
 
-              <div className="trending-hashtags">
-                <h4>🔥 Trending Hashtags This Week</h4>
-                <div className="hashtag-cloud">
-                  {['#authenticity', '#growthmindset', '#contentcreator', '#socialmediatips', '#instagramgrowth', '#engagementboost', '#reelstrending', '#viralcontent'].map(tag => (
-                    <span key={tag} className="trending-tag">{tag}</span>
+              {insights.length > 0 ? (
+                <div className="insights-list">
+                  {insights.map((insight, i) => (
+                    <div key={i} className={`insight-card ${insight.type}`}>
+                      <div className="insight-icon">
+                        {insight.type === 'positive' && '✅'}
+                        {insight.type === 'negative' && '⚠️'}
+                        {insight.type === 'neutral' && 'ℹ️'}
+                      </div>
+                      <div className="insight-content">
+                        <span className="insight-metric">{insight.metric}</span>
+                        <p className="insight-message">{insight.message}</p>
+                        {insight.suggestion && (
+                          <p className="insight-suggestion">💡 {insight.suggestion}</p>
+                        )}
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </div>
+              ) : (
+                <div className="insights-empty">
+                  <span className="insights-empty-icon">📈</span>
+                  <p>Connect accounts to see personalized insights</p>
+                </div>
+              )}
+
+              {/* Account Summary */}
+              {allFeeds.length > 0 && (
+                <div className="insights-summary">
+                  <h4>Account Summary</h4>
+                  <div className="summary-grid">
+                    {allFeeds.map(feed => (
+                      <div key={feed.id} className="summary-card">
+                        <div className="summary-card-header">
+                          <span className="summary-platform">{PLATFORMS[feed.platform].icon}</span>
+                          <span className="summary-handle">@{feed.handle}</span>
+                        </div>
+                        <div className="summary-stats">
+                          <div className="summary-stat">
+                            <span className="stat-value">{(feed.metrics.followers || 0).toLocaleString()}</span>
+                            <span className="stat-label">Followers</span>
+                          </div>
+                          <div className="summary-stat">
+                            <span className="stat-value">{(feed.metrics.engagement || 0).toFixed(2)}%</span>
+                            <span className="stat-label">Engagement</span>
+                          </div>
+                          <div className="summary-stat">
+                            <span className="stat-value">{feed.metrics.postsPerWeek || 0}/wk</span>
+                            <span className="stat-label">Posts</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
+
+        {/* Confirmation Dialog */}
+        {pendingAction && (
+          <div className="copilot-confirm-overlay">
+            <div className="copilot-confirm-dialog">
+              <div className="confirm-icon">⚡</div>
+              <h4>Confirm Action</h4>
+              <p>{pendingAction.action.confirmationMessage || `Execute "${pendingAction.action.label}"?`}</p>
+              <div className="confirm-actions">
+                <button className="confirm-cancel" onClick={() => setPendingAction(null)}>
+                  Cancel
+                </button>
+                <button className="confirm-proceed" onClick={() => executeAction(pendingAction.action)}>
+                  Proceed
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <footer className="copilot-modal-footer">
+          <span>Powered by Social Exchange AI</span>
+        </footer>
       </div>
     </div>
   );
 };
+
+// ============================================
+// FALLBACK RESPONSE GENERATORS
+// ============================================
+
+function generateLocalResponse(input: string, feeds: Feed[]): { content: string; actions?: CopilotAction[] } {
+  const lowerInput = input.toLowerCase();
+
+  const totalFollowers = feeds.reduce((sum, f) => sum + (f.metrics.followers || 0), 0);
+  const avgEngagement = feeds.reduce((sum, f) => sum + (f.metrics.engagement || 0), 0) / (feeds.length || 1);
+
+  if (lowerInput.includes('performance') || lowerInput.includes('analyz')) {
+    return {
+      content: `Based on your ${feeds.length} connected account${feeds.length !== 1 ? 's' : ''}:\n\n**Overview:**\n• Total Followers: ${totalFollowers.toLocaleString()}\n• Average Engagement: ${avgEngagement.toFixed(2)}%\n• Accounts: ${feeds.map(f => `@${f.handle}`).join(', ')}\n\n${avgEngagement < 3 ? '**Tip:** Your engagement could use a boost. Try posting more engaging content like polls, questions, and carousels.' : '**Great work!** Your engagement is solid. Keep up the consistency!'}`,
+      actions: [
+        { id: 'view-insights', label: 'View Full Insights', type: 'navigate', payload: 'insights' }
+      ]
+    };
+  }
+
+  if (lowerInput.includes('caption')) {
+    return {
+      content: `I can help you write a caption! Here's a quick formula:\n\n**Hook** → Grab attention in the first line\n**Story** → Share value or a personal touch\n**CTA** → End with a call-to-action\n\nWould you like me to generate one for you?`,
+      actions: [
+        { id: 'gen-caption', label: 'Generate Caption', type: 'generate', payload: 'caption' }
+      ]
+    };
+  }
+
+  if (lowerInput.includes('hashtag')) {
+    return {
+      content: `**Hashtag Strategy Tips:**\n\n1. Use 15-25 hashtags per post\n2. Mix sizes: small (10K-100K), medium (100K-1M), large (1M+)\n3. Include niche-specific tags\n4. Rotate your hashtag sets\n\nWant me to research hashtags for your niche?`,
+      actions: [
+        { id: 'gen-hashtags', label: 'Generate Hashtags', type: 'generate', payload: 'hashtags' }
+      ]
+    };
+  }
+
+  if (lowerInput.includes('automat') || lowerInput.includes('autopilot')) {
+    return {
+      content: `**Automation Options:**\n\n🤖 **Autopilot Mode** - Full automation\n🔒 **Escrow Mode** - Review before posting\n✋ **Manual Mode** - Complete control\n\nI can help you set up automation workflows that post content at optimal times while you focus on strategy.`,
+      actions: [
+        { id: 'go-actions', label: 'Set Up Automation', type: 'navigate', payload: 'actions' }
+      ]
+    };
+  }
+
+  return {
+    content: `I'm here to help! I can assist with:\n\n• **Content** - Captions, hashtags, post ideas\n• **Strategy** - Growth plans, best times to post\n• **Analytics** - Performance analysis, comparisons\n• **Automation** - Set up autopilot, workflows\n\nWhat would you like to explore?`,
+    actions: [
+      { id: 'gen', label: 'Generate Content', type: 'navigate', payload: 'generate' },
+      { id: 'actions', label: 'Quick Actions', type: 'navigate', payload: 'actions' }
+    ]
+  };
+}
+
+function generateFallbackContent(type: string, topic: string, feed?: Feed): string {
+  const handle = feed?.handle || 'your_account';
+
+  switch (type) {
+    case 'caption':
+      return `✨ ${topic || 'New post'} loading...\n\nSometimes the best moments are the ones we least expect. This is one of them.\n\nDouble tap if you agree 👇\n\n#${topic?.replace(/\s+/g, '') || 'lifestyle'} #contentcreator #authentic #goodvibes`;
+
+    case 'hashtags':
+      return `**Hashtags for: ${topic || 'lifestyle'}**\n\n**High Volume:**\n#${topic?.replace(/\s+/g, '') || 'lifestyle'} #instagood #photooftheday #love #beautiful\n\n**Medium Volume:**\n#${topic?.replace(/\s+/g, '') || 'life'}style #dailyinspiration #contentcreator #creativecontent\n\n**Niche:**\n#${topic?.replace(/\s+/g, '') || 'authentic'}moments #reallife #${topic?.replace(/\s+/g, '') || 'genuine'}`;
+
+    case 'bio':
+      return `**Option 1 - Professional:**\n${topic || 'Creator'} | Sharing stories & inspiration\n📍 Making magic happen\n🔗 Link below 👇\n\n**Option 2 - Personal:**\n${topic || 'Just'} living my best life ✨\nSharing the journey with you\nDM for collabs 💌\n\n**Option 3 - Minimal:**\n${topic || 'Creator'} 📸\n@${handle}`;
+
+    case 'strategy':
+    case 'post-ideas':
+      return `**Content Strategy for @${handle}**\n\n**Content Pillars:**\n1. Educational content (40%)\n2. Entertainment/Trending (30%)\n3. Personal/Behind-the-scenes (20%)\n4. Promotional (10%)\n\n**Posting Schedule:**\n• Best days: Tuesday, Thursday, Saturday\n• Best times: 9 AM, 12 PM, 7 PM\n• Frequency: 4-5 posts per week\n\n**This Week's Ideas:**\n1. Monday: Motivational quote carousel\n2. Wednesday: How-to/Tutorial\n3. Friday: Behind-the-scenes\n4. Weekend: Trending audio Reel`;
+
+    default:
+      return 'Content generated successfully!';
+  }
+}
 
 export default CopilotModal;

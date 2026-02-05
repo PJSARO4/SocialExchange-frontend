@@ -1,6 +1,6 @@
 'use client';
 
-import { Feed, PLATFORMS } from '../../types/feed';
+import { Feed, PLATFORMS, ControlMode } from '../../types/feed';
 
 interface FeedCardProps {
   feed: Feed;
@@ -8,6 +8,34 @@ interface FeedCardProps {
   onSelect: () => void;
   onRemove: () => void;
 }
+
+// Mode configuration with icons and colors
+const MODE_CONFIG: Record<ControlMode, { icon: string; label: string; color: string; description: string }> = {
+  autopilot: {
+    icon: '🤖',
+    label: 'AUTO',
+    color: '#00ff88',
+    description: 'AI auto-curates and posts'
+  },
+  manual: {
+    icon: '✋',
+    label: 'MANUAL',
+    color: '#00d4ff',
+    description: 'User-driven content'
+  },
+  observation: {
+    icon: '👁️',
+    label: 'OBSERVE',
+    color: '#ff9500',
+    description: 'Track public metrics only'
+  },
+  escrow: {
+    icon: '🔒',
+    label: 'ESCROW',
+    color: '#a855f7',
+    description: 'Pending approval'
+  }
+};
 
 export default function FeedCard({
   feed,
@@ -18,6 +46,7 @@ export default function FeedCard({
   const platform = PLATFORMS[feed.platform];
   const statusClass = feed.connectionStatus === 'active' ? 'active' :
                       feed.connectionStatus === 'error' ? 'error' : 'pending';
+  const modeConfig = MODE_CONFIG[feed.controlMode] || MODE_CONFIG.manual;
 
   return (
     <div
@@ -42,6 +71,17 @@ export default function FeedCard({
             {platform.icon}
           </span>
         )}
+        {/* Mode badge on avatar */}
+        <div
+          className="feed-card-mode-badge"
+          style={{
+            backgroundColor: modeConfig.color + '20',
+            borderColor: modeConfig.color
+          }}
+          title={`${modeConfig.label}: ${modeConfig.description}`}
+        >
+          <span>{modeConfig.icon}</span>
+        </div>
       </div>
 
       {/* Info */}
@@ -50,8 +90,11 @@ export default function FeedCard({
         <div className="feed-card-meta">
           <span className="feed-card-platform">{platform.label}</span>
           <span className="feed-card-separator">•</span>
-          <span className={`feed-card-status ${statusClass}`}>
-            {feed.connectionStatus.toUpperCase()}
+          <span
+            className="feed-card-mode"
+            style={{ color: modeConfig.color }}
+          >
+            {modeConfig.label}
           </span>
         </div>
       </div>
@@ -69,7 +112,12 @@ export default function FeedCard({
 
       {/* Automation indicator */}
       <div className={`feed-card-automation ${feed.automationEnabled ? 'armed' : 'idle'}`}>
-        <span className="feed-card-automation-dot">⦿</span>
+        <span
+          className="feed-card-automation-dot"
+          style={{ color: feed.automationEnabled ? modeConfig.color : undefined }}
+        >
+          ⦿
+        </span>
       </div>
 
       {/* Remove button */}

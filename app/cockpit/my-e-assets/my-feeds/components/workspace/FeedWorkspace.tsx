@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Feed, PLATFORMS, ControlMode } from '../../types/feed';
 import { useFeeds } from '../../context/FeedsContext';
+import ModeSelector from '../ModeSelector';
 
 interface InstagramPost {
   id: string;
@@ -178,21 +179,13 @@ export default function FeedWorkspace({
             </span>
           </div>
 
-          {/* Control Mode Selection */}
+          {/* Control Mode Selection - Enhanced */}
           <div className="control-mode-selector">
-            <div className="control-mode-label">CONTROL MODE</div>
-            <div className="control-mode-options">
-              {controlModes.map(({ mode, label, description }) => (
-                <button
-                  key={mode}
-                  className={`control-mode-option ${feed.controlMode === mode ? 'active' : ''}`}
-                  onClick={() => handleControlModeChange(mode)}
-                  title={description}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <div className="control-mode-label">OPERATING MODE</div>
+            <ModeSelector
+              currentMode={feed.controlMode}
+              onModeChange={handleControlModeChange}
+            />
           </div>
         </div>
       </section>
