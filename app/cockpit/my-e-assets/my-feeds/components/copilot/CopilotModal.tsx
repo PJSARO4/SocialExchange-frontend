@@ -51,7 +51,26 @@ interface PerformanceInsight {
   suggestion?: string;
 }
 
-type TabType = 'chat' | 'generate' | 'actions' | 'insights';
+interface CompetitorData {
+  handle: string;
+  platform: string;
+  followers: number;
+  engagement: number;
+  postsPerWeek: number;
+  topContent: string[];
+  strengths: string[];
+}
+
+interface WorkflowSuggestion {
+  id: string;
+  name: string;
+  description: string;
+  trigger: string;
+  benefit: string;
+  difficulty: 'easy' | 'medium' | 'advanced';
+}
+
+type TabType = 'chat' | 'generate' | 'actions' | 'insights' | 'competitors' | 'workflows';
 
 // ============================================
 // KNOWLEDGE BASE
@@ -118,6 +137,95 @@ const QUICK_PROMPTS = [
   { prompt: 'Compare my accounts\' performance', category: 'analytics' },
   { prompt: 'Create a growth plan for me', category: 'strategy' },
 ];
+
+// Workflow suggestions based on account state
+const WORKFLOW_SUGGESTIONS: WorkflowSuggestion[] = [
+  {
+    id: 'auto-post',
+    name: 'Auto Post from Library',
+    description: 'Automatically post your approved content at optimal times',
+    trigger: 'Daily at optimal times',
+    benefit: 'Consistent posting without manual effort',
+    difficulty: 'easy',
+  },
+  {
+    id: 'content-scraper',
+    name: 'Competitor Content Monitor',
+    description: 'Track competitor posts and save high-performing content for inspiration',
+    trigger: 'Every 6 hours',
+    benefit: 'Stay ahead of trends and competition',
+    difficulty: 'medium',
+  },
+  {
+    id: 'ai-caption',
+    name: 'AI Caption Enhancement',
+    description: 'Automatically generate and improve captions for uploaded content',
+    trigger: 'When new content added',
+    benefit: 'Save time writing captions',
+    difficulty: 'easy',
+  },
+  {
+    id: 'hashtag-optimizer',
+    name: 'Smart Hashtag Research',
+    description: 'Automatically research and apply trending hashtags to your posts',
+    trigger: 'Before each post',
+    benefit: 'Maximize reach with optimal hashtags',
+    difficulty: 'easy',
+  },
+  {
+    id: 'engagement-responder',
+    name: 'Engagement Auto-Responder',
+    description: 'Auto-like and reply to comments on your posts',
+    trigger: 'When new comments arrive',
+    benefit: 'Boost engagement and build community',
+    difficulty: 'advanced',
+  },
+  {
+    id: 'analytics-report',
+    name: 'Weekly Analytics Report',
+    description: 'Generate a weekly report of your account performance',
+    trigger: 'Every Sunday at 9 AM',
+    benefit: 'Track progress without manual analysis',
+    difficulty: 'medium',
+  },
+];
+
+// Mock competitor data generator
+function generateMockCompetitors(feed?: Feed): CompetitorData[] {
+  if (!feed) return [];
+
+  const baseFollowers = feed.metrics.followers || 1000;
+
+  return [
+    {
+      handle: '@similar_creator_1',
+      platform: feed.platform,
+      followers: Math.floor(baseFollowers * 1.5),
+      engagement: 4.2,
+      postsPerWeek: 7,
+      topContent: ['Carousel tutorials', 'Behind-the-scenes', 'Product reviews'],
+      strengths: ['Consistent posting', 'Strong hooks', 'Community engagement'],
+    },
+    {
+      handle: '@niche_leader',
+      platform: feed.platform,
+      followers: Math.floor(baseFollowers * 3),
+      engagement: 5.8,
+      postsPerWeek: 5,
+      topContent: ['Educational reels', 'User stories', 'Trend participation'],
+      strengths: ['High-quality visuals', 'Storytelling', 'Collaborations'],
+    },
+    {
+      handle: '@rising_star',
+      platform: feed.platform,
+      followers: Math.floor(baseFollowers * 0.7),
+      engagement: 8.1,
+      postsPerWeek: 10,
+      topContent: ['Personal stories', 'Quick tips', 'Relatable content'],
+      strengths: ['Authenticity', 'Trending audio', 'Engagement bait'],
+    },
+  ];
+}
 
 // ============================================
 // HELPER FUNCTIONS
@@ -498,7 +606,7 @@ What would you like to work on today?`,
 
         {/* Tabs */}
         <nav className="copilot-tabs">
-          {(['chat', 'generate', 'actions', 'insights'] as TabType[]).map(tab => (
+          {(['chat', 'generate', 'actions', 'insights', 'competitors', 'workflows'] as TabType[]).map(tab => (
             <button
               key={tab}
               className={`copilot-tab ${activeTab === tab ? 'active' : ''}`}
@@ -508,6 +616,8 @@ What would you like to work on today?`,
               {tab === 'generate' && '⚡'}
               {tab === 'actions' && '🎯'}
               {tab === 'insights' && '📊'}
+              {tab === 'competitors' && '👁️'}
+              {tab === 'workflows' && '⚙️'}
               <span>{tab.charAt(0).toUpperCase() + tab.slice(1)}</span>
             </button>
           ))}
@@ -806,6 +916,218 @@ What would you like to work on today?`,
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* COMPETITORS TAB */}
+          {activeTab === 'competitors' && (
+            <div className="copilot-competitors-view">
+              <div className="competitors-header">
+                <h3>👁️ Competitive Analysis</h3>
+                <p>AI-powered insights on similar accounts in your niche</p>
+              </div>
+
+              {primaryFeed ? (
+                <>
+                  {/* Your Position */}
+                  <div className="your-position">
+                    <h4>Your Position</h4>
+                    <div className="position-card">
+                      <div className="position-account">
+                        <span className="position-platform">{PLATFORMS[primaryFeed.platform].icon}</span>
+                        <span className="position-handle">@{primaryFeed.handle}</span>
+                      </div>
+                      <div className="position-stats">
+                        <div className="position-stat">
+                          <span className="stat-value">{(primaryFeed.metrics.followers || 0).toLocaleString()}</span>
+                          <span className="stat-label">Followers</span>
+                        </div>
+                        <div className="position-stat">
+                          <span className="stat-value">{(primaryFeed.metrics.engagement || 0).toFixed(1)}%</span>
+                          <span className="stat-label">Engagement</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Competitor Cards */}
+                  <div className="competitors-list">
+                    <h4>Similar Accounts to Watch</h4>
+                    {generateMockCompetitors(primaryFeed).map((comp, i) => (
+                      <div key={i} className="competitor-card">
+                        <div className="competitor-header">
+                          <div className="competitor-identity">
+                            <span className="competitor-handle">{comp.handle}</span>
+                            <span className="competitor-platform">{PLATFORMS[comp.platform as keyof typeof PLATFORMS]?.icon}</span>
+                          </div>
+                          <div className="competitor-comparison">
+                            {comp.followers > (primaryFeed.metrics.followers || 0) ? (
+                              <span className="comp-badge larger">+{((comp.followers / (primaryFeed.metrics.followers || 1) - 1) * 100).toFixed(0)}% larger</span>
+                            ) : (
+                              <span className="comp-badge smaller">{((1 - comp.followers / (primaryFeed.metrics.followers || 1)) * 100).toFixed(0)}% smaller</span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="competitor-stats">
+                          <div className="comp-stat">
+                            <span className="comp-stat-value">{comp.followers.toLocaleString()}</span>
+                            <span className="comp-stat-label">Followers</span>
+                          </div>
+                          <div className="comp-stat">
+                            <span className="comp-stat-value">{comp.engagement}%</span>
+                            <span className="comp-stat-label">Engagement</span>
+                          </div>
+                          <div className="comp-stat">
+                            <span className="comp-stat-value">{comp.postsPerWeek}/wk</span>
+                            <span className="comp-stat-label">Posts</span>
+                          </div>
+                        </div>
+
+                        <div className="competitor-insights">
+                          <div className="insight-section">
+                            <span className="insight-title">Top Content Types</span>
+                            <div className="insight-tags">
+                              {comp.topContent.map((content, j) => (
+                                <span key={j} className="insight-tag">{content}</span>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="insight-section">
+                            <span className="insight-title">Key Strengths</span>
+                            <div className="insight-tags strengths">
+                              {comp.strengths.map((strength, j) => (
+                                <span key={j} className="insight-tag">{strength}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <button className="track-competitor-btn">
+                          + Track This Account
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Competitive Tips */}
+                  <div className="competitive-tips">
+                    <h4>💡 AI Recommendations</h4>
+                    <ul className="tips-list">
+                      <li>Post more carousel content - competitors see 2x engagement with this format</li>
+                      <li>Increase posting frequency by 2 posts/week to match niche average</li>
+                      <li>Try trending audio in Reels - top performers use it in 60% of content</li>
+                      <li>Engage more with comments - respond within 1 hour for best algorithm boost</li>
+                    </ul>
+                  </div>
+                </>
+              ) : (
+                <div className="competitors-empty">
+                  <span className="empty-icon">👁️</span>
+                  <p>Select an account to see competitive analysis</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* WORKFLOWS TAB */}
+          {activeTab === 'workflows' && (
+            <div className="copilot-workflows-view">
+              <div className="workflows-header">
+                <h3>⚙️ Suggested Workflows</h3>
+                <p>AI-recommended automations based on your account activity</p>
+              </div>
+
+              {/* Workflow Suggestions */}
+              <div className="workflow-suggestions">
+                {WORKFLOW_SUGGESTIONS.map(workflow => (
+                  <div key={workflow.id} className={`workflow-suggestion-card ${workflow.difficulty}`}>
+                    <div className="workflow-card-header">
+                      <h4>{workflow.name}</h4>
+                      <span className={`difficulty-badge ${workflow.difficulty}`}>
+                        {workflow.difficulty}
+                      </span>
+                    </div>
+                    <p className="workflow-description">{workflow.description}</p>
+
+                    <div className="workflow-details">
+                      <div className="workflow-detail">
+                        <span className="detail-icon">⏰</span>
+                        <span className="detail-text">{workflow.trigger}</span>
+                      </div>
+                      <div className="workflow-detail">
+                        <span className="detail-icon">✨</span>
+                        <span className="detail-text">{workflow.benefit}</span>
+                      </div>
+                    </div>
+
+                    <div className="workflow-actions">
+                      <button className="workflow-preview-btn">Preview</button>
+                      <button className="workflow-create-btn">Create Workflow</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quick Setup */}
+              <div className="quick-setup">
+                <h4>⚡ Quick Setup</h4>
+                <p>Get started with one click - we'll configure everything for you</p>
+                <div className="quick-setup-options">
+                  <button className="quick-setup-btn">
+                    <span className="setup-icon">🚀</span>
+                    <span className="setup-text">Auto-Post Daily</span>
+                    <span className="setup-desc">Post from library at optimal times</span>
+                  </button>
+                  <button className="quick-setup-btn">
+                    <span className="setup-icon">🧠</span>
+                    <span className="setup-text">AI Content Helper</span>
+                    <span className="setup-desc">Auto-generate captions & hashtags</span>
+                  </button>
+                  <button className="quick-setup-btn">
+                    <span className="setup-icon">📊</span>
+                    <span className="setup-text">Weekly Reports</span>
+                    <span className="setup-desc">Get analytics delivered weekly</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Account-Specific Recommendations */}
+              {primaryFeed && (
+                <div className="account-recommendations">
+                  <h4>📌 Recommended for @{primaryFeed.handle}</h4>
+                  <div className="recommendation-cards">
+                    {(primaryFeed.metrics.postsPerWeek || 0) < 4 && (
+                      <div className="recommendation-card">
+                        <span className="rec-icon">📅</span>
+                        <div className="rec-content">
+                          <span className="rec-title">Increase Posting Frequency</span>
+                          <span className="rec-text">You're posting {primaryFeed.metrics.postsPerWeek || 0} times/week. Set up auto-posting to reach 5+/week.</span>
+                        </div>
+                        <button className="rec-action">Set Up</button>
+                      </div>
+                    )}
+                    {(primaryFeed.metrics.engagement || 0) < 3 && (
+                      <div className="recommendation-card">
+                        <span className="rec-icon">💬</span>
+                        <div className="rec-content">
+                          <span className="rec-title">Boost Engagement</span>
+                          <span className="rec-text">Your {(primaryFeed.metrics.engagement || 0).toFixed(1)}% engagement can improve with AI-optimized captions.</span>
+                        </div>
+                        <button className="rec-action">Enable</button>
+                      </div>
+                    )}
+                    <div className="recommendation-card">
+                      <span className="rec-icon">⏰</span>
+                      <div className="rec-content">
+                        <span className="rec-title">Optimal Timing</span>
+                        <span className="rec-text">Let AI find and use your best posting times automatically.</span>
+                      </div>
+                      <button className="rec-action">Activate</button>
+                    </div>
                   </div>
                 </div>
               )}
