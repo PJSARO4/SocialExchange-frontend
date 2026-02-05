@@ -1,5 +1,42 @@
 /* ======================================================
-   TACTICAL COMMAND INTERFACE — FEED CONTROL
+   MY FEEDS - TACTICAL COMMAND INTERFACE
+   Social Exchange - Feed Management System
+
+   TABLE OF CONTENTS
+   =================
+   1.  Variables & Base Styles        (Line ~30)
+   2.  Loading & Error States         (Line ~65)
+   3.  Command Header                 (Line ~89)
+   4.  Tactical Grid Layout           (Line ~163)
+   5.  Left Panel - Systems           (Line ~178)
+   6.  Account Cards                  (Line ~297)
+   7.  Center Operations Panel        (Line ~462)
+   8.  Right Control Panel            (Line ~697)
+   9.  Automation Indicators          (Line ~865)
+   10. Control Modes                  (Line ~939)
+   11. Responsive Grid                (Line ~1020)
+   12. Tab Navigation                 (Line ~1097)
+   13. Feed Cards                     (Line ~1275)
+   14. Modal Base Styles              (Line ~1641)
+   15. Platform Grid                  (Line ~1693)
+   16. Connection Modes               (Line ~1742)
+   17. Content Library                (Line ~2105)
+   18. Content Cards                  (Line ~2299)
+   19. Feed Workspace                 (Line ~2808)
+   20. Scheduler                      (Line ~3225)
+   21. Calendar View                  (Line ~3346)
+   22. Post Queue                     (Line ~3608)
+   23. Analytics Modal                (Line ~4513)
+   24. Copilot Modal                  (Line ~5159)
+   25. Automation Modal               (Line ~5718)
+   26. Content Finder Modal           (Line ~6314)
+   27. Enhanced Analytics             (Line ~7098)
+   28. Post History Modal             (Line ~9148)
+   29. Tutorial Styles                (Line ~10937)
+
+   NOTE: This file contains some duplicate class definitions
+   that serve as view-specific overrides. Future refactoring
+   should consolidate these into modifier classes.
 ====================================================== */
 
 :root {
