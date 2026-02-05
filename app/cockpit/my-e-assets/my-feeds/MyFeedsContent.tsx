@@ -13,7 +13,8 @@ import { SchedulerModal } from './components/scheduler/SchedulerModal';
 import { CopilotModal } from './components/copilot/CopilotModal';
 import { AutomationModal } from './components/automation/AutomationModal';
 import { ContentFinderModal } from './components/content-finder/ContentFinderModal';
-import { AdvertiseTab } from './components/advertise';
+import { EarnExTab } from './components/earnex';
+import { CompetitorsTab } from './components/competitors';
 import { PageTutorial } from './components/PageTutorial';
 import { Platform } from './types/feed';
 
@@ -308,21 +309,9 @@ export default function MyFeedsContent() {
               </div>
             )
           ) : activeTab === 'earnex' ? (
-            <AdvertiseTab feed={selectedFeed} />
+            <EarnExTab feed={selectedFeed} feeds={feeds} />
           ) : activeTab === 'competitors' ? (
-            /* Competitors View - Placeholder */
-            <div className="competitors-view">
-              <div className="competitors-header">
-                <h2>Competitors</h2>
-                <p>Track and analyze your competition</p>
-              </div>
-              <div className="competitors-empty">
-                <div className="empty-icon">👁️</div>
-                <h3>No Competitors Tracked Yet</h3>
-                <p>Start tracking competitor accounts to gain insights into their strategies</p>
-                <button className="add-competitor-btn">+ Add Competitor</button>
-              </div>
-            </div>
+            <CompetitorsTab feed={selectedFeed} feeds={feeds} />
           ) : (
             <ContentLibrary />
           )}
