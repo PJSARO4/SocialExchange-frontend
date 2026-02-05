@@ -12,6 +12,16 @@ import {
   isSameDay,
 } from '../../types/schedule';
 import { PLATFORMS } from '../../types/feed';
+import { WorkflowEvent } from '../../context/WorkflowEventsContext';
+
+// Workflow event icons
+const WORKFLOW_EVENT_ICONS: Record<WorkflowEvent['type'], string> = {
+  scheduled_run: '⚙️',
+  content_scrape: '🔍',
+  auto_post: '📤',
+  analytics_check: '📊',
+  content_added: '➕',
+};
 
 // Optimal posting times by day of week (based on typical engagement data)
 const OPTIMAL_TIMES: Record<number, string[]> = {
@@ -35,20 +45,26 @@ function getDayOptimalLevel(date: Date): 'high' | 'medium' | 'low' {
 
 interface CalendarViewProps {
   posts: ScheduledPost[];
+  workflowEvents?: WorkflowEvent[];
   onDayClick: (date: Date) => void;
   onPostClick: (post: ScheduledPost) => void;
+  onWorkflowEventClick?: (event: WorkflowEvent) => void;
   onDropOnDay?: (date: Date, contentId: string) => void;
   selectedDate?: Date;
   showOptimalTimes?: boolean;
+  showWorkflowEvents?: boolean;
 }
 
 export default function CalendarView({
   posts,
+  workflowEvents = [],
   onDayClick,
   onPostClick,
+  onWorkflowEventClick,
   onDropOnDay,
   selectedDate,
   showOptimalTimes = true,
+  showWorkflowEvents = true,
 }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<ViewType>('month');
@@ -56,7 +72,7 @@ export default function CalendarView({
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  // Generate calendar days with posts
+  // Generate calendar days with posts and workflow events
   const calendarDays = useMemo(() => {
     const days = getCalendarDays(year, month);
     return days.map((day) => ({
@@ -65,8 +81,12 @@ export default function CalendarView({
         const postDate = new Date(post.scheduledFor);
         return isSameDay(postDate, day.date);
       }),
+      workflowEvents: showWorkflowEvents ? workflowEvents.filter((event) => {
+        const eventDate = new Date(event.scheduledFor);
+        return isSameDay(eventDate, day.date);
+      }) : [],
     }));
-  }, [year, month, posts]);
+  }, [year, month, posts, workflowEvents, showWorkflowEvents]);
 
   const weekDays = getWeekDays();
 
@@ -132,6 +152,7 @@ export default function CalendarView({
             isSelected={selectedDate ? isSameDay(day.date, selectedDate) : false}
             onClick={() => onDayClick(day.date)}
             onPostClick={onPostClick}
+            onWorkflowEventClick={onWorkflowEventClick}
           />
         ))}
       </div>
@@ -150,6 +171,15 @@ export default function CalendarView({
           <span className="calendar-legend-dot failed" />
           <span>Failed</span>
         </div>
+        {showWorkflowEvents && (
+          <>
+            <div className="calendar-legend-separator" />
+            <div className="calendar-legend-item">
+              <span className="calendar-legend-dot workflow" />
+              <span>Workflow</span>
+            </div>
+          </>
+        )}
         {showOptimalTimes && (
           <>
             <div className="calendar-legend-separator" />
@@ -172,11 +202,16 @@ export default function CalendarView({
 // CALENDAR DAY CELL
 // ============================================
 
+interface CalendarDayWithEvents extends CalendarDay {
+  workflowEvents: WorkflowEvent[];
+}
+
 interface CalendarDayCellProps {
-  day: CalendarDay;
+  day: CalendarDayWithEvents;
   isSelected: boolean;
   onClick: () => void;
   onPostClick: (post: ScheduledPost) => void;
+  onWorkflowEventClick?: (event: WorkflowEvent) => void;
   onDrop?: (contentId: string) => void;
   showOptimalTimes?: boolean;
 }
@@ -186,13 +221,22 @@ function CalendarDayCell({
   isSelected,
   onClick,
   onPostClick,
+  onWorkflowEventClick,
   onDrop,
   showOptimalTimes = true,
 }: CalendarDayCellProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const dayNumber = day.date.getDate();
-  const hasMultiplePosts = day.posts.length > 3;
-  const visiblePosts = hasMultiplePosts ? day.posts.slice(0, 2) : day.posts;
+
+  // Calculate total items (posts + workflow events)
+  const totalItems = day.posts.length + day.workflowEvents.length;
+  const hasMultipleItems = totalItems > 3;
+
+  // Prioritize showing workflow events first, then posts
+  const visibleWorkflowEvents = hasMultipleItems ? day.workflowEvents.slice(0, 1) : day.workflowEvents;
+  const remainingSlots = hasMultipleItems ? Math.max(0, 2 - visibleWorkflowEvents.length) : 3 - visibleWorkflowEvents.length;
+  const visiblePosts = day.posts.slice(0, remainingSlots);
+  const hiddenCount = totalItems - visibleWorkflowEvents.length - visiblePosts.length;
 
   // Get optimal posting level for this day
   const optimalLevel = showOptimalTimes && day.isCurrentMonth
@@ -243,8 +287,32 @@ function CalendarDayCell({
         )}
       </div>
 
-      {day.posts.length > 0 && (
+      {(day.posts.length > 0 || day.workflowEvents.length > 0) && (
         <div className="calendar-day-posts">
+          {/* Workflow Events */}
+          {visibleWorkflowEvents.map((event) => (
+            <div
+              key={event.id}
+              className={`calendar-workflow-chip ${event.status}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onWorkflowEventClick?.(event);
+              }}
+              title={`${event.workflowName} - ${new Date(event.scheduledFor).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}`}
+            >
+              <span className="calendar-workflow-icon">
+                {WORKFLOW_EVENT_ICONS[event.type] || '⚙️'}
+              </span>
+              <span className="calendar-workflow-name">
+                {event.workflowName.slice(0, 8)}
+              </span>
+            </div>
+          ))}
+
+          {/* Scheduled Posts */}
           {visiblePosts.map((post) => (
             <div
               key={post.id}
@@ -274,9 +342,10 @@ function CalendarDayCell({
               </span>
             </div>
           ))}
-          {hasMultiplePosts && (
+
+          {hiddenCount > 0 && (
             <div className="calendar-post-more">
-              +{day.posts.length - 2} more
+              +{hiddenCount} more
             </div>
           )}
         </div>

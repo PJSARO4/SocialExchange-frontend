@@ -1,6 +1,7 @@
 'use client';
 
 import { FeedsProvider } from './context/FeedsContext';
+import { WorkflowEventsProvider } from './context/WorkflowEventsContext';
 import MyFeedsContent from './MyFeedsContent';
 
 import './my-feeds.css';
@@ -8,7 +9,9 @@ import './my-feeds.css';
 export default function MyFeedsPage() {
   return (
     <FeedsProvider>
-      <MyFeedsContent />
+      <WorkflowEventsProvider>
+        <MyFeedsContent />
+      </WorkflowEventsProvider>
     </FeedsProvider>
   );
 }

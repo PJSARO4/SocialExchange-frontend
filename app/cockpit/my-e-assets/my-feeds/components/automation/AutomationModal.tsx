@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ChainBuilder } from './chain-builder/ChainBuilder';
 import { AutomationChain, ChainNode, NodeConnection } from './chain-builder/types';
+import { useWorkflowEvents } from '../../context/WorkflowEventsContext';
 
 interface AutomationModalProps {
   isOpen?: boolean;
@@ -162,6 +163,37 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
+  // Try to use workflow events context
+  let workflowEventsContext: ReturnType<typeof useWorkflowEvents> | null = null;
+  try {
+    workflowEventsContext = useWorkflowEvents();
+  } catch {
+    // Context not available
+  }
+
+  // Sync workflow events for a chain
+  const syncChainEvents = useCallback((chain: AutomationChain) => {
+    if (!workflowEventsContext) return;
+
+    // Find the start node to get schedule config
+    const startNode = chain.nodes.find(n => n.type === 'start');
+    const trigger = startNode?.data?.trigger || startNode?.data?.triggerType || 'manual';
+    const cronExpression = startNode?.data?.schedule;
+
+    if (chain.enabled && trigger === 'schedule' && cronExpression) {
+      workflowEventsContext.syncWorkflowEvents(chain.id, chain.name, {
+        trigger: 'schedule',
+        cronExpression,
+        startDate: new Date().toISOString(),
+      });
+    } else {
+      // Clear events for this workflow if disabled or not scheduled
+      workflowEventsContext.syncWorkflowEvents(chain.id, chain.name, {
+        trigger: 'manual',
+      });
+    }
+  }, [workflowEventsContext]);
+
   // Load chains on mount
   useEffect(() => {
     setChains(loadChains());
@@ -285,6 +317,12 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
       }
       return [...prev, updatedChain];
     });
+
+    // Sync workflow events if enabled
+    if (updatedChain.enabled) {
+      syncChainEvents(updatedChain);
+    }
+
     setViewMode('list');
     setEditingChain(null);
   };
@@ -292,15 +330,29 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
   // Delete chain
   const handleDeleteChain = (chainId: string) => {
     if (confirm('Are you sure you want to delete this workflow?')) {
+      // Clear workflow events for this chain
+      if (workflowEventsContext) {
+        workflowEventsContext.syncWorkflowEvents(chainId, '', { trigger: 'manual' });
+      }
       setChains(prev => prev.filter(c => c.id !== chainId));
     }
   };
 
   // Toggle chain enabled
   const handleToggleChain = (chainId: string) => {
-    setChains(prev => prev.map(c =>
-      c.id === chainId ? { ...c, enabled: !c.enabled } : c
-    ));
+    setChains(prev => {
+      const updatedChains = prev.map(c =>
+        c.id === chainId ? { ...c, enabled: !c.enabled } : c
+      );
+
+      // Sync events for the toggled chain
+      const toggledChain = updatedChains.find(c => c.id === chainId);
+      if (toggledChain) {
+        syncChainEvents(toggledChain);
+      }
+
+      return updatedChains;
+    });
   };
 
   // Edit existing chain

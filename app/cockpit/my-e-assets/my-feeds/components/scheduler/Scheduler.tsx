@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import CalendarView from './CalendarView';
 import PostQueue from './PostQueue';
 import SchedulePostModal from './SchedulePostModal';
@@ -8,6 +8,7 @@ import { ScheduledPost, CreateSchedulePayload } from '../../types/schedule';
 import { ContentItem } from '../../types/content';
 import { Feed, PLATFORMS } from '../../types/feed';
 import { useFeeds } from '../../context/FeedsContext';
+import { useWorkflowEvents, WorkflowEvent } from '../../context/WorkflowEventsContext';
 
 interface SchedulerProps {
   feedId?: string;
@@ -16,12 +17,22 @@ interface SchedulerProps {
 export default function Scheduler({ feedId }: SchedulerProps) {
   const { feeds, content, selectedFeed } = useFeeds();
 
+  // Try to use workflow events context (may not be available)
+  let workflowEvents: WorkflowEvent[] = [];
+  try {
+    const workflowContext = useWorkflowEvents();
+    workflowEvents = workflowContext.events;
+  } catch {
+    // Context not available, use empty array
+  }
+
   // Mock scheduled posts (will be replaced with context/API)
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
   const [isScheduling, setIsScheduling] = useState(false);
+  const [selectedWorkflowEvent, setSelectedWorkflowEvent] = useState<WorkflowEvent | null>(null);
 
   // Filter posts by feed if provided
   const filteredPosts = useMemo(() => {
@@ -31,7 +42,17 @@ export default function Scheduler({ feedId }: SchedulerProps) {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
+    // If there's content available, open the schedule modal with this date
+    if (content.length > 0 && feeds.length > 0) {
+      setShowScheduleModal(true);
+    }
   };
+
+  const handleWorkflowEventClick = useCallback((event: WorkflowEvent) => {
+    setSelectedWorkflowEvent(event);
+    // Could open a workflow event details modal here
+    console.log('Workflow event clicked:', event);
+  }, []);
 
   const handlePostClick = (post: ScheduledPost) => {
     // Find the content and open for editing
@@ -127,9 +148,12 @@ export default function Scheduler({ feedId }: SchedulerProps) {
         <div className="scheduler-calendar">
           <CalendarView
             posts={filteredPosts}
+            workflowEvents={workflowEvents}
             selectedDate={selectedDate || undefined}
             onDayClick={handleDayClick}
             onPostClick={handlePostClick}
+            onWorkflowEventClick={handleWorkflowEventClick}
+            showWorkflowEvents={true}
           />
         </div>
 
