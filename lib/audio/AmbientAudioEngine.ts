@@ -9,13 +9,15 @@ interface AudioConfig {
   fadeOut: number;
 }
 
+// Volume levels boosted for more immersive experience
+// To add new tracks: place .mp3 files in /public/audio/ and update src paths per scene
 const SCENE_CONFIGS: Record<Scene, AudioConfig> = {
-  entrance: { src: '/audio/deep-space.mp3', volume: 0.3, fadeIn: 2000, fadeOut: 1000 },
-  cockpit: { src: '/audio/deep-space.mp3', volume: 0.25, fadeIn: 1500, fadeOut: 1000 },
-  dashboard: { src: '/audio/deep-space.mp3', volume: 0.2, fadeIn: 1500, fadeOut: 1000 },
-  feeds: { src: '/audio/deep-space.mp3', volume: 0.15, fadeIn: 1000, fadeOut: 800 },
-  market: { src: '/audio/deep-space.mp3', volume: 0.2, fadeIn: 1000, fadeOut: 800 },
-  default: { src: '/audio/deep-space.mp3', volume: 0.2, fadeIn: 1500, fadeOut: 1000 },
+  entrance: { src: '/audio/deep-space.mp3', volume: 0.45, fadeIn: 2000, fadeOut: 1000 },
+  cockpit: { src: '/audio/deep-space.mp3', volume: 0.4, fadeIn: 1500, fadeOut: 1000 },
+  dashboard: { src: '/audio/deep-space.mp3', volume: 0.35, fadeIn: 1500, fadeOut: 1000 },
+  feeds: { src: '/audio/deep-space.mp3', volume: 0.3, fadeIn: 1000, fadeOut: 800 },
+  market: { src: '/audio/deep-space.mp3', volume: 0.35, fadeIn: 1000, fadeOut: 800 },
+  default: { src: '/audio/deep-space.mp3', volume: 0.35, fadeIn: 1500, fadeOut: 1000 },
 };
 
 class AmbientAudioEngine {

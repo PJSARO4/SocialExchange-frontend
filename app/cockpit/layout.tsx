@@ -14,6 +14,7 @@ import { PageTransitionProvider } from '@/components/transitions/PageTransition'
 import { AmbientAudioProvider, useAmbientAudio } from '@/lib/audio/useAmbientAudio';
 import AudioControl from '@/components/audio/AudioControl';
 import MoodBackground from '@/components/audio/MoodBackground';
+import GlobalChatWidget from './comms/components/GlobalChatWidget';
 
 // ✅ CORRECT PATH (file lives in app/cockpit/context)
 import { AccountProvider } from './context/AccountContext';
@@ -93,6 +94,7 @@ function CockpitContent({ children }: { children: ReactNode }) {
   const [logsOpen, setLogsOpen] = useState(false);
   const [signalOpen, setSignalOpen] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
+  const [globalChatOpen, setGlobalChatOpen] = useState(false);
 
   // Update audio mood based on path
   useEffect(() => {
@@ -231,6 +233,13 @@ function CockpitContent({ children }: { children: ReactNode }) {
         >
           SIGNAL
         </span>
+
+        <span
+          className={`footer-tab ${globalChatOpen ? 'active' : ''}`}
+          onClick={() => setGlobalChatOpen(v => !v)}
+        >
+          GLOBAL CHAT
+        </span>
       </footer>
 
       {/* PANELS */}
@@ -239,6 +248,9 @@ function CockpitContent({ children }: { children: ReactNode }) {
 
       {/* GLOBAL COPILOT */}
       <GlobalCopilot isOpen={copilotOpen} onClose={() => setCopilotOpen(false)} />
+
+      {/* GLOBAL CHAT WIDGET */}
+      <GlobalChatWidget isOpen={globalChatOpen} onClose={() => setGlobalChatOpen(false)} />
 
       {/* AUDIO CONTROL - Floating Widget */}
       <AudioControl />

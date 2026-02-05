@@ -1,0 +1,1321 @@
+/**
+ * SOCIAL EXCHANGE - ESCROW SYSTEM STYLES
+ * Tactical theme with dark background and cyan accents
+ */
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+:root {
+  --escrow-bg-primary: #0a0f1c;
+  --escrow-bg-secondary: #111827;
+  --escrow-bg-tertiary: #1a2332;
+  --escrow-bg-card: rgba(17, 24, 39, 0.8);
+  --escrow-border: #1f2937;
+  --escrow-border-hover: #374151;
+
+  --escrow-text-primary: #f3f4f6;
+  --escrow-text-secondary: #9ca3af;
+  --escrow-text-muted: #6b7280;
+
+  --escrow-cyan: #00d4ff;
+  --escrow-cyan-glow: rgba(0, 212, 255, 0.3);
+  --escrow-green: #00ff88;
+  --escrow-green-glow: rgba(0, 255, 136, 0.3);
+  --escrow-yellow: #ffd700;
+  --escrow-yellow-glow: rgba(255, 215, 0, 0.3);
+  --escrow-red: #ff4444;
+  --escrow-red-glow: rgba(255, 68, 68, 0.3);
+  --escrow-orange: #ff8800;
+
+  --escrow-font-mono: 'SF Mono', 'Fira Code', 'Monaco', monospace;
+}
+
+/* ============================================
+   ESCROW STATUS CARD
+   ============================================ */
+.escrow-status-card {
+  background: var(--escrow-bg-card);
+  border: 1px solid var(--escrow-border);
+  border-radius: 12px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+}
+
+/* Progress Bar */
+.escrow-progress {
+  margin-bottom: 24px;
+}
+
+.escrow-progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.escrow-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.escrow-progress-step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--escrow-bg-tertiary);
+  border: 2px solid var(--escrow-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--escrow-text-muted);
+  transition: all 0.3s ease;
+}
+
+.escrow-progress-step.active .escrow-progress-step-circle {
+  border-color: var(--escrow-cyan);
+  color: var(--escrow-cyan);
+  box-shadow: 0 0 20px var(--escrow-cyan-glow);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.escrow-progress-step.completed .escrow-progress-step-circle {
+  background: var(--escrow-green);
+  border-color: var(--escrow-green);
+  color: var(--escrow-bg-primary);
+}
+
+.escrow-progress-step.failed .escrow-progress-step-circle {
+  background: var(--escrow-red);
+  border-color: var(--escrow-red);
+  color: white;
+}
+
+.escrow-progress-step-label {
+  font-size: 11px;
+  color: var(--escrow-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.escrow-progress-step.active .escrow-progress-step-label,
+.escrow-progress-step.completed .escrow-progress-step-label {
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-progress-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--escrow-border);
+  margin: 0 8px;
+  margin-bottom: 24px;
+}
+
+.escrow-progress-connector.completed {
+  background: var(--escrow-green);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px var(--escrow-cyan-glow); }
+  50% { box-shadow: 0 0 30px var(--escrow-cyan-glow), 0 0 40px var(--escrow-cyan-glow); }
+}
+
+/* Status Header */
+.escrow-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.escrow-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.escrow-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.escrow-countdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--escrow-yellow);
+  font-family: var(--escrow-font-mono);
+  font-size: 14px;
+}
+
+.escrow-status-description {
+  color: var(--escrow-text-secondary);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* Financial Summary */
+.escrow-financial-summary {
+  background: var(--escrow-bg-tertiary);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.escrow-financial-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-financial-row:not(:last-child) {
+  border-bottom: 1px solid var(--escrow-border);
+}
+
+.escrow-financial-fee {
+  color: var(--escrow-text-muted);
+  font-size: 13px;
+}
+
+.escrow-financial-total {
+  font-weight: 600;
+  color: var(--escrow-text-primary);
+  padding-top: 12px !important;
+}
+
+.escrow-amount {
+  font-family: var(--escrow-font-mono);
+  color: var(--escrow-text-primary);
+}
+
+.escrow-amount-highlight {
+  font-family: var(--escrow-font-mono);
+  color: var(--escrow-green);
+  font-size: 16px;
+}
+
+/* Action Buttons */
+.escrow-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.escrow-action-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.escrow-action-btn--primary {
+  background: var(--escrow-cyan);
+  color: var(--escrow-bg-primary);
+}
+
+.escrow-action-btn--primary:hover {
+  background: #00c0e8;
+  box-shadow: 0 0 20px var(--escrow-cyan-glow);
+}
+
+.escrow-action-btn--danger {
+  background: transparent;
+  border: 1px solid var(--escrow-red);
+  color: var(--escrow-red);
+}
+
+.escrow-action-btn--danger:hover {
+  background: var(--escrow-red);
+  color: white;
+}
+
+/* Timeline */
+.escrow-timeline {
+  border-top: 1px solid var(--escrow-border);
+  padding-top: 20px;
+}
+
+.escrow-timeline-title {
+  font-size: 13px;
+  color: var(--escrow-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.escrow-timeline-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.escrow-timeline-item {
+  display: flex;
+  gap: 12px;
+}
+
+.escrow-timeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.escrow-timeline-content {
+  flex: 1;
+}
+
+.escrow-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.escrow-timeline-status {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--escrow-text-primary);
+}
+
+.escrow-timeline-actor {
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+  text-transform: capitalize;
+}
+
+.escrow-timeline-time {
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+  font-family: var(--escrow-font-mono);
+}
+
+.escrow-timeline-note {
+  font-size: 13px;
+  color: var(--escrow-text-secondary);
+  margin-top: 4px;
+}
+
+/* Escrow ID */
+.escrow-id {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--escrow-border);
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+}
+
+.escrow-id code {
+  font-family: var(--escrow-font-mono);
+  color: var(--escrow-cyan);
+  background: var(--escrow-bg-tertiary);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* ============================================
+   MODAL STYLES
+   ============================================ */
+.escrow-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.escrow-modal {
+  background: var(--escrow-bg-secondary);
+  border: 1px solid var(--escrow-border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.escrow-modal--purchase {
+  max-width: 550px;
+}
+
+.escrow-modal--verification {
+  max-width: 650px;
+}
+
+.escrow-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--escrow-border);
+}
+
+.escrow-modal-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--escrow-text-primary);
+  margin: 0;
+}
+
+.escrow-modal-close {
+  background: none;
+  border: none;
+  color: var(--escrow-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  transition: color 0.2s;
+}
+
+.escrow-modal-close:hover {
+  color: var(--escrow-text-primary);
+}
+
+.escrow-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.escrow-modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--escrow-border);
+  justify-content: flex-end;
+}
+
+/* Modal Steps */
+.escrow-modal-steps {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--escrow-border);
+}
+
+.escrow-modal-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--escrow-text-muted);
+}
+
+.escrow-modal-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--escrow-bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.escrow-modal-step.active .escrow-modal-step-num {
+  background: var(--escrow-cyan);
+  color: var(--escrow-bg-primary);
+}
+
+.escrow-modal-step.completed .escrow-modal-step-num {
+  background: var(--escrow-green);
+  color: var(--escrow-bg-primary);
+}
+
+.escrow-modal-step-label {
+  font-size: 13px;
+}
+
+.escrow-modal-step.active .escrow-modal-step-label {
+  color: var(--escrow-text-primary);
+}
+
+/* ============================================
+   FORM STYLES
+   ============================================ */
+.escrow-form-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--escrow-text-primary);
+  margin: 0 0 20px 0;
+}
+
+.escrow-form-section h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--escrow-text-secondary);
+  margin: 24px 0 12px 0;
+}
+
+.escrow-form-group {
+  margin-bottom: 16px;
+}
+
+.escrow-form-group label {
+  display: block;
+  font-size: 13px;
+  color: var(--escrow-text-secondary);
+  margin-bottom: 6px;
+}
+
+.escrow-form-group input,
+.escrow-form-group textarea,
+.escrow-form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--escrow-bg-tertiary);
+  border: 1px solid var(--escrow-border);
+  border-radius: 8px;
+  color: var(--escrow-text-primary);
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.escrow-form-group input:focus,
+.escrow-form-group textarea:focus,
+.escrow-form-group select:focus {
+  outline: none;
+  border-color: var(--escrow-cyan);
+}
+
+.escrow-form-group input::placeholder,
+.escrow-form-group textarea::placeholder {
+  color: var(--escrow-text-muted);
+}
+
+.escrow-form-hint {
+  display: block;
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+  margin-top: 4px;
+}
+
+.escrow-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.escrow-form-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.escrow-checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.escrow-checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--escrow-cyan);
+}
+
+/* Platform Select */
+.escrow-platform-select {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.escrow-platform-btn {
+  padding: 8px 16px;
+  background: var(--escrow-bg-tertiary);
+  border: 1px solid var(--escrow-border);
+  border-radius: 6px;
+  color: var(--escrow-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.escrow-platform-btn:hover {
+  border-color: var(--escrow-border-hover);
+}
+
+.escrow-platform-btn.active {
+  background: var(--escrow-cyan);
+  border-color: var(--escrow-cyan);
+  color: var(--escrow-bg-primary);
+}
+
+/* Niche Grid */
+.escrow-niche-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.escrow-niche-btn {
+  padding: 6px 12px;
+  background: var(--escrow-bg-tertiary);
+  border: 1px solid var(--escrow-border);
+  border-radius: 4px;
+  color: var(--escrow-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.escrow-niche-btn.active {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: var(--escrow-cyan);
+  color: var(--escrow-cyan);
+}
+
+/* Fee Preview */
+.escrow-fee-preview {
+  background: var(--escrow-bg-tertiary);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.escrow-fee-preview h4 {
+  font-size: 13px;
+  color: var(--escrow-text-muted);
+  margin: 0 0 12px 0;
+}
+
+.escrow-fee-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 14px;
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-fee-deduct span:last-child,
+.escrow-fee-add span:last-child {
+  color: var(--escrow-text-muted);
+}
+
+.escrow-fee-total {
+  border-top: 1px solid var(--escrow-border);
+  margin-top: 8px;
+  padding-top: 12px !important;
+  font-weight: 600;
+  color: var(--escrow-text-primary);
+}
+
+.escrow-fee-total span:last-child {
+  color: var(--escrow-green);
+  font-family: var(--escrow-font-mono);
+}
+
+/* Assets Grid */
+.escrow-assets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.escrow-asset-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: var(--escrow-bg-tertiary);
+  border: 1px solid var(--escrow-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.escrow-asset-item:hover {
+  border-color: var(--escrow-border-hover);
+}
+
+.escrow-asset-item input[type="checkbox"]:checked ~ .escrow-asset-label {
+  color: var(--escrow-cyan);
+}
+
+.escrow-asset-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--escrow-text-primary);
+  display: block;
+}
+
+.escrow-asset-desc {
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+  display: block;
+}
+
+/* Terms Box */
+.escrow-terms-box {
+  background: var(--escrow-bg-tertiary);
+  border: 1px solid var(--escrow-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.escrow-terms-box h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.escrow-terms-box ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-terms-box li {
+  margin-bottom: 8px;
+}
+
+.escrow-terms-accept {
+  font-weight: 500 !important;
+  color: var(--escrow-text-primary) !important;
+}
+
+/* Review Summary */
+.escrow-review-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.escrow-review-item {
+  background: var(--escrow-bg-tertiary);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.escrow-review-label {
+  display: block;
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+  margin-bottom: 4px;
+}
+
+.escrow-review-value {
+  font-size: 16px;
+  color: var(--escrow-text-primary);
+  font-weight: 500;
+}
+
+.escrow-review-highlight {
+  color: var(--escrow-green) !important;
+  font-family: var(--escrow-font-mono);
+}
+
+/* Error */
+.escrow-error {
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid var(--escrow-red);
+  color: var(--escrow-red);
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* Buttons */
+.escrow-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.escrow-btn--primary {
+  background: var(--escrow-cyan);
+  color: var(--escrow-bg-primary);
+}
+
+.escrow-btn--primary:hover:not(:disabled) {
+  background: #00c0e8;
+  box-shadow: 0 0 20px var(--escrow-cyan-glow);
+}
+
+.escrow-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.escrow-btn--secondary {
+  background: transparent;
+  border: 1px solid var(--escrow-border);
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-btn--secondary:hover {
+  border-color: var(--escrow-text-secondary);
+  color: var(--escrow-text-primary);
+}
+
+.escrow-btn--danger {
+  background: transparent;
+  border: 1px solid var(--escrow-red);
+  color: var(--escrow-red);
+}
+
+.escrow-btn--danger:hover:not(:disabled) {
+  background: var(--escrow-red);
+  color: white;
+}
+
+/* ============================================
+   PURCHASE MODAL SPECIFIC
+   ============================================ */
+.escrow-listing-header {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.escrow-listing-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.escrow-listing-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.escrow-listing-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--escrow-cyan);
+  color: var(--escrow-bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.escrow-listing-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  color: var(--escrow-text-primary);
+}
+
+.escrow-listing-handle {
+  color: var(--escrow-cyan);
+  font-size: 14px;
+}
+
+.escrow-listing-platform {
+  color: var(--escrow-text-muted);
+  font-size: 13px;
+  margin-left: 8px;
+  text-transform: capitalize;
+}
+
+.escrow-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.escrow-metric {
+  background: var(--escrow-bg-tertiary);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.escrow-metric-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--escrow-text-primary);
+  font-family: var(--escrow-font-mono);
+}
+
+.escrow-metric-label {
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+}
+
+.escrow-listing-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: var(--escrow-text-primary);
+}
+
+.escrow-listing-content p {
+  font-size: 14px;
+  color: var(--escrow-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.escrow-listing-highlights {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-listing-highlights li {
+  margin-bottom: 6px;
+}
+
+.escrow-assets-summary {
+  margin: 16px 0;
+}
+
+.escrow-assets-summary h5 {
+  font-size: 13px;
+  color: var(--escrow-text-muted);
+  margin: 0 0 8px 0;
+}
+
+.escrow-assets-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.escrow-asset-tag {
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--escrow-cyan);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.escrow-seller-info {
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--escrow-bg-tertiary);
+  border-radius: 8px;
+}
+
+.escrow-seller-info h5 {
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+  margin: 0 0 8px 0;
+}
+
+.escrow-seller-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--escrow-text-primary);
+}
+
+.escrow-seller-rating {
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-verified-badge {
+  background: var(--escrow-green);
+  color: var(--escrow-bg-primary);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-left: 8px;
+}
+
+.escrow-pricing-box {
+  background: var(--escrow-bg-tertiary);
+  border: 1px solid var(--escrow-cyan);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.escrow-price-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.escrow-price-label {
+  font-size: 14px;
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-price-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--escrow-cyan);
+  font-family: var(--escrow-font-mono);
+}
+
+.escrow-price-sub {
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+  margin-top: 8px;
+}
+
+.escrow-purchase-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.escrow-offer-input {
+  font-size: 20px !important;
+  font-family: var(--escrow-font-mono);
+  text-align: center;
+}
+
+.escrow-offer-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--escrow-yellow);
+}
+
+.escrow-protection-box {
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.escrow-protection-box h5 {
+  color: var(--escrow-green);
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.escrow-protection-box ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-protection-box li {
+  margin-bottom: 6px;
+}
+
+.escrow-confirm-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.escrow-confirm-account,
+.escrow-confirm-price {
+  background: var(--escrow-bg-tertiary);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.escrow-confirm-label {
+  display: block;
+  font-size: 12px;
+  color: var(--escrow-text-muted);
+  margin-bottom: 4px;
+}
+
+.escrow-confirm-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--escrow-text-primary);
+}
+
+.escrow-confirm-highlight {
+  color: var(--escrow-cyan) !important;
+  font-family: var(--escrow-font-mono);
+}
+
+.escrow-confirm-note {
+  font-size: 13px;
+  color: var(--escrow-text-secondary);
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* ============================================
+   VERIFICATION MODAL SPECIFIC
+   ============================================ */
+.escrow-verification-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  color: var(--escrow-yellow);
+  font-size: 14px;
+}
+
+.escrow-verification-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.escrow-verification-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--escrow-bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.escrow-verification-progress-fill {
+  height: 100%;
+  background: var(--escrow-green);
+  transition: width 0.3s ease;
+}
+
+.escrow-verification-progress span {
+  font-size: 13px;
+  color: var(--escrow-text-secondary);
+  white-space: nowrap;
+}
+
+.escrow-verification-instructions {
+  padding: 16px;
+  background: var(--escrow-bg-tertiary);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.escrow-verification-instructions p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--escrow-text-secondary);
+  line-height: 1.5;
+}
+
+.escrow-verification-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.escrow-verification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--escrow-bg-tertiary);
+  border: 1px solid var(--escrow-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.escrow-verification-item:hover {
+  border-color: var(--escrow-border-hover);
+}
+
+.escrow-verification-item.checked {
+  border-color: var(--escrow-green);
+  background: rgba(0, 255, 136, 0.05);
+}
+
+.escrow-verification-checkbox {
+  position: relative;
+}
+
+.escrow-verification-checkbox input {
+  position: absolute;
+  opacity: 0;
+}
+
+.escrow-verification-checkmark {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--escrow-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.escrow-verification-checkbox input:checked + .escrow-verification-checkmark {
+  background: var(--escrow-green);
+  border-color: var(--escrow-green);
+  color: var(--escrow-bg-primary);
+}
+
+.escrow-verification-content {
+  flex: 1;
+}
+
+.escrow-verification-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--escrow-text-primary);
+  margin-bottom: 4px;
+}
+
+.escrow-required-mark {
+  color: var(--escrow-red);
+  margin-left: 4px;
+}
+
+.escrow-verification-desc {
+  display: block;
+  font-size: 13px;
+  color: var(--escrow-text-muted);
+}
+
+.escrow-verification-notes {
+  background: var(--escrow-bg-tertiary);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.escrow-verification-notes h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--escrow-text-secondary);
+}
+
+.escrow-verification-notes ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  color: var(--escrow-text-muted);
+}
+
+.escrow-verification-notes li {
+  margin-bottom: 6px;
+}
+
+.escrow-verification-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.escrow-verification-actions .escrow-btn {
+  flex: 1;
+}
+
+/* Dispute Form */
+.escrow-dispute-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.escrow-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--escrow-bg-tertiary);
+  border: 1px solid var(--escrow-border);
+  border-radius: 8px;
+  color: var(--escrow-text-primary);
+  font-size: 14px;
+}
+
+.escrow-dispute-warning {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 136, 0, 0.1);
+  border: 1px solid rgba(255, 136, 0, 0.3);
+  border-radius: 8px;
+  color: var(--escrow-orange);
+}
+
+.escrow-dispute-warning ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+  font-size: 13px;
+}
+
+.escrow-dispute-warning li {
+  margin-bottom: 4px;
+}
+
+.escrow-dispute-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .escrow-form-row,
+  .escrow-form-row-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .escrow-assets-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .escrow-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .escrow-review-summary,
+  .escrow-confirm-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .escrow-modal-steps {
+    gap: 16px;
+    overflow-x: auto;
+  }
+
+  .escrow-progress-step-label {
+    display: none;
+  }
+}

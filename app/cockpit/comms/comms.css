@@ -20,7 +20,7 @@
   min-height: 100vh;
   background: radial-gradient(ellipse at top, var(--comms-bg-panel) 0%, var(--comms-bg-deep) 50%, var(--comms-bg-void) 100%);
   color: var(--comms-text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .comms-header {
