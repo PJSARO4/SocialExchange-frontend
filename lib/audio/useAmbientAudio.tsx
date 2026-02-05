@@ -1,12 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react';
+import { getAmbientAudio } from './AmbientAudioEngine';
 
 interface AmbientAudioContextType {
   isPlaying: boolean;
   volume: number;
   currentMood: string;
-  play: () => void;
+  play: () => Promise<void>;
   pause: () => void;
   setVolume: (volume: number) => void;
   playTransition: () => void;
@@ -18,7 +19,7 @@ const defaultContext: AmbientAudioContextType = {
   isPlaying: false,
   volume: 0.5,
   currentMood: 'default',
-  play: () => {},
+  play: async () => {},
   pause: () => {},
   setVolume: () => {},
   playTransition: () => {},
@@ -43,22 +44,42 @@ export function AmbientAudioProvider({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentMood, setCurrentMood] = useState('default');
 
-  const play = useCallback(() => {
-    console.log('[AmbientAudio] Play');
-    setIsPlaying(true);
+  // Sync with audio engine on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const audio = getAmbientAudio();
+      setIsPlaying(audio.getIsPlaying());
+    }
   }, []);
 
+  const play = useCallback(async () => {
+    try {
+      const audio = getAmbientAudio();
+      await audio.start(currentMood || 'cockpit');
+      setIsPlaying(true);
+      console.log('[AmbientAudio] Started playing');
+    } catch (error) {
+      console.warn('[AmbientAudio] Could not start:', error);
+    }
+  }, [currentMood]);
+
   const pause = useCallback(() => {
-    console.log('[AmbientAudio] Pause');
+    const audio = getAmbientAudio();
+    audio.pause();
     setIsPlaying(false);
+    console.log('[AmbientAudio] Paused');
   }, []);
 
   const setVolume = useCallback((v: number) => {
-    console.log('[AmbientAudio] Set volume:', v);
+    const audio = getAmbientAudio();
+    audio.setVolume(v);
     setVolumeState(v);
+    console.log('[AmbientAudio] Set volume:', v);
   }, []);
 
   const playTransition = useCallback(() => {
+    const audio = getAmbientAudio();
+    audio.playTransitionSound();
     console.log('[AmbientAudio] Play transition');
   }, []);
 
@@ -66,12 +87,17 @@ export function AmbientAudioProvider({
     console.log('[AmbientAudio] Set mood for path:', mood);
     if (autoChangeMood) {
       setCurrentMood(mood);
+      // Change scene in the audio engine
+      const audio = getAmbientAudio();
+      audio.changeScene(mood);
     }
   }, [autoChangeMood]);
 
   const setMood = useCallback((mood: string) => {
     console.log('[AmbientAudio] Set mood:', mood);
     setCurrentMood(mood);
+    const audio = getAmbientAudio();
+    audio.changeScene(mood);
   }, []);
 
   const value: AmbientAudioContextType = {

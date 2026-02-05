@@ -58,7 +58,8 @@ export default function AudioControl({
 
   return (
     <div
-      className={`fixed ${positionClasses[position]} z-50 ${className}`}
+      className={`fixed ${positionClasses[position]} ${className}`}
+      style={{ zIndex: 1100 }}  // Above footer (z-index: 1000)
       onMouseEnter={() => setShowVolumeSlider(true)}
       onMouseLeave={() => setShowVolumeSlider(false)}
     >
