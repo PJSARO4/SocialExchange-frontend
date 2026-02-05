@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/worker?mode=batch&max=10",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/refresh-metrics",
+      "schedule": "0 */6 * * *"
+    }
+  ]
+}
