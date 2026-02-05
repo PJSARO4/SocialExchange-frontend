@@ -1,12 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, seedAuthIfEmpty, logout } from '@/app/lib/auth/auth-store';
 import { ROLE_PERMISSIONS } from '@/app/lib/auth/types';
 
+// Store imports for real data
+import {
+  getMyHoldings,
+  seedESharesMarketIfEmpty,
+  getBrandListings,
+  getTransactionsByUser,
+} from '../my-e-assets/my-e-shares/lib/e-shares-store';
+import { getWallet } from '../my-e-assets/my-e-shares/lib/wallet-store';
+import {
+  getListings,
+  getActiveListings,
+  seedMarketplaceIfEmpty,
+} from '../my-e-assets/market/lib/market-store';
+
 import './command-center.css';
+
+const currentUserId = 'demo-user-main';
 
 // Types
 interface QuickStat {
@@ -43,11 +59,268 @@ interface MarketItem {
   change: number;
 }
 
+interface CommunityItem {
+  id: string;
+  name: string;
+  price: string;
+  changeDir: 'up' | 'down' | 'neutral';
+}
+
+// Helper: format numbers with K/M suffix
+function formatFollowers(n: number): string {
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+  if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+  return n.toString();
+}
+
+// Helper: format time ago
+function timeAgo(timestamp: number): string {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
 export default function CommandCenter() {
   const router = useRouter();
   const [user, setUser] = useState<ReturnType<typeof getCurrentUser>>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
+
+  // Live data state
+  const [quickStats, setQuickStats] = useState<QuickStat[]>([
+    { label: 'Total Followers', value: '—', change: 'Loading...', changeType: 'neutral', icon: '👥' },
+    { label: 'Engagement Rate', value: '—', change: 'Loading...', changeType: 'neutral', icon: '📈' },
+    { label: 'Scheduled Posts', value: '0', change: 'None', changeType: 'neutral', icon: '📅' },
+    { label: 'Community Credits', value: '$0', change: '—', changeType: 'neutral', icon: '💎' },
+    { label: 'Portfolio Value', value: '$0', change: '—', changeType: 'neutral', icon: '💰' },
+    { label: 'Active Listings', value: '0', change: 'None', changeType: 'neutral', icon: '🏷️' },
+  ]);
+  const [recentActivity, setRecentActivity] = useState<Activity[]>([
+    { id: '1', type: 'system', message: 'Welcome to Social Exchange! Connect your feeds to get started.', time: 'Just now', icon: '👋' },
+  ]);
+  const [marketTrending, setMarketTrending] = useState<MarketItem[]>([]);
+  const [communityItems, setCommunityItems] = useState<CommunityItem[]>([]);
+  const [communityCreditsHeld, setCommunityCreditsHeld] = useState(0);
+  const [communitiesJoined, setCommunitiesJoined] = useState(0);
+  const [highestTier, setHighestTier] = useState('—');
+
+  // Load all dashboard data from stores
+  const loadDashboardData = useCallback(() => {
+    try {
+      // --- Market listings data ---
+      const allMarketListings = getListings();
+      const activeMarketListings = getActiveListings();
+
+      // Total followers: sum from all market listings
+      const totalFollowers = allMarketListings.reduce(
+        (sum, l) => sum + (l.metrics?.followers || 0),
+        0
+      );
+
+      // Average engagement from market listings
+      const engagementRates = allMarketListings
+        .filter((l) => l.metrics?.engagementRate)
+        .map((l) => l.metrics.engagementRate);
+      const avgEngagement =
+        engagementRates.length > 0
+          ? engagementRates.reduce((s, r) => s + r, 0) / engagementRates.length
+          : 0;
+
+      // --- E-Shares / Community data ---
+      const brandListings = getBrandListings();
+      const holdings = getMyHoldings(currentUserId);
+      const wallet = getWallet(currentUserId);
+
+      // Portfolio value: sum of holdings * current brand prices
+      let portfolioValue = 0;
+      holdings.forEach((h: any) => {
+        const brand = brandListings.find((b: any) => b.id === (h.brandId || h.communityId));
+        if (brand) {
+          // Use currentValue if available, else calculate from credits/shares
+          portfolioValue += h.currentValue || (h.credits || h.shares || 0) * (brand.pricePerShare || 0.01);
+        }
+      });
+
+      // Active listings count
+      const activeListingsCount = activeMarketListings.length;
+
+      // Credits balance
+      const creditsBalance = wallet.balance;
+
+      // Build quick stats
+      setQuickStats([
+        {
+          label: 'Total Followers',
+          value: totalFollowers > 0 ? formatFollowers(totalFollowers) : '—',
+          change: totalFollowers > 0 ? `${allMarketListings.length} accounts` : 'Connect feeds',
+          changeType: totalFollowers > 0 ? 'up' : 'neutral',
+          icon: '👥',
+        },
+        {
+          label: 'Engagement Rate',
+          value: avgEngagement > 0 ? `${avgEngagement.toFixed(1)}%` : '—',
+          change: avgEngagement > 0 ? `Avg across ${engagementRates.length} listings` : 'Connect feeds',
+          changeType: avgEngagement >= 3 ? 'up' : avgEngagement > 0 ? 'neutral' : 'neutral',
+          icon: '📈',
+        },
+        {
+          label: 'Scheduled Posts',
+          value: '0',
+          change: 'Connect feeds',
+          changeType: 'neutral',
+          icon: '📅',
+        },
+        {
+          label: 'Credits Balance',
+          value: `$${creditsBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+          change: creditsBalance > 0 ? 'Available' : 'Deposit to start',
+          changeType: creditsBalance > 0 ? 'up' : 'neutral',
+          icon: '💎',
+        },
+        {
+          label: 'Portfolio Value',
+          value: portfolioValue > 0
+            ? `$${portfolioValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+            : '$0.00',
+          change: holdings.length > 0 ? `${holdings.length} holdings` : 'No holdings yet',
+          changeType: portfolioValue > 0 ? 'up' : 'neutral',
+          icon: '💰',
+        },
+        {
+          label: 'Active Listings',
+          value: activeListingsCount.toString(),
+          change: activeListingsCount > 0 ? `${activeListingsCount} on market` : 'None',
+          changeType: activeListingsCount > 0 ? 'up' : 'neutral',
+          icon: '🏷️',
+        },
+      ]);
+
+      // --- Community Credits panel data ---
+      // Top 3 brand listings with name, price, change direction
+      const topBrands = [...brandListings]
+        .filter((b: any) => b.status === 'PUBLIC' || b.status === 'TRADING' || b.status === 'ACTIVE')
+        .sort((a: any, b: any) => (b.marketCap || 0) - (a.marketCap || 0))
+        .slice(0, 3);
+
+      setCommunityItems(
+        topBrands.map((b: any) => ({
+          id: b.id,
+          name: b.brandName,
+          price: `$${(b.pricePerShare || 0.01).toFixed(4)}`,
+          changeDir: (b.priceChange24h || 0) >= 0 ? 'up' as const : 'down' as const,
+        }))
+      );
+
+      // Holdings-based stats for community panel
+      const totalCreditsHeld = holdings.reduce((sum: number, h: any) => sum + (h.credits || h.shares || 0), 0);
+      setCommunityCreditsHeld(totalCreditsHeld);
+      setCommunitiesJoined(holdings.length);
+
+      // Determine highest tier based on max credits in a single holding
+      const maxCredits = holdings.reduce((max: number, h: any) => Math.max(max, h.credits || h.shares || 0), 0);
+      if (maxCredits >= 5000) setHighestTier('Founding');
+      else if (maxCredits >= 1000) setHighestTier('Champion');
+      else if (maxCredits >= 500) setHighestTier('Supporter');
+      else if (maxCredits >= 100) setHighestTier('Backer');
+      else setHighestTier(holdings.length > 0 ? 'Backer' : '—');
+
+      // --- Market Trending panel data ---
+      // Top 3 market listings by views + saves
+      const trendingListings = [...allMarketListings]
+        .filter((l) => l.status === 'active')
+        .sort((a, b) => (b.views + b.saves * 5) - (a.views + a.saves * 5))
+        .slice(0, 3);
+
+      setMarketTrending(
+        trendingListings.map((l) => ({
+          id: l.id,
+          name: l.displayName || l.handle,
+          platform: l.platform,
+          followers: formatFollowers(l.metrics?.followers || 0),
+          price: l.askingPrice,
+          change: l.metrics?.engagementRate
+            ? parseFloat(l.metrics.engagementRate.toFixed(1))
+            : 0,
+        }))
+      );
+
+      // --- Recent Activity from transactions ---
+      const eShareTxns = getTransactionsByUser(currentUserId);
+      const walletTxns = wallet.transactions || [];
+
+      // Combine and sort by timestamp descending
+      type ActivitySource = { ts: number; msg: string; type: Activity['type']; icon: string };
+      const activitySources: ActivitySource[] = [];
+
+      // E-Share transactions
+      eShareTxns.forEach((t: any) => {
+        const txType = t.type || '';
+        let msg = '';
+        let icon = '💎';
+        if (txType === 'BUY' || txType === 'SUPPORT') {
+          msg = `Purchased ${t.shares || t.credits || 0} credits in ${t.brandName || t.communityName || 'community'}`;
+          icon = '🛒';
+        } else if (txType === 'SELL' || txType === 'TRANSFER') {
+          msg = `Sold ${t.shares || t.credits || 0} credits in ${t.brandName || t.communityName || 'community'}`;
+          icon = '💸';
+        } else if (txType === 'DEPOSIT' || txType === 'SETUP') {
+          msg = `Deposited $${(t.totalAmount || t.amount || 0).toFixed(2)} for ${t.brandName || t.communityName || 'community'}`;
+          icon = '🏦';
+        } else if (txType === 'MINT') {
+          msg = `${t.shares || t.credits || 0} credits minted for ${t.brandName || t.communityName || 'community'}`;
+          icon = '✨';
+        } else {
+          msg = `${txType} transaction: ${t.brandName || t.communityName || ''}`;
+          icon = '📋';
+        }
+        activitySources.push({ ts: t.timestamp, msg, type: 'transaction', icon });
+      });
+
+      // Wallet transactions
+      walletTxns.forEach((t: any) => {
+        activitySources.push({
+          ts: t.timestamp,
+          msg: t.description || `Wallet ${t.type}: $${Math.abs(t.amount).toFixed(2)}`,
+          type: 'transaction',
+          icon: t.type === 'deposit' ? '🏦' : t.type === 'buy' ? '🛒' : '💸',
+        });
+      });
+
+      // Sort newest first, take top 8
+      activitySources.sort((a, b) => b.ts - a.ts);
+      const topActivities = activitySources.slice(0, 8);
+
+      if (topActivities.length > 0) {
+        setRecentActivity(
+          topActivities.map((a, i) => ({
+            id: `activity-${i}-${a.ts}`,
+            type: a.type,
+            message: a.msg,
+            time: timeAgo(a.ts),
+            icon: a.icon,
+          }))
+        );
+      } else {
+        setRecentActivity([
+          {
+            id: '1',
+            type: 'system',
+            message: 'Welcome to Social Exchange! Explore the marketplace to get started.',
+            time: 'Just now',
+            icon: '👋',
+          },
+        ]);
+      }
+    } catch (err) {
+      console.warn('Dashboard data load error:', err);
+      // Keep existing state on error - graceful degradation
+    }
+  }, []);
 
   useEffect(() => {
     seedAuthIfEmpty();
@@ -66,33 +339,35 @@ export default function CommandCenter() {
     else if (hour < 18) setGreeting('Good afternoon');
     else setGreeting('Good evening');
 
+    // Seed stores and load initial data
+    try {
+      seedESharesMarketIfEmpty();
+      seedMarketplaceIfEmpty();
+    } catch (err) {
+      console.warn('Store seeding error:', err);
+    }
+    loadDashboardData();
+
     // Update time every minute
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
-    return () => clearInterval(timer);
-  }, [router]);
+    const clockTimer = setInterval(() => setCurrentTime(new Date()), 60000);
+
+    // Refresh dashboard data every 10 seconds for live stats
+    const dataTimer = setInterval(() => {
+      loadDashboardData();
+    }, 10000);
+
+    return () => {
+      clearInterval(clockTimer);
+      clearInterval(dataTimer);
+    };
+  }, [router, loadDashboardData]);
 
   const handleLogout = () => {
     logout();
     router.push('/');
   };
 
-  // Empty state - real data will come from connected feeds and APIs
-  const quickStats: QuickStat[] = [
-    { label: 'Total Followers', value: '—', change: 'Connect feeds', changeType: 'neutral', icon: '👥' },
-    { label: 'Engagement Rate', value: '—', change: 'No data', changeType: 'neutral', icon: '📈' },
-    { label: 'Scheduled Posts', value: '0', change: 'None', changeType: 'neutral', icon: '📅' },
-    { label: 'Community Credits', value: '0', change: '—', changeType: 'neutral', icon: '💎' },
-    { label: 'Portfolio Value', value: '$0', change: '—', changeType: 'neutral', icon: '💰' },
-    { label: 'Active Listings', value: '0', change: 'None', changeType: 'neutral', icon: '🏷️' },
-  ];
-
-  const recentActivity: Activity[] = [
-    { id: '1', type: 'system', message: 'Welcome to Social Exchange! Connect your feeds to get started.', time: 'Just now', icon: '👋' },
-  ];
-
   const upcomingPosts: ScheduledPost[] = [];
-
-  const marketTrending: MarketItem[] = [];
 
   const permissions = user ? ROLE_PERMISSIONS[user.role] : null;
 
@@ -292,23 +567,39 @@ export default function CommandCenter() {
           </div>
           <div className="cc-shares-overview">
             <div className="cc-shares-stat">
-              <span className="cc-shares-value">0</span>
+              <span className="cc-shares-value">{communityCreditsHeld.toLocaleString()}</span>
               <span className="cc-shares-label">Credits Held</span>
             </div>
             <div className="cc-shares-stat">
-              <span className="cc-shares-value">0</span>
+              <span className="cc-shares-value">{communitiesJoined}</span>
               <span className="cc-shares-label">Communities</span>
             </div>
             <div className="cc-shares-stat">
-              <span className="cc-shares-value">—</span>
+              <span className="cc-shares-value">{highestTier}</span>
               <span className="cc-shares-label">Highest Tier</span>
             </div>
           </div>
           <div className="cc-shares-communities">
-            <div className="cc-empty-state">
-              <span className="cc-empty-icon">💎</span>
-              <span className="cc-empty-text">No communities joined yet</span>
-            </div>
+            {communityItems.length === 0 ? (
+              <div className="cc-empty-state">
+                <span className="cc-empty-icon">💎</span>
+                <span className="cc-empty-text">No communities listed yet</span>
+              </div>
+            ) : (
+              communityItems.map((item) => (
+                <div key={item.id} className="cc-market-item">
+                  <div className="cc-market-info">
+                    <span className="cc-market-name">{item.name}</span>
+                  </div>
+                  <div className="cc-market-price">
+                    <span className="cc-market-value">{item.price}</span>
+                    <span className={`cc-market-change ${item.changeDir}`}>
+                      {item.changeDir === 'up' ? '↑' : item.changeDir === 'down' ? '↓' : '—'}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
           <Link href="/cockpit/my-e-assets/my-e-shares" className="cc-panel-link">
             View All Communities →

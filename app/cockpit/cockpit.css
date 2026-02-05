@@ -1422,3 +1422,370 @@ body {
   color: #3fffdc !important;
   box-shadow: 0 0 16px rgba(63, 255, 220, 0.3);
 }
+
+/* ======================================================
+   MOBILE MENU TOGGLE (BASE — hidden on desktop)
+====================================================== */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 10001;
+  background: rgba(10, 18, 28, 0.9);
+  border: 1px solid rgba(63, 255, 220, 0.25);
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #3fffdc;
+  border-radius: 1px;
+  transition: transform 250ms ease, opacity 250ms ease;
+}
+
+.mobile-menu-toggle.open span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.mobile-menu-toggle.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.open span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Mobile sidebar overlay (base — hidden) */
+.mobile-sidebar-overlay {
+  display: none;
+}
+
+/* ======================================================
+   RESPONSIVE — TABLET (max-width: 1024px)
+====================================================== */
+@media (max-width: 1024px) {
+  .cockpit-sidebar {
+    width: 180px;
+    padding: 14px;
+  }
+
+  .sidebar-title {
+    font-size: 9px;
+  }
+
+  .sidebar-link {
+    font-size: 12px;
+    padding: 5px 6px;
+  }
+
+  .cockpit-topbar {
+    padding: 0 14px;
+    height: 50px;
+  }
+
+  .logo {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+  }
+
+  .cockpit-main {
+    padding: 28px 32px;
+    padding-bottom: 180px;
+  }
+
+  .ticker-item {
+    font-size: 11px;
+  }
+
+  .cockpit-footer {
+    gap: 28px;
+  }
+
+  .footer-tab,
+  .power-button {
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+  }
+
+  .deck-panel {
+    width: 95%;
+    padding: 14px;
+  }
+}
+
+/* ======================================================
+   RESPONSIVE — MOBILE (max-width: 768px)
+====================================================== */
+@media (max-width: 768px) {
+  /* Show hamburger toggle */
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  /* Hide sidebar by default */
+  .cockpit-sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 240px;
+    z-index: 10000;
+    background: rgba(5, 8, 15, 0.98);
+    border-right: 1px solid rgba(63, 255, 220, 0.15);
+    padding: 60px 16px 16px;
+    overflow-y: auto;
+  }
+
+  /* Show sidebar when .open is applied */
+  .cockpit-sidebar.open {
+    display: flex;
+  }
+
+  /* Overlay behind open sidebar */
+  .mobile-sidebar-overlay.visible {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  /* Main content full width */
+  .cockpit-main {
+    padding: 20px 16px;
+    padding-bottom: 160px;
+  }
+
+  /* Compact topbar */
+  .cockpit-topbar {
+    height: 46px;
+    padding: 0 12px 0 48px; /* leave room for hamburger */
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .logo {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+  }
+
+  .exit-cockpit a {
+    font-size: 11px;
+  }
+
+  /* Ticker: narrower */
+  .ticker {
+    max-width: 300px;
+  }
+
+  .ticker-item {
+    font-size: 10px;
+    gap: 4px;
+  }
+
+  /* Footer: wrap tabs, reduce gap */
+  .cockpit-footer {
+    height: auto;
+    min-height: 44px;
+    gap: 12px;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .footer-tab,
+  .power-button {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    padding: 4px 10px;
+  }
+
+  .deck-node {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+  }
+
+  /* Deck panels full width */
+  .deck-panel {
+    width: 98%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px;
+    bottom: 52px;
+  }
+
+  .deck-title {
+    font-size: 0.68rem;
+  }
+
+  .deck-content {
+    font-size: 0.8rem;
+  }
+
+  /* Copilot tab */
+  .copilot-tab {
+    padding: 4px 10px !important;
+    font-size: 0.62rem;
+  }
+
+  /* Idle mode adjustments */
+  .idle-title {
+    font-size: 18px;
+    letter-spacing: 4px;
+  }
+
+  .idle-subtitle {
+    font-size: 10px;
+  }
+
+  .idle-resume {
+    padding: 8px 20px;
+    letter-spacing: 2px;
+    font-size: 12px;
+  }
+
+  .cockpit-window {
+    top: 4%;
+    left: 4%;
+    right: 4%;
+    bottom: 12%;
+  }
+
+  .window-frame.left,
+  .window-frame.right {
+    display: none;
+  }
+
+  .glass-instruments,
+  .window-instruments,
+  .idle-instruments {
+    width: 60px;
+  }
+}
+
+/* ======================================================
+   RESPONSIVE — SMALL MOBILE (max-width: 480px)
+====================================================== */
+@media (max-width: 480px) {
+  .cockpit-topbar {
+    height: 42px;
+    padding: 0 8px 0 44px;
+  }
+
+  .logo {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+  }
+
+  /* Hide ticker on very small screens */
+  .topbar-center {
+    display: none;
+  }
+
+  .exit-cockpit a {
+    font-size: 10px;
+  }
+
+  .cockpit-main {
+    padding: 14px 10px;
+    padding-bottom: 140px;
+  }
+
+  /* Sidebar overlay full width */
+  .cockpit-sidebar {
+    width: 100%;
+  }
+
+  /* Footer stacks vertically on tiny screens */
+  .cockpit-footer {
+    gap: 8px;
+    padding: 6px 8px;
+  }
+
+  .footer-tab,
+  .power-button {
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    padding: 3px 6px;
+  }
+
+  .deck-node {
+    font-size: 9px;
+  }
+
+  /* Deck panels truly full width */
+  .deck-panel {
+    width: 100%;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+    transform: none;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    padding: 10px;
+    bottom: 48px;
+  }
+
+  .deck-title {
+    font-size: 0.62rem;
+  }
+
+  .deck-content {
+    font-size: 0.75rem;
+  }
+
+  /* Idle HUD smaller */
+  .idle-title {
+    font-size: 16px;
+    letter-spacing: 3px;
+  }
+
+  .idle-subtitle {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .idle-resume {
+    padding: 6px 16px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+  }
+
+  .idle-heartbeat {
+    width: 80px;
+    height: 80px;
+  }
+
+  /* Power control scales down */
+  .power-reactor {
+    width: 28px;
+    height: 28px;
+  }
+
+  .power-label {
+    font-size: 9px;
+  }
+
+  /* Instruments hidden on very small */
+  .glass-instruments,
+  .window-instruments,
+  .idle-instruments {
+    display: none;
+  }
+
+  /* Copilot tab */
+  .copilot-tab {
+    padding: 3px 8px !important;
+    gap: 4px;
+  }
+}

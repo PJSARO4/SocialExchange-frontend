@@ -19,6 +19,18 @@ import {
   getSavedListings,
 } from './lib/market-store';
 import { getCurrentUser } from '@/app/lib/auth/auth-store';
+import { EscrowListingModal } from './components/escrow/EscrowListingModal';
+import { EscrowPurchaseModal } from './components/escrow/EscrowPurchaseModal';
+import { EscrowVerificationModal } from './components/escrow/EscrowVerificationModal';
+import { EscrowStatusCard } from './components/escrow/EscrowStatusCard';
+import { EscrowListing, EscrowTransaction } from './types/escrow';
+import {
+  seedEscrowDataIfEmpty,
+  getActiveEscrowListings,
+  getTransactionsByBuyer,
+  getTransactionsBySeller,
+} from './lib/escrow-store';
+import './components/escrow/escrow.css';
 import './market.css';
 
 type ViewMode = 'grid' | 'list';
@@ -34,12 +46,20 @@ export default function MarketplacePage() {
     sortBy: 'popular',
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [showListingModal, setShowListingModal] = useState(false);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [selectedEscrowListing, setSelectedEscrowListing] = useState<EscrowListing | null>(null);
+  const [escrowTransactions, setEscrowTransactions] = useState<EscrowTransaction[]>([]);
+  const [selectedTransaction, setSelectedTransaction] = useState<EscrowTransaction | null>(null);
 
   const currentUser = getCurrentUser();
 
   useEffect(() => {
     seedMarketplaceIfEmpty();
+    seedEscrowDataIfEmpty();
     loadListings();
+    loadEscrowTransactions();
     if (currentUser) {
       setSavedIds(getSavedListings(currentUser.id));
     }
@@ -53,6 +73,16 @@ export default function MarketplacePage() {
       setListings(data);
       setIsLoading(false);
     }, 300);
+  };
+
+  const loadEscrowTransactions = () => {
+    const userId = currentUser?.id || 'demo-user';
+    const buyerTxns = getTransactionsByBuyer(userId);
+    const sellerTxns = getTransactionsBySeller(userId);
+    const allTxns = [...buyerTxns, ...sellerTxns].filter(
+      (txn, i, arr) => arr.findIndex(t => t.id === txn.id) === i
+    );
+    setEscrowTransactions(allTxns);
   };
 
   const handleSave = (listingId: string) => {
@@ -70,6 +100,11 @@ export default function MarketplacePage() {
 
   const handleFilterChange = (key: keyof MarketFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleOpenEscrowPurchase = (listing: EscrowListing) => {
+    setSelectedEscrowListing(listing);
+    setShowPurchaseModal(true);
   };
 
   const clearFilters = () => {
@@ -325,6 +360,73 @@ export default function MarketplacePage() {
               ))}
             </div>
           )}
+
+          {/* Escrow-Protected Listings */}
+          {(() => {
+            const escrowListings = getActiveEscrowListings();
+            if (escrowListings.length === 0) return null;
+            return (
+              <div style={{ marginTop: '2rem' }}>
+                <h3 style={{ color: '#fff', fontSize: '1.125rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: '#3fffdc' }}>🔒</span> Escrow-Protected Listings
+                </h3>
+                <div className={`market-listings ${viewMode}`}>
+                  {escrowListings.map((el) => (
+                    <div
+                      key={el.id}
+                      className={`market-card ${viewMode}`}
+                      onClick={() => handleOpenEscrowPurchase(el)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="market-card-header">
+                        <div className="market-card-platform">
+                          <span className="market-platform-icon">{getPlatformIcon(el.platform)}</span>
+                          <span className="market-platform-name">{el.platform}</span>
+                        </div>
+                        <span style={{ fontSize: '0.7rem', background: 'rgba(63, 255, 220, 0.15)', color: '#3fffdc', padding: '2px 8px', borderRadius: '4px' }}>ESCROW</span>
+                      </div>
+                      <div className="market-card-profile">
+                        <div className="market-card-avatar">
+                          {el.displayName[0]}
+                        </div>
+                        <div className="market-card-info">
+                          <h3 className="market-card-handle">{el.handle}</h3>
+                          <p className="market-card-name">{el.displayName}</p>
+                        </div>
+                        {el.sellerVerified && (
+                          <span className="market-card-verified" title="Verified Seller">✓</span>
+                        )}
+                      </div>
+                      <div className="market-card-metrics">
+                        <div className="market-metric">
+                          <span className="market-metric-value">{formatFollowers(el.metrics.followers)}</span>
+                          <span className="market-metric-label">Followers</span>
+                        </div>
+                        <div className="market-metric">
+                          <span className="market-metric-value">{el.metrics.engagementRate.toFixed(1)}%</span>
+                          <span className="market-metric-label">Engagement</span>
+                        </div>
+                        <div className="market-metric">
+                          <span className="market-metric-value">{el.metrics.posts}</span>
+                          <span className="market-metric-label">Posts</span>
+                        </div>
+                      </div>
+                      <p className="market-card-title">{el.title}</p>
+                      <div className="market-card-footer">
+                        <div className="market-card-price">
+                          <span className="market-price-value">${el.askingPrice.toLocaleString()}</span>
+                        </div>
+                        <div className="market-card-stats">
+                          <span className="market-card-stat">👁 {el.views}</span>
+                          <span className="market-card-stat">💬 {el.inquiries}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </>
       )}
 
@@ -354,21 +456,53 @@ export default function MarketplacePage() {
         </div>
       )}
 
-      {(activeTab === 'selling' || activeTab === 'buying') && (
+      {activeTab === 'selling' && (
         <div className="market-empty">
-          <div className="market-empty-icon">{activeTab === 'selling' ? '📤' : '📥'}</div>
-          <h3>{activeTab === 'selling' ? 'No active listings' : 'No active offers'}</h3>
-          <p>
-            {activeTab === 'selling'
-              ? 'List your first account to start selling'
-              : 'Browse listings and make offers to see them here'}
-          </p>
-          {activeTab === 'selling' && (
+          <div className="market-empty-icon">📤</div>
+          <h3>No active listings</h3>
+          <p>List your first account to start selling</p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/cockpit/my-e-assets/market/sell" className="market-cta-btn">
               + List Your Account
             </Link>
-          )}
+            <button
+              className="market-cta-btn"
+              onClick={() => setShowListingModal(true)}
+              style={{ background: 'linear-gradient(135deg, #3fffdc 0%, #00d4ff 100%)', color: '#020409', border: 'none', cursor: 'pointer', padding: '0.75rem 1.5rem', borderRadius: '8px', fontWeight: 600 }}
+            >
+              + List with Escrow Protection
+            </button>
+          </div>
         </div>
+      )}
+
+      {activeTab === 'buying' && (
+        <>
+          {escrowTransactions.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <h3 style={{ color: '#fff', fontSize: '1.125rem', margin: 0 }}>Active Escrow Transactions</h3>
+              {escrowTransactions.map(txn => (
+                <EscrowStatusCard
+                  key={txn.id}
+                  transaction={txn}
+                  userRole={txn.buyerId === (currentUser?.id || 'demo-user') ? 'buyer' : 'seller'}
+                  onAction={(action) => {
+                    if (action === 'verify_account' && txn) {
+                      setSelectedTransaction(txn);
+                      setShowVerificationModal(true);
+                    }
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="market-empty">
+              <div className="market-empty-icon">📥</div>
+              <h3>No active offers</h3>
+              <p>Browse listings and make offers to see them here</p>
+            </div>
+          )}
+        </>
       )}
 
       {/* Trust & Safety Banner */}
@@ -402,6 +536,57 @@ export default function MarketplacePage() {
           </div>
         </div>
       </div>
+
+      {/* Escrow Listing Modal */}
+      <EscrowListingModal
+        isOpen={showListingModal}
+        onClose={() => setShowListingModal(false)}
+        onSuccess={() => {
+          setShowListingModal(false);
+          loadListings();
+          loadEscrowTransactions();
+        }}
+        sellerId={currentUser?.id || 'demo-user'}
+        sellerUsername={currentUser?.username || 'demo_user'}
+        sellerEmail={currentUser?.email || 'demo@socialexchange.com'}
+      />
+
+      {/* Escrow Purchase Modal */}
+      {selectedEscrowListing && (
+        <EscrowPurchaseModal
+          isOpen={showPurchaseModal}
+          onClose={() => {
+            setShowPurchaseModal(false);
+            setSelectedEscrowListing(null);
+          }}
+          onSuccess={() => {
+            setShowPurchaseModal(false);
+            setSelectedEscrowListing(null);
+            loadEscrowTransactions();
+          }}
+          listing={selectedEscrowListing}
+          buyerId={currentUser?.id || 'demo-user'}
+          buyerUsername={currentUser?.username || 'demo_user'}
+          buyerEmail={currentUser?.email || 'demo@socialexchange.com'}
+        />
+      )}
+
+      {/* Escrow Verification Modal */}
+      {selectedTransaction && (
+        <EscrowVerificationModal
+          isOpen={showVerificationModal}
+          onClose={() => {
+            setShowVerificationModal(false);
+            setSelectedTransaction(null);
+          }}
+          onComplete={() => {
+            setShowVerificationModal(false);
+            setSelectedTransaction(null);
+            loadEscrowTransactions();
+          }}
+          transaction={selectedTransaction}
+        />
+      )}
     </div>
   );
 }

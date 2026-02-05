@@ -1,7 +1,16 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Thread, GroupThread, DirectThread, Message, GroupMember, DirectParticipant } from '../types';
+import {
+  seedCommsIfEmpty,
+  getThreads,
+  saveThreads,
+  addThread,
+  getMessages,
+  saveMessages,
+  addMessage as storeAddMessage,
+} from '../lib/comms-store';
 
 interface CommsContextType {
   threads: (Thread | GroupThread | DirectThread)[];
@@ -26,23 +35,49 @@ const GLOBAL_THREAD: Thread = {
 
 export function CommsProvider({ children }: { children: ReactNode }) {
   const [threads, setThreads] = useState<(Thread | GroupThread | DirectThread)[]>([GLOBAL_THREAD]);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'msg_1',
-      threadId: 'thread_global',
-      authorId: 'system',
-      authorName: 'System',
-      content: 'Global communications channel active',
-      timestamp: Date.now() - 3600000
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [activeThreadId, setActiveThreadId] = useState<string | null>('thread_global');
+
+  // On mount: seed localStorage if empty, then load persisted data into React state
+  useEffect(() => {
+    seedCommsIfEmpty();
+
+    const storedThreads = getThreads();
+    if (storedThreads.length > 0) {
+      setThreads(storedThreads);
+    } else {
+      // Store still empty after seed (shouldn't happen), persist the default global thread
+      saveThreads([GLOBAL_THREAD]);
+    }
+
+    const storedMessages = getMessages();
+    if (storedMessages.length > 0) {
+      setMessages(storedMessages);
+    }
+  }, []);
+
+  // Periodically sync messages from localStorage so GlobalChatWidget writes are visible
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const latest = getMessages();
+      setMessages(prev => {
+        if (latest.length !== prev.length) return latest;
+        return prev;
+      });
+      const latestThreads = getThreads();
+      setThreads(prev => {
+        if (latestThreads.length !== prev.length) return latestThreads;
+        return prev;
+      });
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const createGroupThread = (name: string, theme: string, invitedUsers: string[]) => {
     if (!name?.trim()) return;
-    
+
     const groupId = `thread_group_${Date.now()}`;
-    
+
     const members: GroupMember[] = [
       {
         accountId: CURRENT_USER_ID,
@@ -64,6 +99,9 @@ export function CommsProvider({ children }: { children: ReactNode }) {
       members
     };
 
+    // Persist to localStorage
+    addThread(newGroup);
+
     setThreads(prev => [...prev, newGroup]);
     setActiveThreadId(groupId);
 
@@ -76,14 +114,17 @@ export function CommsProvider({ children }: { children: ReactNode }) {
       timestamp: Date.now()
     };
 
+    // Persist to localStorage
+    storeAddMessage(systemMessage);
+
     setMessages(prev => [...prev, systemMessage]);
   };
 
   const createDirectThread = (username: string, initialMessage?: string) => {
     if (!username?.trim()) return;
-    
+
     const trimmedUsername = username.trim();
-    
+
     const existingDM = threads.find(thread => {
       if (thread?.type !== 'direct') return false;
       const dmThread = thread as DirectThread;
@@ -101,6 +142,8 @@ export function CommsProvider({ children }: { children: ReactNode }) {
           content: initialMessage.trim(),
           timestamp: Date.now()
         };
+        // Persist to localStorage
+        storeAddMessage(msg);
         setMessages(prev => [...prev, msg]);
       }
       return;
@@ -126,6 +169,9 @@ export function CommsProvider({ children }: { children: ReactNode }) {
       participants
     };
 
+    // Persist to localStorage
+    addThread(newDM);
+
     setThreads(prev => [...prev, newDM]);
     setActiveThreadId(dmId);
 
@@ -138,6 +184,8 @@ export function CommsProvider({ children }: { children: ReactNode }) {
         content: initialMessage.trim(),
         timestamp: Date.now()
       };
+      // Persist to localStorage
+      storeAddMessage(msg);
       setMessages(prev => [...prev, msg]);
     }
   };
@@ -153,6 +201,9 @@ export function CommsProvider({ children }: { children: ReactNode }) {
       content: content.trim(),
       timestamp: Date.now()
     };
+
+    // Persist to localStorage
+    storeAddMessage(newMessage);
 
     setMessages(prev => [...prev, newMessage]);
   };

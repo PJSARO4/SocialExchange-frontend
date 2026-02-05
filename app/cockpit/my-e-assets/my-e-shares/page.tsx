@@ -18,6 +18,7 @@ import {
   getBrandById,
 } from './lib/e-shares-store';
 
+import UpperTicker from './components/UpperTicker';
 import './e-shares.css';
 
 type TabType = 'marketplace' | 'portfolio' | 'list-brand';
@@ -84,6 +85,9 @@ export default function MyESharesPage() {
   ----------------------------------------- */
   return (
     <div className="e-shares-root">
+      {/* Live Price Ticker */}
+      <UpperTicker />
+
       {/* Header */}
       <div className="e-shares-header">
         <h1 className="e-shares-title">E-Shares</h1>

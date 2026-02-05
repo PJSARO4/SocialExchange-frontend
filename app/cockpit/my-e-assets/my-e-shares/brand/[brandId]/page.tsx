@@ -21,6 +21,7 @@ import {
   getHoldingsByBrand,
 } from '../../lib/e-shares-store';
 
+import SharePriceChart from '../../components/SharePriceChart';
 import '../../e-shares.css';
 import './brand-detail.css';
 
@@ -232,6 +233,13 @@ export default function BrandDetailPage() {
           Founded by <strong>{brand.founderName}</strong>
         </p>
       </div>
+
+      {/* Share Price Chart */}
+      <SharePriceChart
+        brandId={brand.id}
+        currentPrice={brand.pricePerShare}
+        basePrice={brand.pricePerShare}
+      />
 
       {/* Stats Grid */}
       <div className="brand-stats-grid">

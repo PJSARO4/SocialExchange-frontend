@@ -32,8 +32,8 @@ export const TICKER_REGEX = /^[A-Z0-9]+$/;
 export const MIN_SHARE_PRICE = 0.0001;  // Minimum price per share
 export const MAX_SHARE_PRICE = 1000000; // Maximum price per share
 
-// Demo Mode
-export const IS_DEMO_MODE = true;
+// Demo Mode - defaults to true (demo) unless explicitly set to 'false' via env
+export const IS_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== 'false';
 export const DEMO_DISCLAIMER = `
 DEMO MODE - NOT REAL MONEY
 
