@@ -17,11 +17,11 @@ import { AdvertiseTab } from './components/advertise';
 import { PageTutorial } from './components/PageTutorial';
 import { Platform } from './types/feed';
 
-type ActiveTab = 'workspace' | 'content' | 'scheduler' | 'advertise';
+type ActiveTab = 'dashboard' | 'workspace' | 'content' | 'scheduler' | 'earnex' | 'competitors';
 
 export default function MyFeedsContent() {
   const { feeds, selectedFeed, selectedFeedId, feedsLoading, addFeed } = useFeeds();
-  const [activeTab, setActiveTab] = useState<ActiveTab>('workspace');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [createPostOpen, setCreatePostOpen] = useState(false);
@@ -130,28 +130,28 @@ export default function MyFeedsContent() {
         {/* Tab Navigation */}
         <nav className="feeds-deck-tabs">
           <button
+            className={`feeds-deck-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            DASHBOARD
+          </button>
+          <button
             className={`feeds-deck-tab ${activeTab === 'workspace' ? 'active' : ''}`}
             onClick={() => setActiveTab('workspace')}
           >
-            WORKSPACE
+            MY WORKSPACE
           </button>
           <button
-            className={`feeds-deck-tab ${activeTab === 'content' ? 'active' : ''}`}
-            onClick={() => setActiveTab('content')}
+            className={`feeds-deck-tab ${activeTab === 'earnex' ? 'active' : ''}`}
+            onClick={() => setActiveTab('earnex')}
           >
-            CONTENT LIBRARY
+            EARNEX
           </button>
           <button
-            className={`feeds-deck-tab ${activeTab === 'scheduler' ? 'active' : ''}`}
-            onClick={() => setActiveTab('scheduler')}
+            className={`feeds-deck-tab ${activeTab === 'competitors' ? 'active' : ''}`}
+            onClick={() => setActiveTab('competitors')}
           >
-            SCHEDULER
-          </button>
-          <button
-            className={`feeds-deck-tab ${activeTab === 'advertise' ? 'active' : ''}`}
-            onClick={() => setActiveTab('advertise')}
-          >
-            ADVERTISE
+            COMPETITORS
           </button>
         </nav>
       </header>
@@ -165,7 +165,127 @@ export default function MyFeedsContent() {
 
         {/* Main Content Area */}
         <main className="feeds-deck-main">
-          {activeTab === 'workspace' ? (
+          {activeTab === 'dashboard' ? (
+            /* Account Dashboard - Bird's Eye View */
+            <div className="account-dashboard">
+              <div className="dashboard-header">
+                <h2 className="dashboard-title">Account Dashboard</h2>
+                <p className="dashboard-subtitle">Your bird's eye view of everything</p>
+              </div>
+
+              <div className="dashboard-grid">
+                {/* My Workspace Tile */}
+                <div
+                  className="dashboard-tile workspace-tile"
+                  onClick={() => setActiveTab('workspace')}
+                >
+                  <div className="tile-icon">🎯</div>
+                  <h3 className="tile-title">My Workspace</h3>
+                  <p className="tile-description">
+                    Content management, scheduling, automation, and all your creative tools
+                  </p>
+                  <div className="tile-stats">
+                    <span className="stat-item">
+                      <span className="stat-value">{feeds.length}</span>
+                      <span className="stat-label">Accounts</span>
+                    </span>
+                    <span className="stat-item">
+                      <span className="stat-value">{feeds.filter(f => f.automationEnabled).length}</span>
+                      <span className="stat-label">Automated</span>
+                    </span>
+                  </div>
+                  <div className="tile-arrow">→</div>
+                </div>
+
+                {/* EarnEx Tile */}
+                <div
+                  className="dashboard-tile earnex-tile"
+                  onClick={() => setActiveTab('earnex')}
+                >
+                  <div className="tile-icon">💰</div>
+                  <h3 className="tile-title">EarnEx</h3>
+                  <p className="tile-description">
+                    Manage campaigns, find opportunities, and track your earnings
+                  </p>
+                  <div className="tile-stats">
+                    <span className="stat-item">
+                      <span className="stat-value">0</span>
+                      <span className="stat-label">Owned</span>
+                    </span>
+                    <span className="stat-item">
+                      <span className="stat-value">0</span>
+                      <span className="stat-label">Participating</span>
+                    </span>
+                  </div>
+                  <div className="tile-arrow">→</div>
+                </div>
+
+                {/* Competitors Tile */}
+                <div
+                  className="dashboard-tile competitors-tile"
+                  onClick={() => setActiveTab('competitors')}
+                >
+                  <div className="tile-icon">👁️</div>
+                  <h3 className="tile-title">Competitors</h3>
+                  <p className="tile-description">
+                    Track competitors, analyze strategies, and stay ahead
+                  </p>
+                  <div className="tile-stats">
+                    <span className="stat-item">
+                      <span className="stat-value">0</span>
+                      <span className="stat-label">Tracking</span>
+                    </span>
+                    <span className="stat-item">
+                      <span className="stat-value">--</span>
+                      <span className="stat-label">Insights</span>
+                    </span>
+                  </div>
+                  <div className="tile-arrow">→</div>
+                </div>
+              </div>
+
+              {/* Quick Stats Overview */}
+              <div className="dashboard-overview">
+                <h3 className="overview-title">Quick Overview</h3>
+                <div className="overview-cards">
+                  <div className="overview-card">
+                    <span className="overview-icon">📊</span>
+                    <div className="overview-info">
+                      <span className="overview-value">
+                        {feeds.reduce((sum, f) => sum + (f.metrics?.followers || 0), 0).toLocaleString()}
+                      </span>
+                      <span className="overview-label">Total Followers</span>
+                    </div>
+                  </div>
+                  <div className="overview-card">
+                    <span className="overview-icon">💬</span>
+                    <div className="overview-info">
+                      <span className="overview-value">
+                        {feeds.length > 0
+                          ? (feeds.reduce((sum, f) => sum + (f.metrics?.engagement || 0), 0) / feeds.length).toFixed(1)
+                          : '0'}%
+                      </span>
+                      <span className="overview-label">Avg Engagement</span>
+                    </div>
+                  </div>
+                  <div className="overview-card">
+                    <span className="overview-icon">📅</span>
+                    <div className="overview-info">
+                      <span className="overview-value">0</span>
+                      <span className="overview-label">Scheduled Posts</span>
+                    </div>
+                  </div>
+                  <div className="overview-card">
+                    <span className="overview-icon">💵</span>
+                    <div className="overview-info">
+                      <span className="overview-value">$0</span>
+                      <span className="overview-label">Pending Earnings</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : activeTab === 'workspace' ? (
             selectedFeed ? (
               <FeedWorkspace
                 feed={selectedFeed}
@@ -187,12 +307,24 @@ export default function MyFeedsContent() {
                 </div>
               </div>
             )
-          ) : activeTab === 'content' ? (
-            <ContentLibrary />
-          ) : activeTab === 'scheduler' ? (
-            <Scheduler feedId={selectedFeedId || undefined} />
-          ) : (
+          ) : activeTab === 'earnex' ? (
             <AdvertiseTab feed={selectedFeed} />
+          ) : activeTab === 'competitors' ? (
+            /* Competitors View - Placeholder */
+            <div className="competitors-view">
+              <div className="competitors-header">
+                <h2>Competitors</h2>
+                <p>Track and analyze your competition</p>
+              </div>
+              <div className="competitors-empty">
+                <div className="empty-icon">👁️</div>
+                <h3>No Competitors Tracked Yet</h3>
+                <p>Start tracking competitor accounts to gain insights into their strategies</p>
+                <button className="add-competitor-btn">+ Add Competitor</button>
+              </div>
+            </div>
+          ) : (
+            <ContentLibrary />
           )}
         </main>
       </div>
