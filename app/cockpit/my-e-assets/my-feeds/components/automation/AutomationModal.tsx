@@ -195,28 +195,49 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
 
   // Create new chain from template
   const handleCreateFromTemplate = (template: WorkflowTemplate) => {
+    const timestamp = Date.now();
+
+    // Create node ID mapping
+    const nodeIdMap: Record<string, string> = {};
+    template.nodes.forEach(node => {
+      nodeIdMap[node.id] = `${node.id}-${timestamp}`;
+    });
+
+    // Transform template nodes to proper ChainNode structure with data property
+    const transformedNodes: ChainNode[] = template.nodes.map(n => ({
+      id: nodeIdMap[n.id],
+      type: n.type,
+      position: n.position,
+      data: {
+        label: n.config?.name || n.type.charAt(0).toUpperCase() + n.type.slice(1).replace(/-/g, ' '),
+        description: '',
+        isConfigured: false,
+        ...n.config, // Spread config into data
+      },
+    }));
+
+    // Transform connections with updated node IDs
+    const transformedConnections: NodeConnection[] = template.connections.map(c => ({
+      id: `${c.id}-${timestamp}`,
+      sourceNodeId: nodeIdMap[c.sourceNodeId] || c.sourceNodeId,
+      targetNodeId: nodeIdMap[c.targetNodeId] || c.targetNodeId,
+      sourceHandle: c.sourceHandle || 'output',
+      targetHandle: c.targetHandle || 'input',
+    }));
+
     const newChain: AutomationChain = {
-      id: `chain-${Date.now()}`,
+      id: `chain-${timestamp}`,
       name: template.name,
       description: template.description,
       feedId: feedId || '',
       enabled: false,
-      nodes: template.nodes.map(n => ({ ...n, id: `${n.id}-${Date.now()}` })),
-      connections: template.connections.map(c => ({ ...c, id: `${c.id}-${Date.now()}` })),
+      nodes: transformedNodes,
+      connections: transformedConnections,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      stats: { totalRuns: 0, successfulRuns: 0, failedRuns: 0 },
+      runCount: 0,
+      status: 'draft',
     };
-    // Update connection references
-    const nodeIdMap: Record<string, string> = {};
-    template.nodes.forEach((oldNode, i) => {
-      nodeIdMap[oldNode.id] = newChain.nodes[i].id;
-    });
-    newChain.connections = newChain.connections.map(conn => ({
-      ...conn,
-      sourceNodeId: nodeIdMap[template.connections.find(c => c.id.replace(`-${Date.now()}`, '') === conn.id.replace(`-${Date.now()}`, ''))?.sourceNodeId || ''] || conn.sourceNodeId,
-      targetNodeId: nodeIdMap[template.connections.find(c => c.id.replace(`-${Date.now()}`, '') === conn.id.replace(`-${Date.now()}`, ''))?.targetNodeId || ''] || conn.targetNodeId,
-    }));
 
     setEditingChain(newChain);
     setViewMode('builder');
@@ -224,19 +245,31 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
 
   // Create blank chain
   const handleCreateBlank = () => {
+    const timestamp = Date.now();
     const newChain: AutomationChain = {
-      id: `chain-${Date.now()}`,
+      id: `chain-${timestamp}`,
       name: 'New Workflow',
       description: '',
       feedId: feedId || '',
       enabled: false,
       nodes: [
-        { id: `start-${Date.now()}`, type: 'start', position: { x: 100, y: 200 }, config: { name: 'Trigger', trigger: 'manual' } },
+        {
+          id: `start-${timestamp}`,
+          type: 'start',
+          position: { x: 100, y: 200 },
+          data: {
+            label: 'Start',
+            description: 'Trigger for this workflow',
+            isConfigured: false,
+            triggerType: 'manual',
+          },
+        },
       ],
       connections: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      stats: { totalRuns: 0, successfulRuns: 0, failedRuns: 0 },
+      runCount: 0,
+      status: 'draft',
     };
     setEditingChain(newChain);
     setViewMode('builder');
