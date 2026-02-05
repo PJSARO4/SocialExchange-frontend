@@ -12,6 +12,8 @@ import { SchedulerModal } from './components/scheduler/SchedulerModal';
 import { CopilotModal } from './components/copilot/CopilotModal';
 import { AutomationModal } from './components/automation/AutomationModal';
 import { ContentFinderModal } from './components/content-finder/ContentFinderModal';
+import { CreatePostModal } from './components/create-post';
+import { SettingsModal } from './components/settings';
 import { EarnExTab } from './components/earnex';
 import { CompetitorsTab } from './components/competitors';
 import { PageTutorial } from './components/PageTutorial';
@@ -478,6 +480,23 @@ export default function MyFeedsContent() {
           feed={selectedFeed}
           isOpen={contentFinderOpen}
           onClose={() => setContentFinderOpen(false)}
+        />
+      )}
+
+      {createPostOpen && selectedFeed && (
+        <CreatePostModal
+          feed={selectedFeed}
+          isOpen={createPostOpen}
+          onClose={() => setCreatePostOpen(false)}
+        />
+      )}
+
+      {settingsOpen && selectedFeed && (
+        <SettingsModal
+          feed={selectedFeed}
+          isOpen={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          onToggleAutomation={toggleAutomation}
         />
       )}
 

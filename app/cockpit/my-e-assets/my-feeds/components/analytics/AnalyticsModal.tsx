@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Feed, PLATFORMS } from '../../types/feed';
 
 interface AnalyticsModalProps {
@@ -8,9 +8,61 @@ interface AnalyticsModalProps {
   onClose: () => void;
 }
 
+interface LiveMetrics {
+  followers: number;
+  following: number;
+  totalPosts: number;
+  username?: string;
+  profilePictureUrl?: string;
+}
+
 export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'growth' | 'content' | 'audience' | 'compare'>('overview');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastSynced, setLastSynced] = useState<Date | null>(feed.lastSync ? new Date(feed.lastSync) : null);
+  const [liveMetrics, setLiveMetrics] = useState<LiveMetrics | null>(null);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
   const platform = PLATFORMS[feed.platform];
+
+  // Fetch live metrics from Instagram API
+  const refreshMetrics = useCallback(async () => {
+    if (!feed.accessToken) {
+      setRefreshError('No access token available. Please reconnect your account.');
+      return;
+    }
+
+    setIsRefreshing(true);
+    setRefreshError(null);
+
+    try {
+      const response = await fetch(`/api/instagram/profile?access_token=${encodeURIComponent(feed.accessToken)}`);
+      const data = await response.json();
+
+      if (response.ok && !data.error) {
+        setLiveMetrics({
+          followers: data.followersCount || 0,
+          following: data.followsCount || 0,
+          totalPosts: data.mediaCount || 0,
+          username: data.username,
+          profilePictureUrl: data.profilePictureUrl,
+        });
+        setLastSynced(new Date());
+        setRefreshError(null);
+      } else {
+        setRefreshError(data.error || 'Failed to fetch metrics');
+      }
+    } catch (error) {
+      console.error('Failed to refresh metrics:', error);
+      setRefreshError('Network error. Please try again.');
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [feed.accessToken]);
+
+  // Use live metrics if available, otherwise fall back to feed metrics
+  const currentFollowers = liveMetrics?.followers ?? feed.metrics.followers ?? 0;
+  const currentFollowing = liveMetrics?.following ?? feed.metrics.following ?? 0;
+  const currentTotalPosts = liveMetrics?.totalPosts ?? feed.metrics.totalPosts ?? 0;
 
   // Calculate some derived metrics
   const engagementRate = feed.metrics.engagement || 4.2;
@@ -67,12 +119,34 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
             <div>
               <h2 className="modal-title">ANALYTICS</h2>
               <span className="analytics-handle">{feed.handle}</span>
+              {lastSynced && (
+                <span className="analytics-last-sync">
+                  Last synced: {lastSynced.toLocaleTimeString()}
+                </span>
+              )}
             </div>
           </div>
-          <button type="button" className="modal-close" onClick={onClose}>
-            ×
-          </button>
+          <div className="analytics-header-actions">
+            <button
+              type="button"
+              className={`analytics-refresh-btn ${isRefreshing ? 'refreshing' : ''}`}
+              onClick={refreshMetrics}
+              disabled={isRefreshing || !feed.accessToken}
+              title={feed.accessToken ? 'Refresh metrics from Instagram' : 'No access token - reconnect account'}
+            >
+              {isRefreshing ? '↻ Syncing...' : '↻ Sync'}
+            </button>
+            <button type="button" className="modal-close" onClick={onClose}>
+              ×
+            </button>
+          </div>
         </header>
+
+        {refreshError && (
+          <div className="analytics-error-banner">
+            ⚠️ {refreshError}
+          </div>
+        )}
 
         <div className="analytics-tabs">
           <button
@@ -113,23 +187,28 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
               {/* Overview Stats */}
               <section className="analytics-section">
                 <h3 className="analytics-section-title">OVERVIEW</h3>
+                {liveMetrics && (
+                  <div className="analytics-live-indicator">
+                    <span className="live-dot"></span> Live data from Instagram
+                  </div>
+                )}
                 <div className="analytics-stats-grid">
-                  <div className="analytics-stat-card">
+                  <div className={`analytics-stat-card ${isRefreshing ? 'loading' : ''}`}>
                     <div className="analytics-stat-value">
-                      {formatNumber(feed.metrics.followers || 1520)}
+                      {formatNumber(currentFollowers)}
                     </div>
                     <div className="analytics-stat-label">Followers</div>
                     <div className="analytics-stat-change positive">+2.4%</div>
                   </div>
-                  <div className="analytics-stat-card">
+                  <div className={`analytics-stat-card ${isRefreshing ? 'loading' : ''}`}>
                     <div className="analytics-stat-value">
-                      {formatNumber(feed.metrics.following || 423)}
+                      {formatNumber(currentFollowing)}
                     </div>
                     <div className="analytics-stat-label">Following</div>
                   </div>
-                  <div className="analytics-stat-card">
+                  <div className={`analytics-stat-card ${isRefreshing ? 'loading' : ''}`}>
                     <div className="analytics-stat-value">
-                      {formatNumber(feed.metrics.totalPosts || 83)}
+                      {formatNumber(currentTotalPosts)}
                     </div>
                     <div className="analytics-stat-label">Total Posts</div>
                   </div>
