@@ -29,6 +29,7 @@ interface DiscoveredContent {
     comments?: number;
     shares?: number;
   };
+  savedAt?: string;
 }
 
 interface ContentFinderModalProps {
@@ -41,15 +42,19 @@ interface ContentFinderModalProps {
   children?: React.ReactNode;
 }
 
-// Mock content sources
-const MOCK_SOURCES: ContentSource[] = [
+// Storage keys
+const SOURCES_STORAGE_KEY = 'se-content-sources';
+const SAVED_CONTENT_KEY = 'se-saved-content';
+const TUTORIAL_SEEN_KEY = 'se-content-finder-tutorial';
+
+// Default sources
+const DEFAULT_SOURCES: ContentSource[] = [
   { id: '1', type: 'hashtag', name: '#socialmedia', hashtag: 'socialmedia', enabled: true, itemCount: 24 },
   { id: '2', type: 'hashtag', name: '#marketing', hashtag: 'marketing', enabled: true, itemCount: 18 },
   { id: '3', type: 'rss', name: 'TechCrunch', url: 'https://techcrunch.com/feed', enabled: true, itemCount: 12 },
-  { id: '4', type: 'competitor', name: '@competitor', accountHandle: 'competitor', enabled: false, itemCount: 8 },
 ];
 
-// Mock discovered content
+// Mock discovered content (in production, this would come from actual API calls)
 const MOCK_CONTENT: DiscoveredContent[] = [
   {
     id: 'dc1',
@@ -99,6 +104,47 @@ const MOCK_CONTENT: DiscoveredContent[] = [
 
 type TabType = 'discover' | 'sources' | 'trending' | 'saved';
 
+// Load from localStorage
+function loadSources(): ContentSource[] {
+  if (typeof window === 'undefined') return DEFAULT_SOURCES;
+  try {
+    const stored = localStorage.getItem(SOURCES_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : DEFAULT_SOURCES;
+  } catch {
+    return DEFAULT_SOURCES;
+  }
+}
+
+function loadSavedContent(): DiscoveredContent[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = localStorage.getItem(SAVED_CONTENT_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSources(sources: ContentSource[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(SOURCES_STORAGE_KEY, JSON.stringify(sources));
+}
+
+function saveSavedContent(content: DiscoveredContent[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(SAVED_CONTENT_KEY, JSON.stringify(content));
+}
+
+function hasTutorialBeenSeen(): boolean {
+  if (typeof window === 'undefined') return true;
+  return localStorage.getItem(TUTORIAL_SEEN_KEY) === 'true';
+}
+
+function markTutorialSeen() {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(TUTORIAL_SEEN_KEY, 'true');
+}
+
 export function ContentFinderModal({
   feed,
   isOpen,
@@ -110,12 +156,33 @@ export function ContentFinderModal({
 }: ContentFinderModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('discover');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sources, setSources] = useState<ContentSource[]>(MOCK_SOURCES);
+  const [sources, setSources] = useState<ContentSource[]>([]);
+  const [savedContent, setSavedContent] = useState<DiscoveredContent[]>([]);
   const [discoveredContent, setDiscoveredContent] = useState<DiscoveredContent[]>(MOCK_CONTENT);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
   const [isAddingSource, setIsAddingSource] = useState(false);
   const [newSourceType, setNewSourceType] = useState<'rss' | 'hashtag' | 'competitor' | 'url'>('hashtag');
   const [newSourceValue, setNewSourceValue] = useState('');
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Load persisted data on mount
+  useEffect(() => {
+    setSources(loadSources());
+    setSavedContent(loadSavedContent());
+    setShowTutorial(!hasTutorialBeenSeen());
+  }, []);
+
+  // Save sources when they change
+  useEffect(() => {
+    if (sources.length > 0) {
+      saveSources(sources);
+    }
+  }, [sources]);
+
+  // Save content when it changes
+  useEffect(() => {
+    saveSavedContent(savedContent);
+  }, [savedContent]);
 
   if (!isOpen) return null;
 
@@ -157,6 +224,24 @@ export function ContentFinderModal({
     setSources(prev => prev.filter(s => s.id !== sourceId));
   };
 
+  const handleSaveContent = (item: DiscoveredContent) => {
+    // Check if already saved
+    if (savedContent.some(s => s.id === item.id)) {
+      // Remove from saved
+      setSavedContent(prev => prev.filter(s => s.id !== item.id));
+    } else {
+      // Add to saved (store reference only, not the actual image)
+      setSavedContent(prev => [...prev, { ...item, savedAt: new Date().toISOString() }]);
+    }
+  };
+
+  const isContentSaved = (itemId: string) => savedContent.some(s => s.id === itemId);
+
+  const handleCloseTutorial = () => {
+    setShowTutorial(false);
+    markTutorialSeen();
+  };
+
   const formatRelativeTime = (isoDate?: string) => {
     if (!isoDate) return '';
     const date = new Date(isoDate);
@@ -177,11 +262,57 @@ export function ContentFinderModal({
   return (
     <div className="finder-modal-overlay" onClick={onClose}>
       <div className="finder-modal" onClick={e => e.stopPropagation()}>
+        {/* Tutorial Overlay */}
+        {showTutorial && (
+          <div className="finder-tutorial-overlay">
+            <div className="finder-tutorial">
+              <h3>👋 Welcome to Content Finder</h3>
+              <div className="tutorial-steps">
+                <div className="tutorial-step">
+                  <span className="step-icon">🔎</span>
+                  <div className="step-content">
+                    <strong>Discover</strong>
+                    <p>Find trending content from hashtags, RSS feeds, and competitor accounts</p>
+                  </div>
+                </div>
+                <div className="tutorial-step">
+                  <span className="step-icon">📡</span>
+                  <div className="step-content">
+                    <strong>Sources</strong>
+                    <p>Add and manage your content sources - track hashtags, RSS feeds, and competitors</p>
+                  </div>
+                </div>
+                <div className="tutorial-step">
+                  <span className="step-icon">💾</span>
+                  <div className="step-content">
+                    <strong>Save & Queue</strong>
+                    <p>Save content references for later or add directly to your posting queue</p>
+                  </div>
+                </div>
+                <div className="tutorial-note">
+                  <span className="note-icon">💡</span>
+                  <p><strong>Storage Note:</strong> We save links and references only - not actual images. This keeps your data light and fast!</p>
+                </div>
+              </div>
+              <button className="tutorial-close-btn" onClick={handleCloseTutorial}>
+                Got it, let's go!
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <header className="finder-modal-header">
           <div className="finder-header-title">
             <span className="finder-icon">🔍</span>
             <h2>Content Finder</h2>
+            <button
+              className="finder-help-btn"
+              onClick={() => setShowTutorial(true)}
+              title="Show tutorial"
+            >
+              ?
+            </button>
           </div>
           <button className="finder-close-btn" onClick={onClose}>×</button>
         </header>
@@ -257,16 +388,23 @@ export function ContentFinderModal({
                     </div>
                     <div className="finder-card-actions">
                       <button
+                        className={`finder-save-btn ${isContentSaved(item.id) ? 'saved' : ''}`}
+                        onClick={() => handleSaveContent(item)}
+                        title={isContentSaved(item.id) ? 'Remove from saved' : 'Save for later'}
+                      >
+                        {isContentSaved(item.id) ? '💾' : '🔖'}
+                      </button>
+                      <button
                         className="finder-action-btn primary"
                         onClick={() => onAddToQueue?.(item)}
                       >
-                        + Add to Queue
+                        + Queue
                       </button>
                       <button
                         className="finder-action-btn"
                         onClick={() => onSelect?.(item)}
                       >
-                        Create Variation
+                        Remix
                       </button>
                     </div>
                   </div>
@@ -372,11 +510,68 @@ export function ContentFinderModal({
 
           {activeTab === 'saved' && (
             <div className="finder-saved">
-              <div className="finder-saved-empty">
-                <span className="finder-saved-icon">💾</span>
-                <h3>No Saved Content</h3>
-                <p>Save content from the Discover tab to access it later</p>
-              </div>
+              {savedContent.length === 0 ? (
+                <div className="finder-saved-empty">
+                  <span className="finder-saved-icon">💾</span>
+                  <h3>No Saved Content</h3>
+                  <p>Save content from the Discover tab to access it later</p>
+                  <button className="finder-btn primary" onClick={() => setActiveTab('discover')}>
+                    Go to Discover
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="finder-saved-header">
+                    <h3>Saved Content ({savedContent.length})</h3>
+                    <span className="finder-storage-note">
+                      💡 Saving references only - no heavy downloads!
+                    </span>
+                  </div>
+                  <div className="finder-content-grid">
+                    {savedContent.map(item => (
+                      <div key={item.id} className="finder-content-card saved">
+                        {item.imageUrl && (
+                          <div className="finder-card-image">
+                            <img src={item.imageUrl} alt={item.title} />
+                            <span className="finder-card-source">{item.source}</span>
+                          </div>
+                        )}
+                        <div className="finder-card-body">
+                          <h3 className="finder-card-title">{item.title}</h3>
+                          {item.description && (
+                            <p className="finder-card-desc">{item.description}</p>
+                          )}
+                          <div className="finder-card-meta">
+                            <span className="finder-card-time">Saved {formatRelativeTime(item.savedAt)}</span>
+                          </div>
+                        </div>
+                        <div className="finder-card-actions">
+                          <button
+                            className="finder-action-btn danger"
+                            onClick={() => handleSaveContent(item)}
+                          >
+                            Remove
+                          </button>
+                          <button
+                            className="finder-action-btn primary"
+                            onClick={() => onAddToQueue?.(item)}
+                          >
+                            + Queue
+                          </button>
+                          <a
+                            href={item.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="finder-action-btn"
+                          >
+                            View ↗
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

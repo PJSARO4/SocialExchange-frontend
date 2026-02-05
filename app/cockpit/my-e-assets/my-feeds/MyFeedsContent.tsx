@@ -13,6 +13,7 @@ import { SchedulerModal } from './components/scheduler/SchedulerModal';
 import { CopilotModal } from './components/copilot/CopilotModal';
 import { AutomationModal } from './components/automation/AutomationModal';
 import { ContentFinderModal } from './components/content-finder/ContentFinderModal';
+import { PageTutorial } from './components/PageTutorial';
 import { Platform } from './types/feed';
 
 type ActiveTab = 'workspace' | 'content' | 'scheduler';
@@ -230,6 +231,9 @@ export default function MyFeedsContent() {
           onClose={() => setContentFinderOpen(false)}
         />
       )}
+
+      {/* Page Tutorial */}
+      <PageTutorial />
     </div>
   );
 }
