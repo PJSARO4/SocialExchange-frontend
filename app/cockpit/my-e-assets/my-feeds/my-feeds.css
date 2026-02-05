@@ -13591,3 +13591,371 @@
     font-size: 0.65rem;
   }
 }
+
+/* ======================================================
+   ANIMATIONS & LIFE
+   Making the interface feel alive
+====================================================== */
+
+/* Keyframes */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(63, 255, 220, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(63, 255, 220, 0.1);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    text-shadow: 0 0 4px currentColor;
+    opacity: 1;
+  }
+  50% {
+    text-shadow: 0 0 12px currentColor, 0 0 20px currentColor;
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.95;
+  }
+}
+
+/* Animation Classes */
+.animate-in {
+  animation: fadeSlideUp 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.pulse-subtle {
+  animation: pulseSubtle 3s ease-in-out infinite;
+}
+
+.pulse-glow {
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
+/* Enhanced Quick Action Cards with staggered animation */
+.quick-actions-grid .quick-action-card {
+  opacity: 0;
+  animation: fadeSlideUp 0.3s ease-out forwards;
+}
+
+.quick-actions-grid .quick-action-card:nth-child(1) { animation-delay: 0.05s; }
+.quick-actions-grid .quick-action-card:nth-child(2) { animation-delay: 0.1s; }
+.quick-actions-grid .quick-action-card:nth-child(3) { animation-delay: 0.15s; }
+.quick-actions-grid .quick-action-card:nth-child(4) { animation-delay: 0.2s; }
+.quick-actions-grid .quick-action-card:nth-child(5) { animation-delay: 0.25s; }
+.quick-actions-grid .quick-action-card:nth-child(6) { animation-delay: 0.3s; }
+.quick-actions-grid .quick-action-card:nth-child(7) { animation-delay: 0.35s; }
+.quick-actions-grid .quick-action-card:nth-child(8) { animation-delay: 0.4s; }
+
+/* Quick Action Card subtle hover animation */
+.quick-action-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quick-action-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--tac-accent-system);
+}
+
+.quick-action-card:hover .action-icon {
+  transform: scale(1.15);
+  transition: transform 0.2s ease-out;
+}
+
+.quick-action-card .action-icon {
+  transition: transform 0.2s ease-out;
+}
+
+/* LinkEx Special Styling */
+.quick-action-card.linkex {
+  background: linear-gradient(135deg, var(--tac-bg-panel) 0%, rgba(63, 255, 220, 0.05) 100%);
+  border-color: rgba(63, 255, 220, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.quick-action-card.linkex::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(63, 255, 220, 0.1), transparent);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.quick-action-card.linkex:hover {
+  border-color: var(--tac-accent-system);
+  box-shadow: 0 8px 24px rgba(63, 255, 220, 0.15);
+}
+
+.quick-action-card .action-subtitle {
+  font-size: 0.6rem;
+  color: var(--tac-accent-system);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+
+/* Telemetry Card Hover Effects */
+.telemetry-card {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.telemetry-card:hover {
+  transform: translateY(-2px);
+  background: rgba(63, 255, 220, 0.05);
+  border-color: rgba(63, 255, 220, 0.3);
+}
+
+.telemetry-card:hover .telemetry-value {
+  color: var(--tac-accent-system);
+}
+
+/* Telemetry Tooltip */
+.telemetry-tooltip {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  background: var(--tac-bg-void);
+  border: 1px solid var(--tac-border-primary);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+  color: var(--tac-text-secondary);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 100;
+}
+
+.telemetry-card:hover .telemetry-tooltip {
+  opacity: 1;
+  visibility: visible;
+  bottom: -12px;
+}
+
+/* Section Header with Tooltip */
+.section-header-with-tooltip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.section-header-with-tooltip .section-title {
+  margin: 0;
+}
+
+/* Info Tooltip Trigger */
+.tooltip-trigger {
+  position: relative;
+  cursor: help;
+}
+
+.tooltip-trigger .info-icon {
+  font-size: 0.9rem;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.tooltip-trigger:hover .info-icon {
+  opacity: 1;
+}
+
+.tooltip-content {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  width: 280px;
+  background: var(--tac-bg-void);
+  border: 1px solid var(--tac-border-primary);
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--tac-text-secondary);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 200;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.tooltip-trigger:hover .tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.tooltip-content strong {
+  display: block;
+  color: var(--tac-text-critical);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.tooltip-content p {
+  margin: 0.5rem 0;
+  color: var(--tac-text-secondary);
+}
+
+.tooltip-content p:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-content b {
+  color: var(--tac-accent-system);
+}
+
+/* Automation Panel Enhancements */
+.automation-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.automation-configure-btn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--tac-accent-system);
+  border-radius: 6px;
+  color: var(--tac-accent-system);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.automation-configure-btn:hover {
+  background: var(--tac-accent-system);
+  color: var(--tac-bg-void);
+  transform: scale(1.02);
+}
+
+/* Armed Toggle Animation */
+.automation-toggle.armed {
+  animation: breathe 2s ease-in-out infinite;
+}
+
+.automation-toggle.armed .toggle-indicator {
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
+/* Workspace Nav Item Hover */
+.workspace-nav-item {
+  transition: all 0.2s ease;
+}
+
+.workspace-nav-item:hover:not(.active) {
+  background: rgba(63, 255, 220, 0.05);
+  transform: translateY(-1px);
+}
+
+.workspace-nav-item.active {
+  position: relative;
+}
+
+.workspace-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 2px;
+  background: var(--tac-accent-system);
+  animation: fadeSlideUp 0.2s ease-out;
+}
+
+/* Account Bar Subtle Animation */
+.workspace-account-bar {
+  animation: fadeSlideUp 0.3s ease-out;
+}
+
+/* Quick Metrics Hover */
+.quick-metric {
+  transition: all 0.2s ease;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.quick-metric:hover {
+  background: rgba(63, 255, 220, 0.1);
+}
+
+.quick-metric:hover .quick-metric-value {
+  color: var(--tac-accent-system);
+}
+
+/* Connection Status Pulse */
+.quick-metric-value.status.connected {
+  animation: pulseSubtle 2s ease-in-out infinite;
+  color: var(--tac-status-armed);
+}
+
+.quick-metric-value.status.disconnected {
+  color: var(--tac-status-offline);
+}
+
+.quick-metric-value.status.connecting {
+  animation: pulseGlow 1s ease-in-out infinite;
+  color: #fbbf24;
+}
+
+/* Scrollbar Styling for Workspace */
+.workspace-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workspace-content::-webkit-scrollbar-track {
+  background: var(--tac-bg-panel);
+}
+
+.workspace-content::-webkit-scrollbar-thumb {
+  background: var(--tac-border-primary);
+  border-radius: 3px;
+}
+
+.workspace-content::-webkit-scrollbar-thumb:hover {
+  background: var(--tac-accent-system);
+}

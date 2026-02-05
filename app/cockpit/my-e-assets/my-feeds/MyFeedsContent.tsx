@@ -12,7 +12,6 @@ import { SchedulerModal } from './components/scheduler/SchedulerModal';
 import { CopilotModal } from './components/copilot/CopilotModal';
 import { AutomationModal } from './components/automation/AutomationModal';
 import { ContentFinderModal } from './components/content-finder/ContentFinderModal';
-import { LinkExModal } from './components/linkex';
 import { EarnExTab } from './components/earnex';
 import { CompetitorsTab } from './components/competitors';
 import { PageTutorial } from './components/PageTutorial';
@@ -32,7 +31,6 @@ export default function MyFeedsContent() {
   const [copilotModalOpen, setCopilotModalOpen] = useState(false);
   const [automationOpen, setAutomationOpen] = useState(false);
   const [contentFinderOpen, setContentFinderOpen] = useState(false);
-  const [linkExOpen, setLinkExOpen] = useState(false);
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [oauthProcessed, setOauthProcessed] = useState(false);
@@ -252,7 +250,7 @@ export default function MyFeedsContent() {
                 {workspaceSection === 'overview' && (
                   <div className="workspace-overview">
                     {/* Quick Actions Grid */}
-                    <section className="workspace-section">
+                    <section className="workspace-section animate-in">
                       <h3 className="section-title">Quick Actions</h3>
                       <div className="quick-actions-grid">
                         <button className="quick-action-card" onClick={() => setCreatePostOpen(true)}>
@@ -279,9 +277,10 @@ export default function MyFeedsContent() {
                           <span className="action-icon">🔍</span>
                           <span className="action-label">Find Content</span>
                         </button>
-                        <button className="quick-action-card" onClick={() => setLinkExOpen(true)}>
-                          <span className="action-icon">🔗</span>
+                        <button className="quick-action-card linkex" onClick={() => setAutomationOpen(true)}>
+                          <span className="action-icon">⛓️</span>
                           <span className="action-label">LinkEx</span>
+                          <span className="action-subtitle">Chain Builder</span>
                         </button>
                         <button className="quick-action-card" onClick={() => setSettingsOpen(true)}>
                           <span className="action-icon">⚙️</span>
@@ -291,51 +290,81 @@ export default function MyFeedsContent() {
                     </section>
 
                     {/* Telemetry */}
-                    <section className="workspace-section">
-                      <h3 className="section-title">Telemetry</h3>
+                    <section className="workspace-section animate-in">
+                      <div className="section-header-with-tooltip">
+                        <h3 className="section-title">Telemetry</h3>
+                        <div className="tooltip-trigger">
+                          <span className="info-icon">ℹ️</span>
+                          <div className="tooltip-content">
+                            <strong>Real-time account health metrics</strong>
+                            <p>Monitor your account's performance at a glance. These metrics update automatically when synced with your connected platform.</p>
+                          </div>
+                        </div>
+                      </div>
                       <div className="telemetry-grid">
-                        <div className="telemetry-card">
+                        <div className="telemetry-card pulse-subtle">
                           <span className="telemetry-value">{(selectedFeed.metrics?.followers || 0).toLocaleString()}</span>
                           <span className="telemetry-label">Followers</span>
+                          <div className="telemetry-tooltip">Total audience reach</div>
                         </div>
-                        <div className="telemetry-card">
+                        <div className="telemetry-card pulse-subtle" style={{ animationDelay: '0.1s' }}>
                           <span className="telemetry-value">{(selectedFeed.metrics?.engagement || 0).toFixed(1)}%</span>
                           <span className="telemetry-label">Engagement</span>
+                          <div className="telemetry-tooltip">Likes + comments ÷ followers</div>
                         </div>
-                        <div className="telemetry-card">
+                        <div className="telemetry-card pulse-subtle" style={{ animationDelay: '0.2s' }}>
                           <span className="telemetry-value">{selectedFeed.metrics?.postsPerWeek || 0}</span>
                           <span className="telemetry-label">Posts/Week</span>
+                          <div className="telemetry-tooltip">Average posting frequency</div>
                         </div>
-                        <div className="telemetry-card">
+                        <div className="telemetry-card pulse-subtle" style={{ animationDelay: '0.3s' }}>
                           <span className="telemetry-value">{(selectedFeed.metrics?.uptime || 0).toFixed(0)}%</span>
                           <span className="telemetry-label">Uptime</span>
+                          <div className="telemetry-tooltip">Connection stability score</div>
                         </div>
                       </div>
                     </section>
 
                     {/* Automation Status */}
-                    <section className="workspace-section">
-                      <h3 className="section-title">Automation</h3>
+                    <section className="workspace-section animate-in" style={{ animationDelay: '0.15s' }}>
+                      <div className="section-header-with-tooltip">
+                        <h3 className="section-title">Automation</h3>
+                        <div className="tooltip-trigger">
+                          <span className="info-icon">ℹ️</span>
+                          <div className="tooltip-content">
+                            <strong>Workflow automation control</strong>
+                            <p><b>ARMED:</b> Your automation chains are active and will execute based on triggers (schedules, events, etc.)</p>
+                            <p><b>IDLE:</b> Chains are paused. No automated actions will run until you re-enable.</p>
+                            <p>Use LinkEx (Chain Builder) to create and configure automation workflows.</p>
+                          </div>
+                        </div>
+                      </div>
                       <div className="automation-panel">
                         <div className="automation-status">
                           <button
                             className={`automation-toggle ${selectedFeed.automationEnabled ? 'armed' : 'idle'}`}
                             onClick={() => toggleAutomation(selectedFeed.id)}
                           >
-                            <span className="toggle-indicator">⦿</span>
+                            <span className={`toggle-indicator ${selectedFeed.automationEnabled ? 'pulse-glow' : ''}`}>⦿</span>
                             <span className="toggle-label">
                               {selectedFeed.automationEnabled ? 'ARMED' : 'IDLE'}
                             </span>
                           </button>
                           <span className="automation-hint">
-                            {selectedFeed.automationEnabled ? 'Automation is active' : 'Click to enable automation'}
+                            {selectedFeed.automationEnabled ? 'Automation chains are running' : 'Click to activate automation chains'}
                           </span>
                         </div>
+                        <button
+                          className="automation-configure-btn"
+                          onClick={() => setAutomationOpen(true)}
+                        >
+                          ⛓️ Configure Chains
+                        </button>
                       </div>
                     </section>
 
                     {/* Recent Activity / Upcoming */}
-                    <section className="workspace-section">
+                    <section className="workspace-section animate-in" style={{ animationDelay: '0.25s' }}>
                       <h3 className="section-title">Upcoming</h3>
                       <div className="upcoming-panel">
                         <div className="upcoming-empty">
@@ -438,7 +467,7 @@ export default function MyFeedsContent() {
 
       {automationOpen && selectedFeed && (
         <AutomationModal
-          feed={selectedFeed}
+          feedId={selectedFeed.id}
           isOpen={automationOpen}
           onClose={() => setAutomationOpen(false)}
         />
@@ -449,14 +478,6 @@ export default function MyFeedsContent() {
           feed={selectedFeed}
           isOpen={contentFinderOpen}
           onClose={() => setContentFinderOpen(false)}
-        />
-      )}
-
-      {linkExOpen && selectedFeed && (
-        <LinkExModal
-          feed={selectedFeed}
-          isOpen={linkExOpen}
-          onClose={() => setLinkExOpen(false)}
         />
       )}
 
