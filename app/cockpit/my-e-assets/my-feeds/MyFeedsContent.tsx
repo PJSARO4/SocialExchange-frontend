@@ -13,10 +13,11 @@ import { SchedulerModal } from './components/scheduler/SchedulerModal';
 import { CopilotModal } from './components/copilot/CopilotModal';
 import { AutomationModal } from './components/automation/AutomationModal';
 import { ContentFinderModal } from './components/content-finder/ContentFinderModal';
+import { AdvertiseTab } from './components/advertise';
 import { PageTutorial } from './components/PageTutorial';
 import { Platform } from './types/feed';
 
-type ActiveTab = 'workspace' | 'content' | 'scheduler';
+type ActiveTab = 'workspace' | 'content' | 'scheduler' | 'advertise';
 
 export default function MyFeedsContent() {
   const { feeds, selectedFeed, selectedFeedId, feedsLoading, addFeed } = useFeeds();
@@ -146,6 +147,12 @@ export default function MyFeedsContent() {
           >
             SCHEDULER
           </button>
+          <button
+            className={`feeds-deck-tab ${activeTab === 'advertise' ? 'active' : ''}`}
+            onClick={() => setActiveTab('advertise')}
+          >
+            ADVERTISE
+          </button>
         </nav>
       </header>
 
@@ -182,8 +189,10 @@ export default function MyFeedsContent() {
             )
           ) : activeTab === 'content' ? (
             <ContentLibrary />
-          ) : (
+          ) : activeTab === 'scheduler' ? (
             <Scheduler feedId={selectedFeedId || undefined} />
+          ) : (
+            <AdvertiseTab feed={selectedFeed} />
           )}
         </main>
       </div>

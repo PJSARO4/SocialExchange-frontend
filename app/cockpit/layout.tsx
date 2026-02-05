@@ -240,8 +240,8 @@ function CockpitContent({ children }: { children: ReactNode }) {
       {/* GLOBAL COPILOT */}
       <GlobalCopilot isOpen={copilotOpen} onClose={() => setCopilotOpen(false)} />
 
-      {/* AUDIO CONTROL */}
-      <AudioControl position="bottom-left" showMood />
+      {/* AUDIO CONTROL - Floating Widget */}
+      <AudioControl />
     </div>
   );
 }
