@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Feed } from '../../types/feed';
+import { useToast } from '../../../../ui/toast/ToastProvider';
 
 interface ScheduledPost {
   id: string;
@@ -26,6 +27,7 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
+  const { addToast } = useToast();
 
   // Fetch scheduled posts from API
   const fetchScheduledPosts = useCallback(async () => {
@@ -112,7 +114,7 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
 
     // Validate time is in future
     if (scheduledTime <= new Date()) {
-      alert('Please select a time in the future');
+      addToast('warning', 'Please select a time in the future');
       return;
     }
 
@@ -146,12 +148,13 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
         setScheduledPosts([...scheduledPosts, newPost]);
         setNewPostContent('');
         setActiveTab('queue');
+        addToast('success', 'Post scheduled successfully');
       } else {
-        alert(data.error || 'Failed to schedule post');
+        addToast('error', data.error || 'Failed to schedule post');
       }
     } catch (error) {
       console.error('Failed to schedule post:', error);
-      alert('Failed to schedule post. Please try again.');
+      addToast('error', 'Failed to schedule post. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -167,12 +170,13 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
 
       if (data.success) {
         setScheduledPosts(scheduledPosts.filter(p => p.id !== postId));
+        addToast('success', 'Scheduled post deleted');
       } else {
-        alert(data.error || 'Failed to delete post');
+        addToast('error', data.error || 'Failed to delete post');
       }
     } catch (error) {
       console.error('Failed to delete post:', error);
-      alert('Failed to delete post. Please try again.');
+      addToast('error', 'Failed to delete post. Please try again.');
     }
   };
 

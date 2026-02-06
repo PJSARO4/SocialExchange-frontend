@@ -497,4 +497,227 @@ body.cockpit-mode .cockpit-viewport .section-title {
   margin-bottom: 10px;
 }
 
+/* =========================================================
+   OVERNIGHT SPRINT - UI/UX ENHANCEMENTS
+   Skeleton loading, modal animations, micro-interactions
+   ========================================================= */
 
+/* --- SKELETON LOADING --- */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(63, 255, 220, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.skeleton-text {
+  composes: skeleton;
+  height: 14px;
+  margin-bottom: 8px;
+}
+
+.skeleton-text.short { width: 60%; }
+.skeleton-text.medium { width: 80%; }
+.skeleton-text.long { width: 95%; }
+
+.skeleton-card {
+  composes: skeleton;
+  height: 120px;
+  border-radius: 8px;
+}
+
+.skeleton-avatar {
+  composes: skeleton;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-stat {
+  composes: skeleton;
+  height: 48px;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* --- MODAL ENTRANCE / EXIT ANIMATIONS --- */
+.modal-overlay {
+  animation: modal-backdrop-in 250ms ease-out;
+}
+
+.modal-overlay .modal-content {
+  animation: modal-scale-in 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Content stagger inside modals */
+.modal-content .analytics-section,
+.modal-content .create-post-section,
+.modal-content .workspace-section {
+  opacity: 0;
+  animation: modal-stagger-in 400ms ease-out forwards;
+}
+
+.modal-content > *:nth-child(1) { animation-delay: 100ms; }
+.modal-content > *:nth-child(2) { animation-delay: 150ms; }
+.modal-content > *:nth-child(3) { animation-delay: 200ms; }
+.modal-content > *:nth-child(4) { animation-delay: 250ms; }
+.modal-content > *:nth-child(5) { animation-delay: 300ms; }
+
+@keyframes modal-stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- ENHANCED SPINNER (SCI-FI ORBIT) --- */
+.loading-orbit {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+}
+
+.loading-orbit::before,
+.loading-orbit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid transparent;
+  border-top-color: #3fffdc;
+  border-radius: 50%;
+  animation: orbit-spin 1.2s linear infinite;
+}
+
+.loading-orbit::after {
+  inset: 4px;
+  border-top-color: rgba(63, 255, 220, 0.4);
+  animation-duration: 1.8s;
+  animation-direction: reverse;
+}
+
+.loading-orbit.sm { width: 20px; height: 20px; }
+.loading-orbit.sm::after { inset: 2px; }
+.loading-orbit.lg { width: 64px; height: 64px; }
+.loading-orbit.lg::after { inset: 6px; }
+
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- MICRO-INTERACTIONS: BUTTONS --- */
+.quick-action-card,
+.modal-button,
+.action-btn,
+.workspace-nav-item {
+  transition: all 180ms ease;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(63, 255, 220, 0.15);
+}
+
+.quick-action-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.modal-button:hover {
+  box-shadow: 0 0 16px rgba(63, 255, 220, 0.2);
+}
+
+.modal-button:active {
+  transform: scale(0.97);
+}
+
+.modal-button.primary:hover {
+  box-shadow: 0 0 20px rgba(63, 255, 220, 0.35);
+}
+
+/* --- SECTION ENTRANCE ANIMATION --- */
+.animate-in {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: section-enter 450ms ease-out forwards;
+}
+
+@keyframes section-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- ENHANCED FOCUS STATES --- */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(63, 255, 220, 0.3);
+  border-color: rgba(63, 255, 220, 0.5) !important;
+}
+
+/* --- GLOW PULSE FOR LIVE DATA INDICATOR --- */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.8); }
+}
+
+/* --- REDUCED MOTION --- */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .loading-orbit,
+  .loading-orbit::before,
+  .loading-orbit::after,
+  .modal-overlay,
+  .modal-overlay .modal-content,
+  .modal-content .analytics-section,
+  .modal-content .create-post-section,
+  .animate-in,
+  .live-dot {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -15,6 +15,7 @@ import { AmbientAudioProvider, useAmbientAudio } from '@/lib/audio/useAmbientAud
 import AudioControl from '@/components/audio/AudioControl';
 import MoodBackground from '@/components/audio/MoodBackground';
 import GlobalChatWidget from './comms/components/GlobalChatWidget';
+import { ToastProvider } from './ui/toast/ToastProvider';
 
 // ✅ CORRECT PATH (file lives in app/cockpit/context)
 import { AccountProvider } from './context/AccountContext';
@@ -301,11 +302,13 @@ export default function CockpitLayoutClient({
 
   return (
     <AccountProvider>
-      <AmbientAudioProvider autoChangeMood defaultVolume={0.6}>
-        <PageTransitionProvider defaultTransition="fade" defaultDuration={300}>
-          <CockpitContent>{children}</CockpitContent>
-        </PageTransitionProvider>
-      </AmbientAudioProvider>
+      <ToastProvider>
+        <AmbientAudioProvider autoChangeMood defaultVolume={0.6}>
+          <PageTransitionProvider defaultTransition="fade" defaultDuration={300}>
+            <CockpitContent>{children}</CockpitContent>
+          </PageTransitionProvider>
+        </AmbientAudioProvider>
+      </ToastProvider>
     </AccountProvider>
   );
 }
