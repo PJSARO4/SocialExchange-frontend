@@ -24,6 +24,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   const [status, setStatus] = useState<PostStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [publishedPostId, setPublishedPostId] = useState<string | null>(null);
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('12:00');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const platform = PLATFORMS[feed.platform];
@@ -55,7 +58,63 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
     }
   };
 
+  const handleSchedulePost = async () => {
+    if (!caption.trim()) {
+      setErrorMessage('Please add a caption');
+      return;
+    }
+
+    if (!scheduleDate || !scheduleTime) {
+      setErrorMessage('Please select a date and time for scheduling');
+      return;
+    }
+
+    const scheduledTime = new Date(`${scheduleDate}T${scheduleTime}`);
+    if (scheduledTime <= new Date()) {
+      setErrorMessage('Scheduled time must be in the future');
+      return;
+    }
+
+    setStatus('publishing');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/scheduler', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          feed_id: feed.id,
+          platform: feed.platform,
+          content: caption,
+          media_urls: mediaUrl ? [mediaUrl] : [],
+          media_type: 'IMAGE',
+          scheduled_time: scheduledTime.toISOString(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.post) {
+        setStatus('success');
+        setPublishedPostId(data.post.id);
+        onPostCreated?.();
+      } else {
+        setStatus('error');
+        setErrorMessage(data.error || 'Failed to schedule post');
+      }
+    } catch (error) {
+      console.error('Schedule error:', error);
+      setStatus('error');
+      setErrorMessage('Network error. Please try again.');
+    }
+  };
+
   const handlePublish = async () => {
+    // If in schedule mode, use the scheduler API
+    if (scheduleMode) {
+      return handleSchedulePost();
+    }
+
     if (!caption.trim() && !mediaUrl) {
       setErrorMessage('Please add a caption or media URL');
       return;
@@ -149,9 +208,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         <div className="modal-body create-post-body">
           {status === 'success' ? (
             <div className="create-post-success">
-              <div className="success-icon">✅</div>
-              <h3>Post Published!</h3>
-              <p>Your post has been published to Instagram.</p>
+              <div className="success-icon">{scheduleMode ? '📅' : '✅'}</div>
+              <h3>{scheduleMode ? 'Post Scheduled!' : 'Post Published!'}</h3>
+              <p>{scheduleMode
+                ? `Your post has been scheduled for ${scheduleDate} at ${scheduleTime}.`
+                : 'Your post has been published to Instagram.'
+              }</p>
               {publishedPostId && (
                 <p className="post-id">Post ID: {publishedPostId}</p>
               )}
@@ -251,6 +313,70 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                 </div>
               </section>
 
+              {/* Schedule Toggle */}
+              <section className="create-post-section">
+                <div className="create-post-section-header">
+                  <h3 className="create-post-section-title">PUBLISH MODE</h3>
+                </div>
+                <div style={{
+                  display: 'flex', gap: '0.75rem', marginBottom: scheduleMode ? '0.75rem' : '0',
+                }}>
+                  <button
+                    className={`modal-button ${!scheduleMode ? 'primary' : 'secondary'}`}
+                    style={{ flex: 1, fontSize: '0.85rem', padding: '0.6rem' }}
+                    onClick={() => setScheduleMode(false)}
+                    disabled={status === 'publishing'}
+                  >
+                    Publish Now
+                  </button>
+                  <button
+                    className={`modal-button ${scheduleMode ? 'primary' : 'secondary'}`}
+                    style={{ flex: 1, fontSize: '0.85rem', padding: '0.6rem' }}
+                    onClick={() => setScheduleMode(true)}
+                    disabled={status === 'publishing'}
+                  >
+                    Schedule for Later
+                  </button>
+                </div>
+                {scheduleMode && (
+                  <div style={{
+                    display: 'flex', gap: '0.75rem', padding: '0.75rem',
+                    background: 'rgba(0, 224, 255, 0.05)', borderRadius: '8px',
+                    border: '1px solid rgba(0, 224, 255, 0.15)',
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '0.75rem', color: '#888', marginBottom: '0.25rem' }}>Date</label>
+                      <input
+                        type="date"
+                        value={scheduleDate}
+                        onChange={(e) => setScheduleDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                        disabled={status === 'publishing'}
+                        style={{
+                          width: '100%', padding: '0.5rem', background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px',
+                          color: '#fff', fontSize: '0.875rem',
+                        }}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ display: 'block', fontSize: '0.75rem', color: '#888', marginBottom: '0.25rem' }}>Time</label>
+                      <input
+                        type="time"
+                        value={scheduleTime}
+                        onChange={(e) => setScheduleTime(e.target.value)}
+                        disabled={status === 'publishing'}
+                        style={{
+                          width: '100%', padding: '0.5rem', background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px',
+                          color: '#fff', fontSize: '0.875rem',
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </section>
+
               {/* Error Message */}
               {errorMessage && (
                 <div className="create-post-error">
@@ -285,7 +411,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
               onClick={handlePublish}
               disabled={status === 'publishing' || (!caption.trim() && !mediaUrl)}
             >
-              {status === 'publishing' ? 'PUBLISHING...' : 'PUBLISH NOW'}
+              {status === 'publishing'
+                ? (scheduleMode ? 'SCHEDULING...' : 'PUBLISHING...')
+                : (scheduleMode ? 'SCHEDULE POST' : 'PUBLISH NOW')}
             </button>
           </div>
         )}

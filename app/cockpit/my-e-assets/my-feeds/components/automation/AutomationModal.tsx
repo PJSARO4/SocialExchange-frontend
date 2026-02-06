@@ -12,6 +12,28 @@ interface AutomationModalProps {
   children?: React.ReactNode;
 }
 
+// API automation rule type
+interface AutomationRule {
+  id: string;
+  feed_id: string;
+  name: string;
+  type: string;
+  enabled: boolean;
+  settings: Record<string, any>;
+  stats: {
+    actions_today: number;
+    actions_total: number;
+    last_run?: string;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+interface RateLimitStatus {
+  daily_limits: { likes: number; comments: number; follows: number; dms: number };
+  daily_usage: Record<string, number>;
+}
+
 // Workflow template definitions
 interface WorkflowTemplate {
   id: string;
@@ -163,6 +185,13 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
+  // API-connected state
+  const [apiRules, setApiRules] = useState<AutomationRule[]>([]);
+  const [rateLimits, setRateLimits] = useState<RateLimitStatus | null>(null);
+  const [apiLoading, setApiLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [togglingRuleId, setTogglingRuleId] = useState<string | null>(null);
+
   // Try to use workflow events context
   let workflowEventsContext: ReturnType<typeof useWorkflowEvents> | null = null;
   try {
@@ -170,6 +199,84 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
   } catch {
     // Context not available
   }
+
+  // Fetch automation rules from API
+  const fetchApiRules = useCallback(async () => {
+    if (!feedId) return;
+    setApiLoading(true);
+    setApiError(null);
+    try {
+      const response = await fetch(`/api/automation?feed_id=${feedId}&include_actions=true`);
+      const data = await response.json();
+      if (response.ok && data.rules) {
+        setApiRules(data.rules);
+        if (data.daily_limits) {
+          setRateLimits({
+            daily_limits: data.daily_limits,
+            daily_usage: data.daily_usage || {},
+          });
+        }
+      } else {
+        // API unavailable (demo mode) — fallback to localStorage only
+        console.log('Automation API unavailable, using localStorage only');
+      }
+    } catch {
+      // Silently fall back to localStorage mode
+      console.log('Automation API not reachable, localStorage mode');
+    } finally {
+      setApiLoading(false);
+    }
+  }, [feedId]);
+
+  // Toggle an API rule's enabled state
+  const toggleApiRule = async (ruleId: string, currentEnabled: boolean) => {
+    setTogglingRuleId(ruleId);
+    try {
+      const response = await fetch('/api/automation', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: ruleId, enabled: !currentEnabled }),
+      });
+      const data = await response.json();
+      if (response.ok && data.rule) {
+        setApiRules(prev => prev.map(r => r.id === ruleId ? data.rule : r));
+      }
+    } catch (err) {
+      console.error('Failed to toggle rule:', err);
+    } finally {
+      setTogglingRuleId(null);
+    }
+  };
+
+  // Delete an API rule
+  const deleteApiRule = async (ruleId: string) => {
+    try {
+      const response = await fetch(`/api/automation?id=${ruleId}`, { method: 'DELETE' });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setApiRules(prev => prev.filter(r => r.id !== ruleId));
+      }
+    } catch (err) {
+      console.error('Failed to delete rule:', err);
+    }
+  };
+
+  // Fetch rate limit status
+  const fetchRateLimits = useCallback(async () => {
+    if (!feedId) return;
+    try {
+      const response = await fetch(`/api/rate-limits?feed_id=${feedId}`);
+      const data = await response.json();
+      if (response.ok) {
+        setRateLimits(prev => prev ? {
+          ...prev,
+          daily_usage: data.usage || prev.daily_usage,
+        } : null);
+      }
+    } catch {
+      // Silent fail
+    }
+  }, [feedId]);
 
   // Sync workflow events for a chain
   const syncChainEvents = useCallback((chain: AutomationChain) => {
@@ -194,10 +301,14 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
     }
   }, [workflowEventsContext]);
 
-  // Load chains on mount
+  // Load chains on mount + fetch API rules
   useEffect(() => {
     setChains(loadChains());
-  }, []);
+    if (isOpen) {
+      fetchApiRules();
+      fetchRateLimits();
+    }
+  }, [isOpen, fetchApiRules, fetchRateLimits]);
 
   // Save chains when they change
   useEffect(() => {
@@ -406,6 +517,84 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
               </div>
             </div>
 
+            {/* Rate Limits Dashboard */}
+            {rateLimits && (
+              <div className="automation-stats" style={{ marginBottom: '1rem', background: 'rgba(255, 200, 0, 0.05)' }}>
+                <div className="stat">
+                  <span className="stat-value" style={{ color: '#ffc800' }}>
+                    {rateLimits.daily_usage?.LIKE || 0}/{rateLimits.daily_limits.likes}
+                  </span>
+                  <span className="stat-label">Likes Today</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-value" style={{ color: '#ffc800' }}>
+                    {rateLimits.daily_usage?.COMMENT || 0}/{rateLimits.daily_limits.comments}
+                  </span>
+                  <span className="stat-label">Comments Today</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-value" style={{ color: '#ffc800' }}>
+                    {rateLimits.daily_usage?.FOLLOW || 0}/{rateLimits.daily_limits.follows}
+                  </span>
+                  <span className="stat-label">Follows Today</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-value" style={{ color: '#ffc800' }}>
+                    {rateLimits.daily_usage?.DM || 0}/{rateLimits.daily_limits.dms}
+                  </span>
+                  <span className="stat-label">DMs Today</span>
+                </div>
+              </div>
+            )}
+
+            {/* API Loading State */}
+            {apiLoading && (
+              <div className="automation-stats" style={{ justifyContent: 'center', color: '#888' }}>
+                Loading automation rules...
+              </div>
+            )}
+
+            {/* API Error */}
+            {apiError && (
+              <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', borderRadius: '6px', color: '#ff6464', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                {apiError}
+              </div>
+            )}
+
+            {/* Server-Side Automation Rules */}
+            {apiRules.length > 0 && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ color: '#00ffc8', fontSize: '0.875rem', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Server Rules (Instagram API)
+                </h3>
+                {apiRules.map(rule => (
+                  <div key={rule.id} className={`workflow-item ${rule.enabled ? 'enabled' : 'disabled'}`} style={{ marginBottom: '0.5rem' }}>
+                    <div className="workflow-status">
+                      <button
+                        className={`toggle-btn ${rule.enabled ? 'on' : 'off'}`}
+                        onClick={() => toggleApiRule(rule.id, rule.enabled)}
+                        disabled={togglingRuleId === rule.id}
+                      >
+                        {togglingRuleId === rule.id ? '...' : rule.enabled ? 'ON' : 'OFF'}
+                      </button>
+                    </div>
+                    <div className="workflow-info">
+                      <h4>{rule.name}</h4>
+                      <p>Type: {rule.type} | Today: {rule.stats.actions_today} actions | Total: {rule.stats.actions_total}</p>
+                      <div className="workflow-meta">
+                        <span>{rule.stats.last_run ? `Last run: ${new Date(rule.stats.last_run).toLocaleString()}` : 'Never run'}</span>
+                      </div>
+                    </div>
+                    <div className="workflow-actions">
+                      <button className="icon-btn" onClick={() => deleteApiRule(rule.id)} title="Delete">
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Actions */}
             <div className="automation-actions">
               <button className="action-btn primary" onClick={handleCreateBlank}>
@@ -415,6 +604,12 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
                 📋 Browse Templates
               </button>
             </div>
+
+            {apiRules.length > 0 && chains.length > 0 && (
+              <h3 style={{ color: '#00ffc8', fontSize: '0.875rem', margin: '1rem 0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Local Workflows (Chain Builder)
+              </h3>
+            )}
 
             {/* Workflow List */}
             <div className="workflow-list">

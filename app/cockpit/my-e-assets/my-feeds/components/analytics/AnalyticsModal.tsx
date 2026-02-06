@@ -16,13 +16,63 @@ interface LiveMetrics {
   profilePictureUrl?: string;
 }
 
+interface InsightsData {
+  impressions?: number;
+  reach?: number;
+  profileViews?: number;
+  accountsEngaged?: number;
+  totalInteractions?: number;
+}
+
 export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'growth' | 'content' | 'audience' | 'compare'>('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastSynced, setLastSynced] = useState<Date | null>(feed.lastSync ? new Date(feed.lastSync) : null);
   const [liveMetrics, setLiveMetrics] = useState<LiveMetrics | null>(null);
   const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [insights, setInsights] = useState<InsightsData | null>(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
   const platform = PLATFORMS[feed.platform];
+
+  // Fetch Instagram Insights data
+  const fetchInsights = useCallback(async () => {
+    if (!feed.accessToken || !feed.platformUserId) return;
+    setInsightsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        access_token: feed.accessToken,
+        instagram_user_id: feed.platformUserId,
+        type: 'account',
+        period: 'day',
+      });
+      const response = await fetch(`/api/instagram/insights?${params}`);
+      const data = await response.json();
+      if (response.ok && data.insights) {
+        const metricsMap: Record<string, number> = {};
+        data.insights.forEach((item: { name: string; values?: { value: number }[] }) => {
+          if (item.values?.[0]?.value !== undefined) {
+            metricsMap[item.name] = item.values[0].value;
+          }
+        });
+        setInsights({
+          impressions: metricsMap.impressions,
+          reach: metricsMap.reach,
+          profileViews: metricsMap.profile_views,
+          accountsEngaged: metricsMap.accounts_engaged,
+          totalInteractions: metricsMap.total_interactions,
+        });
+      }
+    } catch {
+      console.log('Insights API not available, using fallback data');
+    } finally {
+      setInsightsLoading(false);
+    }
+  }, [feed.accessToken, feed.platformUserId]);
+
+  // Auto-fetch insights on mount
+  useEffect(() => {
+    fetchInsights();
+  }, [fetchInsights]);
 
   // Fetch live metrics from Instagram API
   const refreshMetrics = useCallback(async () => {
@@ -48,6 +98,8 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
         });
         setLastSynced(new Date());
         setRefreshError(null);
+        // Also refresh insights
+        fetchInsights();
       } else {
         setRefreshError(data.error || 'Failed to fetch metrics');
       }
@@ -57,7 +109,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
     } finally {
       setIsRefreshing(false);
     }
-  }, [feed.accessToken]);
+  }, [feed.accessToken, fetchInsights]);
 
   // Use live metrics if available, otherwise fall back to feed metrics
   const currentFollowers = liveMetrics?.followers ?? feed.metrics.followers ?? 0;
@@ -220,44 +272,52 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                 </div>
               </section>
 
-              {/* Engagement Breakdown */}
+              {/* Engagement Breakdown — uses Insights API data when available */}
               <section className="analytics-section">
                 <h3 className="analytics-section-title">ENGAGEMENT BREAKDOWN</h3>
+                {insightsLoading && (
+                  <div style={{ color: '#888', fontSize: '0.8rem', marginBottom: '0.5rem' }}>Loading insights data...</div>
+                )}
+                {insights && (
+                  <div className="analytics-live-indicator" style={{ marginBottom: '0.75rem' }}>
+                    <span className="live-dot"></span> Live data from Instagram Insights API
+                  </div>
+                )}
                 <div className="analytics-engagement-grid">
                   <div className="analytics-engagement-item">
                     <span className="analytics-engagement-icon">❤️</span>
                     <div className="analytics-engagement-info">
                       <span className="analytics-engagement-value">
-                        {formatNumber(avgLikesPerPost)}
+                        {formatNumber(insights?.totalInteractions ?? avgLikesPerPost)}
                       </span>
-                      <span className="analytics-engagement-label">Avg. Likes/Post</span>
-                    </div>
-                  </div>
-                  <div className="analytics-engagement-item">
-                    <span className="analytics-engagement-icon">💬</span>
-                    <div className="analytics-engagement-info">
-                      <span className="analytics-engagement-value">
-                        {formatNumber(avgCommentsPerPost)}
-                      </span>
-                      <span className="analytics-engagement-label">Avg. Comments/Post</span>
-                    </div>
-                  </div>
-                  <div className="analytics-engagement-item">
-                    <span className="analytics-engagement-icon">📤</span>
-                    <div className="analytics-engagement-info">
-                      <span className="analytics-engagement-value">
-                        {feed.metrics.postsPerWeek || 3}
-                      </span>
-                      <span className="analytics-engagement-label">Posts/Week</span>
+                      <span className="analytics-engagement-label">{insights ? 'Total Interactions' : 'Avg. Likes/Post'}</span>
                     </div>
                   </div>
                   <div className="analytics-engagement-item">
                     <span className="analytics-engagement-icon">👁️</span>
                     <div className="analytics-engagement-info">
                       <span className="analytics-engagement-value">
-                        {formatNumber(Math.round((feed.metrics.followers || 1500) * 0.35))}
+                        {formatNumber(insights?.impressions ?? Math.round((feed.metrics.followers || 1500) * 0.5))}
                       </span>
-                      <span className="analytics-engagement-label">Avg. Reach</span>
+                      <span className="analytics-engagement-label">Impressions</span>
+                    </div>
+                  </div>
+                  <div className="analytics-engagement-item">
+                    <span className="analytics-engagement-icon">📡</span>
+                    <div className="analytics-engagement-info">
+                      <span className="analytics-engagement-value">
+                        {formatNumber(insights?.reach ?? Math.round((feed.metrics.followers || 1500) * 0.35))}
+                      </span>
+                      <span className="analytics-engagement-label">Reach</span>
+                    </div>
+                  </div>
+                  <div className="analytics-engagement-item">
+                    <span className="analytics-engagement-icon">👤</span>
+                    <div className="analytics-engagement-info">
+                      <span className="analytics-engagement-value">
+                        {formatNumber(insights?.profileViews ?? Math.round((feed.metrics.followers || 1500) * 0.1))}
+                      </span>
+                      <span className="analytics-engagement-label">Profile Views</span>
                     </div>
                   </div>
                 </div>
