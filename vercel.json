@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/cron/process-jobs",
+      "schedule": "*/5 * * * *"
+    },
+    {
       "path": "/api/worker?mode=batch&max=10",
       "schedule": "* * * * *"
     },

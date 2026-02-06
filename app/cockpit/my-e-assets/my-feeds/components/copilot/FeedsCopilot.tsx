@@ -538,6 +538,71 @@ export default function FeedsCopilot({
     }
   }, [messages]);
 
+  // Call Anthropic API with fallback to local pattern matching
+  const callFeedsCopilotAPI = async (userInput: string): Promise<{ content: string; actions?: CopilotAction[]; updatedMemory?: Partial<ConversationMemory> }> => {
+    // Detect content generation requests for /api/copilot/generate
+    const lowerInput = userInput.toLowerCase();
+    const isGenerateRequest =
+      lowerInput.includes('write a caption') || lowerInput.includes('generate caption') ||
+      lowerInput.includes('hashtag') || lowerInput.includes('write bio') ||
+      lowerInput.includes('content strategy') || lowerInput.includes('create a strategy');
+
+    const activeFeed = feeds[0]; // Use first feed for context
+    const accountContext = activeFeed ? {
+      handle: activeFeed.handle,
+      followers: activeFeed.metrics?.followers,
+      following: activeFeed.metrics?.following,
+      totalPosts: activeFeed.metrics?.totalPosts,
+      engagement: activeFeed.metrics?.engagementRate,
+    } : undefined;
+
+    try {
+      if (isGenerateRequest) {
+        // Use generate endpoint for content creation
+        const type = lowerInput.includes('caption') ? 'caption' :
+                     lowerInput.includes('hashtag') ? 'hashtags' :
+                     lowerInput.includes('bio') ? 'bio' : 'strategy';
+
+        const response = await fetch('/api/copilot/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type,
+            topic: userInput,
+            context: accountContext,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return { content: data.content || 'Could not generate content.' };
+        }
+      }
+
+      // Use chat endpoint for general conversation
+      const response = await fetch('/api/copilot/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userInput,
+          context: accountContext,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { content: data.reply || 'I apologize, I could not generate a response.' };
+      }
+
+      // API error - fall back to local
+      console.warn('FeedsCopilot API error, using local fallback');
+      return getAIResponse(userInput, feeds, memory, messages);
+    } catch (error) {
+      console.warn('FeedsCopilot API unavailable, using local fallback:', error);
+      return getAIResponse(userInput, feeds, memory, messages);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -550,13 +615,11 @@ export default function FeedsCopilot({
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input.trim();
     setInput('');
     setIsTyping(true);
 
-    // Simulate AI response delay (variable based on response complexity)
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
-
-    const response = getAIResponse(input, feeds, memory, messages);
+    const response = await callFeedsCopilotAPI(currentInput);
 
     // Update memory if response includes updates
     if (response.updatedMemory) {
@@ -579,41 +642,36 @@ export default function FeedsCopilot({
     setMessages(prev => [...prev, assistantMessage]);
   };
 
-  const handleQuickPrompt = (prompt: QuickPrompt) => {
-    setInput(prompt.prompt);
-    setTimeout(() => {
-      const userMessage: Message = {
-        id: `user-${Date.now()}`,
-        role: 'user',
-        content: prompt.prompt,
-        timestamp: new Date(),
-        context: { topic: prompt.category },
-      };
-      setMessages(prev => [...prev, userMessage]);
-      setIsTyping(true);
-
-      setTimeout(() => {
-        const response = getAIResponse(prompt.prompt, feeds, memory, messages);
-        if (response.updatedMemory) {
-          setMemory(prev => ({
-            ...prev,
-            ...response.updatedMemory,
-            brandProfile: { ...prev.brandProfile, ...response.updatedMemory?.brandProfile },
-          }));
-        }
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          role: 'assistant',
-          content: response.content,
-          timestamp: new Date(),
-          actions: response.actions,
-        };
-        setIsTyping(false);
-        setMessages(prev => [...prev, assistantMessage]);
-      }, 1000 + Math.random() * 1000);
-    }, 100);
+  const handleQuickPrompt = async (prompt: QuickPrompt) => {
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: prompt.prompt,
+      timestamp: new Date(),
+      context: { topic: prompt.category },
+    };
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setShowQuickPrompts(false);
+    setIsTyping(true);
+
+    const response = await callFeedsCopilotAPI(prompt.prompt);
+    if (response.updatedMemory) {
+      setMemory(prev => ({
+        ...prev,
+        ...response.updatedMemory,
+        brandProfile: { ...prev.brandProfile, ...response.updatedMemory?.brandProfile },
+      }));
+    }
+    const assistantMessage: Message = {
+      id: `assistant-${Date.now()}`,
+      role: 'assistant',
+      content: response.content,
+      timestamp: new Date(),
+      actions: response.actions,
+    };
+    setIsTyping(false);
+    setMessages(prev => [...prev, assistantMessage]);
   };
 
   const handleAction = (action: CopilotAction) => {

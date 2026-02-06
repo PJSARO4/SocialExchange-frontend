@@ -13,17 +13,19 @@ async function handlePublishPost(payload: PublishPostPayload): Promise<JobResult
   console.log(`📤 Publishing post for feed ${payload.feedId}`);
 
   try {
-    // Step 1: Create media container
+    // Step 1: Create media container (must use form-urlencoded, not JSON)
+    const containerParams: Record<string, string> = {
+      access_token: payload.accessToken,
+      image_url: payload.mediaUrls[0],
+    };
+    if (payload.caption) containerParams.caption = payload.caption;
+
     const containerResponse = await fetch(
       `https://graph.facebook.com/v21.0/${payload.instagramUserId}/media`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_token: payload.accessToken,
-          image_url: payload.mediaUrls[0],
-          caption: payload.caption,
-        }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(containerParams),
       }
     );
 
@@ -54,13 +56,13 @@ async function handlePublishPost(payload: PublishPostPayload): Promise<JobResult
       throw new Error(`Media processing failed with status: ${status}`);
     }
 
-    // Step 3: Publish
+    // Step 3: Publish (must use form-urlencoded)
     const publishResponse = await fetch(
       `https://graph.facebook.com/v21.0/${payload.instagramUserId}/media_publish`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
           access_token: payload.accessToken,
           creation_id: containerId,
         }),
@@ -110,8 +112,8 @@ async function handleAutoComment(payload: AutoCommentPayload): Promise<JobResult
       `https://graph.facebook.com/v21.0/${payload.targetPostId}/comments`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
           access_token: payload.accessToken,
           message: payload.comment,
         }),
@@ -151,13 +153,16 @@ async function handleAutoDM(payload: AutoDMPayload): Promise<JobResult> {
     // Instagram Graph API supports messaging through Instagram Messaging API
     // Requires specific permissions and business account
 
+    // Instagram DM API requires JSON format (not form-urlencoded)
     const response = await fetch(
-      `https://graph.facebook.com/v21.0/me/messages`,
+      `https://graph.instagram.com/v21.0/me/messages`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${payload.accessToken}`,
+        },
         body: JSON.stringify({
-          access_token: payload.accessToken,
           recipient: { id: payload.targetUserId },
           message: { text: payload.message },
         }),

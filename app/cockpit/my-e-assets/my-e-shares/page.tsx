@@ -105,13 +105,13 @@ export default function MyESharesPage() {
           </div>
           <div className="market-stat">
             <div className="market-stat-value">
-              ${stats.totalMarketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              ${(stats.totalMarketCap ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </div>
             <div className="market-stat-label">Total Market Cap</div>
           </div>
           <div className="market-stat">
             <div className="market-stat-value">
-              ${stats.totalVolume24h.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              ${(stats.totalVolume24h ?? 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}
             </div>
             <div className="market-stat-label">24h Volume</div>
           </div>
@@ -121,7 +121,7 @@ export default function MyESharesPage() {
           </div>
           <div className="market-stat">
             <div className="market-stat-value">
-              ${stats.platformFeesCollected.toFixed(4)}
+              ${(stats.platformFeesCollected ?? 0).toFixed(4)}
             </div>
             <div className="market-stat-label">Platform Fees</div>
           </div>
@@ -241,19 +241,19 @@ function MarketplaceView({
                     : ''
                 }`}
               >
-                ${brand.pricePerShare.toFixed(4)}
+                ${(brand.pricePerShare ?? 0).toFixed(4)}
               </div>
               <div className="brand-metric-label">Price/Share</div>
             </div>
             <div className="brand-metric">
               <div className="brand-metric-value">
-                ${brand.marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                ${(brand.marketCap ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </div>
               <div className="brand-metric-label">Market Cap</div>
             </div>
             <div className="brand-metric">
               <div className="brand-metric-value">
-                {brand.publicSharesAvailable.toLocaleString()}
+                {(brand.publicSharesAvailable ?? 0).toLocaleString()}
               </div>
               <div className="brand-metric-label">Available</div>
             </div>
@@ -370,7 +370,7 @@ function PortfolioView({
                   </div>
                 </td>
                 <td className="holding-shares">
-                  {holding.shares.toLocaleString()}
+                  {(holding.shares ?? 0).toLocaleString()}
                   {holding.isLocked && (
                     <span className="lock-indicator">
                       <svg viewBox="0 0 24 24" fill="currentColor">
@@ -380,7 +380,7 @@ function PortfolioView({
                     </span>
                   )}
                 </td>
-                <td className="holding-value">${holding.averageCost.toFixed(4)}</td>
+                <td className="holding-value">${(holding.averageCost ?? 0).toFixed(4)}</td>
                 <td className="holding-value">${currentValue.toFixed(2)}</td>
                 <td className={`holding-gain ${gain >= 0 ? 'positive' : 'negative'}`}>
                   {gain >= 0 ? '+' : ''}${gain.toFixed(2)} ({gainPercent.toFixed(1)}%)

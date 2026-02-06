@@ -216,7 +216,7 @@ export default function BrandDetailPage() {
 
         <div className="brand-detail-price">
           <div className="price-large">
-            ${brand.pricePerShare.toFixed(4)}
+            ${(brand.pricePerShare ?? 0).toFixed(4)}
             <span className={`price-direction ${(brand as BrandListing & { _priceDirection?: string })._priceDirection || ''}`}>
               {(brand as BrandListing & { _priceDirection?: string })._priceDirection === 'up' ? '↑' :
                (brand as BrandListing & { _priceDirection?: string })._priceDirection === 'down' ? '↓' : ''}
@@ -244,27 +244,27 @@ export default function BrandDetailPage() {
       {/* Stats Grid */}
       <div className="brand-stats-grid">
         <div className="brand-stat-card">
-          <div className="brand-stat-value">${brand.marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+          <div className="brand-stat-value">${(brand.marketCap ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
           <div className="brand-stat-label">Market Cap</div>
         </div>
         <div className="brand-stat-card">
-          <div className="brand-stat-value">{brand.totalShares.toLocaleString()}</div>
+          <div className="brand-stat-value">{(brand.totalShares ?? 0).toLocaleString()}</div>
           <div className="brand-stat-label">Total Shares</div>
         </div>
         <div className="brand-stat-card">
-          <div className="brand-stat-value">{brand.publicSharesAvailable.toLocaleString()}</div>
+          <div className="brand-stat-value">{(brand.publicSharesAvailable ?? 0).toLocaleString()}</div>
           <div className="brand-stat-label">Available</div>
         </div>
         <div className="brand-stat-card">
-          <div className="brand-stat-value">{brand.publicSharesSold.toLocaleString()}</div>
+          <div className="brand-stat-value">{(brand.publicSharesSold ?? 0).toLocaleString()}</div>
           <div className="brand-stat-label">Sold</div>
         </div>
         <div className="brand-stat-card">
-          <div className="brand-stat-value">${brand.volume24h.toFixed(2)}</div>
+          <div className="brand-stat-value">${(brand.volume24h ?? 0).toFixed(2)}</div>
           <div className="brand-stat-label">24h Volume</div>
         </div>
         <div className="brand-stat-card">
-          <div className="brand-stat-value">{brand.followers.toLocaleString()}</div>
+          <div className="brand-stat-value">{(brand.followers ?? 0).toLocaleString()}</div>
           <div className="brand-stat-label">Followers</div>
         </div>
       </div>
@@ -287,20 +287,20 @@ export default function BrandDetailPage() {
           <h3>Your Position</h3>
           <div className="position-stats">
             <div className="position-stat">
-              <div className="position-stat-value">{holding.shares.toLocaleString()}</div>
+              <div className="position-stat-value">{(holding.shares ?? 0).toLocaleString()}</div>
               <div className="position-stat-label">Shares Owned</div>
             </div>
             <div className="position-stat">
-              <div className="position-stat-value">${holding.averageCost.toFixed(4)}</div>
+              <div className="position-stat-value">${(holding.averageCost ?? 0).toFixed(4)}</div>
               <div className="position-stat-label">Avg Cost</div>
             </div>
             <div className="position-stat">
-              <div className="position-stat-value">${(holding.shares * brand.pricePerShare).toFixed(2)}</div>
+              <div className="position-stat-value">${((holding.shares ?? 0) * (brand.pricePerShare ?? 0)).toFixed(2)}</div>
               <div className="position-stat-label">Current Value</div>
             </div>
             <div className="position-stat">
-              <div className={`position-stat-value ${holding.unrealizedGain >= 0 ? 'positive' : 'negative'}`}>
-                {holding.unrealizedGain >= 0 ? '+' : ''}${holding.unrealizedGain.toFixed(2)}
+              <div className={`position-stat-value ${(holding.unrealizedGain ?? 0) >= 0 ? 'positive' : 'negative'}`}>
+                {(holding.unrealizedGain ?? 0) >= 0 ? '+' : ''}${(holding.unrealizedGain ?? 0).toFixed(2)}
               </div>
               <div className="position-stat-label">Unrealized P/L</div>
             </div>
@@ -389,12 +389,12 @@ export default function BrandDetailPage() {
 
             <div className="modal-price-info">
               <span>Current Price:</span>
-              <span>${brand.pricePerShare.toFixed(4)} per share</span>
+              <span>${(brand.pricePerShare ?? 0).toFixed(4)} per share</span>
             </div>
 
             <div className="modal-available">
               <span>Available:</span>
-              <span>{brand.publicSharesAvailable.toLocaleString()} shares</span>
+              <span>{(brand.publicSharesAvailable ?? 0).toLocaleString()} shares</span>
             </div>
 
             <div className="modal-input-group">
@@ -460,12 +460,12 @@ export default function BrandDetailPage() {
 
             <div className="modal-price-info">
               <span>Current Price:</span>
-              <span>${brand.pricePerShare.toFixed(4)} per share</span>
+              <span>${(brand.pricePerShare ?? 0).toFixed(4)} per share</span>
             </div>
 
             <div className="modal-available">
               <span>You Own:</span>
-              <span>{holding.shares.toLocaleString()} shares</span>
+              <span>{(holding.shares ?? 0).toLocaleString()} shares</span>
             </div>
 
             <div className="modal-input-group">

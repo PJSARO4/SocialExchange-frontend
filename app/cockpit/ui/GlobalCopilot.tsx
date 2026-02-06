@@ -228,6 +228,37 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  // Call Anthropic API with fallback to local pattern matching
+  const callCopilotAPI = async (userInput: string): Promise<{ content: string; actions?: CopilotAction[] }> => {
+    try {
+      const response = await fetch('/api/copilot/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userInput,
+          context: {
+            page: context,
+            pathname,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.warn('Copilot API error:', errorData.error || response.statusText);
+        // Fallback to local response
+        return getAIResponse(userInput, context);
+      }
+
+      const data = await response.json();
+      return { content: data.reply || 'I apologize, I could not generate a response.' };
+    } catch (error) {
+      console.warn('Copilot API unavailable, using local fallback:', error);
+      // Fallback to local response
+      return getAIResponse(userInput, context);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -239,13 +270,11 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input.trim();
     setInput('');
     setIsTyping(true);
 
-    // Simulate AI response delay
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
-
-    const response = getAIResponse(input, context);
+    const response = await callCopilotAPI(currentInput);
 
     const assistantMessage: Message = {
       id: `assistant-${Date.now()}`,
@@ -271,9 +300,7 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
     setShowQuickPrompts(false);
     setIsTyping(true);
 
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 800));
-
-    const response = getAIResponse(prompt.prompt, context);
+    const response = await callCopilotAPI(prompt.prompt);
 
     const assistantMessage: Message = {
       id: `assistant-${Date.now()}`,

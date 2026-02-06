@@ -2,6 +2,10 @@ import "./globals.css";
 import "./mobile.css";
 import Providers from "./providers";
 
+// Force dynamic rendering for all pages — the app uses SessionProvider
+// and localStorage-based auth, which cause prerendering failures.
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Social Exchange',
   description: 'Your Social Media Command Center',
