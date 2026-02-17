@@ -16,7 +16,7 @@ import {
   getMarketStats,
   applyMicroFluctuation,
   getBrandById,
-} from './lib/e-shares-store';
+} from './lib/e-shares-api';
 
 import UpperTicker from './components/UpperTicker';
 import './e-shares.css';
@@ -426,7 +426,7 @@ import {
   createBrandListing,
   signTransparencyAgreement,
   goPublic,
-} from './lib/e-shares-store';
+} from './lib/e-shares-api';
 
 import { E_SHARES_CONFIG } from './types/e-shares';
 

@@ -21,7 +21,7 @@ export default function UpperTicker() {
       brands.map(b => ({
         id: b.id,
         name: b.brandName,
-        price: b.pricePerShare,
+        price: b.pricePerShare ?? 0.01,
         change: 0,
         direction: 'neutral' as const,
       }))

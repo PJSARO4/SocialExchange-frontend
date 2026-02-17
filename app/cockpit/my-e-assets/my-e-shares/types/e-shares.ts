@@ -19,7 +19,10 @@ export type CommunityStatus =
   | 'SETUP'       // Creator setting up their community
   | 'ACTIVE'      // Community is live and accepting supporters
   | 'PAUSED'      // Temporarily not accepting new supporters
-  | 'ARCHIVED';   // Creator has fulfilled commitment period
+  | 'ARCHIVED'    // Creator has fulfilled commitment period
+  | 'PRIVATE'     // Brand created but not yet public (market mode)
+  | 'PUBLIC'      // Brand is listed and open for trading (market mode)
+  | 'TRADING';    // Brand is actively being traded (market mode)
 
 export type TransactionType =
   | 'SETUP'       // Creator initial community setup
@@ -99,8 +102,8 @@ export const SUPPORTER_TIERS: TierBenefits[] = [
 export interface CreatorCommunity {
   id: string;
 
-  // Creator Identity
-  creatorName: string;
+  // Creator Identity (optional in market/trading mode)
+  creatorName?: string;
   brandName: string;
   handle: string;
   platform: 'instagram' | 'twitter' | 'tiktok' | 'youtube' | 'multi';
@@ -108,33 +111,33 @@ export interface CreatorCommunity {
   avatarUrl?: string;
   coverUrl?: string;
 
-  // Creator Info
-  creatorId: string;
+  // Creator Info (optional in market mode)
+  creatorId?: string;
 
-  // Community Setup
-  setupDeposit: number;         // Creator's initial commitment (min $100)
-  totalCreditsIssued: number;   // Total credits available
-  creditsPerDollar: number;     // Fixed rate: 100 credits per $1
+  // Community Setup (optional — not used in market/trading mode)
+  setupDeposit?: number;         // Creator's initial commitment (min $100)
+  totalCreditsIssued?: number;   // Total credits available
+  creditsPerDollar?: number;     // Fixed rate: 100 credits per $1
 
-  // Community Metrics (NOT investment metrics)
-  totalSupporters: number;
-  totalCreditsHeld: number;     // Credits held by supporters
-  communitySize: string;        // "Growing", "Established", "Thriving"
+  // Community Metrics (optional in market mode)
+  totalSupporters?: number;
+  totalCreditsHeld?: number;     // Credits held by supporters
+  communitySize?: string;        // "Growing", "Established", "Thriving"
 
   // Social Proof (NOT financial metrics)
-  followers: number;
-  contentCount: number;
+  followers?: number;
+  contentCount?: number;
 
   // Status & Commitment
   status: CommunityStatus;
-  createdAt: number;
-  commitmentEndDate: number;    // Creator's 1-year commitment period
+  createdAt?: number;
+  commitmentEndDate?: number;    // Creator's 1-year commitment period
 
   // Custom Benefits (creator-defined)
   customBenefits?: string[];
 
-  // Compliance
-  communityAgreementSigned: boolean;
+  // Compliance (optional in market mode)
+  communityAgreementSigned?: boolean;
   agreementDate?: number;
 
   // ── Market/Trading Fields (used by e-shares-store) ──
@@ -170,24 +173,24 @@ export interface SupporterMembership {
   // Membership Info
   userId: string;
   userName: string;
-  communityId: string;
-  communityName: string;
+  communityId?: string;
+  communityName?: string;
 
-  // Credits & Tier
-  credits: number;
-  currentTier: SupporterTier;
-  tierProgress: number;         // Progress to next tier (0-100%)
-  nextTierCredits: number;      // Credits needed for next tier
+  // Credits & Tier (optional — not used in market/trading mode)
+  credits?: number;
+  currentTier?: SupporterTier;
+  tierProgress?: number;         // Progress to next tier (0-100%)
+  nextTierCredits?: number;      // Credits needed for next tier
 
   // Contribution (NOT investment)
-  totalContributed: number;     // Total $ contributed to creator
+  totalContributed?: number;     // Total $ contributed to creator
 
   // Benefits
-  benefitsUnlocked: string[];
-  memberSince: number;
+  benefitsUnlocked?: string[];
+  memberSince?: number;
 
   // Status
-  isFoundingMember: boolean;    // Joined during first month
+  isFoundingMember?: boolean;    // Joined during first month
 
   // ── Market/Trading Fields (used by e-shares-store) ──
   shares?: number;

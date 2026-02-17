@@ -51,14 +51,14 @@ export default function BrandDetailPage() {
     loadData();
 
     // Check if we should open a modal from URL params
-    const action = searchParams.get('action');
+    const action = searchParams?.get('action');
     if (action === 'buy' || action === 'sell') {
       setActiveModal(action);
     }
-  }, [params.brandId, searchParams]);
+  }, [params?.brandId, searchParams]);
 
   function loadData() {
-    const brandData = getBrandById(params.brandId);
+    const brandData = params?.brandId ? getBrandById(params.brandId) : undefined;
     setBrand(brandData || null);
 
     if (brandData) {
@@ -77,11 +77,11 @@ export default function BrandDetailPage() {
     const interval = setInterval(() => {
       setBrand((prev) => {
         if (!prev) return prev;
-        const { value, direction } = applyMicroFluctuation(prev.pricePerShare);
+        const { value, direction } = applyMicroFluctuation(prev.pricePerShare ?? 0.01);
         return {
           ...prev,
           pricePerShare: value,
-          marketCap: prev.totalShares * value,
+          marketCap: (prev.totalShares ?? 0) * value,
           _priceDirection: direction,
         } as BrandListing & { _priceDirection?: string };
       });
@@ -102,8 +102,8 @@ export default function BrandDetailPage() {
       return;
     }
 
-    if (shares > brand.publicSharesAvailable) {
-      setMessage({ type: 'error', text: `Only ${brand.publicSharesAvailable.toLocaleString()} shares available` });
+    if (shares > (brand.publicSharesAvailable ?? 0)) {
+      setMessage({ type: 'error', text: `Only ${(brand.publicSharesAvailable ?? 0).toLocaleString()} shares available` });
       return;
     }
 
@@ -141,8 +141,8 @@ export default function BrandDetailPage() {
       return;
     }
 
-    if (shares > holding.shares) {
-      setMessage({ type: 'error', text: `You only own ${holding.shares.toLocaleString()} shares` });
+    if (shares > (holding.shares ?? 0)) {
+      setMessage({ type: 'error', text: `You only own ${(holding.shares ?? 0).toLocaleString()} shares` });
       return;
     }
 
@@ -187,7 +187,7 @@ export default function BrandDetailPage() {
     );
   }
 
-  const totalCost = shareAmount ? parseInt(shareAmount) * brand.pricePerShare : 0;
+  const totalCost = shareAmount ? parseInt(shareAmount) * (brand.pricePerShare ?? 0) : 0;
   const platformFee = shareAmount ? parseInt(shareAmount) * E_SHARES_CONFIG.PLATFORM_FEE_PER_SHARE : 0;
   const lockExpiry = brand.lockExpiry ? new Date(brand.lockExpiry) : null;
 
@@ -237,8 +237,8 @@ export default function BrandDetailPage() {
       {/* Share Price Chart */}
       <SharePriceChart
         brandId={brand.id}
-        currentPrice={brand.pricePerShare}
-        basePrice={brand.pricePerShare}
+        currentPrice={brand.pricePerShare ?? 0}
+        basePrice={brand.pricePerShare ?? 0}
       />
 
       {/* Stats Grid */}
@@ -345,9 +345,9 @@ export default function BrandDetailPage() {
                 </div>
                 <div className="transaction-amount">
                   <div className={`transaction-amount-value ${tx.type === 'BUY' ? 'negative' : 'positive'}`}>
-                    {tx.type === 'BUY' ? '-' : '+'}${tx.totalAmount.toFixed(2)}
+                    {tx.type === 'BUY' ? '-' : '+'}${(tx.totalAmount ?? 0).toFixed(2)}
                   </div>
-                  <div className="transaction-amount-shares">{tx.shares.toLocaleString()} shares</div>
+                  <div className="transaction-amount-shares">{(tx.shares ?? 0).toLocaleString()} shares</div>
                 </div>
               </div>
             ))}
@@ -369,11 +369,11 @@ export default function BrandDetailPage() {
                       {h.userName}
                       {h.holderType === 'FOUNDER' && <span className="founder-badge">Founder</span>}
                     </div>
-                    <div className="shareholder-shares">{h.shares.toLocaleString()} shares</div>
+                    <div className="shareholder-shares">{(h.shares ?? 0).toLocaleString()} shares</div>
                   </div>
                 </div>
                 <div className="shareholder-percent">
-                  {((h.shares / brand.totalShares) * 100).toFixed(1)}%
+                  {(((h.shares ?? 0) / (brand.totalShares ?? 1)) * 100).toFixed(1)}%
                 </div>
               </div>
             ))}
@@ -480,7 +480,7 @@ export default function BrandDetailPage() {
               />
               <button
                 className="max-btn"
-                onClick={() => setShareAmount(holding.shares.toString())}
+                onClick={() => setShareAmount((holding.shares ?? 0).toString())}
               >
                 MAX
               </button>

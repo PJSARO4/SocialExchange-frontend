@@ -296,27 +296,28 @@ export function buyShares(params: {
     return { success: false, error: 'Brand is not open for investment' };
   }
 
-  if (params.shares > brand.publicSharesAvailable) {
+  if (params.shares > (brand.publicSharesAvailable ?? 0)) {
     return { success: false, error: 'Not enough shares available' };
   }
 
-  const pricePerShare = brand.pricePerShare;
+  const pricePerShare = brand.pricePerShare ?? 0.01;
   const totalAmount = params.shares * pricePerShare;
   const platformFee = params.shares * E_SHARES_CONFIG.PLATFORM_FEE_PER_SHARE;
   const netAmount = totalAmount + platformFee; // Buyer pays total + fee
 
   // Update brand
-  brand.publicSharesAvailable -= params.shares;
-  brand.publicSharesSold += params.shares;
-  brand.volume24h += totalAmount;
+  brand.publicSharesAvailable = (brand.publicSharesAvailable ?? 0) - params.shares;
+  brand.publicSharesSold = (brand.publicSharesSold ?? 0) + params.shares;
+  brand.volume24h = (brand.volume24h ?? 0) + totalAmount;
 
   // Apply demand-based price increase (simple version)
-  const demandFactor = 1 + (params.shares / brand.totalShares) * 0.1;
+  const totalShares = brand.totalShares ?? 1;
+  const demandFactor = 1 + (params.shares / totalShares) * 0.1;
   brand.pricePerShare = Math.min(
-    brand.pricePerShare * demandFactor,
-    brand.basePrice * E_SHARES_CONFIG.MAX_PRICE_MULTIPLIER
+    pricePerShare * demandFactor,
+    (brand.basePrice ?? 0.01) * E_SHARES_CONFIG.MAX_PRICE_MULTIPLIER
   );
-  brand.marketCap = brand.totalShares * brand.pricePerShare;
+  brand.marketCap = totalShares * brand.pricePerShare;
 
   saveBrandListing(brand);
 
@@ -326,12 +327,12 @@ export function buyShares(params: {
 
   if (holding) {
     // Update existing holding
-    const totalShares = holding.shares + params.shares;
-    const totalInvested = holding.totalInvested + totalAmount;
-    holding.shares = totalShares;
+    const heldShares = (holding.shares ?? 0) + params.shares;
+    const totalInvested = (holding.totalInvested ?? 0) + totalAmount;
+    holding.shares = heldShares;
     holding.totalInvested = totalInvested;
-    holding.averageCost = totalInvested / totalShares;
-    holding.currentValue = totalShares * brand.pricePerShare;
+    holding.averageCost = totalInvested / heldShares;
+    holding.currentValue = heldShares * (brand.pricePerShare ?? 0.01);
     holding.unrealizedGain = holding.currentValue - totalInvested;
     holding.unrealizedGainPercent =
       totalInvested > 0
@@ -398,45 +399,46 @@ export function sellShares(params: {
     };
   }
 
-  if (params.shares > holding.shares) {
+  if (params.shares > (holding.shares ?? 0)) {
     return { success: false, error: 'Not enough shares to sell' };
   }
 
-  const pricePerShare = brand.pricePerShare;
+  const pricePerShare = brand.pricePerShare ?? 0.01;
   const totalAmount = params.shares * pricePerShare;
   const platformFee = params.shares * E_SHARES_CONFIG.PLATFORM_FEE_PER_SHARE;
   const netAmount = totalAmount - platformFee; // Seller receives total - fee
 
   // Update brand
-  brand.publicSharesAvailable += params.shares;
-  brand.publicSharesSold -= params.shares;
-  brand.volume24h += totalAmount;
+  brand.publicSharesAvailable = (brand.publicSharesAvailable ?? 0) + params.shares;
+  brand.publicSharesSold = (brand.publicSharesSold ?? 0) - params.shares;
+  brand.volume24h = (brand.volume24h ?? 0) + totalAmount;
 
   // Apply supply-based price decrease (simple version)
-  const supplyFactor = 1 - (params.shares / brand.totalShares) * 0.1;
+  const sellTotalShares = brand.totalShares ?? 1;
+  const supplyFactor = 1 - (params.shares / sellTotalShares) * 0.1;
   brand.pricePerShare = Math.max(
-    brand.pricePerShare * supplyFactor,
-    brand.basePrice * E_SHARES_CONFIG.MIN_PRICE_MULTIPLIER
+    pricePerShare * supplyFactor,
+    (brand.basePrice ?? 0.01) * E_SHARES_CONFIG.MIN_PRICE_MULTIPLIER
   );
-  brand.marketCap = brand.totalShares * brand.pricePerShare;
+  brand.marketCap = sellTotalShares * brand.pricePerShare;
 
   saveBrandListing(brand);
 
   // Update holding
-  const costBasis = holding.averageCost * params.shares;
-  holding.shares -= params.shares;
-  holding.totalInvested -= costBasis;
+  const costBasis = (holding.averageCost ?? 0) * params.shares;
+  holding.shares = (holding.shares ?? 0) - params.shares;
+  holding.totalInvested = (holding.totalInvested ?? 0) - costBasis;
 
   if (holding.shares === 0) {
     // Remove holding if no shares left
     const holdings = getShareHoldings().filter((h) => h.id !== holding.id);
     setStorage(KEYS.SHARE_HOLDINGS, holdings);
   } else {
-    holding.currentValue = holding.shares * brand.pricePerShare;
-    holding.unrealizedGain = holding.currentValue - holding.totalInvested;
+    holding.currentValue = holding.shares * (brand.pricePerShare ?? 0.01);
+    holding.unrealizedGain = holding.currentValue - (holding.totalInvested ?? 0);
     holding.unrealizedGainPercent =
-      holding.totalInvested > 0
-        ? ((holding.currentValue - holding.totalInvested) / holding.totalInvested) * 100
+      (holding.totalInvested ?? 0) > 0
+        ? ((holding.currentValue - (holding.totalInvested ?? 0)) / (holding.totalInvested ?? 1)) * 100
         : 0;
     saveShareHolding(holding);
   }
@@ -521,13 +523,13 @@ export function getMarketStats(): MarketStats {
 
   return {
     totalBrandsListed: publicBrands.length,
-    totalMarketCap: publicBrands.reduce((sum, b) => sum + b.marketCap, 0),
-    totalVolume24h: publicBrands.reduce((sum, b) => sum + b.volume24h, 0),
+    totalMarketCap: publicBrands.reduce((sum, b) => sum + (b.marketCap ?? 0), 0),
+    totalVolume24h: publicBrands.reduce((sum, b) => sum + (b.volume24h ?? 0), 0),
     totalInvestors: uniqueInvestors.size,
     platformFeesCollected: getPlatformFeesCollected(),
     avgBrandGrowth:
       publicBrands.length > 0
-        ? publicBrands.reduce((sum, b) => sum + b.growthRate, 0) /
+        ? publicBrands.reduce((sum, b) => sum + (b.growthRate ?? 0), 0) /
           publicBrands.length
         : 0,
   };
@@ -610,8 +612,8 @@ export function seedESharesMarketIfEmpty(): void {
     // Sign agreement and go public
     signTransparencyAgreement({
       brandId: brand.id,
-      founderId: brand.founderId,
-      founderSignature: brand.founderName,
+      founderId: brand.founderId ?? '',
+      founderSignature: brand.founderName ?? '',
     });
 
     goPublic(brand.id);

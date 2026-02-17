@@ -43,11 +43,11 @@ export default function SharePriceChart({ brandId, currentPrice, basePrice }: Sh
         .filter(t => t.type === 'BUY' || t.type === 'SELL')
         .sort((a, b) => a.timestamp - b.timestamp)
         .forEach(t => {
-          runningPrice = t.pricePerShare;
+          runningPrice = t.pricePerShare ?? 0;
           points.push({
             timestamp: t.timestamp,
             price: runningPrice,
-            volume: t.totalAmount,
+            volume: t.totalAmount ?? 0,
           });
         });
     }
@@ -144,8 +144,8 @@ export default function SharePriceChart({ brandId, currentPrice, basePrice }: Sh
                 color: '#fff',
                 fontSize: '12px',
               }}
-              labelFormatter={(v: number) => new Date(v).toLocaleString()}
-              formatter={(value: number) => [`$${value.toFixed(4)}`, 'Price']}
+              labelFormatter={(v) => new Date(v as number).toLocaleString()}
+              formatter={(value) => [`$${(value as number).toFixed(4)}`, 'Price']}
             />
             <Area
               type="monotone"
