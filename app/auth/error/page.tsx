@@ -143,7 +143,7 @@ function ErrorContent() {
           </Link>
 
           <Link
-            href="/cockpit/my-e-assets/my-feeds"
+            href="/auth/login"
             style={{
               backgroundColor: '#E1306C',
               color: '#fff',

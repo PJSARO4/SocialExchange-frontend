@@ -186,9 +186,14 @@ export default function LoginPage() {
               />
               <span className="auth-checkbox-text">Remember me for 30 days</span>
             </label>
-            <Link href="/auth/forgot-password" className="auth-link">
+            <button
+              type="button"
+              className="auth-link"
+              onClick={() => alert('Password reset is not yet available. Use the demo credentials below or reset demo data.')}
+              style={{ background: 'none', border: 'none', padding: 0, font: 'inherit' }}
+            >
               Forgot password?
-            </Link>
+            </button>
           </div>
 
           <button
@@ -228,9 +233,9 @@ export default function LoginPage() {
             <span className="auth-demo-password">Demo@2024!User</span>
           </div>
           <div className="auth-demo-item" style={{ marginTop: '0.5rem', fontSize: '0.7rem', opacity: 0.7 }}>
-            <span className="auth-demo-email">pjsaro4@gmail.com</span>
+            <span className="auth-demo-email">admin@socialexchange.io</span>
             <span className="auth-demo-separator">•</span>
-            <span className="auth-demo-password">SocialX@2024!PJ</span>
+            <span className="auth-demo-password">SocialX@2024!Admin</span>
           </div>
           <button
             type="button"

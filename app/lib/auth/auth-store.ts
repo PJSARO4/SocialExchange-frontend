@@ -52,8 +52,15 @@ function verifyHash(password: string, hash: string): boolean {
 
 function getUsers(): User[] {
   if (typeof window === 'undefined') return [];
-  const data = localStorage.getItem(STORAGE_KEYS.USERS);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.USERS);
+    if (data) {
+      return JSON.parse(data);
+    }
+  } catch (e) {
+    console.warn('Failed to read auth users data:', e);
+  }
+  return [];
 }
 
 function saveUsers(users: User[]): void {
@@ -63,8 +70,15 @@ function saveUsers(users: User[]): void {
 
 function getSessions(): AuthSession[] {
   if (typeof window === 'undefined') return [];
-  const data = localStorage.getItem(STORAGE_KEYS.SESSIONS);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = localStorage.getItem(STORAGE_KEYS.SESSIONS);
+    if (data) {
+      return JSON.parse(data);
+    }
+  } catch (e) {
+    console.warn('Failed to read auth sessions data:', e);
+  }
+  return [];
 }
 
 function saveSessions(sessions: AuthSession[]): void {
@@ -323,39 +337,52 @@ export function ownerLogin(
 export function logout(): void {
   if (typeof window === 'undefined') return;
 
-  const sessionToken = localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION);
-  if (sessionToken) {
-    const sessions = getSessions().filter(s => s.token !== sessionToken);
-    saveSessions(sessions);
+  try {
+    const sessionToken = localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION);
+    if (sessionToken) {
+      const sessions = getSessions().filter(s => s.token !== sessionToken);
+      saveSessions(sessions);
+    }
+  } catch (e) {
+    console.warn('Failed to read session during logout:', e);
   }
 
-  localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION);
+  try {
+    localStorage.removeItem(STORAGE_KEYS.CURRENT_SESSION);
+  } catch (e) {
+    console.warn('Failed to remove session during logout:', e);
+  }
 }
 
 export function getCurrentUser(): Omit<User, 'passwordHash' | 'twoFactorSecret'> | null {
   if (typeof window === 'undefined') return null;
 
-  const sessionToken = localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION);
-  if (!sessionToken) return null;
+  try {
+    const sessionToken = localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION);
+    if (!sessionToken) return null;
 
-  const sessions = getSessions();
-  const session = sessions.find(s => s.token === sessionToken);
+    const sessions = getSessions();
+    const session = sessions.find(s => s.token === sessionToken);
 
-  if (!session) return null;
+    if (!session) return null;
 
-  // Check if session is expired
-  if (new Date(session.expiresAt) < new Date()) {
-    logout();
+    // Check if session is expired
+    if (new Date(session.expiresAt) < new Date()) {
+      logout();
+      return null;
+    }
+
+    const users = getUsers();
+    const user = users.find(u => u.id === session.userId);
+
+    if (!user) return null;
+
+    const { passwordHash, twoFactorSecret, ...safeUser } = user;
+    return safeUser;
+  } catch (e) {
+    console.warn('Failed to read current user data:', e);
     return null;
   }
-
-  const users = getUsers();
-  const user = users.find(u => u.id === session.userId);
-
-  if (!user) return null;
-
-  const { passwordHash, twoFactorSecret, ...safeUser } = user;
-  return safeUser;
 }
 
 export function isAuthenticated(): boolean {
@@ -404,21 +431,26 @@ function createSession(userId: string, duration: number = AUTH_CONFIG.SESSION_DU
 export function refreshSession(): boolean {
   if (typeof window === 'undefined') return false;
 
-  const sessionToken = localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION);
-  if (!sessionToken) return false;
+  try {
+    const sessionToken = localStorage.getItem(STORAGE_KEYS.CURRENT_SESSION);
+    if (!sessionToken) return false;
 
-  const sessions = getSessions();
-  const sessionIndex = sessions.findIndex(s => s.token === sessionToken);
+    const sessions = getSessions();
+    const sessionIndex = sessions.findIndex(s => s.token === sessionToken);
 
-  if (sessionIndex === -1) return false;
+    if (sessionIndex === -1) return false;
 
-  sessions[sessionIndex].lastActivityAt = new Date().toISOString();
-  sessions[sessionIndex].expiresAt = new Date(
-    Date.now() + AUTH_CONFIG.SESSION_DURATION_MS
-  ).toISOString();
+    sessions[sessionIndex].lastActivityAt = new Date().toISOString();
+    sessions[sessionIndex].expiresAt = new Date(
+      Date.now() + AUTH_CONFIG.SESSION_DURATION_MS
+    ).toISOString();
 
-  saveSessions(sessions);
-  return true;
+    saveSessions(sessions);
+    return true;
+  } catch (e) {
+    console.warn('Failed to refresh session data:', e);
+    return false;
+  }
 }
 
 // ============================================

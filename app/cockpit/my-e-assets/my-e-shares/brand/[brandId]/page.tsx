@@ -21,6 +21,7 @@ import {
   getHoldingsByBrand,
 } from '../../lib/e-shares-store';
 
+import { getWallet } from '../../lib/wallet-store';
 import SharePriceChart from '../../components/SharePriceChart';
 import '../../e-shares.css';
 import './brand-detail.css';
@@ -104,6 +105,14 @@ export default function BrandDetailPage() {
 
     if (shares > (brand.publicSharesAvailable ?? 0)) {
       setMessage({ type: 'error', text: `Only ${(brand.publicSharesAvailable ?? 0).toLocaleString()} shares available` });
+      return;
+    }
+
+    // Wallet balance check
+    const totalCost = shares * (brand.pricePerShare ?? 0) + shares * E_SHARES_CONFIG.PLATFORM_FEE_PER_SHARE;
+    const wallet = getWallet('demo-user-main');
+    if (wallet.balance < totalCost) {
+      setMessage({ type: 'error', text: `Insufficient balance. You need $${totalCost.toFixed(2)} but have $${wallet.balance.toFixed(2)}` });
       return;
     }
 

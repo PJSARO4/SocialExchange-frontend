@@ -1,164 +1,392 @@
-/* ======================================================
-   RESET
-====================================================== */
-* {
+/* ================================================================
+   STELLARIS COMMAND — BRIDGE DECK
+   Production CSS for Social Exchange Cockpit
+   All class names preserved for TSX compatibility
+   ================================================================ */
+
+/* ================================================================
+   0. CSS CUSTOM PROPERTIES
+   ================================================================ */
+:root {
+  --void-deep: #01020a;
+  --void-surface: rgba(4, 10, 24, 0.95);
+  --void-glass: rgba(1, 2, 10, 0.95);
+  --cyan-primary: #00f0ff;
+  --cyan-glow: rgba(0, 240, 255, 0.4);
+  --cyan-ghost: rgba(0, 240, 255, 0.08);
+  --cyan-line: rgba(0, 240, 255, 0.06);
+  --green-signal: #00ff88;
+  --red-signal: #ff006e;
+  --indigo-nebula: rgba(99, 102, 241, 0.08);
+  --violet-nebula: rgba(139, 92, 246, 0.04);
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.55);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  --font-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'Cascadia Code', monospace;
+  --font-display: 'Orbitron', var(--font-mono);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ================================================================
+   1. RESET + BASE
+   ================================================================ */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
-  background: #02040a;
-  color: #e6e6e6;
-  font-family: Inter, system-ui, sans-serif;
+  background: var(--void-deep);
+  color: var(--text-primary);
+  font-family: var(--font-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ======================================================
-   LOADING STATE
-====================================================== */
+/* ================================================================
+   2. LOADING STATE — NEBULA GLASS + ORBIT SPINNER
+   ================================================================ */
 .cockpit-loading {
   height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  background: #02040a;
-  color: rgba(255, 255, 255, 0.6);
+  gap: 20px;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 50%, rgba(99, 102, 241, 0.12), transparent 60%),
+    radial-gradient(ellipse 60% 70% at 30% 70%, rgba(0, 240, 255, 0.06), transparent 50%),
+    var(--void-deep);
+  color: var(--text-secondary);
   font-size: 13px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
+  font-family: var(--font-mono);
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 2px solid rgba(63, 255, 220, 0.15);
-  border-top-color: #3fffdc;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  position: relative;
+  width: 56px;
+  height: 56px;
 }
 
-@keyframes spin {
+/* Orbit ring 1 — outermost */
+.loading-spinner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid rgba(0, 240, 255, 0.08);
+  border-top-color: var(--cyan-primary);
+  border-radius: 50%;
+  animation: orbit-1 1.8s linear infinite;
+}
+
+/* Orbit ring 2 — middle */
+.loading-spinner::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1.5px solid rgba(0, 240, 255, 0.06);
+  border-right-color: rgba(0, 240, 255, 0.6);
+  border-radius: 50%;
+  animation: orbit-2 1.2s linear infinite reverse;
+}
+
+@keyframes orbit-1 {
   to { transform: rotate(360deg); }
 }
 
-/* ======================================================
-   ROOT LAYOUT
-====================================================== */
+@keyframes orbit-2 {
+  to { transform: rotate(360deg); }
+}
+
+/* ================================================================
+   3. ROOT LAYOUT
+   ================================================================ */
 .cockpit-root {
+  position: relative;
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--void-deep);
+  color: var(--text-primary);
+  font-family: var(--font-base);
 }
 
-/* ======================================================
-   TOP BAR
-====================================================== */
+/* Subtle vignette overlay */
+.cockpit-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+}
+
+/* ================================================================
+   4. TOP BAR
+   ================================================================ */
 .cockpit-topbar {
-  height: 56px;
+  position: relative;
+  height: 60px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  padding: 0 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(1, 2, 10, 0.95),
+    rgba(4, 10, 24, 0.9)
+  );
+  border-bottom: 1px solid var(--cyan-ghost);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 100;
 }
 
 .logo {
-  letter-spacing: 0.3em;
-  font-size: 12px;
-  opacity: 0.9;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.topbar-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 0 24px;
 }
 
 .exit-cockpit a {
-  color: #aaa;
+  color: var(--text-muted);
   text-decoration: none;
   font-size: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  transition: color 250ms ease, text-shadow 250ms ease;
 }
 
 .exit-cockpit a:hover {
-  color: #fff;
+  color: rgba(0, 240, 255, 0.8);
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
 }
 
-/* ======================================================
-   BODY
-====================================================== */
+/* ================================================================
+   5. TICKER — HOLOGRAPHIC GLASS
+   ================================================================ */
+.ticker {
+  max-width: 640px;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+}
+
+.ticker-track {
+  display: flex;
+  gap: 28px;
+  white-space: nowrap;
+  animation: ticker-scroll 35s linear infinite;
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+.ticker-symbol {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ticker-price.up {
+  color: var(--green-signal);
+  text-shadow: 0 0 6px rgba(0, 255, 136, 0.3);
+}
+
+.ticker-price.down {
+  color: var(--red-signal);
+  text-shadow: 0 0 6px rgba(255, 0, 110, 0.3);
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ================================================================
+   6. BODY CONTAINER
+   ================================================================ */
 .cockpit-body {
   flex: 1;
   display: flex;
   min-height: 0;
+  overflow: hidden;
 }
 
-/* ======================================================
-   SIDEBAR
-====================================================== */
+/* ================================================================
+   7. SIDEBAR — COMMAND PANEL
+   ================================================================ */
 .cockpit-sidebar {
-  width: 220px;
-  padding: 20px;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  width: 240px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
+  background: linear-gradient(
+    180deg,
+    rgba(4, 10, 24, 0.95),
+    rgba(1, 2, 10, 0.98)
+  );
+  border-right: 1px solid var(--cyan-line);
+  overflow-y: auto;
+  z-index: 10;
 }
 
 .sidebar-title {
+  font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.2em;
-  opacity: 0.5;
-  margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  color: rgba(0, 240, 255, 0.4);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding: 0 12px;
 }
 
 .sidebar-link {
+  display: block;
   text-decoration: none;
-  color: #bbb;
+  color: var(--text-secondary);
   font-size: 13px;
-  padding: 6px 8px;
+  font-weight: 400;
+  padding: 10px 12px;
   border-left: 2px solid transparent;
+  border-radius: 0 6px 6px 0;
+  transition: all 200ms ease;
+  letter-spacing: 0.02em;
 }
 
 .sidebar-link:hover {
-  color: #fff;
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(0, 240, 255, 0.04);
 }
 
 .sidebar-link.active {
-  color: #fff;
-  border-left: 2px solid #3fffdc;
+  color: var(--cyan-primary);
+  border-left-color: var(--cyan-primary);
   background: linear-gradient(
     to right,
-    rgba(63, 255, 220, 0.15),
+    rgba(0, 240, 255, 0.08),
     transparent
   );
+  font-weight: 500;
 }
 
 .sidebar-footer {
   margin-top: auto;
-  font-size: 11px;
-  opacity: 0.6;
+  padding: 16px 12px 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  border-top: 1px solid var(--cyan-line);
+  text-transform: uppercase;
 }
 
 .status-ok {
-  color: #3fffdc;
+  color: var(--green-signal);
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.4);
+  font-weight: 600;
 }
 
-/* ======================================================
-   MAIN PANEL
-====================================================== */
+/* ================================================================
+   8. MAIN VIEWPORT — NEBULA DEPTH
+   ================================================================ */
 .cockpit-main {
   flex: 1;
   padding: 40px 48px;
+  padding-bottom: 200px;
   overflow-y: auto;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(20, 40, 80, 0.35),
-    #02040a 70%
-  );
-  padding-bottom: 200px; /* footer clearance */
+  position: relative;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(99, 102, 241, 0.08), transparent 50%),
+    radial-gradient(ellipse 60% 80% at 80% 20%, rgba(0, 240, 255, 0.05), transparent 50%),
+    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(139, 92, 246, 0.04), transparent 50%),
+    var(--void-deep);
 }
 
-/* ======================================================
-   FOOTER / BOTTOM DECK
-====================================================== */
+/* Custom scrollbar */
+.cockpit-main::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cockpit-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cockpit-main::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.15);
+  border-radius: 2px;
+}
+
+.cockpit-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.25);
+}
+
+/* ================================================================
+   9. PAGE TRANSITIONS
+   ================================================================ */
+.page-enter {
+  animation: page-fade-up 0.4s ease-out;
+}
+
+@keyframes page-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================================================
+   10. FOOTER — BRIDGE CONTROLS
+   ================================================================ */
 .cockpit-footer {
   position: fixed;
   bottom: 0;
@@ -166,24 +394,87 @@ body {
   right: 0;
   height: 44px;
   display: flex;
-  justify-content: center;
-  gap: 48px;
   align-items: center;
-  background: rgba(5, 8, 15, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  z-index: 1000;
+  justify-content: center;
+  gap: 32px;
+  padding: 0 20px;
+  background: rgba(1, 2, 10, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--cyan-line);
+  z-index: 10000;
+  pointer-events: auto;
 }
 
+.footer-tab {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: all 200ms ease;
+  user-select: none;
+  text-transform: uppercase;
+  border: none;
+  background: none;
+}
+
+.footer-tab:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-tab.active {
+  color: var(--cyan-primary);
+  text-shadow: 0 0 10px var(--cyan-glow);
+}
+
+/* Copilot tab — elevated glass treatment */
+.copilot-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px !important;
+  background: rgba(0, 240, 255, 0.04);
+  border: 1px solid rgba(0, 240, 255, 0.12);
+  border-radius: 6px;
+  transition: all 200ms ease;
+}
+
+.copilot-tab:hover {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.3);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+}
+
+.copilot-tab.active {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.45);
+  color: var(--cyan-primary) !important;
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+}
+
+/* ================================================================
+   11. DECK NODES (FOOTER ITEMS)
+   ================================================================ */
 .deck-node {
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.2em;
-  opacity: 0.5;
+  color: var(--text-muted);
   cursor: pointer;
+  transition: all 200ms ease;
+  user-select: none;
+}
+
+.deck-node:hover {
+  color: var(--text-primary);
 }
 
 .deck-node.active {
-  color: #3fffdc;
-  opacity: 1;
+  color: var(--cyan-primary);
+  text-shadow: 0 0 8px var(--cyan-glow);
 }
 
 .deck-node.power {
@@ -192,123 +483,173 @@ body {
 }
 
 .deck-node.power.on {
-  color: #3aff6f;
-  text-shadow: 0 0 12px rgba(58, 255, 111, 0.6);
+  color: var(--green-signal);
+  text-shadow: 0 0 14px rgba(0, 255, 136, 0.6);
 }
 
 .deck-node.power.idle {
-  color: #3fffdc;
-  animation: reactorPulse 2.4s infinite;
+  color: var(--cyan-primary);
+  animation: reactorPulse 2.4s infinite ease-in-out;
 }
 
 @keyframes reactorPulse {
-  0% { opacity: 0.4; }
+  0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }
-  100% { opacity: 0.4; }
 }
 
-/* ======================================================
-   TOP TICKER
-====================================================== */
-.topbar-center {
-  display: flex;
-  justify-content: center;
-  overflow: hidden;
+/* ================================================================
+   12. DECK PANELS (POPOVER)
+   ================================================================ */
+.deck-panel {
+  position: fixed;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  max-width: 1200px;
+  background: rgba(4, 10, 24, 0.94);
+  border: 1px solid rgba(0, 240, 255, 0.12);
+  box-shadow:
+    0 0 40px rgba(0, 0, 0, 0.5),
+    0 0 2px rgba(0, 240, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 8px;
+  z-index: 900;
+  padding: 20px;
 }
 
-.ticker {
-  max-width: 600px;
-  overflow: hidden;
+.deck-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: rgba(0, 240, 255, 0.4);
+  text-transform: uppercase;
+  margin-bottom: 14px;
 }
 
-.ticker-track {
-  display: flex;
-  gap: 24px;
-  white-space: nowrap;
-  animation: ticker-scroll 30s linear infinite;
+.deck-content {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
-.ticker-item {
-  display: flex;
-  gap: 6px;
-  font-size: 12px;
-}
-
-.ticker-symbol {
-  opacity: 0.6;
-}
-
-.ticker-price.up {
-  color: #3fffdc;
-}
-
-.ticker-price.down {
-  color: #ff5f5f;
-}
-
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-/* ======================================================
-   CRUISE / IDLE OVERLAY (SINGLE SOURCE OF TRUTH)
-====================================================== */
+/* ================================================================
+   13. IDLE / CRUISE OVERLAY — DEEP SPACE VIEW
+   ================================================================ */
 .idle-overlay {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(10, 20, 30, 0.85),
-    rgba(5, 10, 15, 0.95) 70%,
-    #020409
-  );
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 50%, rgba(8, 16, 32, 0.8), transparent 60%),
+    radial-gradient(ellipse 60% 80% at 20% 80%, rgba(99, 102, 241, 0.1), transparent 50%),
+    radial-gradient(ellipse 50% 60% at 80% 30%, rgba(0, 240, 255, 0.06), transparent 50%),
+    #010208;
   pointer-events: all;
 }
 
-/* Viewport (outside glass) */
+/* Viewport container */
 .idle-viewport {
   position: absolute;
   inset: 0;
   overflow: hidden;
 }
 
-/* Space layers (depth, no dot noise) */
+/* ================================================================
+   14. STARFIELD LAYERS — BOX-SHADOW SCATTER
+   ================================================================ */
 .star-layer {
   position: absolute;
-  inset: -30%;
-  background-repeat: repeat;
-  animation: spaceDrift linear infinite;
+  inset: 0;
+  background: transparent;
 }
 
-.star-layer.far {
-  background-image: radial-gradient(#ffffff 1px, transparent 1px);
-  background-size: 260px 260px;
-  opacity: 0.12;
-  animation-duration: 240s;
+/* Far stars — tiny, slow, dim */
+.star-layer.far::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 1px;
+  height: 1px;
+  background: transparent;
+  box-shadow:
+    12vw 18vh rgba(255, 255, 255, 0.30),
+    44vw 62vh rgba(255, 255, 255, 0.22),
+    71vw 21vh rgba(255, 255, 255, 0.28),
+    83vw 77vh rgba(255, 255, 255, 0.18),
+    26vw 84vh rgba(255, 255, 255, 0.25),
+    9vw 55vh rgba(255, 255, 255, 0.28),
+    58vw 9vh rgba(255, 255, 255, 0.32),
+    91vw 34vh rgba(255, 255, 255, 0.22),
+    67vw 71vh rgba(255, 255, 255, 0.26),
+    35vw 42vh rgba(255, 255, 255, 0.20),
+    4vw 8vh rgba(255, 255, 255, 0.24),
+    78vw 91vh rgba(255, 255, 255, 0.18),
+    52vw 38vh rgba(255, 255, 255, 0.22);
+  animation: drift-far 220s linear infinite;
 }
 
-.star-layer.mid {
-  background-image: radial-gradient(#9ff 1px, transparent 1px);
-  background-size: 180px 180px;
-  opacity: 0.22;
-  animation-duration: 120s;
+/* Mid stars — medium, moderate speed */
+.star-layer.mid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 1.5px;
+  height: 1.5px;
+  background: transparent;
+  box-shadow:
+    14vw 12vh rgba(200, 255, 255, 0.40),
+    39vw 48vh rgba(200, 255, 255, 0.32),
+    62vw 28vh rgba(200, 255, 255, 0.38),
+    77vw 66vh rgba(200, 255, 255, 0.28),
+    21vw 73vh rgba(200, 255, 255, 0.34),
+    5vw 42vh rgba(200, 255, 255, 0.36),
+    55vw 15vh rgba(200, 255, 255, 0.42),
+    88vw 52vh rgba(200, 255, 255, 0.30),
+    31vw 5vh rgba(200, 255, 255, 0.36),
+    72vw 88vh rgba(200, 255, 255, 0.28);
+  animation: drift-mid 140s linear infinite;
 }
 
-.star-layer.near {
-  background-image: radial-gradient(#ffffff 1.5px, transparent 1.5px);
-  background-size: 120px 120px;
-  opacity: 0.35;
-  animation-duration: 60s;
+/* Near stars — large, fast, bright */
+.star-layer.near::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 2px;
+  height: 2px;
+  background: transparent;
+  box-shadow:
+    18vw 8vh rgba(255, 255, 255, 0.60),
+    46vw 31vh rgba(255, 255, 255, 0.52),
+    69vw 17vh rgba(255, 255, 255, 0.58),
+    81vw 49vh rgba(255, 255, 255, 0.48),
+    32vw 61vh rgba(255, 255, 255, 0.54),
+    11vw 27vh rgba(255, 255, 255, 0.58),
+    59vw 4vh rgba(255, 255, 255, 0.62),
+    93vw 72vh rgba(255, 255, 255, 0.50);
+  animation: drift-near 90s linear infinite;
 }
 
-@keyframes spaceDrift {
+@keyframes drift-far {
   from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-400px, 600px, 0); }
+  to { transform: translate3d(-120px, 260px, 0); }
 }
 
-/* Planet limb */
+@keyframes drift-mid {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-220px, 420px, 0); }
+}
+
+@keyframes drift-near {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-360px, 620px, 0); }
+}
+
+/* ================================================================
+   15. PLANET HORIZON — CYAN/INDIGO GRADIENT
+   ================================================================ */
 .planet-horizon {
   position: absolute;
   bottom: -45%;
@@ -317,65 +658,116 @@ body {
   height: 90%;
   background: radial-gradient(
     ellipse at center,
-    rgba(34, 211, 238, 0.18),
+    rgba(0, 240, 255, 0.14),
+    rgba(99, 102, 241, 0.08) 35%,
     rgba(2, 6, 23, 0.95) 65%
   );
-  filter: blur(40px);
+  filter: blur(50px);
+  opacity: 0.9;
 }
 
-/* Glass canopy */
+/* ================================================================
+   16. COCKPIT GLASS — CANOPY OVERLAY
+   ================================================================ */
 .cockpit-glass {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at center,
-      rgba(255,255,255,0.06),
-      rgba(0,0,0,0.7)
+    radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.04),
+      rgba(0, 0, 0, 0.7)
     );
   pointer-events: none;
 }
 
-/* HUD */
+.cockpit-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      120deg,
+      transparent 30%,
+      rgba(0, 240, 255, 0.03) 45%,
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at 30% 70%,
+      rgba(0, 240, 255, 0.04),
+      transparent 40%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.6;
+}
+
+/* ================================================================
+   17. IDLE HUD — ORBITRON DISPLAY
+   ================================================================ */
 .idle-hud {
   position: absolute;
   bottom: 22%;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  font-family: monospace;
-  color: #3fffdc;
+  font-family: var(--font-display);
+  color: var(--cyan-primary);
+  z-index: 10;
 }
 
 .idle-title {
-  font-size: 26px;
-  letter-spacing: 6px;
-  text-shadow: 0 0 16px rgba(63,255,220,0.6);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 10px rgba(0, 240, 255, 0.6),
+    0 0 30px rgba(0, 240, 255, 0.3),
+    0 0 60px rgba(0, 240, 255, 0.15);
 }
 
 .idle-subtitle {
-  margin-top: 8px;
+  margin-top: 10px;
+  font-family: var(--font-mono);
   font-size: 12px;
-  opacity: 0.7;
-  letter-spacing: 2px;
+  font-weight: 400;
+  opacity: 0.6;
+  letter-spacing: 3px;
+  color: rgba(0, 240, 255, 0.7);
 }
 
+/* Glassmorphism resume button */
 .idle-resume {
-  margin-top: 24px;
-  background: transparent;
-  border: 1px solid rgba(63,255,220,0.6);
-  color: #3fffdc;
-  padding: 10px 28px;
+  display: inline-block;
+  margin-top: 28px;
+  padding: 12px 32px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--cyan-primary);
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   cursor: pointer;
+  transition: all 300ms ease;
 }
 
 .idle-resume:hover {
-  background: rgba(63,255,220,0.12);
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow:
+    0 0 20px rgba(0, 240, 255, 0.2),
+    inset 0 0 20px rgba(0, 240, 255, 0.05);
+  transform: translateY(-1px);
 }
-/* ================================================= */
-/* POWER CONTROL (SCOPED)                            */
-/* ================================================= */
 
+/* ================================================================
+   18. POWER CONTROL — REACTOR CORE
+   ================================================================ */
 .power-control {
   display: flex;
   align-items: center;
@@ -394,8 +786,9 @@ body {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2px solid rgba(120,160,255,0.25);
-  box-shadow: 0 0 12px rgba(120,160,255,0.25);
+  border: 2px solid rgba(0, 240, 255, 0.25);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+  transition: all 400ms ease;
 }
 
 .power-core {
@@ -404,194 +797,120 @@ body {
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    #9fd0ff,
-    #1e3a5f 70%
+    rgba(0, 240, 255, 0.8),
+    rgba(0, 100, 140, 0.6) 50%,
+    rgba(4, 20, 40, 0.9) 100%
   );
-  box-shadow: 0 0 16px rgba(120,180,255,0.6);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+  transition: all 400ms ease;
 }
 
 .power-control.active .power-ring {
-  border-color: rgba(140,220,255,0.8);
-  box-shadow: 0 0 24px rgba(140,220,255,0.9);
+  border-color: rgba(0, 240, 255, 0.7);
+  box-shadow:
+    0 0 24px rgba(0, 240, 255, 0.6),
+    0 0 48px rgba(0, 240, 255, 0.2);
 }
 
 .power-control.active .power-core {
-  box-shadow: 0 0 32px rgba(140,220,255,1);
+  box-shadow:
+    0 0 24px rgba(0, 240, 255, 0.8),
+    0 0 48px rgba(0, 240, 255, 0.4);
 }
 
 .power-label {
+  font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.18em;
-  color: #9fb6d4;
+  color: rgba(0, 240, 255, 0.5);
+  text-transform: uppercase;
 }
-/* ======================================================
-   CRUISE / IDLE MODE (VISUAL AUTOPILOT VIEW)
-====================================================== */
 
+/* ================================================================
+   19. IDLE VISUAL LAYER (CRUISE BACKDROP)
+   ================================================================ */
 .idle-visual-layer {
   position: fixed;
   inset: 0;
-  z-index: 3;              /* ABOVE CONTENT, BELOW HUD */
-  pointer-events: none;   /* NEVER BLOCK INTERACTION */
+  z-index: 3;
+  pointer-events: none;
   overflow: hidden;
-
-  /* Push cockpit into background */
-  backdrop-filter: blur(6px) brightness(0.6) saturate(0.7);
-  -webkit-backdrop-filter: blur(6px) brightness(0.6) saturate(0.7);
+  backdrop-filter: blur(6px) brightness(0.55) saturate(0.7);
+  -webkit-backdrop-filter: blur(6px) brightness(0.55) saturate(0.7);
 }
 
-/* ======================================================
-   STARFIELD — RANDOMIZED (NO GRID)
-====================================================== */
-
-/* Base star layer using box-shadow scatter */
-.star-layer {
-  position: absolute;
-  inset: 0;
-  background: transparent;
+/* ================================================================
+   20. MOBILE — HAMBURGER TOGGLE + SIDEBAR OVERLAY
+   ================================================================ */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 10001;
+  background: rgba(4, 10, 24, 0.92);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  border-radius: 6px;
+  padding: 9px 10px;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 250ms ease;
 }
 
-/* Far stars */
-.star-layer.far::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: transparent;
-  box-shadow:
-    12vw 18vh rgba(255,255,255,0.35),
-    44vw 62vh rgba(255,255,255,0.25),
-    71vw 21vh rgba(255,255,255,0.3),
-    83vw 77vh rgba(255,255,255,0.2),
-    26vw 84vh rgba(255,255,255,0.25),
-    9vw 55vh rgba(255,255,255,0.3),
-    58vw 9vh rgba(255,255,255,0.35),
-    91vw 34vh rgba(255,255,255,0.25),
-    67vw 71vh rgba(255,255,255,0.3);
-  width: 1px;
-  height: 1px;
-  animation: drift-far 220s linear infinite;
+.mobile-menu-toggle:hover {
+  border-color: rgba(0, 240, 255, 0.35);
 }
 
-/* Mid stars */
-.star-layer.mid::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: transparent;
-  box-shadow:
-    14vw 12vh rgba(200,255,255,0.45),
-    39vw 48vh rgba(200,255,255,0.35),
-    62vw 28vh rgba(200,255,255,0.4),
-    77vw 66vh rgba(200,255,255,0.3),
-    21vw 73vh rgba(200,255,255,0.35),
-    5vw 42vh rgba(200,255,255,0.4),
-    55vw 15vh rgba(200,255,255,0.45),
-    88vw 52vh rgba(200,255,255,0.35);
-  width: 1.5px;
-  height: 1.5px;
-  animation: drift-mid 140s linear infinite;
-}
-
-/* Near stars */
-.star-layer.near::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: transparent;
-  box-shadow:
-    18vw 8vh rgba(255,255,255,0.65),
-    46vw 31vh rgba(255,255,255,0.55),
-    69vw 17vh rgba(255,255,255,0.6),
-    81vw 49vh rgba(255,255,255,0.5),
-    32vw 61vh rgba(255,255,255,0.55),
-    11vw 27vh rgba(255,255,255,0.6),
-    59vw 4vh rgba(255,255,255,0.65);
-  width: 2px;
+.mobile-menu-toggle span {
+  display: block;
+  width: 20px;
   height: 2px;
-  animation: drift-near 90s linear infinite;
+  background: var(--cyan-primary);
+  border-radius: 1px;
+  transition: transform 250ms ease, opacity 250ms ease;
 }
 
-/* Motion = forward + slight yaw */
-@keyframes drift-far {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-120px, 260px, 0); }
+.mobile-menu-toggle.open span {
+  background: var(--cyan-primary);
 }
 
-@keyframes drift-mid {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-220px, 420px, 0); }
+.mobile-menu-toggle.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
 }
 
-@keyframes drift-near {
-  from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-360px, 620px, 0); }
+.mobile-menu-toggle.open span:nth-child(2) {
+  opacity: 0;
 }
 
-/* ======================================================
-   PLANET LIMB (DEPTH ANCHOR)
-====================================================== */
-
-.planet-horizon {
-  position: absolute;
-  bottom: -45%;
-  left: -20%;
-  width: 140%;
-  height: 90%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(80, 200, 255, 0.18),
-    rgba(2, 6, 23, 0.95) 65%
-  );
-  filter: blur(50px);
-  opacity: 0.85;
+.mobile-menu-toggle.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
-/* ======================================================
-   COCKPIT GLASS (YOU ARE INSIDE)
-====================================================== */
+/* Mobile sidebar overlay */
+.mobile-sidebar-overlay {
+  display: none;
+}
 
-.cockpit-glass {
-  position: absolute;
+.mobile-sidebar-overlay.visible {
+  display: block;
+  position: fixed;
   inset: 0;
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(255,255,255,0.05),
-      rgba(0,0,0,0.75)
-    );
+  z-index: 9999;
+  background: rgba(1, 2, 10, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
-/* ======================================================
-   IDLE HUD (MINIMAL, SEATED)
-====================================================== */
+/* ================================================================
+   21. AUXILIARY IDLE ELEMENTS (PRESERVED CLASSES)
+   ================================================================ */
 
-.idle-hud {
-  position: absolute;
-  bottom: 22%;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  font-family: monospace;
-  color: #3fffdc;
-  opacity: 0.85;
-}
-
-.idle-title {
-  font-size: 24px;
-  letter-spacing: 6px;
-  text-shadow: 0 0 18px rgba(63,255,220,0.5);
-}
-
-.idle-subtitle {
-  margin-top: 8px;
-  font-size: 12px;
-  opacity: 0.65;
-  letter-spacing: 2px;
-}
-/* ======================================================
-   COCKPIT CANOPY (IDLE ONLY)
-====================================================== */
-
+/* Cockpit canopy struts */
 .cockpit-canopy {
   position: absolute;
   inset: 0;
@@ -602,13 +921,13 @@ body {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 64px;
+  width: 56px;
   background: linear-gradient(
     to bottom,
-    rgba(10,15,25,0.9),
-    rgba(5,8,15,0.95)
+    rgba(4, 10, 24, 0.9),
+    rgba(1, 2, 10, 0.95)
   );
-  box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
 }
 
 .canopy-strut.left {
@@ -620,10 +939,8 @@ body {
   right: -10px;
   clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%);
 }
-/* ======================================================
-   DASHBOARD SILHOUETTE
-====================================================== */
 
+/* Dashboard silhouette */
 .cockpit-dashboard {
   position: absolute;
   left: 0;
@@ -632,8 +949,8 @@ body {
   height: 180px;
   background: linear-gradient(
     to top,
-    rgba(5,8,15,0.95),
-    rgba(5,8,15,0.6),
+    rgba(1, 2, 10, 0.95),
+    rgba(1, 2, 10, 0.5),
     transparent
   );
   pointer-events: none;
@@ -648,36 +965,18 @@ body {
   transform: translateX(-50%);
   background: radial-gradient(
     ellipse at center,
-    rgba(63,255,220,0.18),
+    rgba(0, 240, 255, 0.12),
     transparent 70%
   );
   animation: dashboard-breath 6s ease-in-out infinite;
 }
 
 @keyframes dashboard-breath {
-  0%   { opacity: 0.3; }
-  50%  { opacity: 0.6; }
-  100% { opacity: 0.3; }
-}
-/* ======================================================
-   IDLE MODE — COCKPIT WINDOW (HARD SEPARATION)
-====================================================== */
-
-.idle-visual-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.55; }
 }
 
-/* Suppress cockpit */
-.idle-mask {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-}
-
-/* Window aperture */
+/* Cockpit window */
 .cockpit-window {
   position: absolute;
   top: 8%;
@@ -687,16 +986,54 @@ body {
   overflow: hidden;
   border-radius: 18px;
   background: #000;
+  animation: cockpit-coast 180s ease-in-out infinite alternate;
 }
 
-/* Space outside window */
+.cockpit-window::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.3),
+      transparent 25%,
+      transparent 75%,
+      rgba(0, 0, 0, 0.4)
+    ),
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.5),
+      transparent 40%
+    );
+  pointer-events: none;
+}
+
+.cockpit-window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.4)
+  );
+  pointer-events: none;
+  z-index: 4;
+}
+
+@keyframes cockpit-coast {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-12px); }
+}
+
+/* Space field (window variant) */
 .space-field {
   position: absolute;
   inset: -50%;
   background: transparent;
 }
 
-/* Random star scatter (NO GRID) */
 .space-field.far::before,
 .space-field.mid::before,
 .space-field.near::before {
@@ -745,17 +1082,7 @@ body {
   animation: drift-near 90s linear infinite;
 }
 
-@keyframes drift-far {
-  to { transform: translate(-200px, 400px); }
-}
-@keyframes drift-mid {
-  to { transform: translate(-320px, 620px); }
-}
-@keyframes drift-near {
-  to { transform: translate(-480px, 860px); }
-}
-
-/* Planet limb */
+/* Window planet */
 .window-planet {
   position: absolute;
   bottom: -50%;
@@ -764,19 +1091,19 @@ body {
   height: 90%;
   background: radial-gradient(
     ellipse at center,
-    rgba(80, 200, 255, 0.25),
+    rgba(0, 240, 255, 0.2),
     rgba(0, 0, 0, 0.95) 65%
   );
   filter: blur(50px);
 }
 
-/* Window frame */
+/* Window frame pieces */
 .window-frame {
   position: absolute;
   background: linear-gradient(
     to bottom,
-    #0a0f1a,
-    #020409
+    rgba(4, 10, 24, 0.95),
+    var(--void-deep)
   );
 }
 
@@ -801,65 +1128,28 @@ body {
   height: 38px;
 }
 
-/* HUD */
-.idle-hud {
-  position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  font-family: monospace;
-  color: #3fffdc;
-}
-
-.idle-title {
-  font-size: 22px;
-  letter-spacing: 6px;
-}
-
-.idle-subtitle {
-  font-size: 12px;
-  opacity: 0.6;
-}
-/* ======================================================
-   GLASS REFLECTIONS (INSTRUMENT GHOSTING)
-====================================================== */
-
-.cockpit-glass::after {
-  content: "";
+/* Idle mask */
+.idle-mask {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(
-      120deg,
-      transparent 30%,
-      rgba(63,255,220,0.04) 45%,
-      transparent 60%
-    ),
-    radial-gradient(
-      circle at 30% 70%,
-      rgba(63,255,220,0.06),
-      transparent 40%
-    );
-  mix-blend-mode: screen;
-  opacity: 0.6;
+  background: rgba(0, 0, 0, 0.5);
 }
-/* ======================================================
-   PERIPHERAL SYSTEM LIGHTS
-====================================================== */
 
+/* ================================================================
+   22. SYSTEM LIGHTS + INSTRUMENTATION
+   ================================================================ */
 .system-light {
   position: absolute;
   top: 20%;
   bottom: 30%;
-  width: 6px;
+  width: 4px;
   background: linear-gradient(
     to bottom,
     transparent,
-    rgba(63,255,220,0.6),
+    rgba(0, 240, 255, 0.5),
     transparent
   );
-  opacity: 0.35;
+  opacity: 0.3;
   animation: system-pulse 4s ease-in-out infinite;
 }
 
@@ -872,146 +1162,11 @@ body {
 }
 
 @keyframes system-pulse {
-  0%   { opacity: 0.25; }
-  50%  { opacity: 0.6; }
-  100% { opacity: 0.25; }
-}
-/* ======================================================
-   FORWARD MOTION VECTOR (SUBTLE)
-====================================================== */
-
-.forward-drift {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255,255,255,0.08) 1px,
-    transparent 1px
-  );
-  background-size: 120px 120px;
-  opacity: 0.15;
-  animation: forward-motion 80s linear infinite;
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.55; }
 }
 
-@keyframes forward-motion {
-  from { transform: translateY(0); }
-  to   { transform: translateY(800px); }
-}
-/* ======================================================
-   CANOPY CURVATURE (REMOVE FLAT WINDOW FEEL)
-====================================================== */
-
-.cockpit-window::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(
-      ellipse at center,
-      transparent 55%,
-      rgba(0,0,0,0.55) 85%
-    );
-  pointer-events: none;
-}
-/* ======================================================
-   SHIP MASS SHADING
-====================================================== */
-
-.cockpit-window::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      to right,
-      rgba(0,0,0,0.35),
-      transparent 25%,
-      transparent 75%,
-      rgba(0,0,0,0.45)
-    ),
-    linear-gradient(
-      to top,
-      rgba(0,0,0,0.55),
-      transparent 40%
-    );
-  pointer-events: none;
-}
-/* ======================================================
-   LATERAL COASTING DRIFT
-====================================================== */
-
-.cockpit-window {
-  animation: cockpit-coast 180s ease-in-out infinite alternate;
-}
-
-@keyframes cockpit-coast {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-12px); }
-}
-/* ======================================================
-   ACTIVE MODE — SHIP PRESENCE (SUBTLE)
-====================================================== */
-
-/* Canopy curvature (very faint) */
-.cockpit-root::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background: radial-gradient(
-    ellipse at center,
-    transparent 65%,
-    rgba(0,0,0,0.25) 90%
-  );
-}
-
-/* Dashboard silhouette (extremely subtle) */
-.cockpit-root::after {
-  content: "";
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 160px;
-  pointer-events: none;
-  z-index: 1;
-  background: linear-gradient(
-    to top,
-    rgba(5,8,15,0.55),
-    rgba(5,8,15,0.25),
-    transparent
-  );
-}
-
-/* Peripheral system glow */
-.cockpit-sidebar::before,
-.cockpit-sidebar::after {
-  content: "";
-  position: absolute;
-  top: 15%;
-  bottom: 25%;
-  width: 2px;
-  background: rgba(63,255,220,0.35);
-  opacity: 0.15;
-}
-
-.cockpit-sidebar::before {
-  left: -1px;
-}
-
-.cockpit-sidebar::after {
-  right: -1px;
-}
-
-/* Slight contrast compression */
-.cockpit-main {
-  filter: contrast(0.96) saturate(0.95);
-}
-/* ======================================================
-   IDLE INSTRUMENTATION (VISUAL ONLY)
-====================================================== */
-
+/* Idle instruments */
 .idle-instruments {
   position: absolute;
   top: 18%;
@@ -1029,14 +1184,14 @@ body {
   right: 16%;
 }
 
-/* Telemetry lines (scrolling data feel) */
+/* Telemetry lines */
 .telemetry-line {
   height: 1px;
   margin: 12px 0;
   background: linear-gradient(
     to right,
     transparent,
-    rgba(63,255,220,0.6),
+    rgba(0, 240, 255, 0.6),
     transparent
   );
   animation: telemetry-scroll 6s linear infinite;
@@ -1054,17 +1209,18 @@ body {
 
 @keyframes telemetry-scroll {
   from { transform: translateX(-40px); }
-  to   { transform: translateX(40px); }
+  to { transform: translateX(40px); }
 }
 
 /* System dots */
 .system-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: rgba(63,255,220,0.8);
+  background: rgba(0, 240, 255, 0.8);
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
   margin: 14px auto;
-  animation: system-blink 3s infinite;
+  animation: system-blink 3s infinite ease-in-out;
 }
 
 .system-dot:nth-child(2) {
@@ -1072,11 +1228,11 @@ body {
 }
 
 @keyframes system-blink {
-  0%, 100% { opacity: 0.3; }
-  50%      { opacity: 1; }
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
 }
 
-/* Vertical scan */
+/* Scan bar */
 .system-scan {
   width: 100%;
   height: 2px;
@@ -1084,21 +1240,135 @@ body {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(63,255,220,0.7),
+    rgba(0, 240, 255, 0.7),
     transparent
   );
   animation: scan-sweep 4s ease-in-out infinite;
 }
 
 @keyframes scan-sweep {
-  0%   { transform: translateY(0); opacity: 0.2; }
-  50%  { transform: translateY(60px); opacity: 0.6; }
-  100% { transform: translateY(0); opacity: 0.2; }
+  0%, 100% { transform: translateY(0); opacity: 0.2; }
+  50% { transform: translateY(60px); opacity: 0.6; }
 }
-/* ======================================================
-   SHIP HEARTBEAT (CENTER, VERY SUBTLE)
-====================================================== */
 
+/* Window instruments */
+.window-instruments {
+  position: absolute;
+  top: 18%;
+  bottom: 28%;
+  width: 120px;
+  pointer-events: none;
+  z-index: 6;
+  opacity: 0.75;
+}
+
+.window-instruments.left {
+  left: 8px;
+}
+
+.window-instruments.right {
+  right: 8px;
+}
+
+.window-instruments .telemetry-line {
+  height: 1px;
+  margin: 14px 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 240, 255, 0.85),
+    transparent
+  );
+}
+
+.window-instruments .system-dot {
+  background: rgba(0, 240, 255, 0.95);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+}
+
+.window-instruments .system-scan {
+  margin-top: 26px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 240, 255, 0.85),
+    transparent
+  );
+}
+
+/* Glass instruments */
+.glass-instruments {
+  position: absolute;
+  top: 16%;
+  bottom: 30%;
+  width: 120px;
+  z-index: 8;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.35));
+}
+
+.glass-instruments.left {
+  left: 18px;
+}
+
+.glass-instruments.right {
+  right: 18px;
+}
+
+.instrument-line {
+  height: 1px;
+  margin: 14px 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 240, 255, 0.9),
+    transparent
+  );
+  animation: telemetry-scroll 5s linear infinite;
+}
+
+.instrument-dot {
+  width: 5px;
+  height: 5px;
+  margin: 14px auto;
+  border-radius: 50%;
+  background: rgba(0, 240, 255, 0.95);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
+  animation: system-blink 2.6s infinite;
+}
+
+.instrument-scan {
+  height: 2px;
+  margin-top: 22px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 240, 255, 0.9),
+    transparent
+  );
+  animation: scan-sweep 3.5s ease-in-out infinite;
+}
+
+/* Forward drift */
+.forward-drift {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.06) 1px,
+    transparent 1px
+  );
+  background-size: 120px 120px;
+  opacity: 0.1;
+  animation: forward-motion 80s linear infinite;
+}
+
+@keyframes forward-motion {
+  from { transform: translateY(0); }
+  to { transform: translateY(800px); }
+}
+
+/* Heartbeat ring */
 .idle-heartbeat {
   position: absolute;
   bottom: 26%;
@@ -1113,369 +1383,43 @@ body {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 1px solid rgba(63,255,220,0.35);
+  border: 1px solid rgba(0, 240, 255, 0.3);
   animation: heartbeat-pulse 5.5s ease-in-out infinite;
 }
 
 @keyframes heartbeat-pulse {
-  0%   { transform: scale(0.95); opacity: 0.25; }
-  50%  { transform: scale(1.05); opacity: 0.6; }
-  100% { transform: scale(0.95); opacity: 0.25; }
-}
-/* ======================================================
-   WINDOW-ANCHORED IDLE INSTRUMENTS (FIX)
-====================================================== */
-
-.window-instruments {
-  position: absolute;
-  top: 18%;
-  bottom: 28%;
-  width: 120px;
-  pointer-events: none;
-  z-index: 6; /* ABOVE mask, BELOW glass */
-  opacity: 0.75; /* IMPORTANT: survive dimming */
+  0%, 100% { transform: scale(0.95); opacity: 0.2; }
+  50% { transform: scale(1.05); opacity: 0.55; }
 }
 
-.window-instruments.left {
-  left: 8px; /* INSIDE window edge */
-}
-
-.window-instruments.right {
-  right: 8px;
-}
-
-/* Telemetry lines */
-.window-instruments .telemetry-line {
-  height: 1px;
-  margin: 14px 0;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(63,255,220,0.85),
-    transparent
-  );
-  animation: telemetry-scroll 6s linear infinite;
-}
-
-/* System dots */
-.window-instruments .system-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(63,255,220,0.95);
-  margin: 14px auto;
-  animation: system-blink 3s infinite;
-}
-
-/* Scan bar */
-.window-instruments .system-scan {
-  width: 100%;
-  height: 2px;
-  margin-top: 26px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(63,255,220,0.85),
-    transparent
-  );
-  animation: scan-sweep 4s ease-in-out infinite;
-}
-/* ======================================================
-   GLASS-PLANE INSTRUMENTS (VISIBLE FIX)
-====================================================== */
-
-.glass-instruments {
-  position: absolute;
-  top: 16%;
-  bottom: 30%;
-  width: 120px;
-  z-index: 8; /* ABOVE mask, BELOW glass */
-  pointer-events: none;
-  filter: drop-shadow(0 0 12px rgba(63,255,220,0.45));
-}
-
-.glass-instruments.left {
-  left: 18px;
-}
-
-.glass-instruments.right {
-  right: 18px;
-}
-
-/* Instrument lines */
-.instrument-line {
-  height: 1px;
-  margin: 14px 0;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(63,255,220,1),
-    transparent
-  );
-  animation: telemetry-scroll 5s linear infinite;
-}
-
-/* Instrument dots */
-.instrument-dot {
-  width: 6px;
-  height: 6px;
-  margin: 14px auto;
-  border-radius: 50%;
-  background: rgba(63,255,220,1);
-  box-shadow: 0 0 10px rgba(63,255,220,0.8);
-  animation: system-blink 2.6s infinite;
-}
-
-/* Scan bar */
-.instrument-scan {
-  height: 2px;
-  margin-top: 22px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(63,255,220,1),
-    transparent
-  );
-  animation: scan-sweep 3.5s ease-in-out infinite;
-}
-
-/* Reduce mask dominance locally */
-.cockpit-window::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0,0,0,0.15),
-    rgba(0,0,0,0.45)
-  );
-  pointer-events: none;
-  z-index: 4;
-}
-/* ========================= */
-/* FOOTER TABS               */
-/* ========================= */
-
-.footer-tab {
-  cursor: pointer;
-  padding: 6px 14px;
-  letter-spacing: 0.25em;
-  opacity: 0.6;
-  transition: opacity 200ms ease, color 200ms ease;
-}
-
-.footer-tab:hover {
-  opacity: 1;
-}
-
-.footer-tab.active {
-  opacity: 1;
-  color: #7fe3dc;
-  text-shadow: 0 0 12px rgba(120, 220, 210, 0.4);
-}
-
-/* ========================= */
-/* DECK PANELS               */
-/* ========================= */
-
-.deck-panel {
-  position: fixed;
-  bottom: 48px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 92%;
-  max-width: 1200px;
-  background: rgba(10, 18, 28, 0.92);
-  border: 1px solid rgba(120, 220, 210, 0.25);
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  z-index: 900;
-  padding: 18px;
-}
-
-.deck-title {
-  font-size: 0.75rem;
-  letter-spacing: 0.3em;
-  opacity: 0.7;
-  margin-bottom: 12px;
-}
-
-.deck-content {
-  font-size: 0.85rem;
-  opacity: 0.85;
-}
-/* ========================= */
-/* FOOTER HARD RECOVERY      */
-/* ========================= */
-
-.cockpit-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 48px;
-
-  background: linear-gradient(
-    to top,
-    rgba(4, 10, 20, 0.98),
-    rgba(4, 10, 20, 0.6)
-  );
-
-  border-top: 1px solid rgba(120, 220, 210, 0.15);
-
-  z-index: 10000; /* ABOVE logs, idle, everything */
-  pointer-events: auto;
-}
-
-.footer-tab,
+/* Power button (footer variant) */
 .power-button {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.35em;
-
-  color: #7fe3dc;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
   cursor: pointer;
   user-select: none;
-
-  opacity: 0.65;
-  transition: opacity 160ms ease, text-shadow 160ms ease;
+  transition: all 200ms ease;
 }
 
-.footer-tab:hover,
 .power-button:hover {
-  opacity: 1;
-  text-shadow: 0 0 12px rgba(120, 220, 210, 0.6);
+  color: var(--text-primary);
+  text-shadow: 0 0 10px var(--cyan-glow);
 }
 
 .power-button.active {
   color: #ffb37a;
-  text-shadow: 0 0 16px rgba(255, 180, 120, 0.8);
-}
-.cockpit-root {
-  position: relative;
-  min-height: 100vh;
-  overflow: hidden;
-}
-.cockpit-root {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background: #02040a;
-  color: #e6e6e6;
-  font-family: Inter, system-ui, sans-serif;
+  text-shadow: 0 0 14px rgba(255, 180, 120, 0.7);
 }
 
-.cockpit-body {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
-.cockpit-sidebar {
-  width: 220px;
-  padding: 16px;
-  border-right: 1px solid rgba(255,255,255,0.08);
-}
-
-.cockpit-main {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-}
-
-.cockpit-footer {
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  padding: 0 16px;
-  border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-/* Copilot Tab Special Styling */
-.copilot-tab {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 16px !important;
-  background: rgba(63, 255, 220, 0.05);
-  border: 1px solid rgba(63, 255, 220, 0.2);
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.copilot-tab:hover {
-  background: rgba(63, 255, 220, 0.1);
-  border-color: rgba(63, 255, 220, 0.4);
-  box-shadow: 0 0 12px rgba(63, 255, 220, 0.2);
-}
-
-.copilot-tab.active {
-  background: rgba(63, 255, 220, 0.15);
-  border-color: rgba(63, 255, 220, 0.5);
-  color: #3fffdc !important;
-  box-shadow: 0 0 16px rgba(63, 255, 220, 0.3);
-}
-
-/* ======================================================
-   MOBILE MENU TOGGLE (BASE — hidden on desktop)
-====================================================== */
-.mobile-menu-toggle {
-  display: none;
-  position: fixed;
-  top: 14px;
-  left: 14px;
-  z-index: 10001;
-  background: rgba(10, 18, 28, 0.9);
-  border: 1px solid rgba(63, 255, 220, 0.25);
-  border-radius: 6px;
-  padding: 8px 10px;
-  cursor: pointer;
-  flex-direction: column;
-  gap: 4px;
-  align-items: center;
-  justify-content: center;
-}
-
-.mobile-menu-toggle span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: #3fffdc;
-  border-radius: 1px;
-  transition: transform 250ms ease, opacity 250ms ease;
-}
-
-.mobile-menu-toggle.open span:nth-child(1) {
-  transform: translateY(6px) rotate(45deg);
-}
-
-.mobile-menu-toggle.open span:nth-child(2) {
-  opacity: 0;
-}
-
-.mobile-menu-toggle.open span:nth-child(3) {
-  transform: translateY(-6px) rotate(-45deg);
-}
-
-/* Mobile sidebar overlay (base — hidden) */
-.mobile-sidebar-overlay {
-  display: none;
-}
-
-/* ======================================================
-   RESPONSIVE — TABLET (max-width: 1024px)
-====================================================== */
+/* ================================================================
+   23. RESPONSIVE — TABLET (max-width: 1024px)
+   ================================================================ */
 @media (max-width: 1024px) {
   .cockpit-sidebar {
-    width: 180px;
-    padding: 14px;
+    width: 200px;
+    padding: 18px 14px;
   }
 
   .sidebar-title {
@@ -1484,17 +1428,17 @@ body {
 
   .sidebar-link {
     font-size: 12px;
-    padding: 5px 6px;
+    padding: 8px 10px;
   }
 
   .cockpit-topbar {
-    padding: 0 14px;
-    height: 50px;
+    padding: 0 16px;
+    height: 54px;
   }
 
   .logo {
     font-size: 11px;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.3em;
   }
 
   .cockpit-main {
@@ -1503,73 +1447,63 @@ body {
   }
 
   .ticker-item {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .cockpit-footer {
-    gap: 28px;
+    gap: 24px;
   }
 
-  .footer-tab,
-  .power-button {
-    font-size: 0.68rem;
-    letter-spacing: 0.28em;
+  .footer-tab {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 6px 12px;
   }
 
   .deck-panel {
     width: 95%;
-    padding: 14px;
+    padding: 16px;
   }
 }
 
-/* ======================================================
-   RESPONSIVE — MOBILE (max-width: 768px)
-====================================================== */
+/* ================================================================
+   24. RESPONSIVE — MOBILE (max-width: 768px)
+   ================================================================ */
 @media (max-width: 768px) {
-  /* Show hamburger toggle */
+  /* Show hamburger */
   .mobile-menu-toggle {
     display: flex;
   }
 
-  /* Hide sidebar by default */
+  /* Sidebar: hidden by default, slide-in when open */
   .cockpit-sidebar {
     display: none;
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    width: 240px;
+    width: 260px;
     z-index: 10000;
-    background: rgba(5, 8, 15, 0.98);
-    border-right: 1px solid rgba(63, 255, 220, 0.15);
-    padding: 60px 16px 16px;
+    background: rgba(1, 2, 10, 0.98);
+    border-right: 1px solid rgba(0, 240, 255, 0.1);
+    padding: 64px 16px 16px;
     overflow-y: auto;
   }
 
-  /* Show sidebar when .open is applied */
   .cockpit-sidebar.open {
     display: flex;
   }
 
-  /* Overlay behind open sidebar */
-  .mobile-sidebar-overlay.visible {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(0, 0, 0, 0.6);
-  }
-
-  /* Main content full width */
+  /* Main: full width */
   .cockpit-main {
     padding: 20px 16px;
     padding-bottom: 160px;
   }
 
-  /* Compact topbar */
+  /* Topbar: compact */
   .cockpit-topbar {
-    height: 46px;
-    padding: 0 12px 0 48px; /* leave room for hamburger */
+    height: 48px;
+    padding: 0 12px 0 52px;
     grid-template-columns: auto 1fr auto;
   }
 
@@ -1584,7 +1518,7 @@ body {
 
   /* Ticker: narrower */
   .ticker {
-    max-width: 300px;
+    max-width: 280px;
   }
 
   .ticker-item {
@@ -1592,21 +1526,20 @@ body {
     gap: 4px;
   }
 
-  /* Footer: wrap tabs, reduce gap */
+  /* Footer: wrap */
   .cockpit-footer {
     height: auto;
     min-height: 44px;
-    gap: 12px;
+    gap: 10px;
     padding: 8px 12px;
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  .footer-tab,
-  .power-button {
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    padding: 4px 10px;
+  .footer-tab {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 5px 10px;
   }
 
   .deck-node {
@@ -1614,33 +1547,32 @@ body {
     letter-spacing: 0.15em;
   }
 
-  /* Deck panels full width */
   .deck-panel {
     width: 98%;
     left: 50%;
     transform: translateX(-50%);
-    padding: 12px;
+    padding: 14px;
     bottom: 52px;
   }
 
   .deck-title {
-    font-size: 0.68rem;
+    font-size: 9px;
   }
 
   .deck-content {
-    font-size: 0.8rem;
+    font-size: 12px;
   }
 
   /* Copilot tab */
   .copilot-tab {
     padding: 4px 10px !important;
-    font-size: 0.62rem;
+    font-size: 10px;
   }
 
-  /* Idle mode adjustments */
+  /* Idle mode */
   .idle-title {
-    font-size: 18px;
-    letter-spacing: 4px;
+    font-size: 22px;
+    letter-spacing: 5px;
   }
 
   .idle-subtitle {
@@ -1648,9 +1580,9 @@ body {
   }
 
   .idle-resume {
-    padding: 8px 20px;
+    padding: 9px 22px;
     letter-spacing: 2px;
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .cockpit-window {
@@ -1672,13 +1604,13 @@ body {
   }
 }
 
-/* ======================================================
-   RESPONSIVE — SMALL MOBILE (max-width: 480px)
-====================================================== */
+/* ================================================================
+   25. RESPONSIVE — SMALL MOBILE (max-width: 480px)
+   ================================================================ */
 @media (max-width: 480px) {
   .cockpit-topbar {
     height: 42px;
-    padding: 0 8px 0 44px;
+    padding: 0 8px 0 48px;
   }
 
   .logo {
@@ -1700,29 +1632,32 @@ body {
     padding-bottom: 140px;
   }
 
-  /* Sidebar overlay full width */
+  /* Full-width sidebar */
   .cockpit-sidebar {
     width: 100%;
   }
 
-  /* Footer stacks vertically on tiny screens */
+  /* Footer: compact */
   .cockpit-footer {
     gap: 8px;
     padding: 6px 8px;
   }
 
-  .footer-tab,
+  .footer-tab {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 4px 7px;
+  }
+
   .power-button {
-    font-size: 0.58rem;
-    letter-spacing: 0.15em;
-    padding: 3px 6px;
+    font-size: 9px;
+    letter-spacing: 0.08em;
   }
 
   .deck-node {
     font-size: 9px;
   }
 
-  /* Deck panels truly full width */
   .deck-panel {
     width: 100%;
     max-width: 100%;
@@ -1737,16 +1672,16 @@ body {
   }
 
   .deck-title {
-    font-size: 0.62rem;
+    font-size: 8px;
   }
 
   .deck-content {
-    font-size: 0.75rem;
+    font-size: 11px;
   }
 
-  /* Idle HUD smaller */
+  /* Idle: smaller HUD */
   .idle-title {
-    font-size: 16px;
+    font-size: 18px;
     letter-spacing: 3px;
   }
 
@@ -1756,8 +1691,8 @@ body {
   }
 
   .idle-resume {
-    padding: 6px 16px;
-    font-size: 11px;
+    padding: 7px 18px;
+    font-size: 10px;
     letter-spacing: 1.5px;
   }
 
@@ -1766,7 +1701,7 @@ body {
     height: 80px;
   }
 
-  /* Power control scales down */
+  /* Power scales down */
   .power-reactor {
     width: 28px;
     height: 28px;
@@ -1776,7 +1711,7 @@ body {
     font-size: 9px;
   }
 
-  /* Instruments hidden on very small */
+  /* Instruments: hidden */
   .glass-instruments,
   .window-instruments,
   .idle-instruments {
@@ -1788,4 +1723,149 @@ body {
     padding: 3px 8px !important;
     gap: 4px;
   }
+}
+
+/* ================================================================
+   26. ANIMATION UTILITIES
+   ================================================================ */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Subtle shimmer for ambient elements */
+@keyframes shimmer {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* Glow pulse for active states */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+  }
+}
+
+/* --- Shared Panel Styles (Trading Post, Operations, etc.) --- */
+.cockpit-panel {
+  padding: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.panel-header {
+  margin-bottom: 1.5rem;
+}
+
+.panel-header h2 {
+  font-family: 'Orbitron', system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.panel-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.05em;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.08em;
+}
+
+/* Market feed list */
+.market-feed {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.market-feed.enhanced {
+  gap: 1rem;
+}
+
+.market-row {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+}
+
+.market-row:hover {
+  background: rgba(0, 240, 255, 0.04);
+  border-color: rgba(0, 240, 255, 0.12);
+}
+
+.market-row-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.asset-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.asset-name {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.asset-description {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.price-block {
+  text-align: right;
+}
+
+.asset-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--stellar-cyan, #00f0ff);
+}
+
+.market-row-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.inspect-command {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--stellar-cyan, #00f0ff);
+  background: none;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  border-radius: 4px;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.inspect-command:hover {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.1);
 }

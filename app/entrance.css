@@ -1,24 +1,121 @@
 /* ======================================================
-   ENTRANCE PAGE - Cinematic Landing
+   WARP GATE - Cinematic Sci-Fi Entrance
+   Inspired by Stellaris & Mass Effect
+   ======================================================
+
+   Color Palette:
+   --void:            #01020a
+   --nebula-cyan:     #00f0ff
+   --nebula-indigo:   #4b0082
+   --nebula-violet:   #7b2fbe
+   --nebula-emerald:  #00ff88
+   --glass-white:     rgba(255, 255, 255, 0.85)
+
+   Typography:
+   Title:     Orbitron / Exo 2
+   Mono:      JetBrains Mono / Fira Code
+   ====================================================== */
+
+/* --- Font imports --- */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Exo+2:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+/* --- Custom properties --- */
+:root {
+  --void: #01020a;
+  --nebula-cyan: #00f0ff;
+  --nebula-cyan-dim: rgba(0, 240, 255, 0.25);
+  --nebula-cyan-ghost: rgba(0, 240, 255, 0.06);
+  --nebula-indigo: #4b0082;
+  --nebula-violet: #7b2fbe;
+  --nebula-emerald: #00ff88;
+  --glass-white: rgba(255, 255, 255, 0.85);
+  --glass-white-dim: rgba(255, 255, 255, 0.45);
+  --glass-white-faint: rgba(255, 255, 255, 0.25);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-display: 'Orbitron', 'Exo 2', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+
+/* ======================================================
+   ROOT CONTAINER
 ====================================================== */
 
 .entrance-page {
   position: fixed;
   inset: 0;
-  background: #02040a;
+  background:
+    /* Nebula glow layers */
+    radial-gradient(ellipse 80% 60% at 15% 85%, rgba(75, 0, 130, 0.35), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 85% 15%, rgba(0, 240, 255, 0.12), transparent 55%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(123, 47, 190, 0.18), transparent 50%),
+    radial-gradient(ellipse 120% 100% at 50% 100%, rgba(75, 0, 130, 0.10), transparent 60%),
+    /* Deep void base */
+    var(--void);
   overflow: hidden;
-  transition: opacity 0.6s ease-out;
+  transition: opacity 0.6s var(--ease-out-expo);
 }
 
+/* Ambient vignette overlay */
+.entrance-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    transparent 30%,
+    rgba(1, 2, 10, 0.55) 80%,
+    rgba(1, 2, 10, 0.85) 100%
+  );
+}
+
+/* CSS starfield layer */
+.entrance-page::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.5px 1.5px at 10% 20%, rgba(255, 255, 255, 0.7) 50%, transparent 50%),
+    radial-gradient(1px 1px at 25% 45%, rgba(255, 255, 255, 0.5) 50%, transparent 50%),
+    radial-gradient(1.2px 1.2px at 40% 10%, rgba(255, 255, 255, 0.6) 50%, transparent 50%),
+    radial-gradient(1px 1px at 55% 75%, rgba(255, 255, 255, 0.4) 50%, transparent 50%),
+    radial-gradient(1.5px 1.5px at 70% 30%, rgba(255, 255, 255, 0.55) 50%, transparent 50%),
+    radial-gradient(0.8px 0.8px at 85% 60%, rgba(255, 255, 255, 0.45) 50%, transparent 50%),
+    radial-gradient(1px 1px at 15% 80%, rgba(255, 255, 255, 0.35) 50%, transparent 50%),
+    radial-gradient(1.3px 1.3px at 60% 50%, rgba(255, 255, 255, 0.5) 50%, transparent 50%),
+    radial-gradient(0.9px 0.9px at 90% 85%, rgba(255, 255, 255, 0.3) 50%, transparent 50%),
+    radial-gradient(1.1px 1.1px at 35% 95%, rgba(255, 255, 255, 0.4) 50%, transparent 50%),
+    radial-gradient(1px 1px at 5% 55%, rgba(0, 240, 255, 0.4) 50%, transparent 50%),
+    radial-gradient(1.2px 1.2px at 75% 5%, rgba(0, 240, 255, 0.3) 50%, transparent 50%),
+    radial-gradient(0.7px 0.7px at 50% 35%, rgba(255, 255, 255, 0.3) 50%, transparent 50%),
+    radial-gradient(1px 1px at 20% 65%, rgba(255, 255, 255, 0.45) 50%, transparent 50%),
+    radial-gradient(1.4px 1.4px at 80% 45%, rgba(255, 255, 255, 0.35) 50%, transparent 50%);
+  background-size: 200% 200%;
+  animation: starfield-drift 120s linear infinite;
+}
+
+@keyframes starfield-drift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(-5%, -3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Exiting state */
 .entrance-page.exiting {
   pointer-events: none;
 }
 
 .entrance-page.exiting .entrance-main {
   opacity: 0;
-  transform: scale(1.1);
-  transition: all 0.5s ease-in;
+  transform: scale(1.15);
+  filter: blur(4px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 
 /* ======================================================
    CANVAS BACKGROUND
@@ -30,6 +127,7 @@
   z-index: 0;
   pointer-events: none;
 }
+
 
 /* ======================================================
    MAIN CONTENT
@@ -44,50 +142,111 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  transition: all 0.5s ease-out;
+  padding: 0 24px;
+  transition: all 0.5s var(--ease-out-expo);
 }
+
 
 /* ======================================================
    TITLE
 ====================================================== */
 
 .entrance-title {
-  font-size: clamp(28px, 5vw, 48px);
-  font-weight: 300;
-  letter-spacing: 0.4em;
-  margin: 0 0 24px 0;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 700;
+  letter-spacing: 0.5em;
+  margin: 0 0 28px 0.5em; /* offset right margin to visually center with letter-spacing */
   color: #fff;
-  text-shadow: 0 0 40px rgba(63, 255, 220, 0.3);
-  animation: title-fade-in 1.5s ease-out forwards;
+  text-transform: uppercase;
+  /* Holographic shimmer gradient on text */
+  background: linear-gradient(
+    105deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(0, 240, 255, 0.9) 25%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(0, 240, 255, 0.9) 75%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+    warpgate-title-enter 1.2s var(--ease-out-expo) forwards,
+    title-shimmer 8s ease-in-out 1.5s infinite,
+    title-glow-breathe 4s ease-in-out 1.5s infinite;
+  opacity: 0;
+  /* Text shadow for glow (rendered behind the gradient text) */
+  filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.3))
+          drop-shadow(0 0 60px rgba(0, 240, 255, 0.1));
 }
 
-@keyframes title-fade-in {
-  0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+@keyframes warpgate-title-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+    filter: blur(8px) drop-shadow(0 0 30px rgba(0, 240, 255, 0.3));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px) drop-shadow(0 0 30px rgba(0, 240, 255, 0.3)) drop-shadow(0 0 60px rgba(0, 240, 255, 0.1));
+  }
 }
+
+@keyframes title-shimmer {
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes title-glow-breathe {
+  0%, 100% {
+    filter: drop-shadow(0 0 25px rgba(0, 240, 255, 0.2))
+            drop-shadow(0 0 50px rgba(0, 240, 255, 0.05));
+  }
+  50% {
+    filter: drop-shadow(0 0 40px rgba(0, 240, 255, 0.45))
+            drop-shadow(0 0 80px rgba(0, 240, 255, 0.15));
+  }
+}
+
 
 /* ======================================================
    USER GREETING
 ====================================================== */
 
 .user-greeting {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 20px;
-  animation: fade-in-up 0.8s ease-out 0.3s forwards;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--glass-white-dim);
+  margin-bottom: 24px;
+  letter-spacing: 0.08em;
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 200ms forwards;
   opacity: 0;
 }
 
-@keyframes fade-in-up {
-  0% { opacity: 0; transform: translateY(15px); }
-  100% { opacity: 1; transform: translateY(0); }
+.user-name {
+  color: var(--nebula-cyan);
+  font-weight: 500;
+  text-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
 }
 
-.user-name {
-  color: #3fffdc;
-  font-weight: 500;
-  text-shadow: 0 0 15px rgba(63, 255, 220, 0.4);
+@keyframes warpgate-fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
 }
+
 
 /* ======================================================
    COMMAND BUTTON
@@ -95,38 +254,47 @@
 
 .command-button {
   position: relative;
-  padding: 18px 48px;
-  background: transparent;
-  border: 1px solid rgba(63, 255, 220, 0.4);
-  border-radius: 6px;
-  color: #3fffdc;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 18px 52px;
+  background: var(--nebula-cyan-ghost);
+  border: 1px solid var(--nebula-cyan-dim);
+  border-radius: 8px;
+  color: var(--nebula-cyan);
+  font-family: var(--font-mono);
   font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0.3em;
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.4s ease;
-  animation: button-fade-in 0.8s ease-out 0.5s forwards;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.5s ease,
+    transform 0.3s var(--ease-out-expo);
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 400ms forwards;
   opacity: 0;
 }
 
-@keyframes button-fade-in {
-  0% { opacity: 0; transform: translateY(15px); }
-  100% { opacity: 1; transform: translateY(0); }
+.command-button:hover:not(:disabled) {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow:
+    0 0 20px rgba(0, 240, 255, 0.2),
+    0 0 60px rgba(0, 240, 255, 0.08),
+    inset 0 0 30px rgba(0, 240, 255, 0.06);
+  transform: scale(1.03);
 }
 
-.command-button:hover:not(:disabled) {
-  background: rgba(63, 255, 220, 0.1);
-  border-color: rgba(63, 255, 220, 0.7);
-  box-shadow:
-    0 0 30px rgba(63, 255, 220, 0.25),
-    inset 0 0 20px rgba(63, 255, 220, 0.05);
-  transform: scale(1.02);
+.command-button:active:not(:disabled) {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
 }
 
 .command-button:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
+  filter: saturate(0.4);
 }
 
 .command-button .btn-text {
@@ -138,17 +306,25 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(ellipse at center, rgba(63, 255, 220, 0.3), transparent 70%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 240, 255, 0.25),
+    rgba(0, 240, 255, 0.08) 40%,
+    transparent 70%
+  );
   transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.4s ease;
+  transition: transform 0.5s var(--ease-out-expo), opacity 0.4s ease;
   pointer-events: none;
+  opacity: 0;
 }
 
 .command-button:hover .btn-glow {
-  transform: translate(-50%, -50%) scale(2);
+  transform: translate(-50%, -50%) scale(2.5);
+  opacity: 1;
 }
+
 
 /* ======================================================
    AUTH LINKS
@@ -157,50 +333,81 @@
 .auth-links {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 16px;
-  animation: fade-in-up 0.8s ease-out 0.7s forwards;
+  gap: 18px;
+  margin-top: 20px;
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 600ms forwards;
   opacity: 0;
 }
 
 .auth-link {
-  color: rgba(255, 255, 255, 0.5);
+  position: relative;
+  color: var(--glass-white-dim);
+  font-family: var(--font-mono);
   font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
   cursor: pointer;
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+.auth-link::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--nebula-cyan);
+  transition: width 0.35s var(--ease-out-expo);
+  box-shadow: 0 0 6px rgba(0, 240, 255, 0.4);
 }
 
 .auth-link:hover {
-  color: #3fffdc;
+  color: var(--nebula-cyan);
+}
+
+.auth-link:hover::after {
+  width: 100%;
 }
 
 .auth-separator {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 13px;
+  user-select: none;
 }
+
 
 /* ======================================================
    TYPEWRITER
 ====================================================== */
 
 .typewriter {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 32px 0 0 0;
-  min-height: 20px;
-  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--glass-white-dim);
+  margin: 36px 0 0 0;
+  min-height: 24px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 800ms forwards;
+  opacity: 0;
 }
 
 .typewriter .cursor {
-  color: #3fffdc;
-  animation: cursor-blink 0.8s steps(1) infinite;
+  color: var(--nebula-cyan);
+  font-weight: 400;
+  animation: warpgate-cursor-blink 1s steps(1) infinite;
   margin-left: 2px;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
 }
 
-@keyframes cursor-blink {
+@keyframes warpgate-cursor-blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
 }
+
 
 /* ======================================================
    SYSTEM STATUS
@@ -209,18 +416,54 @@
 .system-online {
   position: absolute;
   bottom: 80px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-family: var(--font-mono);
   font-size: 11px;
+  font-weight: 400;
   letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.3);
-  animation: fade-in 1s ease-out 1s forwards;
+  color: var(--nebula-emerald);
+  animation: warpgate-system-enter 0.9s var(--ease-out-expo) 1000ms forwards;
   opacity: 0;
 }
 
-@keyframes fade-in {
-  0% { opacity: 0; }
-  100% { opacity: 0.3; }
+.system-online::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--nebula-emerald);
+  margin-right: 10px;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+  animation: system-dot-pulse 2s ease-in-out infinite;
 }
+
+@keyframes warpgate-system-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 0.55;
+    transform: translateY(0);
+  }
+}
+
+@keyframes system-dot-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 6px rgba(0, 255, 136, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.8);
+    transform: scale(1.3);
+  }
+}
+
 
 /* ======================================================
    FOOTER
@@ -234,7 +477,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  animation: fade-in 1s ease-out 1.2s forwards;
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 1200ms forwards;
   opacity: 0;
 }
 
@@ -244,16 +487,29 @@
   background: linear-gradient(
     to right,
     transparent,
-    rgba(63, 255, 220, 0.3),
+    rgba(0, 240, 255, 0.35),
     transparent
   );
+  animation: footer-line-breathe 4s ease-in-out infinite;
+}
+
+@keyframes footer-line-breathe {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .footer-text {
+  font-family: var(--font-mono);
   font-size: 10px;
+  font-weight: 400;
   letter-spacing: 0.25em;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--glass-white-faint);
 }
+
 
 /* ======================================================
    EXIT TRANSITION OVERLAY
@@ -273,7 +529,11 @@
 
 .entrance-exit-overlay.active {
   opacity: 1;
-  background: radial-gradient(ellipse at center, rgba(2, 4, 10, 0.9), #02040a);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(1, 2, 10, 0.85),
+    var(--void)
+  );
 }
 
 /* Warp lines */
@@ -293,19 +553,20 @@
   background: linear-gradient(
     to bottom,
     transparent,
-    rgba(63, 255, 220, 0.9),
+    var(--nebula-cyan),
     transparent
   );
   transform-origin: center;
   opacity: 0;
+  border-radius: 2px;
 }
 
 .entrance-exit-overlay.active .warp-line {
-  animation: warp-enter 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: warpgate-warp-enter 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   animation-delay: calc(var(--index) * 25ms);
 }
 
-@keyframes warp-enter {
+@keyframes warpgate-warp-enter {
   0% {
     height: 0;
     opacity: 0;
@@ -317,51 +578,114 @@
   }
   100% {
     height: 200vh;
-    opacity: 0.6;
+    opacity: 0.7;
     transform: translateX(-50%) translateY(-50%) rotate(calc(var(--index) * 18deg)) scale(0.3);
   }
 }
 
-/* Center glow */
+/* Center glow - multi-layer */
 .exit-center-glow {
   position: absolute;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   background: radial-gradient(
     ellipse at center,
-    rgba(63, 255, 220, 0.6),
-    transparent 70%
+    rgba(0, 240, 255, 0.8) 0%,
+    rgba(0, 240, 255, 0.3) 30%,
+    rgba(75, 0, 130, 0.4) 60%,
+    transparent 80%
   );
-  filter: blur(30px);
+  filter: blur(25px);
   opacity: 0;
   transform: scale(0);
-  transition: all 0.4s ease-out;
+  transition: all 0.5s var(--ease-out-expo);
 }
 
 .entrance-exit-overlay.active .exit-center-glow {
   opacity: 1;
-  transform: scale(5);
+  transform: scale(6);
 }
 
 /* Exit text */
 .exit-text {
   position: relative;
   z-index: 10;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-display);
   font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0.3em;
-  color: #3fffdc;
+  color: var(--nebula-cyan);
   opacity: 0;
   transform: translateY(20px);
-  transition: all 0.3s ease-out 0.2s;
-  text-shadow: 0 0 20px rgba(63, 255, 220, 0.5);
+  transition: all 0.4s var(--ease-out-expo) 0.2s;
+  text-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
 }
 
 .entrance-exit-overlay.active .exit-text {
   opacity: 1;
   transform: translateY(0);
 }
+
+
+/* ======================================================
+   AUDIO HINT
+====================================================== */
+
+.audio-hint {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: rgba(1, 2, 10, 0.6);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  border-radius: 24px;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  animation: warpgate-audio-pulse 3.5s ease-in-out infinite;
+}
+
+@keyframes warpgate-audio-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.audio-hint:hover {
+  border-color: rgba(0, 240, 255, 0.45);
+  background: rgba(0, 240, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+  animation: none;
+  opacity: 1;
+}
+
+.audio-hint-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.audio-hint-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.65);
+}
+
 
 /* ======================================================
    RESPONSIVE
@@ -370,11 +694,25 @@
 @media (max-width: 600px) {
   .entrance-title {
     letter-spacing: 0.2em;
+    margin-right: 0.2em;
   }
 
   .command-button {
-    padding: 14px 32px;
+    padding: 15px 36px;
     font-size: 12px;
+  }
+
+  .auth-links {
+    gap: 12px;
+  }
+
+  .auth-link {
+    font-size: 12px;
+  }
+
+  .typewriter {
+    font-size: 13px;
+    padding: 0 16px;
   }
 
   .entrance-footer {
@@ -388,72 +726,88 @@
   .footer-text {
     font-size: 9px;
   }
+
+  .audio-hint {
+    bottom: 16px;
+    right: 16px;
+    padding: 8px 14px;
+  }
+
+  .audio-hint-text {
+    font-size: 10px;
+  }
 }
 
-/* ======================================================
-   REDUCED MOTION
-====================================================== */
+@media (max-width: 380px) {
+  .entrance-title {
+    letter-spacing: 0.12em;
+    margin-right: 0.12em;
+  }
 
-/* ======================================================
-   AUDIO HINT
-====================================================== */
-
-.audio-hint {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  background: rgba(10, 15, 25, 0.9);
-  border: 1px solid rgba(63, 255, 220, 0.2);
-  border-radius: 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  animation: audio-hint-pulse 3s ease-in-out infinite;
-  backdrop-filter: blur(8px);
+  .command-button {
+    padding: 14px 28px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+  }
 }
 
-@keyframes audio-hint-pulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.02); }
-}
-
-.audio-hint:hover {
-  border-color: rgba(63, 255, 220, 0.5);
-  background: rgba(63, 255, 220, 0.1);
-  animation: none;
-  opacity: 1;
-}
-
-.audio-hint-icon {
-  font-size: 16px;
-}
-
-.audio-hint-text {
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.7);
-}
 
 /* ======================================================
    REDUCED MOTION
 ====================================================== */
 
 @media (prefers-reduced-motion: reduce) {
+  /* Kill all animations */
   .entrance-title,
   .user-greeting,
   .command-button,
   .auth-links,
+  .typewriter,
   .system-online,
   .entrance-footer,
   .audio-hint {
     animation: none !important;
     opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
   }
 
+  /* Preserve title visual without animation */
+  .entrance-title {
+    background-size: 100% 100%;
+    filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.3)) !important;
+  }
+
+  /* Remove starfield and ambient animations */
+  .entrance-page::after {
+    animation: none !important;
+  }
+
+  .footer-line {
+    animation: none !important;
+    opacity: 0.8 !important;
+  }
+
+  .system-online::before {
+    animation: none !important;
+  }
+
+  .typewriter .cursor {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Simplify exit transition */
   .entrance-exit-overlay.active .warp-line {
     animation: none !important;
+  }
+
+  .entrance-page.exiting .entrance-main {
+    filter: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .exit-center-glow {
+    transition: opacity 0.3s ease !important;
   }
 }

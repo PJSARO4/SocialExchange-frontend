@@ -127,7 +127,7 @@ export default function MarketplacePage() {
           <p className="market-subtitle">Buy and sell established social media accounts securely</p>
         </div>
         <div className="market-header-right">
-          <Link href="/cockpit/my-e-assets/market/sell" className="market-sell-btn">
+          <Link href="/cockpit/trading-post/sell" className="market-sell-btn">
             + List Your Account
           </Link>
         </div>

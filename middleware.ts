@@ -26,10 +26,9 @@ export function middleware(request: NextRequest) {
   // -------------------------------------------
   if (!skipGeoBlock) {
     const country = request.headers.get('x-vercel-ip-country') || '';
-    const bypassParam = request.nextUrl.searchParams.get('bypass');
-
-    // Allow bypass for development/testing (Peter's dev access)
-    const isDev = bypassParam === 'dev' || process.env.NODE_ENV === 'development';
+    // Only bypass geo-blocking in local development (NODE_ENV=development)
+    // No query-param bypass allowed — prevents production security holes
+    const isDev = process.env.NODE_ENV === 'development';
 
     if (BLOCKED_COUNTRIES.includes(country) && !isDev) {
       const restrictedUrl = new URL('/restricted', request.url);

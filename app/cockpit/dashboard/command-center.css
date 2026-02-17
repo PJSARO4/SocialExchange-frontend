@@ -1,16 +1,51 @@
 /* ======================================================
-   COMMAND CENTER V2 — COMPREHENSIVE DASHBOARD
+   COMMAND CENTER V2 — HOLOGRAPHIC DASHBOARD
+   Design: Glass panels, cyan/indigo palette, holo-shimmer
+   Font stack: JetBrains Mono / Orbitron / system
+   All original class names preserved for TSX compatibility.
 ====================================================== */
+
+/* ---------------------------------------------------
+   KEYFRAMES
+--------------------------------------------------- */
+
+@keyframes orbit-ring {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.85); }
+}
+
+@keyframes holo-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------------------------------------
+   ROOT CONTAINER
+   Inherits nebula background from cockpit-main.
+--------------------------------------------------- */
 
 .command-center-v2 {
   min-height: 100vh;
   padding: 0;
-  background: linear-gradient(135deg, #020409 0%, #0a1118 50%, #020409 100%);
+  background: transparent;
+  color: #e2e8f0;
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+  animation: fadeInUp 0.5s ease-out;
 }
 
-/* ============================================
-   LOADING STATE
-============================================ */
+/* ---------------------------------------------------
+   LOADING STATE — Orbit Spinner (3 rings)
+--------------------------------------------------- */
 
 .cc-loading {
   min-height: 100vh;
@@ -18,40 +53,74 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.5rem;
+  background: transparent;
 }
 
 .cc-loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #3fffdc;
-  border-radius: 50%;
-  animation: ccSpin 0.8s linear infinite;
+  width: 48px;
+  height: 48px;
+  position: relative;
 }
 
-@keyframes ccSpin {
-  to { transform: rotate(360deg); }
+/* Three nested orbit rings */
+.cc-loading-spinner,
+.cc-loading-spinner::before,
+.cc-loading-spinner::after {
+  border: 2px solid transparent;
+  border-top-color: #00f0ff;
+  border-radius: 50%;
+  animation: orbit-ring 1.2s linear infinite;
+}
+
+.cc-loading-spinner::before,
+.cc-loading-spinner::after {
+  content: '';
+  position: absolute;
+}
+
+.cc-loading-spinner::before {
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border-top-color: rgba(99, 102, 241, 0.7);
+  animation-duration: 1.8s;
+  animation-direction: reverse;
+}
+
+.cc-loading-spinner::after {
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border-top-color: rgba(0, 255, 136, 0.5);
+  animation-duration: 2.6s;
 }
 
 .cc-loading span {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  color: rgba(0, 240, 255, 0.5);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 3px;
 }
 
-/* ============================================
+/* ---------------------------------------------------
    TOP BAR
-============================================ */
+--------------------------------------------------- */
 
 .cc-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: rgba(0, 0, 0, 0.4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 240, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.08);
+  position: relative;
+  z-index: 10;
 }
 
 .cc-topbar-left,
@@ -69,31 +138,38 @@
   justify-content: flex-end;
 }
 
+/* --- Time Display --- */
+
 .cc-time {
   display: flex;
   flex-direction: column;
 }
 
 .cc-time-value {
-  font-size: 1.25rem;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #fff;
-  font-family: ui-monospace, monospace;
+  color: #00f0ff;
+  line-height: 1.2;
 }
 
 .cc-time-date {
-  font-size: 0.6875rem;
-  color: #6b7280;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 2px;
 }
+
+/* --- System Status --- */
 
 .cc-system-status {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.6875rem;
-  color: #10b981;
+  color: #00ff88;
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
@@ -102,18 +178,18 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10b981;
+  background: #00ff88;
+  box-shadow: 0 0 6px rgba(0, 255, 136, 0.5),
+              0 0 12px rgba(0, 255, 136, 0.25);
   animation: statusPulse 2s ease-in-out infinite;
 }
 
 .cc-status-dot.online {
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.6),
+              0 0 20px rgba(0, 255, 136, 0.3);
 }
 
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
+/* --- User Menu --- */
 
 .cc-user-menu {
   display: flex;
@@ -130,62 +206,76 @@
 .cc-user-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #fff;
+  color: #ffffff;
 }
 
 .cc-user-role {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.625rem;
-  color: #3fffdc;
-  letter-spacing: 1px;
+  color: #00f0ff;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
 .cc-logout-btn {
   padding: 0.5rem 1rem;
   background: transparent;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: 4px;
-  color: #ef4444;
-  font-size: 0.75rem;
-  font-family: inherit;
+  border: 1px solid rgba(255, 0, 110, 0.3);
+  border-radius: 6px;
+  color: rgba(255, 0, 110, 0.8);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 200ms ease;
 }
 
 .cc-logout-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
+  background: rgba(255, 0, 110, 0.1);
+  border-color: rgba(255, 0, 110, 0.6);
+  color: #ff006e;
 }
 
-/* ============================================
-   WELCOME SECTION
-============================================ */
+/* ---------------------------------------------------
+   WELCOME SECTION — Glass Panel
+--------------------------------------------------- */
 
 .cc-welcome {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin: 1.5rem 2rem;
+  background: rgba(0, 240, 255, 0.03);
+  border: 1px solid rgba(0, 240, 255, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .cc-welcome-greeting {
-  font-size: 1.75rem;
+  font-family: 'Orbitron', 'JetBrains Mono', ui-monospace, sans-serif;
+  font-size: 2rem;
   font-weight: 600;
-  color: #fff;
+  color: #ffffff;
   margin: 0 0 0.5rem;
+  line-height: 1.2;
 }
 
 .cc-welcome-summary {
   font-size: 0.9375rem;
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
+  line-height: 1.5;
 }
 
 .cc-welcome-summary strong {
-  color: #3fffdc;
+  color: #00f0ff;
+  font-weight: 600;
 }
+
+/* --- Quick Actions --- */
 
 .cc-quick-actions {
   display: flex;
@@ -197,128 +287,226 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 240, 255, 0.04);
+  border: 1px solid rgba(0, 240, 255, 0.08);
   border-radius: 8px;
-  color: #d1d5db;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   font-size: 0.8125rem;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: all 200ms ease;
 }
 
 .cc-quick-action:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(63, 255, 220, 0.3);
-  color: #fff;
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.25);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 240, 255, 0.08);
+}
+
+.cc-quick-action:active {
+  transform: scale(0.98);
 }
 
 .cc-quick-action.owner {
-  border-color: rgba(239, 68, 68, 0.3);
+  border-color: rgba(255, 0, 110, 0.2);
 }
 
 .cc-quick-action.owner:hover {
-  border-color: rgba(239, 68, 68, 0.6);
-  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(255, 0, 110, 0.5);
+  background: rgba(255, 0, 110, 0.08);
+  box-shadow: 0 4px 16px rgba(255, 0, 110, 0.08);
 }
 
 .cc-qa-icon {
   font-size: 1rem;
+  opacity: 0.9;
 }
 
 .cc-qa-label {
   font-weight: 500;
 }
 
-/* ============================================
-   STATS GRID
-============================================ */
+/* ---------------------------------------------------
+   STATS GRID — Holographic Glass Cards
+--------------------------------------------------- */
 
 .cc-stats-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
-  padding: 1.5rem 2rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0 2rem 1.5rem;
 }
 
 .cc-stat-card {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
+  padding: 1.25rem;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 240, 255, 0.06) 0%,
+    rgba(99, 102, 241, 0.03) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 240, 255, 0.1);
+  border-radius: 12px;
   position: relative;
+  overflow: hidden;
+  transition: all 200ms ease;
+}
+
+/* Holographic shimmer overlay */
+.cc-stat-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 20%,
+    rgba(0, 240, 255, 0.04) 40%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(0, 240, 255, 0.04) 60%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: holo-shimmer 6s linear infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.cc-stat-card:hover {
+  border-color: rgba(0, 240, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.06);
 }
 
 .cc-stat-icon {
   font-size: 1.5rem;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .cc-stat-content {
   display: flex;
   flex-direction: column;
   flex: 1;
+  gap: 0.125rem;
 }
 
 .cc-stat-value {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #fff;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.1;
 }
 
 .cc-stat-label {
-  font-size: 0.6875rem;
-  color: #6b7280;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.38);
 }
 
 .cc-stat-change {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  font-size: 0.6875rem;
-  font-weight: 500;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
-.cc-stat-change.up {
-  color: #10b981;
+.cc-stat-change.up,
+.cc-stat-change.positive {
+  color: #00ff88;
 }
 
-.cc-stat-change.down {
-  color: #ef4444;
+.cc-stat-change.down,
+.cc-stat-change.negative {
+  color: #ff006e;
 }
 
 .cc-stat-change.neutral {
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.3);
 }
 
-/* ============================================
+/* ---------------------------------------------------
    MAIN GRID
-============================================ */
+--------------------------------------------------- */
 
 .cc-main-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
-  padding: 2rem;
+  padding: 0 2rem 2rem;
 }
 
-/* ============================================
-   PANELS
-============================================ */
+/* ---------------------------------------------------
+   CONTENT AREA (alias)
+--------------------------------------------------- */
+
+.cc-content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  padding: 0 2rem 2rem;
+}
+
+/* ---------------------------------------------------
+   SECTION TITLES — Mono + Line Extend
+--------------------------------------------------- */
+
+.cc-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-section-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(0, 240, 255, 0.5);
+  margin: 0 0 1rem;
+  white-space: nowrap;
+}
+
+.cc-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 240, 255, 0.15),
+    transparent
+  );
+}
+
+/* ---------------------------------------------------
+   PANELS — Glass Card Treatment
+--------------------------------------------------- */
 
 .cc-panel {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 240, 255, 0.03);
+  border: 1px solid rgba(0, 240, 255, 0.08);
   border-radius: 12px;
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 200ms ease;
+}
+
+.cc-panel:hover {
+  border-color: rgba(0, 240, 255, 0.14);
 }
 
 .cc-panel-header {
@@ -327,39 +515,44 @@
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.06);
 }
 
 .cc-panel-title {
-  font-size: 0.875rem;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
   font-weight: 600;
-  color: #fff;
+  color: rgba(0, 240, 255, 0.5);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.2em;
   margin: 0;
 }
 
 .cc-panel-badge {
-  font-size: 0.625rem;
-  padding: 0.25rem 0.5rem;
-  background: rgba(16, 185, 129, 0.2);
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.5625rem;
+  padding: 0.25rem 0.6rem;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.25);
   border-radius: 4px;
-  color: #10b981;
+  color: #00ff88;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .cc-panel-action {
-  font-size: 0.75rem;
-  color: #3fffdc;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  color: #00f0ff;
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  transition: color 200ms ease;
 }
 
 .cc-panel-action:hover {
-  text-decoration: underline;
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .cc-panel-link {
@@ -367,24 +560,29 @@
   margin-top: auto;
   padding-top: 1rem;
   text-align: center;
-  font-size: 0.75rem;
-  color: #6b7280;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.3);
   text-decoration: none;
   border: none;
   background: none;
   cursor: pointer;
-  transition: color 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 200ms ease;
 }
 
 .cc-panel-link:hover {
-  color: #3fffdc;
+  color: #00f0ff;
 }
 
-/* Activity Panel */
+/* ---------------------------------------------------
+   ACTIVITY FEED
+--------------------------------------------------- */
+
 .cc-activity-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   flex: 1;
 }
 
@@ -392,20 +590,37 @@
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 6px;
-  border-left: 3px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 200ms ease;
 }
 
-.cc-activity-item.post { border-left-color: #3b82f6; }
-.cc-activity-item.transaction { border-left-color: #10b981; }
-.cc-activity-item.follower { border-left-color: #8b5cf6; }
-.cc-activity-item.alert { border-left-color: #f59e0b; }
-.cc-activity-item.system { border-left-color: #6b7280; }
+.cc-activity-item:last-child {
+  border-bottom: none;
+}
+
+.cc-activity-item:hover {
+  background: rgba(0, 240, 255, 0.03);
+}
+
+/* Activity type accent colors */
+.cc-activity-item.post       { border-left: 3px solid rgba(59, 130, 246, 0.5); }
+.cc-activity-item.transaction { border-left: 3px solid rgba(0, 255, 136, 0.5); }
+.cc-activity-item.follower   { border-left: 3px solid rgba(139, 92, 246, 0.5); }
+.cc-activity-item.alert      { border-left: 3px solid rgba(255, 0, 110, 0.5); }
+.cc-activity-item.system     { border-left: 3px solid rgba(255, 255, 255, 0.1); }
 
 .cc-activity-icon {
-  font-size: 1rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(0, 240, 255, 0.06);
+  border: 1px solid rgba(0, 240, 255, 0.08);
+  font-size: 0.875rem;
+  flex-shrink: 0;
 }
 
 .cc-activity-content {
@@ -415,21 +630,27 @@
   gap: 0.25rem;
 }
 
-.cc-activity-message {
+.cc-activity-message,
+.cc-activity-text {
   font-size: 0.8125rem;
-  color: #d1d5db;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
 }
 
 .cc-activity-time {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.6875rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.3);
 }
 
-/* Schedule Panel */
+/* ---------------------------------------------------
+   SCHEDULE PANEL
+--------------------------------------------------- */
+
 .cc-schedule-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex: 1;
 }
 
@@ -437,13 +658,21 @@
   display: flex;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid rgba(0, 240, 255, 0.06);
+  border-radius: 8px;
+  transition: all 200ms ease;
+}
+
+.cc-schedule-item:hover {
+  background: rgba(0, 240, 255, 0.04);
+  border-color: rgba(0, 240, 255, 0.12);
 }
 
 .cc-schedule-platform {
   font-size: 1.25rem;
+  display: flex;
+  align-items: center;
 }
 
 .cc-schedule-content {
@@ -462,52 +691,59 @@
 .cc-schedule-account {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #fff;
+  color: #ffffff;
 }
 
 .cc-schedule-status {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.5625rem;
-  padding: 0.2rem 0.4rem;
-  border-radius: 3px;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   font-weight: 600;
 }
 
 .cc-schedule-status.scheduled {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.12);
+  color: #5b9aff;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .cc-schedule-status.automated {
-  background: rgba(16, 185, 129, 0.2);
-  color: #10b981;
+  background: rgba(0, 255, 136, 0.1);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.2);
 }
 
 .cc-schedule-status.draft {
-  background: rgba(107, 114, 128, 0.2);
-  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .cc-schedule-time {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.6875rem;
-  color: #6b7280;
-  font-family: ui-monospace, monospace;
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .cc-schedule-caption {
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.45);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Market Panel */
+/* ---------------------------------------------------
+   MARKET PANEL
+--------------------------------------------------- */
+
 .cc-market-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex: 1;
 }
 
@@ -516,9 +752,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid rgba(0, 240, 255, 0.06);
+  border-radius: 8px;
+  transition: all 200ms ease;
+}
+
+.cc-market-item:hover {
+  background: rgba(0, 240, 255, 0.04);
+  border-color: rgba(0, 240, 255, 0.12);
 }
 
 .cc-market-info {
@@ -530,12 +772,13 @@
 .cc-market-name {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: #fff;
+  color: #ffffff;
 }
 
 .cc-market-meta {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.6875rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .cc-market-price {
@@ -546,20 +789,58 @@
 }
 
 .cc-market-value {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #3fffdc;
+  color: #00f0ff;
 }
 
 .cc-market-change {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-.cc-market-change.up { color: #10b981; }
-.cc-market-change.down { color: #ef4444; }
+.cc-market-change.up   { color: #00ff88; }
+.cc-market-change.down { color: #ff006e; }
 
-/* Shares Panel */
+/* ---------------------------------------------------
+   PORTFOLIO ITEMS — Glass Card
+--------------------------------------------------- */
+
+.cc-portfolio-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid rgba(0, 240, 255, 0.06);
+  border-radius: 8px;
+  transition: all 200ms ease;
+}
+
+.cc-portfolio-item:hover {
+  background: rgba(0, 240, 255, 0.04);
+  border-color: rgba(0, 240, 255, 0.12);
+}
+
+.cc-portfolio-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.cc-portfolio-value {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #00f0ff;
+}
+
+/* ---------------------------------------------------
+   SHARES PANEL
+--------------------------------------------------- */
+
 .cc-shares-overview {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -570,22 +851,25 @@
 .cc-shares-stat {
   text-align: center;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 6px;
+  background: rgba(0, 240, 255, 0.03);
+  border: 1px solid rgba(0, 240, 255, 0.06);
+  border-radius: 8px;
 }
 
 .cc-shares-value {
   display: block;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 1.125rem;
-  font-weight: 600;
-  color: #3fffdc;
+  font-weight: 700;
+  color: #00f0ff;
 }
 
 .cc-shares-label {
-  font-size: 0.625rem;
-  color: #6b7280;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.5625rem;
+  color: rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.15em;
 }
 
 .cc-shares-communities {
@@ -599,25 +883,31 @@
   display: flex;
   justify-content: space-between;
   padding: 0.625rem 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid rgba(0, 240, 255, 0.06);
+  border-radius: 6px;
+  transition: all 200ms ease;
+}
+
+.cc-shares-community:hover {
+  background: rgba(0, 240, 255, 0.04);
+  border-color: rgba(0, 240, 255, 0.12);
 }
 
 .cc-community-name {
   font-size: 0.8125rem;
-  color: #d1d5db;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .cc-community-credits {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.75rem;
-  color: #6b7280;
-  font-family: ui-monospace, monospace;
+  color: #00f0ff;
 }
 
-/* ============================================
+/* ---------------------------------------------------
    NAVIGATION CARDS
-============================================ */
+--------------------------------------------------- */
 
 .cc-nav-cards {
   display: grid;
@@ -631,59 +921,84 @@
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 240, 255, 0.03);
+  border: 1px solid rgba(0, 240, 255, 0.08);
   border-radius: 12px;
   text-decoration: none;
-  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  transition: all 200ms ease;
+}
+
+/* Nav card shimmer overlay */
+.cc-nav-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(0, 240, 255, 0.03) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: holo-shimmer 8s linear infinite;
+  pointer-events: none;
 }
 
 .cc-nav-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(63, 255, 220, 0.3);
+  background: rgba(0, 240, 255, 0.06);
+  border-color: rgba(0, 240, 255, 0.2);
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.06);
 }
 
-.cc-nav-card.feeds:hover { border-color: rgba(59, 130, 246, 0.5); }
-.cc-nav-card.shares:hover { border-color: rgba(139, 92, 246, 0.5); }
-.cc-nav-card.market:hover { border-color: rgba(16, 185, 129, 0.5); }
-.cc-nav-card.about:hover { border-color: rgba(245, 158, 11, 0.5); }
+.cc-nav-card.feeds:hover   { border-color: rgba(59, 130, 246, 0.4); }
+.cc-nav-card.shares:hover  { border-color: rgba(139, 92, 246, 0.4); }
+.cc-nav-card.market:hover  { border-color: rgba(0, 255, 136, 0.4); }
+.cc-nav-card.about:hover   { border-color: rgba(245, 158, 11, 0.4); }
 
 .cc-nav-card-icon {
   font-size: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .cc-nav-card-content {
   flex: 1;
+  position: relative;
+  z-index: 1;
 }
 
 .cc-nav-card-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: #ffffff;
   margin: 0 0 0.25rem;
 }
 
 .cc-nav-card-desc {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.4);
   margin: 0;
 }
 
 .cc-nav-card-arrow {
   font-size: 1.25rem;
-  color: #4b5563;
-  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.2);
+  transition: all 200ms ease;
+  position: relative;
+  z-index: 1;
 }
 
 .cc-nav-card:hover .cc-nav-card-arrow {
-  color: #3fffdc;
+  color: #00f0ff;
   transform: translateX(4px);
 }
 
-/* ============================================
+/* ---------------------------------------------------
    FOOTER
-============================================ */
+--------------------------------------------------- */
 
 .cc-footer {
   display: flex;
@@ -691,45 +1006,52 @@
   align-items: center;
   gap: 2rem;
   padding: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(0, 240, 255, 0.06);
+  background: rgba(0, 0, 0, 0.15);
 }
 
 .cc-footer-brand {
-  font-size: 0.6875rem;
-  color: #4b5563;
-  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 3px;
   text-transform: uppercase;
 }
 
 .cc-footer-version {
-  font-size: 0.625rem;
-  color: #374151;
-  font-family: ui-monospace, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.5625rem;
+  color: rgba(255, 255, 255, 0.12);
 }
 
 .cc-footer-status {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.6875rem;
-  color: #10b981;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.625rem;
+  color: #00ff88;
 }
 
 .cc-status-indicator {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #10b981;
+  background: #00ff88;
+  box-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
 }
 
-/* ============================================
-   RESPONSIVE
-============================================ */
+/* ---------------------------------------------------
+   RESPONSIVE — 1400px breakpoint
+--------------------------------------------------- */
 
 @media (max-width: 1400px) {
   .cc-stats-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cc-stat-value {
+    font-size: 1.5rem;
   }
 
   .cc-nav-cards {
@@ -737,8 +1059,13 @@
   }
 }
 
+/* ---------------------------------------------------
+   RESPONSIVE — 1024px breakpoint
+--------------------------------------------------- */
+
 @media (max-width: 1024px) {
-  .cc-main-grid {
+  .cc-main-grid,
+  .cc-content {
     grid-template-columns: 1fr;
   }
 
@@ -746,6 +1073,11 @@
     flex-direction: column;
     gap: 1.5rem;
     text-align: center;
+    margin: 1rem;
+  }
+
+  .cc-welcome-greeting {
+    font-size: 1.5rem;
   }
 
   .cc-quick-actions {
@@ -753,6 +1085,10 @@
     justify-content: center;
   }
 }
+
+/* ---------------------------------------------------
+   RESPONSIVE — 768px breakpoint
+--------------------------------------------------- */
 
 @media (max-width: 768px) {
   .cc-topbar {
@@ -774,13 +1110,22 @@
     align-items: center;
   }
 
-  .cc-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 1rem;
+  .cc-user-menu {
+    justify-content: center;
   }
 
-  .cc-main-grid {
-    padding: 1rem;
+  .cc-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 1rem 1rem;
+  }
+
+  .cc-stat-value {
+    font-size: 1.25rem;
+  }
+
+  .cc-main-grid,
+  .cc-content {
+    padding: 0 1rem 1rem;
     gap: 1rem;
   }
 
@@ -793,4 +1138,84 @@
     flex-direction: column;
     gap: 0.75rem;
   }
+
+  .cc-shares-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cc-welcome {
+    margin: 0.75rem;
+    padding: 1.25rem;
+  }
+}
+
+/* ---------------------------------------------------
+   REDUCED MOTION
+--------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-loading-spinner,
+  .cc-loading-spinner::before,
+  .cc-loading-spinner::after {
+    animation: none;
+  }
+
+  .cc-status-dot {
+    animation: none;
+  }
+
+  .cc-stat-card::after,
+  .cc-nav-card::after {
+    animation: none;
+  }
+
+  .command-center-v2 {
+    animation: none;
+  }
+
+  .cc-stat-card:hover,
+  .cc-quick-action:hover,
+  .cc-nav-card:hover {
+    transform: none;
+  }
+
+  * {
+    transition-duration: 0ms !important;
+  }
+}
+
+/* --- Empty States --- */
+.cc-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.cc-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.6;
+}
+
+.cc-empty-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* --- Welcome Text Container --- */
+.cc-welcome-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* --- Neutral Market Change --- */
+.cc-market-change.neutral {
+  color: #6b7280;
 }
