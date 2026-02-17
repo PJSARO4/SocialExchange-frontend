@@ -1,6 +1,28 @@
 import { NextAuthOptions } from 'next-auth';
 
 // ============================================
+// Dual-mode adapter: PrismaAdapter when DATABASE_URL is set, JWT-only otherwise
+// ============================================
+const HAS_DATABASE = !!process.env.DATABASE_URL;
+
+let adapter: NextAuthOptions['adapter'] = undefined;
+if (HAS_DATABASE) {
+  try {
+    // Dynamic require so the build succeeds even if these packages are missing
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { PrismaAdapter } = require('@auth/prisma-adapter');
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { prisma } = require('@/lib/prisma');
+    adapter = PrismaAdapter(prisma) as NextAuthOptions['adapter'];
+    console.log('[Auth] PrismaAdapter loaded  database session mode');
+  } catch (e) {
+    console.warn('[Auth] PrismaAdapter not available, falling back to JWT-only mode');
+  }
+}
+
+const USE_DATABASE_SESSIONS = !!adapter;
+
+// ============================================
 // Instagram Direct Login (Instagram Platform API)
 // ============================================
 const InstagramDirectProvider = {
@@ -101,6 +123,7 @@ const isUsingTunnel = process.env.NEXTAUTH_URL?.includes('.loca.lt') ||
                       process.env.NEXTAUTH_URL?.includes('tunnel');
 
 export const authOptions: NextAuthOptions = {
+  ...(adapter ? { adapter } : {}),
   providers: [InstagramDirectProvider, InstagramBusinessProvider, FacebookBusinessProvider],
   callbacks: {
     async signIn({ user, account }) {
@@ -110,6 +133,8 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, account, user }) {
+      // JWT callback only applies in JWT session mode; skip when using database sessions
+      if (USE_DATABASE_SESSIONS) return token;
       if (account) {
         token.accessToken = account.access_token;
         token.provider = account.provider;
@@ -118,8 +143,14 @@ export const authOptions: NextAuthOptions = {
       if (user) token.userId = user.id;
       return token;
     },
-    async session({ session, token }) {
-      if (session.user) {
+    async session({ session, token, user }) {
+      if (USE_DATABASE_SESSIONS && user) {
+        // Database session mode: user object comes from the DB
+        if (session.user) {
+          session.user.id = user.id;
+        }
+      } else if (session.user && token) {
+        // JWT session mode: data comes from the token (existing behavior)
         (session.user as any).id = token.userId || token.sub;
         (session.user as any).provider = token.provider;
         (session.user as any).accessToken = token.accessToken;
@@ -128,7 +159,10 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: { signIn: '/auth/signin', error: '/auth/error' },
-  session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 },
+  session: {
+    strategy: USE_DATABASE_SESSIONS ? 'database' : 'jwt',
+    maxAge: 30 * 24 * 60 * 60,
+  },
   cookies: {
     sessionToken: {
       name: isUsingTunnel ? `next-auth.session-token` : `__Secure-next-auth.session-token`,
