@@ -54,11 +54,12 @@ export default function MyESharesPage() {
     const interval = setInterval(() => {
       setBrands((prev) =>
         prev.map((brand) => {
-          const { value, direction } = applyMicroFluctuation(brand.pricePerShare);
+          const currentPrice = brand.pricePerShare ?? 0.01;
+          const { value, direction } = applyMicroFluctuation(currentPrice);
           return {
             ...brand,
             pricePerShare: value,
-            marketCap: brand.totalShares * value,
+            marketCap: (brand.totalShares ?? 0) * value,
             _direction: direction,
           } as BrandListing & { _direction?: string };
         })
@@ -72,11 +73,11 @@ export default function MyESharesPage() {
      PORTFOLIO CALCULATIONS
   ----------------------------------------- */
   const portfolioValue = holdings.reduce((sum, h) => {
-    const brand = getBrandById(h.brandId);
-    return sum + (brand ? h.shares * brand.pricePerShare : h.currentValue);
+    const brand = h.brandId ? getBrandById(h.brandId) : undefined;
+    return sum + (brand ? (h.shares ?? 0) * (brand.pricePerShare ?? 0) : (h.currentValue ?? 0));
   }, 0);
 
-  const totalInvested = holdings.reduce((sum, h) => sum + h.totalInvested, 0);
+  const totalInvested = holdings.reduce((sum, h) => sum + (h.totalInvested ?? 0), 0);
   const totalGain = portfolioValue - totalInvested;
   const totalGainPercent = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
 
@@ -100,7 +101,7 @@ export default function MyESharesPage() {
       {stats && (
         <div className="market-stats-bar">
           <div className="market-stat">
-            <div className="market-stat-value">{stats.totalBrandsListed}</div>
+            <div className="market-stat-value">{stats.totalBrandsListed ?? 0}</div>
             <div className="market-stat-label">Listed Brands</div>
           </div>
           <div className="market-stat">
@@ -116,7 +117,7 @@ export default function MyESharesPage() {
             <div className="market-stat-label">24h Volume</div>
           </div>
           <div className="market-stat">
-            <div className="market-stat-value">{stats.totalInvestors}</div>
+            <div className="market-stat-value">{stats.totalInvestors ?? 0}</div>
             <div className="market-stat-label">Active Investors</div>
           </div>
           <div className="market-stat">
@@ -349,14 +350,16 @@ function PortfolioView({
         </thead>
         <tbody>
           {holdings.map((holding) => {
-            const brand = getBrandById(holding.brandId);
+            const brand = holding.brandId ? getBrandById(holding.brandId) : undefined;
+            const shares = holding.shares ?? 0;
+            const totalInv = holding.totalInvested ?? 0;
             const currentValue = brand
-              ? holding.shares * brand.pricePerShare
-              : holding.currentValue;
-            const gain = currentValue - holding.totalInvested;
+              ? shares * (brand.pricePerShare ?? 0)
+              : (holding.currentValue ?? 0);
+            const gain = currentValue - totalInv;
             const gainPercent =
-              holding.totalInvested > 0
-                ? (gain / holding.totalInvested) * 100
+              totalInv > 0
+                ? (gain / totalInv) * 100
                 : 0;
 
             return (
@@ -364,9 +367,9 @@ function PortfolioView({
                 <td>
                   <div className="holding-brand">
                     <div className="holding-brand-avatar">
-                      {holding.brandName.charAt(0).toUpperCase()}
+                      {(holding.brandName ?? 'B').charAt(0).toUpperCase()}
                     </div>
-                    <span className="holding-brand-name">{holding.brandName}</span>
+                    <span className="holding-brand-name">{holding.brandName ?? 'Unknown'}</span>
                   </div>
                 </td>
                 <td className="holding-shares">

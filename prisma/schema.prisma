@@ -30,6 +30,14 @@ model User {
   // Market system
   wallet        Wallet?
 
+  // New relations (Sprint 1+)
+  kycSubmission   KycSubmission?
+  notifications   Notification[]
+  escrowsAsBuyer  EscrowTransaction[] @relation("BuyerEscrows")
+  escrowsAsSeller EscrowTransaction[] @relation("SellerEscrows")
+  channelMembers  ChannelMember[]
+  messages        Message[]
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -898,4 +906,277 @@ model MarketMakerInventory {
   updatedAt       DateTime            @updatedAt @map("updated_at")
 
   @@map("market_maker_inventory")
+}
+
+// ============================================
+// KYC (Know Your Customer)
+// ============================================
+
+model KycSubmission {
+  id              String              @id @default(cuid())
+  userId          String              @unique @map("user_id")
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Personal info
+  fullName        String              @map("full_name")
+  dateOfBirth     DateTime            @map("date_of_birth")
+  country         String                                  // ISO 3166-1 alpha-2
+  nationality     String?
+
+  // Document verification
+  documentType    KycDocumentType     @map("document_type")
+  documentUrl     String?             @map("document_url")   // Stored securely
+  selfieUrl       String?             @map("selfie_url")
+
+  // Status
+  status          KycStatus           @default(PENDING)
+  reviewedBy      String?             @map("reviewed_by")   // Admin user ID
+  reviewedAt      DateTime?           @map("reviewed_at")
+  rejectionReason String?             @map("rejection_reason")
+
+  // Risk
+  riskLevel       KycRiskLevel        @default(STANDARD) @map("risk_level")
+
+  // Timestamps
+  submittedAt     DateTime            @default(now()) @map("submitted_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  @@map("kyc_submissions")
+}
+
+enum KycDocumentType {
+  PASSPORT
+  NATIONAL_ID
+  DRIVERS_LICENSE
+}
+
+enum KycStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum KycRiskLevel {
+  LOW
+  STANDARD
+  HIGH
+  BLOCKED
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id              String              @id @default(cuid())
+  userId          String              @map("user_id")
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Notification content
+  type            NotificationType
+  title           String
+  message         String              @db.Text
+  actionUrl       String?             @map("action_url")
+
+  // Related entities
+  entityType      String?             @map("entity_type")  // 'trade', 'escrow', 'automation', etc.
+  entityId        String?             @map("entity_id")
+
+  // Status
+  isRead          Boolean             @default(false) @map("is_read")
+  readAt          DateTime?           @map("read_at")
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+
+  @@index([userId, isRead, createdAt])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  TRADE_EXECUTED
+  ORDER_FILLED
+  ORDER_CANCELLED
+  ESCROW_STATUS_CHANGE
+  ESCROW_PAYMENT_RECEIVED
+  ESCROW_COMPLETED
+  ESCROW_DISPUTED
+  AUTOMATION_TRIGGERED
+  AUTOMATION_RATE_LIMITED
+  POST_PUBLISHED
+  POST_FAILED
+  KYC_STATUS_CHANGE
+  WALLET_DEPOSIT
+  WALLET_WITHDRAWAL
+  SYSTEM_ALERT
+}
+
+// ============================================
+// ESCROW TRANSACTIONS (Marketplace)
+// ============================================
+
+model EscrowTransaction {
+  id              String              @id @default(cuid())
+
+  // Parties
+  buyerId         String              @map("buyer_id")
+  buyer           User                @relation("BuyerEscrows", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId        String              @map("seller_id")
+  seller          User                @relation("SellerEscrows", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  // Listing details
+  listingTitle    String              @map("listing_title")
+  listingPlatform Platform            @map("listing_platform")
+  listingHandle   String?             @map("listing_handle")
+  listingUrl      String?             @map("listing_url")
+
+  // Financials
+  listingPrice    Decimal             @db.Decimal(18, 2) @map("listing_price")  // USD
+  platformFee     Decimal             @db.Decimal(18, 2) @map("platform_fee")
+  sellerPayout    Decimal             @db.Decimal(18, 2) @map("seller_payout")
+
+  // Payment
+  paymentMethod   String?             @map("payment_method")  // 'sexcoins', 'stripe'
+  stripePaymentId String?             @map("stripe_payment_id")
+
+  // Status
+  status          EscrowStatus        @default(LISTED)
+
+  // Credentials transfer
+  credentialsSent Boolean             @default(false) @map("credentials_sent")
+  credentialsSentAt DateTime?         @map("credentials_sent_at")
+
+  // Verification
+  verifiedByBuyer Boolean            @default(false) @map("verified_by_buyer")
+  verifiedAt      DateTime?          @map("verified_at")
+
+  // Disputes
+  disputeReason   String?            @map("dispute_reason") @db.Text
+  disputeResolvedBy String?          @map("dispute_resolved_by")
+  disputeResolution String?          @map("dispute_resolution") @db.Text
+
+  // Timeouts
+  paymentDeadline DateTime?          @map("payment_deadline")
+  transferDeadline DateTime?         @map("transfer_deadline")
+  verificationDeadline DateTime?     @map("verification_deadline")
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  completedAt     DateTime?           @map("completed_at")
+
+  @@index([buyerId, status])
+  @@index([sellerId, status])
+  @@index([status, createdAt])
+  @@map("escrow_transactions")
+}
+
+enum EscrowStatus {
+  LISTED
+  OFFER_PENDING
+  OFFER_ACCEPTED
+  PAYMENT_PENDING
+  FUNDS_HELD
+  CREDENTIALS_SENT
+  VERIFICATION_PENDING
+  COMPLETED
+  DISPUTED
+  REFUNDED
+  CANCELLED
+  EXPIRED
+}
+
+// ============================================
+// MESSAGING (Comms)
+// ============================================
+
+model Channel {
+  id              String              @id @default(cuid())
+
+  // Channel info
+  name            String?
+  type            ChannelType         @default(DIRECT)
+  description     String?
+
+  // Status
+  isActive        Boolean             @default(true) @map("is_active")
+
+  // Relations
+  members         ChannelMember[]
+  messages        Message[]
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  lastMessageAt   DateTime?           @map("last_message_at")
+
+  @@map("channels")
+}
+
+model ChannelMember {
+  id              String              @id @default(cuid())
+  channelId       String              @map("channel_id")
+  channel         Channel             @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  userId          String              @map("user_id")
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Member settings
+  role            ChannelRole         @default(MEMBER)
+  isMuted         Boolean             @default(false) @map("is_muted")
+  lastReadAt      DateTime?           @map("last_read_at")
+
+  // Timestamps
+  joinedAt        DateTime            @default(now()) @map("joined_at")
+
+  @@unique([channelId, userId])
+  @@index([userId])
+  @@map("channel_members")
+}
+
+model Message {
+  id              String              @id @default(cuid())
+  channelId       String              @map("channel_id")
+  channel         Channel             @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  senderId        String              @map("sender_id")
+  sender          User                @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  // Content
+  content         String              @db.Text
+  type            MessageType         @default(TEXT)
+  attachmentUrl   String?             @map("attachment_url")
+
+  // Status
+  isEdited        Boolean             @default(false) @map("is_edited")
+  isDeleted       Boolean             @default(false) @map("is_deleted")
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  @@index([channelId, createdAt])
+  @@index([senderId])
+  @@map("messages")
+}
+
+enum ChannelType {
+  DIRECT          // 1-to-1
+  GROUP           // Multi-user
+  SUPPORT         // Support channel
+  ESCROW          // Tied to an escrow transaction
+}
+
+enum ChannelRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM          // System messages (joined, left, etc.)
 }

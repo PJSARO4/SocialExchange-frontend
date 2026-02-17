@@ -136,6 +136,28 @@ export interface CreatorCommunity {
   // Compliance
   communityAgreementSigned: boolean;
   agreementDate?: number;
+
+  // ── Market/Trading Fields (used by e-shares-store) ──
+  // These fields power the stock-market-style trading experience
+  totalDeposit?: number;
+  totalShares?: number;
+  pricePerShare?: number;
+  basePrice?: number;
+  marketCap?: number;
+  volume24h?: number;
+  priceChange24h?: number;
+  engagement?: number;
+  growthRate?: number;
+  listedAt?: number;
+  lockExpiry?: number;
+  transparencyAgreementSigned?: boolean;
+  transparencyAgreementDate?: number;
+  founderSharesLocked?: number;
+  founderSharesAvailable?: number;
+  publicSharesAvailable?: number;
+  publicSharesSold?: number;
+  founderId?: string;
+  founderName?: string;
 }
 
 // ============================================
@@ -166,6 +188,21 @@ export interface SupporterMembership {
 
   // Status
   isFoundingMember: boolean;    // Joined during first month
+
+  // ── Market/Trading Fields (used by e-shares-store) ──
+  shares?: number;
+  averageCost?: number;
+  totalInvested?: number;
+  currentValue?: number;
+  unrealizedGain?: number;
+  unrealizedGainPercent?: number;
+  holderType?: 'FOUNDER' | 'INVESTOR';
+  firstPurchaseAt?: number;
+  lastPurchaseAt?: number;
+  isLocked?: boolean;
+  lockExpiry?: number;
+  brandId?: string;
+  brandName?: string;
 }
 
 // ============================================
@@ -174,17 +211,17 @@ export interface SupporterMembership {
 
 export interface CreditTransaction {
   id: string;
-  type: TransactionType;
+  type: TransactionType | 'BUY' | 'SELL' | 'DEPOSIT' | 'MINT';
 
   // Parties
-  communityId: string;
-  communityName: string;
+  communityId?: string;
+  communityName?: string;
   fromUserId?: string;
   toUserId?: string;
 
   // Details
-  credits: number;
-  amount: number;              // $ amount (for SUPPORT transactions)
+  credits?: number;
+  amount?: number;              // $ amount (for SUPPORT transactions)
 
   // Platform fee (on purchases only, NOT on transfers)
   platformFee: number;
@@ -195,6 +232,14 @@ export interface CreditTransaction {
 
   // Status
   status: 'COMPLETED' | 'PENDING' | 'REFUNDED';
+
+  // ── Market/Trading Fields (used by e-shares-store) ──
+  brandId?: string;
+  brandName?: string;
+  shares?: number;
+  pricePerShare?: number;
+  totalAmount?: number;
+  netAmount?: number;
 }
 
 // ============================================
@@ -202,22 +247,31 @@ export interface CreditTransaction {
 // ============================================
 
 export interface CommunityAgreement {
-  communityId: string;
-  creatorId: string;
+  communityId?: string;
+  creatorId?: string;
 
   // Agreement Version
   agreementVersion: string;
 
   // Key Acknowledgments (UTILITY-FOCUSED)
-  acknowledgedUtilityPurpose: boolean;      // Credits are for access/benefits
-  acknowledgedNotInvestment: boolean;       // This is not a securities offering
-  acknowledgedCommitmentPeriod: boolean;    // 1-year engagement commitment
-  acknowledgedPlatformFees: boolean;        // Platform fee structure
-  acknowledgedCommunityResponsibility: boolean; // Responsibility to supporters
+  acknowledgedUtilityPurpose?: boolean;      // Credits are for access/benefits
+  acknowledgedNotInvestment?: boolean;       // This is not a securities offering
+  acknowledgedCommitmentPeriod?: boolean;    // 1-year engagement commitment
+  acknowledgedPlatformFees?: boolean;        // Platform fee structure
+  acknowledgedCommunityResponsibility?: boolean; // Responsibility to supporters
 
   // Signature
-  creatorSignature: string;
+  creatorSignature?: string;
   signedAt: number;
+
+  // ── Market/Trading Fields (used by e-shares-store) ──
+  brandId?: string;
+  founderId?: string;
+  founderSignature?: string;
+  acknowledgedNoGuaranteedProfit?: boolean;
+  acknowledgedCommunitySupport?: boolean;
+  acknowledgedLockInPeriod?: boolean;
+  acknowledgedRiskDisclosure?: boolean;
 }
 
 // ============================================
@@ -242,11 +296,18 @@ export interface SupporterAgreement {
 // ============================================
 
 export interface PlatformStats {
-  totalCommunities: number;
-  totalSupporters: number;
-  totalCreatorsSupported: number;
-  creditsInCirculation: number;
-  platformFeesCollected: number;
+  totalCommunities?: number;
+  totalSupporters?: number;
+  totalCreatorsSupported?: number;
+  creditsInCirculation?: number;
+  platformFeesCollected?: number;
+
+  // ── Market Stats Fields (used by e-shares-store & page) ──
+  totalBrandsListed?: number;
+  totalMarketCap?: number;
+  totalVolume24h?: number;
+  totalInvestors?: number;
+  avgBrandGrowth?: number;
 }
 
 // ============================================
@@ -256,6 +317,7 @@ export interface PlatformStats {
 export const COMMUNITY_CONFIG = {
   // Creator setup
   MIN_SETUP_DEPOSIT: 100,              // $100 minimum to create community
+  MIN_DEPOSIT: 100,                    // Alias for MIN_SETUP_DEPOSIT
   CREDITS_PER_DOLLAR: 100,             // Fixed rate: $1 = 100 credits
 
   // Commitment period
@@ -272,6 +334,14 @@ export const COMMUNITY_CONFIG = {
 
   // Founding member window
   FOUNDING_MEMBER_WINDOW_MS: 30 * 24 * 60 * 60 * 1000,  // First 30 days
+
+  // ── Market/Trading Constants (used by e-shares-store & pages) ──
+  SHARES_PER_DOLLAR: 100,              // 100 shares per $1 deposited
+  FOUNDER_LOCK_PERIOD_MS: 365 * 24 * 60 * 60 * 1000,  // 1 year lock
+  PLATFORM_FEE_PER_SHARE: 0.00009,     // 0.009 cents per share per trade
+  MAX_PRICE_MULTIPLIER: 10,            // Max 10x base price
+  MIN_PRICE_MULTIPLIER: 0.1,           // Min 0.1x base price
+  MICRO_FLUCTUATION_PERCENT: 0.5,      // ±0.5% ticker fluctuation
 } as const;
 
 // ============================================
@@ -330,3 +400,30 @@ export type MarketStats = PlatformStats;
 
 /** @deprecated Use COMMUNITY_CONFIG instead */
 export const E_SHARES_CONFIG = COMMUNITY_CONFIG;
+
+// ============================================
+// TRADING TYPES (used by e-shares-store)
+// ============================================
+
+export interface BuyOrder {
+  id: string;
+  buyerId: string;
+  buyerName: string;
+  brandId: string;
+  shares: number;
+  pricePerShare: number;
+  totalAmount: number;
+  status: 'PENDING' | 'FILLED' | 'CANCELLED';
+  createdAt: number;
+}
+
+export interface SellOrder {
+  id: string;
+  sellerId: string;
+  brandId: string;
+  shares: number;
+  pricePerShare: number;
+  totalAmount: number;
+  status: 'PENDING' | 'FILLED' | 'CANCELLED';
+  createdAt: number;
+}

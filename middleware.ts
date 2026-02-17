@@ -1,16 +1,46 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 
 /**
- * Next.js Middleware - Security Headers
- *
- * Applies security headers to all matched responses.
+ * Next.js Middleware - Geo-Blocking + Security Headers
+ * 
+ * 1. Blocks US-based users (redirects to /restricted)
+ * 2. Applies security headers to all matched responses
  */
-export function middleware() {
-  const response = NextResponse.next();
+
+// Countries that are blocked from accessing the platform
+const BLOCKED_COUNTRIES = ['US'];
+
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
   // -------------------------------------------
-  // 1. Security Headers (applied to ALL routes)
+  // 0. Skip geo-block for static assets, API routes, and the restricted page itself
   // -------------------------------------------
+  const skipGeoBlock =
+    pathname.startsWith('/restricted') ||
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/');
+
+  // -------------------------------------------
+  // 1. Geo-blocking (Vercel provides country header)
+  // -------------------------------------------
+  if (!skipGeoBlock) {
+    const country = request.headers.get('x-vercel-ip-country') || '';
+    const bypassParam = request.nextUrl.searchParams.get('bypass');
+
+    // Allow bypass for development/testing (Peter's dev access)
+    const isDev = bypassParam === 'dev' || process.env.NODE_ENV === 'development';
+
+    if (BLOCKED_COUNTRIES.includes(country) && !isDev) {
+      const restrictedUrl = new URL('/restricted', request.url);
+      return NextResponse.redirect(restrictedUrl);
+    }
+  }
+
+  // -------------------------------------------
+  // 2. Security Headers (applied to ALL routes)
+  // -------------------------------------------
+  const response = NextResponse.next();
 
   // Prevent clickjacking - page cannot be embedded in iframes
   response.headers.set('X-Frame-Options', 'DENY');
@@ -36,9 +66,6 @@ export function middleware() {
   // Basic rate-limiting signal headers (informational for downstream proxies)
   response.headers.set('X-RateLimit-Policy', 'default');
 
-  // Route protection: Currently handled client-side via localStorage auth.
-  // TODO: Add server-side route protection once auth migrates to cookies/next-auth.
-
   return response;
 }
 
@@ -52,13 +79,6 @@ export function middleware() {
  */
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder files (images, fonts, etc.)
-     */
     '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot)$).*)',
   ],
 };
