@@ -341,6 +341,39 @@ export default function MyFeedsContent() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Instagram API Limitations Banner */}
+                      {selectedFeed.platform === 'instagram' && (
+                        <div className="api-limitations-banner">
+                          <div className="api-limitations-header">
+                            <span className="api-limitations-icon">⚠️</span>
+                            <strong>Instagram API Limitations</strong>
+                          </div>
+                          <div className="api-limitations-content">
+                            <div className="api-limitations-columns">
+                              <div className="api-limitations-column">
+                                <span className="column-title">✅ Available</span>
+                                <ul>
+                                  <li>Publish posts (Business account)</li>
+                                  <li>Schedule posts</li>
+                                  <li>Auto-comment (30/day)</li>
+                                  <li>Fetch analytics</li>
+                                </ul>
+                              </div>
+                              <div className="api-limitations-column">
+                                <span className="column-title">❌ Not Available</span>
+                                <ul>
+                                  <li>Auto-like (API blocked)</li>
+                                  <li>Auto-follow (API blocked)</li>
+                                  <li>Stories (API blocked)</li>
+                                  <li>DMs (requires approval)</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="automation-panel">
                         <div className="automation-status">
                           <button
@@ -408,9 +441,21 @@ export default function MyFeedsContent() {
                   Choose an account from the left panel to start managing your content
                 </p>
                 {feeds.length === 0 && (
-                  <p className="no-account-hint">
-                    No accounts connected yet. Click the + button to add your first account.
-                  </p>
+                  <>
+                    <p className="no-account-hint">
+                      No accounts connected yet. Connect your Instagram to get started.
+                    </p>
+                    <a
+                      href="/api/auth/signin/instagram"
+                      className="connect-instagram-btn"
+                    >
+                      <span className="connect-instagram-icon">📸</span>
+                      <span>Connect Instagram</span>
+                    </a>
+                    <p className="connect-requirement">
+                      Requires an Instagram Business or Creator account
+                    </p>
+                  </>
                 )}
               </div>
 

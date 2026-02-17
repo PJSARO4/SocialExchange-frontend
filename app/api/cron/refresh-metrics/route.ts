@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { query } from "@/app/lib/db";
 
@@ -8,8 +8,21 @@ export const dynamic = 'force-dynamic';
 /**
  * Cron route: refresh metrics for all connected feeds
  * Method: GET (can be triggered by external scheduler)
+ *
+ * Security: Validates CRON_SECRET to ensure only Vercel can trigger this.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Verify the request is from Vercel Cron
+  const authHeader = request.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+
   try {
     // Fetch all feeds that should be refreshed
     const feedsResult = await query<{

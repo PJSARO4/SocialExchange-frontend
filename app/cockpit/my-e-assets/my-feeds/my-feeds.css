@@ -14822,8 +14822,121 @@
   .settings-info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .limits-info-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================
+   API LIMITATIONS BANNER
+   Shows Instagram API restrictions honestly
+============================================ */
+
+.api-limitations-banner {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.api-limitations-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: #fbbf24;
+}
+
+.api-limitations-icon {
+  font-size: 1rem;
+}
+
+.api-limitations-content {
+  font-size: 0.75rem;
+  color: var(--tac-text-secondary);
+}
+
+.api-limitations-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.api-limitations-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.api-limitations-column .column-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--tac-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.api-limitations-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.api-limitations-column li {
+  font-size: 0.7rem;
+  color: var(--tac-text-secondary);
+  line-height: 1.4;
+}
+
+/* ============================================
+   CONNECT INSTAGRAM BUTTON
+   Prominent CTA for connecting account
+============================================ */
+
+.connect-instagram-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 20px rgba(131, 58, 180, 0.4);
+}
+
+.connect-instagram-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(131, 58, 180, 0.6);
+}
+
+.connect-instagram-icon {
+  font-size: 1.25rem;
+}
+
+.connect-requirement {
+  font-size: 0.75rem;
+  color: var(--tac-text-tertiary);
+  margin-top: 0.75rem;
+  font-style: italic;
+}
+
+/* Mobile responsive for API limitations */
+@media (max-width: 640px) {
+  .api-limitations-columns {
+    grid-template-columns: 1fr;
   }
 }

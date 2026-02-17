@@ -14,6 +14,8 @@ export const dynamic = 'force-dynamic';
  * 1. Check worker status
  * 2. Manually trigger job processing (for development/testing)
  * 3. Process a single job (useful for debugging)
+ *
+ * Security: Validates CRON_SECRET for batch mode (called by Vercel Cron).
  */
 
 // Track if the inline worker is running
@@ -21,7 +23,20 @@ let isInlineWorkerRunning = false;
 let processedCount = 0;
 let lastProcessedAt: Date | null = null;
 
-// GET - Get worker status
+/**
+ * Verify CRON_SECRET for protected endpoints
+ */
+function verifyCronSecret(request: NextRequest): boolean {
+  const authHeader = request.headers.get('authorization');
+  const cronSecret = process.env.CRON_SECRET;
+
+  // If no secret is configured, allow (dev mode)
+  if (!cronSecret) return true;
+
+  return authHeader === `Bearer ${cronSecret}`;
+}
+
+// GET - Get worker status (no auth needed, just status)
 export async function GET(request: NextRequest) {
   try {
     const queueStats = await jobQueue.getStats();
@@ -48,6 +63,14 @@ export async function POST(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const mode = searchParams.get('mode') || 'single';
   const maxJobs = parseInt(searchParams.get('max') || '10', 10);
+
+  // Require CRON_SECRET for batch mode (called by Vercel Cron)
+  if (mode === 'batch' && !verifyCronSecret(request)) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
 
   try {
     if (mode === 'single') {
