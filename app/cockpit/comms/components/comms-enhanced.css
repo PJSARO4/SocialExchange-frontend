@@ -306,3 +306,24 @@
   border-radius: 3px;
   cursor: pointer;
 }
+
+/* ============================================
+   RESPONSIVE — Mobile
+============================================ */
+@media (max-width: 480px) {
+  .global-chat-widget {
+    width: calc(100vw - 16px);
+    right: 8px;
+    left: 8px;
+    height: 420px;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .gcw-messages {
+    padding: 0.5rem;
+  }
+
+  .gcw-input-row {
+    padding: 0.5rem;
+  }
+}

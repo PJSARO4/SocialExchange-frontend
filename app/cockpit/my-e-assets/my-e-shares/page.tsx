@@ -18,10 +18,15 @@ import {
   getBrandById,
 } from './lib/e-shares-api';
 
+import { recordPricePoint } from './lib/e-shares-store';
+
+import { getWallet, deposit, withdraw, type Wallet, type WalletTransaction } from './lib/wallet-store';
+
 import UpperTicker from './components/UpperTicker';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import './e-shares.css';
 
-type TabType = 'marketplace' | 'portfolio' | 'list-brand';
+type TabType = 'marketplace' | 'portfolio' | 'wallet' | 'list-brand';
 
 export default function MyESharesPage() {
   const router = useRouter();
@@ -29,6 +34,7 @@ export default function MyESharesPage() {
   const [brands, setBrands] = useState<BrandListing[]>([]);
   const [holdings, setHoldings] = useState<ShareHolding[]>([]);
   const [stats, setStats] = useState<MarketStats | null>(null);
+  const [wallet, setWallet] = useState<Wallet | null>(null);
 
   // Demo user ID (in production this would come from auth)
   const currentUserId = 'demo-user-main';
@@ -45,17 +51,31 @@ export default function MyESharesPage() {
     setBrands(getPublicBrands());
     setHoldings(getMyHoldings(currentUserId));
     setStats(getMarketStats());
+    setWallet(getWallet(currentUserId));
   }
 
   /* -----------------------------------------
      LIVE PRICE FLUCTUATION (for ticker feel)
+     - Price updates every 6s (was 4s) to reduce render pressure
+     - localStorage recording every ~30s per brand (was ~40s)
   ----------------------------------------- */
   useEffect(() => {
+    let tickCount = 0;
     const interval = setInterval(() => {
+      tickCount++;
       setBrands((prev) =>
         prev.map((brand) => {
           const currentPrice = brand.pricePerShare ?? 0.01;
-          const { value, direction } = applyMicroFluctuation(currentPrice);
+          const { value, direction } = applyMicroFluctuation(
+            currentPrice,
+            brand.basePrice,
+            brand.engagement
+          );
+          // Record price point for history charts — only every 5th tick (~30s)
+          // and only one brand per tick to avoid localStorage thrashing
+          if (tickCount % 5 === 0 && brand.id === prev[tickCount % prev.length]?.id) {
+            recordPricePoint(brand.id, value);
+          }
           return {
             ...brand,
             pricePerShare: value,
@@ -64,7 +84,7 @@ export default function MyESharesPage() {
           } as BrandListing & { _direction?: string };
         })
       );
-    }, 4000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, []);
@@ -85,6 +105,7 @@ export default function MyESharesPage() {
      RENDER
   ----------------------------------------- */
   return (
+    <ErrorBoundary>
     <div className="e-shares-root">
       {/* Live Price Ticker */}
       <UpperTicker />
@@ -144,6 +165,16 @@ export default function MyESharesPage() {
           My Portfolio
         </button>
         <button
+          className={`e-shares-tab ${activeTab === 'wallet' ? 'active' : ''}`}
+          onClick={() => setActiveTab('wallet')}
+        >
+          Wallet {wallet && wallet.balance > 0 && (
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', opacity: 0.8 }}>
+              ${wallet.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          )}
+        </button>
+        <button
           className={`e-shares-tab ${activeTab === 'list-brand' ? 'active' : ''}`}
           onClick={() => setActiveTab('list-brand')}
         >
@@ -170,6 +201,14 @@ export default function MyESharesPage() {
         />
       )}
 
+      {activeTab === 'wallet' && (
+        <WalletView
+          wallet={wallet}
+          userId={currentUserId}
+          onUpdate={loadData}
+        />
+      )}
+
       {activeTab === 'list-brand' && (
         <ListBrandView
           onSuccess={() => {
@@ -180,6 +219,7 @@ export default function MyESharesPage() {
         />
       )}
     </div>
+    </ErrorBoundary>
   );
 }
 
@@ -415,6 +455,310 @@ function PortfolioView({
         </tbody>
       </table>
     </>
+  );
+}
+
+/* =========================================
+   WALLET VIEW
+========================================= */
+
+function WalletView({
+  wallet,
+  userId,
+  onUpdate,
+}: {
+  wallet: Wallet | null;
+  userId: string;
+  onUpdate: () => void;
+}) {
+  const [depositAmount, setDepositAmount] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [activeAction, setActiveAction] = useState<'deposit' | 'withdraw' | null>(null);
+
+  const balance = wallet?.balance ?? 0;
+  const transactions = wallet?.transactions ?? [];
+
+  function handleDeposit() {
+    const amount = parseFloat(depositAmount);
+    if (!amount || amount <= 0) {
+      setMessage({ type: 'error', text: 'Enter a valid amount' });
+      return;
+    }
+    const result = deposit(userId, amount);
+    if (result.success) {
+      setMessage({ type: 'success', text: `Deposited $${amount.toFixed(2)} successfully` });
+      setDepositAmount('');
+      setActiveAction(null);
+      onUpdate();
+    } else {
+      setMessage({ type: 'error', text: result.error || 'Deposit failed' });
+    }
+  }
+
+  function handleWithdraw() {
+    const amount = parseFloat(withdrawAmount);
+    if (!amount || amount <= 0) {
+      setMessage({ type: 'error', text: 'Enter a valid amount' });
+      return;
+    }
+    const result = withdraw(userId, amount);
+    if (result.success) {
+      setMessage({ type: 'success', text: `Withdrew $${amount.toFixed(2)} (10% fee applied)` });
+      setWithdrawAmount('');
+      setActiveAction(null);
+      onUpdate();
+    } else {
+      setMessage({ type: 'error', text: result.error || 'Withdrawal failed' });
+    }
+  }
+
+  return (
+    <div style={{ maxWidth: '800px' }}>
+      {/* Balance Card */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(63, 255, 220, 0.08), rgba(99, 102, 241, 0.08))',
+        border: '1px solid rgba(63, 255, 220, 0.2)',
+        borderRadius: '12px',
+        padding: '2rem',
+        marginBottom: '1.5rem',
+      }}>
+        <div style={{ fontSize: '0.75rem', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>
+          Available Balance
+        </div>
+        <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#3fffdc', marginBottom: '0.5rem' }}>
+          ${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem', color: '#6b7280' }}>
+          <span>Deposited: ${(wallet?.totalDeposited ?? 0).toFixed(2)}</span>
+          <span>Withdrawn: ${(wallet?.totalWithdrawn ?? 0).toFixed(2)}</span>
+        </div>
+
+        {/* Action Buttons */}
+        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+          <button
+            className="e-shares-btn primary"
+            onClick={() => { setActiveAction(activeAction === 'deposit' ? null : 'deposit'); setMessage(null); }}
+            style={{ flex: 1 }}
+          >
+            Deposit Funds
+          </button>
+          <button
+            className="e-shares-btn secondary"
+            onClick={() => { setActiveAction(activeAction === 'withdraw' ? null : 'withdraw'); setMessage(null); }}
+            style={{ flex: 1 }}
+          >
+            Withdraw
+          </button>
+        </div>
+      </div>
+
+      {/* Message */}
+      {message && (
+        <div style={{
+          padding: '0.75rem 1rem',
+          borderRadius: '8px',
+          marginBottom: '1rem',
+          fontSize: '0.875rem',
+          background: message.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+          border: `1px solid ${message.type === 'success' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+          color: message.type === 'success' ? '#10b981' : '#ef4444',
+        }}>
+          {message.text}
+        </div>
+      )}
+
+      {/* Deposit Form */}
+      {activeAction === 'deposit' && (
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.02)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '10px',
+          padding: '1.5rem',
+          marginBottom: '1.5rem',
+        }}>
+          <h3 style={{ color: '#fff', marginBottom: '1rem', fontSize: '1.1rem' }}>Deposit Funds</h3>
+          <p style={{ color: '#9ca3af', fontSize: '0.8rem', marginBottom: '1rem' }}>
+            Add funds to your wallet to buy E-Shares. Minimum deposit: $10.
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end' }}>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }}>$</span>
+              <input
+                type="number"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                placeholder="100.00"
+                min="10"
+                step="0.01"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  paddingLeft: '1.5rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                }}
+              />
+            </div>
+            <button className="e-shares-btn primary" onClick={handleDeposit}>
+              Deposit
+            </button>
+          </div>
+          {/* Quick amount buttons */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+            {[25, 50, 100, 250, 500].map((amt) => (
+              <button
+                key={amt}
+                onClick={() => setDepositAmount(String(amt))}
+                style={{
+                  padding: '0.4rem 0.75rem',
+                  background: depositAmount === String(amt) ? 'rgba(63, 255, 220, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                  border: `1px solid ${depositAmount === String(amt) ? 'rgba(63, 255, 220, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
+                  borderRadius: '4px',
+                  color: depositAmount === String(amt) ? '#3fffdc' : '#9ca3af',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                }}
+              >
+                ${amt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Form */}
+      {activeAction === 'withdraw' && (
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.02)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '10px',
+          padding: '1.5rem',
+          marginBottom: '1.5rem',
+        }}>
+          <h3 style={{ color: '#fff', marginBottom: '1rem', fontSize: '1.1rem' }}>Withdraw Funds</h3>
+          <p style={{ color: '#9ca3af', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+            Withdraw funds from your wallet. A 10% platform fee applies.
+          </p>
+          <p style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '1rem' }}>
+            Available: ${balance.toFixed(2)} | Max withdrawal: ${balance.toFixed(2)}
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end' }}>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }}>$</span>
+              <input
+                type="number"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                placeholder="50.00"
+                min="1"
+                step="0.01"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  paddingLeft: '1.5rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontSize: '1rem',
+                }}
+              />
+            </div>
+            <button className="e-shares-btn secondary" onClick={handleWithdraw}>
+              Withdraw
+            </button>
+          </div>
+          {withdrawAmount && parseFloat(withdrawAmount) > 0 && (
+            <p style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: '0.5rem' }}>
+              Fee: ${(parseFloat(withdrawAmount) * 0.10).toFixed(2)} | You receive: ${(parseFloat(withdrawAmount) * 0.90).toFixed(2)}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Transaction Ledger */}
+      <div>
+        <h3 style={{ color: '#fff', marginBottom: '1rem', fontSize: '1.1rem' }}>
+          Transaction History
+        </h3>
+        {transactions.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '2rem',
+            color: '#6b7280',
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            borderRadius: '8px',
+          }}>
+            No transactions yet. Deposit funds to start trading.
+          </div>
+        ) : (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '10px',
+            overflow: 'hidden',
+          }}>
+            {transactions.slice().reverse().slice(0, 25).map((tx) => (
+              <div
+                key={tx.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.75rem 1rem',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.9rem',
+                    background:
+                      tx.type === 'deposit' ? 'rgba(16, 185, 129, 0.15)' :
+                      tx.type === 'withdrawal' ? 'rgba(239, 68, 68, 0.15)' :
+                      tx.type === 'buy' ? 'rgba(99, 102, 241, 0.15)' :
+                      tx.type === 'sell' ? 'rgba(245, 158, 11, 0.15)' :
+                      'rgba(156, 163, 175, 0.15)',
+                    color:
+                      tx.type === 'deposit' ? '#10b981' :
+                      tx.type === 'withdrawal' ? '#ef4444' :
+                      tx.type === 'buy' ? '#6366f1' :
+                      tx.type === 'sell' ? '#f59e0b' :
+                      '#9ca3af',
+                  }}>
+                    {tx.type === 'deposit' ? '+' : tx.type === 'withdrawal' ? '-' : tx.type === 'buy' ? 'B' : tx.type === 'sell' ? 'S' : '?'}
+                  </div>
+                  <div>
+                    <div style={{ color: '#e5e7eb', fontSize: '0.875rem' }}>{tx.description}</div>
+                    <div style={{ color: '#6b7280', fontSize: '0.7rem' }}>
+                      {new Date(tx.timestamp).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+                <div style={{
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  color: tx.amount >= 0 ? '#10b981' : '#ef4444',
+                  fontVariantNumeric: 'tabular-nums',
+                }}>
+                  {tx.amount >= 0 ? '+' : ''}${Math.abs(tx.amount).toFixed(2)}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

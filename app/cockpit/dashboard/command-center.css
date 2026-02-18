@@ -341,9 +341,10 @@
 
 .cc-stat-card {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 1.25rem;
+  min-height: 120px;
   background: linear-gradient(
     135deg,
     rgba(0, 240, 255, 0.06) 0%,
@@ -386,21 +387,27 @@
 .cc-stat-icon {
   font-size: 1.5rem;
   opacity: 0.85;
+  flex-shrink: 0;
 }
 
 .cc-stat-content {
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 0.125rem;
+  gap: 0.25rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .cc-stat-value {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #ffffff;
-  line-height: 1.1;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cc-stat-label {
@@ -409,15 +416,23 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.38);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cc-stat-change {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  display: block;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
+  line-height: 1.3;
+  margin-top: auto;
+  padding-top: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-wrap: break-word;
 }
 
 .cc-stat-change.up,
@@ -767,18 +782,27 @@
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
 }
 
 .cc-market-name {
   font-size: 0.8125rem;
   font-weight: 500;
   color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cc-market-meta {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.6875rem;
   color: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cc-market-price {
@@ -786,6 +810,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 0.125rem;
+  flex-shrink: 0;
+  margin-left: 0.75rem;
 }
 
 .cc-market-value {
@@ -793,12 +819,14 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: #00f0ff;
+  white-space: nowrap;
 }
 
 .cc-market-change {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.6875rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .cc-market-change.up   { color: #00ff88; }
@@ -849,11 +877,17 @@
 }
 
 .cc-shares-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 0.75rem;
+  padding: 0.75rem 0.5rem;
+  min-height: 64px;
   background: rgba(0, 240, 255, 0.03);
   border: 1px solid rgba(0, 240, 255, 0.06);
   border-radius: 8px;
+  overflow: hidden;
 }
 
 .cc-shares-value {
@@ -862,14 +896,26 @@
   font-size: 1.125rem;
   font-weight: 700;
   color: #00f0ff;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 
 .cc-shares-label {
+  display: block;
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   font-size: 0.5625rem;
   color: rgba(255, 255, 255, 0.35);
   text-transform: uppercase;
   letter-spacing: 0.15em;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .cc-shares-communities {
@@ -1050,6 +1096,10 @@
     grid-template-columns: repeat(3, 1fr);
   }
 
+  .cc-stat-card {
+    min-height: 110px;
+  }
+
   .cc-stat-value {
     font-size: 1.5rem;
   }
@@ -1146,6 +1196,54 @@
   .cc-welcome {
     margin: 0.75rem;
     padding: 1.25rem;
+  }
+}
+
+/* ---------------------------------------------------
+   RESPONSIVE — Extra-Small (max-width: 375px)
+--------------------------------------------------- */
+@media (max-width: 375px) {
+  .cc-topbar {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .cc-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  .cc-stat-value {
+    font-size: 1rem;
+  }
+
+  .cc-stat-label {
+    font-size: 0.6rem;
+  }
+
+  .cc-main-grid,
+  .cc-content {
+    padding: 0 0.75rem 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .cc-nav-cards {
+    gap: 0.5rem;
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  .cc-shares-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .cc-welcome {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+
+  .cc-welcome h1 {
+    font-size: 1.25rem;
   }
 }
 

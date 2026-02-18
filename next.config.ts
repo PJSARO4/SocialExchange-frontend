@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // TODO: Set to false once Prisma module resolution is fixed
+  // ~70 type errors remain (Prisma schema mismatches in API routes).
+  // Fix on Day 4 pre-deploy. UI pages are clean.
   typescript: {
     ignoreBuildErrors: true,
   },

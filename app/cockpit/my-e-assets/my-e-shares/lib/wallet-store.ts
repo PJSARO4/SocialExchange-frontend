@@ -90,20 +90,20 @@ export function withdraw(userId: string, amount: number): { success: boolean; wa
   const wallet = wallets[userId];
   if (!wallet) return { success: false, wallet: getWallet(userId), error: 'Wallet not found' };
 
-  const fee = amount * 0.10;
-  const totalDeducted = amount + fee;
-
-  if (wallet.balance < totalDeducted) {
-    return { success: false, wallet, error: `Insufficient balance. Need $${totalDeducted.toFixed(2)} (includes 10% fee)` };
+  if (wallet.balance < amount) {
+    return { success: false, wallet, error: `Insufficient balance. You have $${wallet.balance.toFixed(2)}` };
   }
 
-  wallet.balance -= totalDeducted;
-  wallet.totalWithdrawn += amount;
+  const fee = Math.round(amount * 0.10 * 100) / 100; // Round to cents
+  const netReceived = Math.round((amount - fee) * 100) / 100;
+
+  wallet.balance -= amount;
+  wallet.totalWithdrawn += netReceived;
   wallet.transactions.push({
     id: crypto.randomUUID(),
     type: 'withdrawal',
-    amount: -totalDeducted,
-    description: `Withdrew $${amount.toFixed(2)} (fee: $${fee.toFixed(2)})`,
+    amount: -amount,
+    description: `Withdrew $${netReceived.toFixed(2)} (fee: $${fee.toFixed(2)})`,
     timestamp: Date.now(),
   });
 

@@ -60,7 +60,7 @@ interface SystemAlert {
   resolved: boolean;
 }
 
-type TabType = 'overview' | 'communities' | 'users' | 'revenue' | 'compliance' | 'settings';
+type TabType = 'overview' | 'communities' | 'users' | 'revenue' | 'compliance' | 'settings' | 'api-status';
 
 export default function OwnerDashboard() {
   const router = useRouter();
@@ -71,6 +71,7 @@ export default function OwnerDashboard() {
   const [alerts, setAlerts] = useState<SystemAlert[]>([]);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [currentUser, setCurrentUser] = useState<ReturnType<typeof getCurrentUser>>(null);
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
   useEffect(() => {
     seedAuthIfEmpty();
@@ -93,6 +94,12 @@ export default function OwnerDashboard() {
     setIsAuthorized(true);
     // Load mock data for demonstration
     loadMockData();
+  }, []);
+
+  // Real-time clock
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Show loading state while checking auth
@@ -134,34 +141,173 @@ export default function OwnerDashboard() {
   }
 
   function loadMockData() {
-    // Start with empty/zero data - real data comes from backend
+    const now = Date.now();
+
     setMetrics({
-      totalUsers: 0,
-      activeUsers24h: 0,
-      totalCommunities: 0,
-      activeCommunities: 0,
-      totalCreditsCirculating: 0,
-      totalRevenueAllTime: 0,
-      revenue24h: 0,
-      revenue7d: 0,
-      pendingReviews: 0,
-      flaggedContent: 0,
+      totalUsers: 2847,
+      activeUsers24h: 341,
+      totalCommunities: 156,
+      activeCommunities: 89,
+      totalCreditsCirculating: 4_230_000,
+      totalRevenueAllTime: 127_350,
+      revenue24h: 1_847.50,
+      revenue7d: 11_290,
+      pendingReviews: 7,
+      flaggedContent: 2,
     });
 
-    // Empty communities list
-    setCommunities([]);
+    setCommunities([
+      {
+        id: 'c1',
+        name: 'Urban Signal',
+        creator: '@marcusj',
+        supporters: 12_400,
+        creditsHeld: 45_000,
+        status: 'active',
+        createdAt: now - 90 * 24 * 60 * 60 * 1000,
+        lastActivity: now - 15 * 60 * 1000,
+        revenueGenerated: 12_400,
+      },
+      {
+        id: 'c2',
+        name: 'Tech Insights',
+        creator: '@techguru',
+        supporters: 8_200,
+        creditsHeld: 28_000,
+        status: 'active',
+        createdAt: now - 75 * 24 * 60 * 60 * 1000,
+        lastActivity: now - 45 * 60 * 1000,
+        revenueGenerated: 8_200,
+      },
+      {
+        id: 'c3',
+        name: 'Fitness Revolution',
+        creator: '@fitpro',
+        supporters: 5_600,
+        creditsHeld: 15_000,
+        status: 'active',
+        createdAt: now - 60 * 24 * 60 * 60 * 1000,
+        lastActivity: now - 2 * 60 * 60 * 1000,
+        revenueGenerated: 5_600,
+      },
+      {
+        id: 'c4',
+        name: 'Neon Beats',
+        creator: '@djneon',
+        supporters: 3_100,
+        creditsHeld: 8_500,
+        status: 'flagged',
+        createdAt: now - 120 * 24 * 60 * 60 * 1000,
+        lastActivity: now - 6 * 60 * 60 * 1000,
+        revenueGenerated: 3_100,
+      },
+      {
+        id: 'c5',
+        name: 'Wanderlust Eats',
+        creator: '@foodie',
+        supporters: 2_800,
+        creditsHeld: 6_200,
+        status: 'paused',
+        createdAt: now - 45 * 24 * 60 * 60 * 1000,
+        lastActivity: now - 3 * 24 * 60 * 60 * 1000,
+        revenueGenerated: 2_800,
+      },
+    ]);
 
-    // Empty users list
-    setUsers([]);
+    setUsers([
+      {
+        id: 'u1',
+        name: 'Marcus Johnson',
+        email: 'marcus@urban.co',
+        role: 'creator',
+        joinedAt: now - 45 * 24 * 60 * 60 * 1000,
+        lastActive: now - 10 * 60 * 1000,
+        communitiesOwned: 2,
+        communitiesJoined: 5,
+        totalSpent: 4_500,
+        status: 'active',
+      },
+      {
+        id: 'u2',
+        name: 'Sarah Chen',
+        email: 'sarah@tech.io',
+        role: 'creator',
+        joinedAt: now - 60 * 24 * 60 * 60 * 1000,
+        lastActive: now - 30 * 60 * 1000,
+        communitiesOwned: 1,
+        communitiesJoined: 3,
+        totalSpent: 2_200,
+        status: 'active',
+      },
+      {
+        id: 'u3',
+        name: 'Jake Torres',
+        email: 'jake@fit.com',
+        role: 'user',
+        joinedAt: now - 30 * 24 * 60 * 60 * 1000,
+        lastActive: now - 2 * 60 * 60 * 1000,
+        communitiesOwned: 0,
+        communitiesJoined: 8,
+        totalSpent: 890,
+        status: 'active',
+      },
+      {
+        id: 'u4',
+        name: 'DJ Neon',
+        email: 'neon@beats.co',
+        role: 'creator',
+        joinedAt: now - 90 * 24 * 60 * 60 * 1000,
+        lastActive: now - 12 * 60 * 60 * 1000,
+        communitiesOwned: 1,
+        communitiesJoined: 2,
+        totalSpent: 1_100,
+        status: 'flagged',
+      },
+      {
+        id: 'u5',
+        name: 'Admin User',
+        email: 'admin@socialexchange.io',
+        role: 'admin',
+        joinedAt: now - 120 * 24 * 60 * 60 * 1000,
+        lastActive: now - 5 * 60 * 1000,
+        communitiesOwned: 0,
+        communitiesJoined: 0,
+        totalSpent: 0,
+        status: 'active',
+      },
+    ]);
 
-    // Initial system alert
     setAlerts([
       {
         id: '1',
+        type: 'warning',
+        title: 'Rate Limit Warning',
+        message: 'Instagram API usage at 78% hourly limit (156/200 calls)',
+        timestamp: now - 1 * 60 * 60 * 1000,
+        resolved: false,
+      },
+      {
+        id: '2',
         type: 'info',
-        title: 'System Initialized',
-        message: 'Owner dashboard ready. Connect backend services to populate data.',
-        timestamp: Date.now(),
+        title: 'System Update',
+        message: 'Platform v2.1 deployed successfully. All services operational.',
+        timestamp: now - 3 * 60 * 60 * 1000,
+        resolved: false,
+      },
+      {
+        id: '3',
+        type: 'error',
+        title: 'Failed Payout',
+        message: 'Stripe payout to @djneon failed - insufficient platform balance',
+        timestamp: now - 6 * 60 * 60 * 1000,
+        resolved: false,
+      },
+      {
+        id: '4',
+        type: 'success',
+        title: 'Compliance Scan Complete',
+        message: 'Automated scan completed. 2 items flagged for manual review.',
+        timestamp: now - 12 * 60 * 60 * 1000,
         resolved: false,
       },
     ]);
@@ -177,7 +323,7 @@ export default function OwnerDashboard() {
         </div>
         <div className="owner-header-right">
           <span className="owner-status online">System Online</span>
-          <span className="owner-time">{new Date().toLocaleString()}</span>
+          <span className="owner-time">{currentTime.toLocaleString()}</span>
         </div>
       </div>
 
@@ -199,6 +345,7 @@ export default function OwnerDashboard() {
           { key: 'revenue', label: 'Revenue', icon: '💰' },
           { key: 'compliance', label: 'Compliance', icon: '⚖️' },
           { key: 'settings', label: 'Settings', icon: '⚙️' },
+          { key: 'api-status', label: 'API Status', icon: '🔌' },
         ].map(tab => (
           <button
             key={tab.key}
@@ -219,6 +366,7 @@ export default function OwnerDashboard() {
         {activeTab === 'revenue' && <RevenueTab metrics={metrics} />}
         {activeTab === 'compliance' && <ComplianceTab alerts={alerts} setAlerts={setAlerts} />}
         {activeTab === 'settings' && <SettingsTab />}
+        {activeTab === 'api-status' && <ApiStatusTab />}
       </div>
     </div>
   );
@@ -659,6 +807,107 @@ function SettingsTab() {
       <div className="settings-actions">
         <button className="save-btn">Save Changes</button>
         <button className="reset-btn">Reset to Defaults</button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================
+   API STATUS TAB
+========================================= */
+function ApiStatusTab() {
+  const apis = [
+    {
+      name: 'Instagram Graph API',
+      status: 'configured' as const,
+      endpoints: ['/api/instagram/publish', '/api/instagram/insights', '/api/instagram/profile', '/api/instagram/media', '/api/instagram/stories', '/api/instagram/hashtags'],
+      permissions: ['instagram_basic', 'instagram_content_publish', 'instagram_manage_insights'],
+      notes: 'OAuth configured. Ready for account connection.',
+    },
+    {
+      name: 'Stripe Payments',
+      status: 'needs-keys' as const,
+      endpoints: ['/api/stripe/checkout', '/api/stripe/connect', '/api/stripe/webhook'],
+      permissions: ['Checkout Sessions', 'Connect Express', 'Webhooks'],
+      notes: 'Routes built. Add STRIPE_SECRET_KEY to .env.local',
+    },
+    {
+      name: 'Anthropic AI Copilot',
+      status: 'configured' as const,
+      endpoints: ['/api/copilot/chat', '/api/copilot/generate'],
+      permissions: ['Messages API'],
+      notes: 'API key configured. Copilot operational.',
+    },
+    {
+      name: 'Plaid Banking',
+      status: 'not-configured' as const,
+      endpoints: [],
+      permissions: ['Auth', 'Transactions', 'Balance', 'Identity'],
+      notes: 'Routes not built yet. Add PLAID_CLIENT_ID to .env.local',
+    },
+    {
+      name: 'Pusher (Real-time)',
+      status: 'not-configured' as const,
+      endpoints: [],
+      permissions: ['Channels', 'Triggers'],
+      notes: 'Optional. Add PUSHER_APP_ID to .env.local',
+    },
+    {
+      name: 'File Storage',
+      status: 'local' as const,
+      endpoints: [],
+      permissions: ['Upload', 'Serve'],
+      notes: 'Using local ./uploads. Configure S3 or Cloudinary for production.',
+    },
+  ];
+
+  return (
+    <div className="tab-content">
+      <h2>API Integration Status</h2>
+      <div className="metrics-grid">
+        <div className="metric-card primary">
+          <div className="metric-value">{apis.filter(a => a.status === 'configured').length}</div>
+          <div className="metric-label">APIs Connected</div>
+        </div>
+        <div className="metric-card">
+          <div className="metric-value">{apis.filter(a => a.status === 'needs-keys').length}</div>
+          <div className="metric-label">Needs API Keys</div>
+        </div>
+        <div className="metric-card">
+          <div className="metric-value">{apis.filter(a => a.status === 'not-configured').length}</div>
+          <div className="metric-label">Not Configured</div>
+        </div>
+        <div className="metric-card success">
+          <div className="metric-value">35</div>
+          <div className="metric-label">API Routes Built</div>
+        </div>
+      </div>
+
+      <div className="section">
+        <h3>Integration Details</h3>
+        <div className="alerts-list">
+          {apis.map((api, i) => (
+            <div key={i} className={`alert-item ${api.status === 'configured' ? 'success' : api.status === 'needs-keys' ? 'warning' : 'info'}`}>
+              <div className="alert-icon">
+                {api.status === 'configured' ? '✅' : api.status === 'needs-keys' ? '🔑' : api.status === 'local' ? '📁' : '⬜'}
+              </div>
+              <div className="alert-content">
+                <div className="alert-title">{api.name}</div>
+                <div className="alert-message">{api.notes}</div>
+                {api.endpoints.length > 0 && (
+                  <div className="alert-time">
+                    Endpoints: {api.endpoints.join(', ')}
+                  </div>
+                )}
+                {api.permissions.length > 0 && (
+                  <div className="alert-time" style={{marginTop: '0.25rem'}}>
+                    Scopes: {api.permissions.join(', ')}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

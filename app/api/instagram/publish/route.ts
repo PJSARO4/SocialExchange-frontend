@@ -60,7 +60,7 @@ async function createMediaContainer(params: PublishRequest): Promise<string> {
     if (caption) containerParams.caption = caption;
   }
 
-  const url = `https://graph.facebook.com/v18.0/${instagram_user_id}/media`;
+  const url = `https://graph.facebook.com/v21.0/${instagram_user_id}/media`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -79,7 +79,7 @@ async function createMediaContainer(params: PublishRequest): Promise<string> {
 
 // Step 2: Check container status (for videos, this is important)
 async function checkContainerStatus(containerId: string, accessToken: string): Promise<string> {
-  const url = `https://graph.facebook.com/v18.0/${containerId}?fields=status_code&access_token=${accessToken}`;
+  const url = `https://graph.facebook.com/v21.0/${containerId}?fields=status_code&access_token=${accessToken}`;
 
   const response = await fetch(url);
   const data = await response.json();
@@ -93,7 +93,7 @@ async function checkContainerStatus(containerId: string, accessToken: string): P
 
 // Step 3: Publish the container
 async function publishMedia(containerId: string, instagramUserId: string, accessToken: string): Promise<string> {
-  const url = `https://graph.facebook.com/v18.0/${instagramUserId}/media_publish`;
+  const url = `https://graph.facebook.com/v21.0/${instagramUserId}/media_publish`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -213,7 +213,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // Get content publishing limit
-    const url = `https://graph.facebook.com/v18.0/${instagramUserId}/content_publishing_limit?fields=quota_usage,config&access_token=${accessToken}`;
+    const url = `https://graph.facebook.com/v21.0/${instagramUserId}/content_publishing_limit?fields=quota_usage,config&access_token=${accessToken}`;
 
     const response = await fetch(url);
     const data = await response.json();

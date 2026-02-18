@@ -1,8 +1,5 @@
 'use client';
 
-// Force dynamic rendering - prevent build-time pre-rendering
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -29,6 +26,27 @@ export default function LoginPage() {
       router.push('/cockpit/dashboard');
     }
   }, [router]);
+
+  const handleDemoLogin = async () => {
+    setIsLoading(true);
+    setGeneralError('');
+    setErrors({});
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const result = login({ email: 'demo@example.com', password: 'Demo@2024!User' });
+    setIsLoading(false);
+    if (result.success) {
+      router.push('/cockpit/dashboard');
+    } else {
+      // If demo login fails, reset auth data and try again
+      forceResetAuth();
+      const retry = login({ email: 'demo@example.com', password: 'Demo@2024!User' });
+      if (retry.success) {
+        router.push('/cockpit/dashboard');
+      } else {
+        setGeneralError('Demo login failed. Please try again.');
+      }
+    }
+  };
 
   const handleResetDemo = () => {
     forceResetAuth();
@@ -186,14 +204,9 @@ export default function LoginPage() {
               />
               <span className="auth-checkbox-text">Remember me for 30 days</span>
             </label>
-            <button
-              type="button"
-              className="auth-link"
-              onClick={() => alert('Password reset is not yet available. Use the demo credentials below or reset demo data.')}
-              style={{ background: 'none', border: 'none', padding: 0, font: 'inherit' }}
-            >
+            <Link href="/auth/forgot-password" className="auth-link">
               Forgot password?
-            </button>
+            </Link>
           </div>
 
           <button
@@ -215,6 +228,28 @@ export default function LoginPage() {
         <div className="auth-divider">
           <span>or</span>
         </div>
+
+        <button
+          type="button"
+          onClick={handleDemoLogin}
+          disabled={isLoading}
+          style={{
+            width: '100%',
+            padding: '12px',
+            background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05))',
+            border: '1px solid rgba(0, 255, 136, 0.4)',
+            borderRadius: '8px',
+            color: '#00ff88',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 200ms ease',
+            marginBottom: '16px',
+            letterSpacing: '0.05em',
+          }}
+        >
+          {isLoading ? 'Signing in...' : '⚡ Demo Login (One Click)'}
+        </button>
 
         <div className="auth-alternate-actions">
           <Link href="/auth/signup" className="auth-alternate-btn">

@@ -519,6 +519,22 @@ export function forceResetAuth(): void {
       createdAt: now,
       updatedAt: now,
     },
+    // Admin account (shown on login page)
+    {
+      id: 'admin-001',
+      email: 'admin@socialexchange.io',
+      username: 'sxadmin',
+      displayName: 'SX Admin',
+      role: 'admin',
+      passwordHash: simpleHash('SocialX@2024!Admin'),
+      twoFactorEnabled: false,
+      isVerified: true,
+      isActive: true,
+      isBanned: false,
+      failedLoginAttempts: 0,
+      createdAt: now,
+      updatedAt: now,
+    },
     // PJ's Owner Account
     {
       id: 'pj-owner-001',
@@ -555,10 +571,11 @@ export function repairAuthIfNeeded(): void {
 
     // Check if demo user exists and has valid hash
     const demoUser = users.find(u => u.email === 'demo@example.com');
+    const adminUser = users.find(u => u.email === 'admin@socialexchange.io');
     const pjUser = users.find(u => u.email === 'pjsaro4@gmail.com');
 
     // If critical users are missing, repair
-    if (!demoUser || !pjUser) {
+    if (!demoUser || !adminUser || !pjUser) {
       console.log('⚠️ Auth data corrupted or incomplete, repairing...');
       forceResetAuth();
     }

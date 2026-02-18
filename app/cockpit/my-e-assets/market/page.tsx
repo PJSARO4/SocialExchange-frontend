@@ -30,6 +30,7 @@ import {
   getTransactionsByBuyer,
   getTransactionsBySeller,
 } from './lib/escrow-store';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import './components/escrow/escrow.css';
 import './market.css';
 
@@ -119,6 +120,7 @@ export default function MarketplacePage() {
   };
 
   return (
+    <ErrorBoundary>
     <div className="market-root">
       {/* Header */}
       <header className="market-header">
@@ -588,6 +590,7 @@ export default function MarketplacePage() {
         />
       )}
     </div>
+    </ErrorBoundary>
   );
 }
 

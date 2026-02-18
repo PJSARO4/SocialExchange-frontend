@@ -21,6 +21,7 @@ export default function SharePriceChart({ brandId, currentPrice, basePrice }: Sh
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
   const [timeRange, setTimeRange] = useState<'1H' | '1D' | '1W' | '1M' | 'ALL'>('1D');
 
+  // Load historical data only when brand or time range changes (NOT on every price tick)
   useEffect(() => {
     const transactions = getTransactionsByBrand(brandId);
     const points: PricePoint[] = [];
@@ -72,7 +73,23 @@ export default function SharePriceChart({ brandId, currentPrice, basePrice }: Sh
       : points.filter(p => now - p.timestamp <= ranges[timeRange]);
 
     setPriceHistory(filtered.length > 0 ? filtered : points);
-  }, [brandId, currentPrice, basePrice, timeRange]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brandId, basePrice, timeRange]);
+
+  // Append live price point without re-processing entire history
+  useEffect(() => {
+    setPriceHistory(prev => {
+      if (prev.length === 0) return prev;
+      const updated = [...prev];
+      // Replace the last point (live price) with current price
+      updated[updated.length - 1] = {
+        timestamp: Date.now(),
+        price: currentPrice,
+        volume: 0,
+      };
+      return updated;
+    });
+  }, [currentPrice]);
 
   const priceChange = priceHistory.length >= 2
     ? priceHistory[priceHistory.length - 1].price - priceHistory[0].price

@@ -739,3 +739,47 @@
     text-align: center;
   }
 }
+
+@media (max-width: 375px) {
+  .auth-container {
+    padding: 0.75rem;
+  }
+
+  .auth-card {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+
+  .auth-title {
+    font-size: 1.25rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .auth-input {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .auth-submit-btn {
+    padding: 0.875rem;
+    font-size: 0.875rem;
+    min-height: 48px;
+  }
+
+  .auth-logo-text {
+    font-size: 0.8rem;
+  }
+
+  .auth-demo-credentials {
+    font-size: 0.7rem;
+  }
+
+  .auth-demo-email,
+  .auth-demo-password {
+    font-size: 0.65rem;
+    word-break: break-all;
+  }
+}

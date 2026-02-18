@@ -190,59 +190,112 @@ body {
 /* ================================================================
    5. TICKER — HOLOGRAPHIC GLASS
    ================================================================ */
-.ticker {
-  max-width: 640px;
+/* ============================================
+   ACTIVITY LIGHTBAR — reactive ambient strip
+============================================ */
+
+.activity-lightbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 200;
+  pointer-events: none;
   overflow: hidden;
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 8%,
-    black 92%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 8%,
-    black 92%,
-    transparent 100%
-  );
 }
 
-.ticker-track {
+.lightbar-strip {
   display: flex;
-  gap: 28px;
-  white-space: nowrap;
-  animation: ticker-scroll 35s linear infinite;
+  width: 100%;
+  height: 100%;
+  gap: 0;
 }
 
-.ticker-item {
+.lightbar-segment {
+  flex: 1;
+  height: 100%;
+  transition: opacity 0.1s ease;
+  will-change: opacity, box-shadow;
+}
+
+.lightbar-reflection {
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(180deg, rgba(63, 255, 220, 0.04), transparent);
+  pointer-events: none;
+}
+
+/* ============================================
+   LIVE PULSE — minimalist activity readout
+============================================ */
+
+.live-pulse {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 440px;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.live-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #3fffdc;
+  box-shadow: 0 0 6px rgba(63, 255, 220, 0.5);
+  animation: lp-blink 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.live-pulse-content {
   display: flex;
   align-items: center;
   gap: 6px;
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.05em;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.ticker-symbol {
-  color: var(--text-muted);
-  font-weight: 500;
+.live-pulse-content.fading {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
-.ticker-price.up {
-  color: var(--green-signal);
-  text-shadow: 0 0 6px rgba(0, 255, 136, 0.3);
+.live-pulse-icon {
+  font-size: 10px;
+  flex-shrink: 0;
 }
 
-.ticker-price.down {
-  color: var(--red-signal);
-  text-shadow: 0 0 6px rgba(255, 0, 110, 0.3);
+.live-pulse-region {
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
 }
 
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+.live-pulse-sep {
+  color: rgba(255, 255, 255, 0.15);
+  font-size: 8px;
+}
+
+.live-pulse-text {
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 400;
+}
+
+@keyframes lp-blink {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.3; }
 }
 
 /* ================================================================
@@ -1446,10 +1499,6 @@ body {
     padding-bottom: 180px;
   }
 
-  .ticker-item {
-    font-size: 10px;
-  }
-
   .cockpit-footer {
     gap: 24px;
   }
@@ -1514,16 +1563,6 @@ body {
 
   .exit-cockpit a {
     font-size: 11px;
-  }
-
-  /* Ticker: narrower */
-  .ticker {
-    max-width: 280px;
-  }
-
-  .ticker-item {
-    font-size: 10px;
-    gap: 4px;
   }
 
   /* Footer: wrap */
@@ -1722,6 +1761,42 @@ body {
   .copilot-tab {
     padding: 3px 8px !important;
     gap: 4px;
+  }
+}
+
+/* ================================================================
+   25b. RESPONSIVE — EXTRA-SMALL (max-width: 375px)
+   ================================================================ */
+@media (max-width: 375px) {
+  .cockpit-topbar {
+    padding: 0 6px 0 44px;
+    height: 40px;
+  }
+
+  .logo {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .exit-cockpit a {
+    font-size: 9px;
+  }
+
+  .cockpit-main {
+    padding: 10px 8px;
+    padding-bottom: 130px;
+  }
+
+  .cockpit-footer {
+    gap: 4px;
+    padding: 6px 4px;
+  }
+
+  .footer-tab {
+    font-size: 8px;
+    letter-spacing: 0.05em;
+    padding: 6px 6px;
+    min-height: 32px;
   }
 }
 

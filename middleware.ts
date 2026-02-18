@@ -65,6 +65,21 @@ export function middleware(request: NextRequest) {
   // Basic rate-limiting signal headers (informational for downstream proxies)
   response.headers.set('X-RateLimit-Policy', 'default');
 
+  // Content Security Policy
+  response.headers.set(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https://*.cdninstagram.com https://*.fbcdn.net",
+      "media-src 'self' blob:",
+      "connect-src 'self' https://graph.instagram.com https://graph.facebook.com https://api.instagram.com https://*.vercel.app",
+      "frame-ancestors 'none'",
+    ].join('; ')
+  );
+
   return response;
 }
 

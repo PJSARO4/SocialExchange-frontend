@@ -12,7 +12,13 @@ const PageTransitionContext = createContext<PageTransitionContextType>({
   startTransition: () => {},
 });
 
-export function PageTransitionProvider({ children }: { children: ReactNode }) {
+interface PageTransitionProviderProps {
+  children: ReactNode;
+  defaultTransition?: string;
+  defaultDuration?: number;
+}
+
+export function PageTransitionProvider({ children, defaultTransition, defaultDuration }: PageTransitionProviderProps) {
   // Stub provider - no actual transition animation
   const value: PageTransitionContextType = {
     isTransitioning: false,

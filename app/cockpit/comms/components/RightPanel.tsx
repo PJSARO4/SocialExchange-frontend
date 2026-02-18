@@ -15,9 +15,12 @@ export default function RightPanel() {
   const activeThread = threads?.find(t => t?.id === activeThreadId) || null;
   const threadMessages = messages?.filter(m => m?.threadId === activeThreadId) || [];
 
+  // Scroll to bottom when message count changes or channel switches
+  // (using .length instead of the array ref to prevent infinite re-render loop)
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [threadMessages]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [threadMessages.length, activeThreadId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

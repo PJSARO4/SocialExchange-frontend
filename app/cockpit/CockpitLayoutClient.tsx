@@ -5,7 +5,11 @@ import { ReactNode, useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import './cockpit.css';
 
-import Ticker from './ui/Ticker';
+import { getWallet } from './my-e-assets/my-e-shares/lib/wallet-store';
+import { getCurrentUser } from '@/app/lib/auth/auth-store';
+
+import ActivityLightbar from './ui/ActivityLightbar';
+import LivePulse from './ui/LivePulse';
 import LogsPanel from './ui/LogsPanel';
 import SignalPanel from './ui/SignalPanel';
 import GlobalCopilot from './ui/GlobalCopilot';
@@ -86,6 +90,59 @@ const markCockpitEntered = () => {
   sessionStorage.setItem('se-cockpit-entered', 'true');
 };
 
+// Wallet balance badge for the topbar
+function WalletBadge() {
+  const [balance, setBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    function fetchBalance() {
+      const user = getCurrentUser();
+      if (!user) {
+        setBalance(null);
+        return;
+      }
+      const wallet = getWallet(user.id);
+      setBalance(wallet.balance);
+    }
+
+    fetchBalance();
+    const interval = setInterval(fetchBalance, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (balance === null) return null;
+
+  const formatted = balance.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+  return (
+    <Link
+      href="/cockpit/my-e-assets/my-e-shares"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        textDecoration: 'none',
+        fontFamily: 'var(--font-mono)',
+        fontSize: '11px',
+        letterSpacing: '0.08em',
+        color: 'var(--green-signal)',
+        padding: '4px 10px',
+        borderRadius: '6px',
+        border: '1px solid rgba(0, 255, 136, 0.15)',
+        background: 'rgba(0, 255, 136, 0.04)',
+        transition: 'all 200ms ease',
+        marginRight: '12px',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      <span>{formatted} SExC</span>
+    </Link>
+  );
+}
+
 // Inner component that uses audio context
 function CockpitContent({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -99,6 +156,7 @@ function CockpitContent({ children }: { children: ReactNode }) {
 
   // Update audio mood based on path
   useEffect(() => {
+    if (!pathname) return;
     // Map cockpit paths to audio moods
     if (pathname.includes('dashboard')) {
       setMoodForPath('dashboard');
@@ -138,12 +196,16 @@ function CockpitContent({ children }: { children: ReactNode }) {
 
       {/* TOP BAR */}
       <header className="cockpit-topbar">
+        <ActivityLightbar />
         <div className="logo">SOCIAL · EXCHANGE</div>
         <div className="topbar-center">
-          <Ticker />
+          <LivePulse />
         </div>
-        <div className="exit-cockpit">
-          <Link href="/">Exit Cockpit</Link>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <WalletBadge />
+          <div className="exit-cockpit">
+            <Link href="/">Exit Cockpit</Link>
+          </div>
         </div>
       </header>
 
@@ -164,8 +226,9 @@ function CockpitContent({ children }: { children: ReactNode }) {
           <Link
             href="/cockpit/my-e-assets"
             className={`sidebar-link ${
-              pathname === '/cockpit/my-e-assets' ||
-              pathname?.startsWith('/cockpit/my-e-assets/')
+              (pathname === '/cockpit/my-e-assets' ||
+              pathname?.startsWith('/cockpit/my-e-assets/')) &&
+              !pathname?.startsWith('/cockpit/my-e-assets/market')
                 ? 'active'
                 : ''
             }`}
@@ -188,7 +251,11 @@ function CockpitContent({ children }: { children: ReactNode }) {
           <Link
             href="/cockpit/market"
             className={`sidebar-link ${
-              pathname === '/cockpit/market' ? 'active' : ''
+              pathname === '/cockpit/market' ||
+              pathname?.startsWith('/cockpit/market/') ||
+              pathname?.startsWith('/cockpit/my-e-assets/market')
+                ? 'active'
+                : ''
             }`}
           >
             Market

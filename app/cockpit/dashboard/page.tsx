@@ -20,6 +20,7 @@ import {
   seedMarketplaceIfEmpty,
 } from '../my-e-assets/market/lib/market-store';
 
+import ErrorBoundary from '@/components/ErrorBoundary';
 import './command-center.css';
 
 const currentUserId = 'demo-user-main';
@@ -381,6 +382,7 @@ export default function CommandCenter() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="command-center-v2">
       {/* Top Bar */}
       <header className="cc-topbar">
@@ -656,5 +658,6 @@ export default function CommandCenter() {
         </span>
       </footer>
     </div>
+    </ErrorBoundary>
   );
 }

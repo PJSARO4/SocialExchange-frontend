@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -21,7 +21,7 @@ import {
   getHoldingsByBrand,
 } from '../../lib/e-shares-store';
 
-import { getWallet } from '../../lib/wallet-store';
+import { getWallet, deductForPurchase, creditFromSale } from '../../lib/wallet-store';
 import SharePriceChart from '../../components/SharePriceChart';
 import '../../e-shares.css';
 import './brand-detail.css';
@@ -45,18 +45,26 @@ export default function BrandDetailPage() {
   const currentUserId = 'demo-user-main';
   const currentUserName = 'You';
 
+  // Guard against state updates after unmount
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
   /* -----------------------------------------
      LOAD DATA
   ----------------------------------------- */
+  const actionParam = searchParams?.get('action');
   useEffect(() => {
     loadData();
 
     // Check if we should open a modal from URL params
-    const action = searchParams?.get('action');
-    if (action === 'buy' || action === 'sell') {
-      setActiveModal(action);
+    if (actionParam === 'buy' || actionParam === 'sell') {
+      setActiveModal(actionParam);
     }
-  }, [params?.brandId, searchParams]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.brandId, actionParam]);
 
   function loadData() {
     const brandData = params?.brandId ? getBrandById(params.brandId) : undefined;
@@ -70,14 +78,19 @@ export default function BrandDetailPage() {
   }
 
   /* -----------------------------------------
-     LIVE PRICE UPDATES
+     LIVE PRICE UPDATES (stable brandId ref to avoid re-creating interval)
   ----------------------------------------- */
+  const brandIdRef = useRef(params?.brandId);
+  brandIdRef.current = params?.brandId;
+
   useEffect(() => {
     if (!brand) return;
 
+    const id = brand.id; // capture at effect creation time
     const interval = setInterval(() => {
+      if (!mountedRef.current) return;
       setBrand((prev) => {
-        if (!prev) return prev;
+        if (!prev || prev.id !== id) return prev;
         const { value, direction } = applyMicroFluctuation(prev.pricePerShare ?? 0.01);
         return {
           ...prev,
@@ -89,6 +102,7 @@ export default function BrandDetailPage() {
     }, 4000);
 
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brand?.id]);
 
   /* -----------------------------------------
@@ -129,6 +143,8 @@ export default function BrandDetailPage() {
     setIsProcessing(false);
 
     if (result.success) {
+      // Deduct funds from wallet
+      deductForPurchase(currentUserId, totalCost, `Bought ${shares} shares of ${brand.brandName}`, brand.id);
       setMessage({ type: 'success', text: `Successfully purchased ${shares.toLocaleString()} shares!` });
       setShareAmount('');
       loadData();
@@ -167,6 +183,10 @@ export default function BrandDetailPage() {
     setIsProcessing(false);
 
     if (result.success) {
+      // Credit sale proceeds to wallet (minus platform fee)
+      const saleProceeds = shares * (brand.pricePerShare ?? 0);
+      const platformFee = shares * E_SHARES_CONFIG.PLATFORM_FEE_PER_SHARE;
+      creditFromSale(currentUserId, saleProceeds - platformFee, `Sold ${shares} shares of ${brand.brandName}`, brand.id);
       setMessage({ type: 'success', text: `Successfully sold ${shares.toLocaleString()} shares!` });
       setShareAmount('');
       loadData();

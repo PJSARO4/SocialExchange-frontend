@@ -2,6 +2,7 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 type Asset = {
   id: string;
@@ -59,6 +60,9 @@ export default function SellConfirmPage() {
 
   return (
     <section className="cockpit-panel">
+      <Link href="/cockpit/trading-post/sell" style={{ fontSize: '0.8rem', opacity: 0.5, textDecoration: 'none', color: 'white', display: 'inline-block', marginBottom: '1rem' }}>
+        ← Back to Sell
+      </Link>
       <header className="panel-header">
         <h1>Confirm Listing</h1>
         <p className="panel-subtitle">
