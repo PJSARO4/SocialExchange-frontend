@@ -56,6 +56,20 @@ export const logger = {
   info: (category: LogCategory, message: string, data?: any) => log(LogLevel.INFO, category, message, data),
   warn: (category: LogCategory, message: string, data?: any) => log(LogLevel.WARN, category, message, data),
   error: (category: LogCategory, message: string, data?: any) => log(LogLevel.ERROR, category, message, data),
+  // Feeds namespace for feed connection logging
+  feeds: {
+    connected: (userId: string, userName: string, platform: string, handle: string) =>
+      log(LogLevel.INFO, LogCategory.API, `Feed connected: ${handle} on ${platform}`, { userId, userName, platform, handle }),
+    disconnected: (userId: string, userName: string, platform: string, handle: string) =>
+      log(LogLevel.INFO, LogCategory.API, `Feed disconnected: ${handle} on ${platform}`, { userId, userName, platform, handle }),
+  },
+  // Automation namespace for automation logging
+  automation: {
+    enabled: (userId: string, userName: string, handle: string) =>
+      log(LogLevel.INFO, LogCategory.API, `Automation enabled for ${handle}`, { userId, userName, handle }),
+    disabled: (userId: string, userName: string, handle: string) =>
+      log(LogLevel.INFO, LogCategory.API, `Automation disabled for ${handle}`, { userId, userName, handle }),
+  },
 };
 
 // Seed demo logs for development/testing

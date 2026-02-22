@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ChainBuilder } from './chain-builder/ChainBuilder';
 import { AutomationChain, ChainNode, NodeConnection } from './chain-builder/types';
 import { useWorkflowEvents } from '../../context/WorkflowEventsContext';
+import { runChainManually, getChainRunHistory, getChainStats, startAutomationEngine, stopAutomationEngine } from '../../lib/automation-executor';
 
 interface AutomationModalProps {
   isOpen?: boolean;
@@ -184,6 +185,9 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
   const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [runningChainId, setRunningChainId] = useState<string | null>(null);
+  const [chainRunHistory, setChainRunHistory] = useState<Record<string, any[]>>({});
+  const [chainStats, setChainStats] = useState<Record<string, any>>({});
 
   // API-connected state
   const [apiRules, setApiRules] = useState<AutomationRule[]>([]);
@@ -301,14 +305,42 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
     }
   }, [workflowEventsContext]);
 
+  // Refresh chain run history and stats
+  const refreshChainHistory = useCallback((chainId: string) => {
+    const history = getChainRunHistory(chainId);
+    setChainRunHistory(prev => ({ ...prev, [chainId]: history }));
+
+    const stats = getChainStats(chainId);
+    setChainStats(prev => ({ ...prev, [chainId]: stats }));
+  }, []);
+
   // Load chains on mount + fetch API rules
   useEffect(() => {
-    setChains(loadChains());
+    const loadedChains = loadChains();
+    setChains(loadedChains);
+
+    // Load run history and stats for all chains
+    loadedChains.forEach(chain => {
+      refreshChainHistory(chain.id);
+    });
+
     if (isOpen) {
       fetchApiRules();
       fetchRateLimits();
+
+      // Start automation engine if any chains are enabled
+      const enabledChains = loadedChains.filter(c => c.enabled);
+      if (enabledChains.length > 0) {
+        startAutomationEngine(feedId);
+      }
     }
-  }, [isOpen, fetchApiRules, fetchRateLimits]);
+
+    return () => {
+      if (isOpen) {
+        stopAutomationEngine();
+      }
+    };
+  }, [isOpen, fetchApiRules, fetchRateLimits, refreshChainHistory, feedId]);
 
   // Save chains when they change
   useEffect(() => {
@@ -460,6 +492,17 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
       const toggledChain = updatedChains.find(c => c.id === chainId);
       if (toggledChain) {
         syncChainEvents(toggledChain);
+
+        // Start or stop the automation engine based on enabled state
+        if (toggledChain.enabled) {
+          startAutomationEngine(feedId || toggledChain.feedId);
+        } else {
+          // Check if any other chains are still enabled
+          const otherEnabledChains = updatedChains.filter(c => c.enabled && c.id !== chainId);
+          if (otherEnabledChains.length === 0) {
+            stopAutomationEngine();
+          }
+        }
       }
 
       return updatedChains;
@@ -476,6 +519,27 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
   const handleBackFromBuilder = () => {
     setViewMode('list');
     setEditingChain(null);
+  };
+
+  // Run chain manually
+  const handleRunChainNow = async (chainId: string) => {
+    setRunningChainId(chainId);
+    try {
+      const run = await runChainManually(chainId);
+      if (run) {
+        // Update run history
+        const history = getChainRunHistory(chainId);
+        setChainRunHistory(prev => ({ ...prev, [chainId]: history }));
+
+        // Update stats
+        const stats = getChainStats(chainId);
+        setChainStats(prev => ({ ...prev, [chainId]: stats }));
+      }
+    } catch (error) {
+      console.error('Error running chain:', error);
+    } finally {
+      setRunningChainId(null);
+    }
   };
 
   return (
@@ -623,37 +687,89 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
                   </button>
                 </div>
               ) : (
-                chains.map(chain => (
-                  <div key={chain.id} className={`workflow-item ${chain.enabled ? 'enabled' : 'disabled'}`}>
-                    <div className="workflow-status">
-                      <button
-                        className={`toggle-btn ${chain.enabled ? 'on' : 'off'}`}
-                        onClick={() => handleToggleChain(chain.id)}
-                      >
-                        {chain.enabled ? 'ON' : 'OFF'}
-                      </button>
-                    </div>
-                    <div className="workflow-info">
-                      <h4>{chain.name}</h4>
-                      <p>{chain.description || 'No description'}</p>
-                      <div className="workflow-meta">
-                        <span>{chain.nodes.length} nodes</span>
-                        <span>•</span>
-                        <span>{chain.stats?.totalRuns || 0} runs</span>
-                        <span>•</span>
-                        <span>Updated {new Date(chain.updatedAt).toLocaleDateString()}</span>
+                chains.map(chain => {
+                  const stats = chainStats[chain.id];
+                  const history = chainRunHistory[chain.id] || [];
+                  const lastRun = history.length > 0 ? history[history.length - 1] : null;
+
+                  return (
+                    <div key={chain.id} className={`workflow-item ${chain.enabled ? 'enabled' : 'disabled'}`} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        <div className="workflow-status">
+                          <button
+                            className={`toggle-btn ${chain.enabled ? 'on' : 'off'}`}
+                            onClick={() => handleToggleChain(chain.id)}
+                          >
+                            {chain.enabled ? 'ON' : 'OFF'}
+                          </button>
+                        </div>
+                        <div className="workflow-info" style={{ flex: 1 }}>
+                          <h4>{chain.name}</h4>
+                          <p>{chain.description || 'No description'}</p>
+                          <div className="workflow-meta">
+                            <span>{chain.nodes.length} nodes</span>
+                            <span>•</span>
+                            <span>{stats?.totalRuns || 0} runs</span>
+                            <span>•</span>
+                            <span>{lastRun ? `Last: ${new Date(lastRun.startedAt).toLocaleString()}` : 'Never run'}</span>
+                            <span>•</span>
+                            <span>Updated {new Date(chain.updatedAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <div className="workflow-actions" style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            className="icon-btn"
+                            onClick={() => handleRunChainNow(chain.id)}
+                            disabled={runningChainId === chain.id}
+                            title="Run Now"
+                            style={{
+                              background: runningChainId === chain.id ? 'rgba(0, 255, 200, 0.2)' : 'transparent',
+                            }}
+                          >
+                            {runningChainId === chain.id ? '⏳' : '▶️'}
+                          </button>
+                          <button className="icon-btn" onClick={() => handleEditChain(chain)} title="Edit">
+                            ✏️
+                          </button>
+                          <button className="icon-btn" onClick={() => handleDeleteChain(chain.id)} title="Delete">
+                            🗑️
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Run History Section */}
+                      {history.length > 0 && (
+                        <div style={{
+                          marginTop: '0.75rem',
+                          paddingTop: '0.75rem',
+                          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                          fontSize: '0.75rem',
+                          color: '#888',
+                        }}>
+                          <div style={{ marginBottom: '0.5rem', fontWeight: 'bold', color: '#00ffc8' }}>Recent Runs:</div>
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            {history.slice(-3).reverse().map(run => (
+                              <div
+                                key={run.id}
+                                style={{
+                                  padding: '0.35rem 0.5rem',
+                                  borderRadius: '3px',
+                                  background: run.status === 'completed' ? 'rgba(0, 255, 100, 0.15)' : run.status === 'failed' ? 'rgba(255, 100, 100, 0.15)' : 'rgba(100, 150, 255, 0.15)',
+                                  color: run.status === 'completed' ? '#00ff64' : run.status === 'failed' ? '#ff6464' : '#6496ff',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '0.25rem',
+                                }}
+                              >
+                                {run.status === 'completed' ? '✓' : run.status === 'failed' ? '✕' : '○'} {new Date(run.startedAt).toLocaleTimeString()}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="workflow-actions">
-                      <button className="icon-btn" onClick={() => handleEditChain(chain)} title="Edit">
-                        ✏️
-                      </button>
-                      <button className="icon-btn" onClick={() => handleDeleteChain(chain.id)} title="Delete">
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>

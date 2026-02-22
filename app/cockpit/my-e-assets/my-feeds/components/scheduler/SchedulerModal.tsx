@@ -3,14 +3,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Feed } from '../../types/feed';
 import { useToast } from '../../../../ui/toast/ToastProvider';
+import {
+  getScheduledPosts,
+  addScheduledPost,
+  removeScheduledPost,
+  startSchedulerPolling,
+  ScheduledPost as LocalScheduledPost,
+} from '../../lib/scheduler-store';
 
-interface ScheduledPost {
+interface DisplayScheduledPost {
   id: string;
   content: string;
   mediaUrl?: string;
   scheduledTime: Date;
   status: 'scheduled' | 'publishing' | 'published' | 'failed';
   platform: string;
+  error?: string;
 }
 
 interface SchedulerModalProps {
@@ -23,41 +31,45 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
   const [activeTab, setActiveTab] = useState<'calendar' | 'queue' | 'create'>('calendar');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [newPostContent, setNewPostContent] = useState('');
+  const [newPostMediaUrl, setNewPostMediaUrl] = useState('');
   const [newPostTime, setNewPostTime] = useState('12:00');
+  const [newPostMediaType, setNewPostMediaType] = useState<'IMAGE' | 'VIDEO' | 'CAROUSEL' | 'REELS'>('IMAGE');
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
+  const [scheduledPosts, setScheduledPosts] = useState<DisplayScheduledPost[]>([]);
   const { addToast } = useToast();
 
-  // Fetch scheduled posts from API
-  const fetchScheduledPosts = useCallback(async () => {
+  // Load scheduled posts from localStorage
+  const loadScheduledPosts = useCallback(() => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/scheduler?feed_id=${feed.id}`);
-      const data = await response.json();
-
-      if (data.posts) {
-        setScheduledPosts(data.posts.map((post: any) => ({
+      const posts = getScheduledPosts(feed.id);
+      setScheduledPosts(
+        posts.map((post: LocalScheduledPost) => ({
           id: post.id,
-          content: post.content,
-          mediaUrl: post.media_urls?.[0],
-          scheduledTime: new Date(post.scheduled_time),
+          content: post.caption,
+          mediaUrl: post.mediaUrls?.[0],
+          scheduledTime: new Date(post.scheduledFor),
           status: post.status,
           platform: post.platform,
-        })));
-      }
+          error: post.error,
+        }))
+      );
     } catch (error) {
-      console.error('Failed to fetch scheduled posts:', error);
+      console.error('Failed to load scheduled posts:', error);
+      addToast('error', 'Failed to load scheduled posts');
     } finally {
       setIsLoading(false);
     }
-  }, [feed.id]);
+  }, [feed.id, addToast]);
 
   useEffect(() => {
     if (isOpen) {
-      fetchScheduledPosts();
+      loadScheduledPosts();
+      // Start scheduler polling
+      startSchedulerPolling();
     }
-  }, [isOpen, fetchScheduledPosts]);
+  }, [isOpen, loadScheduledPosts]);
 
   if (!isOpen) return null;
 
@@ -118,40 +130,39 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
       return;
     }
 
+    // Validate media URL if not IMAGE
+    if (newPostMediaType !== 'IMAGE' && !newPostMediaUrl.trim()) {
+      addToast('warning', 'Please provide a media URL for this media type');
+      return;
+    }
+
     setIsSaving(true);
 
     try {
-      const response = await fetch('/api/scheduler', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          feed_id: feed.id,
-          platform: feed.platform,
-          content: newPostContent,
-          media_urls: [],
-          media_type: 'IMAGE',
-          scheduled_time: scheduledTime.toISOString(),
-        }),
+      const post = addScheduledPost({
+        feedId: feed.id,
+        platform: feed.platform,
+        caption: newPostContent,
+        mediaUrls: newPostMediaUrl.trim() ? [newPostMediaUrl] : [],
+        mediaType: newPostMediaType,
+        scheduledFor: scheduledTime.toISOString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        status: 'scheduled',
       });
 
-      const data = await response.json();
+      setScheduledPosts([...scheduledPosts, {
+        id: post.id,
+        content: post.caption,
+        mediaUrl: post.mediaUrls[0],
+        scheduledTime: new Date(post.scheduledFor),
+        status: post.status,
+        platform: post.platform,
+      }]);
 
-      if (data.post) {
-        const newPost: ScheduledPost = {
-          id: data.post.id,
-          content: data.post.content,
-          scheduledTime: new Date(data.post.scheduled_time),
-          status: data.post.status,
-          platform: data.post.platform,
-        };
-
-        setScheduledPosts([...scheduledPosts, newPost]);
-        setNewPostContent('');
-        setActiveTab('queue');
-        addToast('success', 'Post scheduled successfully');
-      } else {
-        addToast('error', data.error || 'Failed to schedule post');
-      }
+      setNewPostContent('');
+      setNewPostMediaUrl('');
+      setActiveTab('queue');
+      addToast('success', 'Post scheduled successfully');
     } catch (error) {
       console.error('Failed to schedule post:', error);
       addToast('error', 'Failed to schedule post. Please try again.');
@@ -162,17 +173,13 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
 
   const handleDeletePost = async (postId: string) => {
     try {
-      const response = await fetch(`/api/scheduler?id=${postId}`, {
-        method: 'DELETE',
-      });
+      const removed = removeScheduledPost(postId);
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (removed) {
         setScheduledPosts(scheduledPosts.filter(p => p.id !== postId));
         addToast('success', 'Scheduled post deleted');
       } else {
-        addToast('error', data.error || 'Failed to delete post');
+        addToast('error', 'Post not found');
       }
     } catch (error) {
       console.error('Failed to delete post:', error);
@@ -181,6 +188,19 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
   };
 
   const optimalTimes = ['9:00 AM', '12:00 PM', '5:00 PM', '8:00 PM'];
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'published':
+        return 'status-badge published';
+      case 'publishing':
+        return 'status-badge publishing';
+      case 'failed':
+        return 'status-badge failed';
+      default:
+        return 'status-badge scheduled';
+    }
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -288,7 +308,7 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
               </div>
 
               <div className="optimal-times">
-                <h4>🕐 Best Times to Post</h4>
+                <h4>Best Times to Post</h4>
                 <div className="times-grid">
                   {optimalTimes.map(time => (
                     <div key={time} className="optimal-time">{time}</div>
@@ -338,24 +358,32 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
                         </div>
                         <div className="queue-item-content">
                           <p>{post.content}</p>
+                          {post.error && (
+                            <div className="queue-item-error">
+                              Error: {post.error}
+                            </div>
+                          )}
                           <div className="queue-item-meta">
-                            <span className={`status-badge ${post.status}`}>{post.status}</span>
-                            <span className="platform-badge">Instagram</span>
+                            <span className={getStatusBadgeClass(post.status)}>
+                              {post.status === 'publishing' && (
+                                <>
+                                  <span className="status-spinner"></span>
+                                  Publishing...
+                                </>
+                              ) || post.status}
+                            </span>
+                            <span className="platform-badge">{feed.platform}</span>
                           </div>
                         </div>
                         <div className="queue-item-actions">
-                          <button className="queue-action edit" title="Edit">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                          </button>
-                          <button className="queue-action delete" title="Delete" onClick={() => handleDeletePost(post.id)}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <polyline points="3 6 5 6 21 6"/>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            </svg>
-                          </button>
+                          {post.status === 'scheduled' && (
+                            <button className="queue-action delete" title="Delete" onClick={() => handleDeletePost(post.id)}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -398,6 +426,31 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
                 </div>
 
                 <div className="form-group">
+                  <label>Media Type</label>
+                  <select
+                    value={newPostMediaType}
+                    onChange={(e) => setNewPostMediaType(e.target.value as any)}
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                    <option value="REELS">Reels</option>
+                    <option value="CAROUSEL">Carousel</option>
+                  </select>
+                </div>
+
+                {newPostMediaType !== 'IMAGE' && (
+                  <div className="form-group">
+                    <label>Media URL</label>
+                    <input
+                      type="url"
+                      placeholder="https://example.com/media.mp4"
+                      value={newPostMediaUrl}
+                      onChange={(e) => setNewPostMediaUrl(e.target.value)}
+                    />
+                  </div>
+                )}
+
+                <div className="form-group">
                   <label>Quick Schedule</label>
                   <div className="quick-times">
                     {optimalTimes.map(time => (
@@ -407,25 +460,13 @@ export const SchedulerModal: React.FC<SchedulerModalProps> = ({ feed, isOpen, on
                         onClick={() => {
                           const [hourStr, period] = time.split(' ');
                           const [hours] = hourStr.split(':').map(Number);
-                          const adjustedHours = period === 'PM' && hours !== 12 ? hours + 12 : hours;
+                          const adjustedHours = period === 'PM' && hours !== 12 ? hours + 12 : hours === 12 && period === 'AM' ? 0 : hours;
                           setNewPostTime(`${adjustedHours.toString().padStart(2, '0')}:00`);
                         }}
                       >
                         {time}
                       </button>
                     ))}
-                  </div>
-                </div>
-
-                <div className="form-group">
-                  <label>Add Media</label>
-                  <div className="media-upload">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                      <circle cx="8.5" cy="8.5" r="1.5"/>
-                      <polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <span>Drop image or click to upload</span>
                   </div>
                 </div>
 

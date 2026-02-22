@@ -19,6 +19,7 @@ import {
   sellShares,
   applyMicroFluctuation,
   getHoldingsByBrand,
+  seedESharesMarketIfEmpty,
 } from '../../lib/e-shares-store';
 
 import { getWallet, deductForPurchase, creditFromSale } from '../../lib/wallet-store';
@@ -67,6 +68,8 @@ export default function BrandDetailPage() {
   }, [params?.brandId, actionParam]);
 
   function loadData() {
+    // Ensure demo data is seeded (in case user navigates directly to this page)
+    seedESharesMarketIfEmpty();
     const brandData = params?.brandId ? getBrandById(params.brandId) : undefined;
     setBrand(brandData || null);
 

@@ -120,7 +120,9 @@ const FacebookBusinessProvider = {
 
 const isUsingTunnel = process.env.NEXTAUTH_URL?.includes('.loca.lt') ||
                       process.env.NEXTAUTH_URL?.includes('ngrok') ||
-                      process.env.NEXTAUTH_URL?.includes('tunnel');
+                      process.env.NEXTAUTH_URL?.includes('tunnel') ||
+                      process.env.NEXTAUTH_URL?.includes('cloudflare') ||
+                      process.env.NEXTAUTH_URL?.includes('localhost');
 
 export const authOptions: NextAuthOptions = {
   ...(adapter ? { adapter } : {}),
