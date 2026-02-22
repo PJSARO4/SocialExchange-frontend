@@ -170,4 +170,16 @@ export interface UpdateFeedPayload {
   avatarUrl?: string;
   automationEnabled?: boolean;
   controlMode?: ControlMode;
+  // OAuth upgrade fields
+  accessToken?: string;
+  isOAuth?: boolean;
+  connectionStatus?: 'active' | 'expired' | 'revoked';
+  metrics?: {
+    followers?: number;
+    following?: number;
+    engagement?: number;
+    postsPerWeek?: number;
+    totalPosts?: number;
+    uptime?: number;
+  };
 }

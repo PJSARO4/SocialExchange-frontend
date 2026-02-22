@@ -24,7 +24,7 @@ import ModeSelector from './components/ModeSelector';
 type WorkspaceSection = 'overview' | 'content' | 'scheduler' | 'earnex' | 'competitors';
 
 export default function MyFeedsContent() {
-  const { feeds, selectedFeed, selectedFeedId, feedsLoading, addFeed, toggleAutomation, setControlMode } = useFeeds();
+  const { feeds, selectedFeed, selectedFeedId, feedsLoading, addFeed, updateFeed, toggleAutomation, setControlMode } = useFeeds();
   const [workspaceSection, setWorkspaceSection] = useState<WorkspaceSection>('overview');
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -37,45 +37,78 @@ export default function MyFeedsContent() {
   const { data: session } = useSession();
   const [oauthProcessed, setOauthProcessed] = useState(false);
 
-  // Handle OAuth callback - save the connected account
+  // Handle OAuth callback - save the connected account or upgrade existing manual feed
   useEffect(() => {
     const connectedPlatform = searchParams.get('connected') as Platform | null;
 
     if (connectedPlatform && session?.user && !oauthProcessed) {
       const user = session.user as any;
 
-      // Check if this account is already connected
-      const alreadyConnected = feeds.some(
+      if (!user.id) return;
+
+      // Check if this account already exists (manual or OAuth)
+      const existingFeed = feeds.find(
         f => f.platform === connectedPlatform && f.platformUserId === user.id
       );
+      const alreadyOAuth = existingFeed?.isOAuth && existingFeed?.accessToken;
 
-      if (!alreadyConnected && user.id) {
-        console.log('🎉 Processing OAuth connection:', {
-          platform: connectedPlatform,
-          user: user.name,
-          userId: user.id,
-          provider: user.provider,
-        });
+      if (alreadyOAuth) {
+        // Already fully OAuth-connected, nothing to do
+        console.log('✅ Account already OAuth-connected:', existingFeed.handle);
+        setOauthProcessed(true);
+        window.history.replaceState({}, '', '/cockpit/my-e-assets/my-feeds');
+        return;
+      }
 
-        // Fetch real profile data from Instagram API
-        const fetchAndAddAccount = async () => {
-          let profileData: any = null;
+      console.log('🎉 Processing OAuth connection:', {
+        platform: connectedPlatform,
+        user: user.name,
+        userId: user.id,
+        provider: user.provider,
+        upgrading: !!existingFeed,
+      });
 
-          if (connectedPlatform === 'instagram' && user.accessToken) {
-            try {
-              const response = await fetch(
-                `/api/instagram/profile?access_token=${encodeURIComponent(user.accessToken)}`
-              );
-              if (response.ok) {
-                profileData = await response.json();
-                console.log('📊 Fetched real Instagram data:', profileData);
-              }
-            } catch (error) {
-              console.error('Failed to fetch Instagram profile:', error);
+      // Fetch real profile data from Instagram API
+      const fetchAndConnect = async () => {
+        let profileData: any = null;
+
+        if (connectedPlatform === 'instagram' && user.accessToken) {
+          try {
+            const response = await fetch(
+              `/api/instagram/profile?access_token=${encodeURIComponent(user.accessToken)}`
+            );
+            if (response.ok) {
+              profileData = await response.json();
+              console.log('📊 Fetched real Instagram data:', profileData);
             }
+          } catch (error) {
+            console.error('Failed to fetch Instagram profile:', error);
           }
+        }
 
-          // Add the connected account with real data if available
+        if (existingFeed) {
+          // UPGRADE existing manual feed to OAuth
+          console.log('🔄 Upgrading manual feed to OAuth:', existingFeed.handle);
+          await updateFeed(existingFeed.id, {
+            accessToken: user.accessToken,
+            isOAuth: true,
+            connectionStatus: 'active',
+            ...(profileData && {
+              displayName: profileData.name || profileData.username || existingFeed.displayName,
+              avatarUrl: profileData.profilePictureUrl || existingFeed.avatarUrl,
+              metrics: {
+                followers: profileData.followersCount ?? existingFeed.metrics?.followers ?? 0,
+                following: profileData.followsCount ?? existingFeed.metrics?.following ?? 0,
+                totalPosts: profileData.mediaCount ?? existingFeed.metrics?.totalPosts ?? 0,
+                engagement: existingFeed.metrics?.engagement ?? 0,
+                postsPerWeek: existingFeed.metrics?.postsPerWeek ?? 0,
+                uptime: existingFeed.metrics?.uptime ?? 0,
+              },
+            }),
+          });
+          console.log('✅ Feed upgraded to OAuth successfully');
+        } else {
+          // Add brand new OAuth-connected account
           addFeed({
             platform: connectedPlatform,
             handle: `@${profileData?.username || user.name || user.id}`,
@@ -84,7 +117,6 @@ export default function MyFeedsContent() {
             platformUserId: user.id,
             accessToken: user.accessToken,
             isOAuth: true,
-            // Pass metrics if we have them
             ...(profileData && {
               initialMetrics: {
                 followers: profileData.followersCount,
@@ -93,17 +125,18 @@ export default function MyFeedsContent() {
               }
             }),
           });
+          console.log('✅ New OAuth feed added successfully');
+        }
 
-          setOauthProcessed(true);
+        setOauthProcessed(true);
 
-          // Clean up the URL
-          window.history.replaceState({}, '', '/cockpit/my-e-assets/my-feeds');
-        };
+        // Clean up the URL
+        window.history.replaceState({}, '', '/cockpit/my-e-assets/my-feeds');
+      };
 
-        fetchAndAddAccount();
-      }
+      fetchAndConnect();
     }
-  }, [searchParams, session, feeds, addFeed, oauthProcessed]);
+  }, [searchParams, session, feeds, addFeed, updateFeed, oauthProcessed]);
 
   if (feedsLoading && feeds.length === 0) {
     return (

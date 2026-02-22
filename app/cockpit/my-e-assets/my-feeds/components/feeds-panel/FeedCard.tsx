@@ -92,9 +92,9 @@ export default function FeedCard({
           <span className="feed-card-separator">•</span>
           <span
             className="feed-card-mode"
-            style={{ color: modeConfig.color }}
+            style={{ color: feed.isOAuth ? '#00ff88' : modeConfig.color }}
           >
-            {modeConfig.label}
+            {feed.isOAuth ? 'OAUTH' : modeConfig.label}
           </span>
         </div>
       </div>
