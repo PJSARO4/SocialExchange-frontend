@@ -2,15 +2,11 @@
   "crons": [
     {
       "path": "/api/cron/process-jobs",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/worker?mode=batch&max=10",
-      "schedule": "* * * * *"
+      "schedule": "0 0 * * *"
     },
     {
       "path": "/api/cron/refresh-metrics",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
