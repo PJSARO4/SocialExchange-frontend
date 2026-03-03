@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Feed, PLATFORMS } from '../../types/feed';
 import './competitors.css';
 
@@ -71,125 +71,93 @@ interface Insight {
 type CompetitorView = 'overview' | 'detail' | 'add' | 'compare';
 
 // ============================================
-// MOCK DATA
+// HELPER: Map DB competitor to local format
 // ============================================
 
-const MOCK_COMPETITORS: Competitor[] = [
-  {
-    id: 'comp-1',
-    handle: '@lifestyle_guru',
-    platform: 'instagram',
-    displayName: 'Lifestyle Guru',
-    addedAt: new Date('2024-05-01'),
+function mapDBCompetitorToLocal(c: any): Competitor {
+  return {
+    id: c.id,
+    handle: c.handle,
+    platform: c.platform,
+    displayName: c.displayName || c.display_name || c.handle.replace('@', ''),
+    avatarUrl: c.avatarUrl || c.avatar_url,
+    addedAt: new Date(c.createdAt || c.created_at),
     metrics: {
-      followers: 125000,
-      following: 892,
-      posts: 1543,
-      engagement: 4.8,
-      avgLikes: 5200,
-      avgComments: 234,
-      postsPerWeek: 7,
-      followerGrowth: 2.3,
+      followers: c.followers || 0,
+      following: c.following || 0,
+      posts: c.postsCount || c.posts_count || 0,
+      engagement: c.engagementRate || c.engagement_rate || 0,
+      avgLikes: c.avgLikes || c.avg_likes || 0,
+      avgComments: c.avgComments || c.avg_comments || 0,
+      postsPerWeek: c.postsPerWeek || c.posts_per_week || 0,
+      followerGrowth: c.followerGrowth || c.follower_growth || 0,
     },
-    topContent: [
-      { id: 'tc1', type: 'carousel', likes: 12400, comments: 456, engagement: 10.3, caption: 'Morning routine that changed my life...', postedAt: new Date() },
-      { id: 'tc2', type: 'reel', likes: 28900, comments: 892, engagement: 23.8, caption: 'POV: When you finally get your life together', postedAt: new Date() },
-      { id: 'tc3', type: 'image', likes: 8700, comments: 312, engagement: 7.2, caption: 'Golden hour hits different ✨', postedAt: new Date() },
-    ],
-    postingSchedule: {
-      bestDays: ['Tuesday', 'Thursday', 'Saturday'],
-      bestTimes: ['9:00 AM', '12:00 PM', '7:00 PM'],
-      frequency: 7,
-    },
-    contentMix: { images: 30, videos: 15, carousels: 35, reels: 20 },
-  },
-  {
-    id: 'comp-2',
-    handle: '@creative_studio',
-    platform: 'instagram',
-    displayName: 'Creative Studio',
-    addedAt: new Date('2024-04-15'),
-    metrics: {
-      followers: 89000,
-      following: 456,
-      posts: 892,
-      engagement: 5.2,
-      avgLikes: 4100,
-      avgComments: 189,
-      postsPerWeek: 5,
-      followerGrowth: 3.1,
-    },
-    topContent: [
-      { id: 'tc4', type: 'video', likes: 15600, comments: 567, engagement: 18.2, caption: 'Behind the scenes of our latest shoot', postedAt: new Date() },
-      { id: 'tc5', type: 'carousel', likes: 9800, comments: 234, engagement: 11.3, caption: 'Before and after transformations', postedAt: new Date() },
-    ],
-    postingSchedule: {
+    topContent: [],
+    postingSchedule: c.postingSchedule || c.posting_schedule || {
       bestDays: ['Monday', 'Wednesday', 'Friday'],
-      bestTimes: ['10:00 AM', '2:00 PM', '6:00 PM'],
+      bestTimes: ['9:00 AM', '6:00 PM'],
       frequency: 5,
     },
-    contentMix: { images: 25, videos: 30, carousels: 30, reels: 15 },
-  },
-  {
-    id: 'comp-3',
-    handle: '@tech_insider',
-    platform: 'twitter',
-    displayName: 'Tech Insider',
-    addedAt: new Date('2024-06-01'),
-    metrics: {
-      followers: 245000,
-      following: 1234,
-      posts: 5678,
-      engagement: 3.2,
-      avgLikes: 2300,
-      avgComments: 456,
-      postsPerWeek: 14,
-      followerGrowth: 1.8,
+    contentMix: {
+      images: c.contentMixImages || c.content_mix_images || 40,
+      videos: c.contentMixVideos || c.content_mix_videos || 20,
+      carousels: c.contentMixCarousels || c.content_mix_carousels || 25,
+      reels: c.contentMixReels || c.content_mix_reels || 15,
     },
-    topContent: [
-      { id: 'tc6', type: 'image', likes: 8900, comments: 789, engagement: 4.0, caption: 'Breaking: New AI development...', postedAt: new Date() },
-    ],
-    postingSchedule: {
-      bestDays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      bestTimes: ['8:00 AM', '12:00 PM', '5:00 PM'],
-      frequency: 14,
-    },
-    contentMix: { images: 60, videos: 10, carousels: 20, reels: 10 },
-  },
-];
+    notes: c.notes,
+  };
+}
 
-const MOCK_INSIGHTS: Insight[] = [
-  {
-    id: 'ins-1',
-    type: 'opportunity',
-    title: 'Carousel content gap',
-    description: '@lifestyle_guru gets 2x engagement on carousels but you rarely post them. Consider increasing carousel content.',
-    relatedCompetitor: '@lifestyle_guru',
-    actionable: true,
-  },
-  {
-    id: 'ins-2',
-    type: 'trend',
-    title: 'Reels are dominating',
-    description: 'Competitors are seeing 3x higher reach on Reels. Your current Reels make up only 10% of content.',
-    actionable: true,
-  },
-  {
-    id: 'ins-3',
+function generateInsights(competitors: Competitor[], userFollowers: number, userEngagement: number): Insight[] {
+  const insights: Insight[] = [];
+  if (competitors.length === 0) return insights;
+
+  const fastGrowers = competitors.filter(c => c.metrics.followerGrowth > 2);
+  if (fastGrowers.length > 0) {
+    insights.push({
+      id: 'ins-growth',
+      type: 'threat',
+      title: `${fastGrowers[0].handle} growing fast`,
+      description: `This competitor has ${fastGrowers[0].metrics.followerGrowth.toFixed(1)}% growth, significantly higher than average. Monitor their strategy.`,
+      relatedCompetitor: fastGrowers[0].handle,
+      actionable: false,
+    });
+  }
+
+  const highEngagement = competitors.filter(c => c.metrics.engagement > userEngagement);
+  if (highEngagement.length > 0) {
+    insights.push({
+      id: 'ins-engagement',
+      type: 'opportunity',
+      title: 'Engagement gap detected',
+      description: `${highEngagement.length} competitor(s) have higher engagement. Study ${highEngagement[0].handle}'s content strategy.`,
+      relatedCompetitor: highEngagement[0].handle,
+      actionable: true,
+    });
+  }
+
+  const reelsHeavy = competitors.filter(c => c.contentMix.reels > 20);
+  if (reelsHeavy.length > 0) {
+    insights.push({
+      id: 'ins-reels',
+      type: 'trend',
+      title: 'Reels are dominating',
+      description: `${reelsHeavy.length} competitor(s) are heavily investing in Reels. Consider increasing your Reels output.`,
+      actionable: true,
+    });
+  }
+
+  const avgFreq = competitors.reduce((sum, c) => sum + c.metrics.postsPerWeek, 0) / competitors.length;
+  insights.push({
+    id: 'ins-frequency',
     type: 'tip',
-    title: 'Optimal posting time',
-    description: 'Most competitors post between 6-8 PM. Consider shifting your schedule to match peak engagement hours.',
+    title: 'Optimal posting frequency',
+    description: `Your competitors post an average of ${avgFreq.toFixed(1)} times per week. Match or exceed this to stay competitive.`,
     actionable: true,
-  },
-  {
-    id: 'ins-4',
-    type: 'threat',
-    title: '@creative_studio growing fast',
-    description: 'This competitor has 3.1% weekly growth, significantly higher than average. Monitor their strategy.',
-    relatedCompetitor: '@creative_studio',
-    actionable: false,
-  },
-];
+  });
+
+  return insights;
+}
 
 // ============================================
 // COMPONENT
@@ -197,56 +165,87 @@ const MOCK_INSIGHTS: Insight[] = [
 
 export const CompetitorsTab: React.FC<CompetitorsTabProps> = ({ feed, feeds = [] }) => {
   const [currentView, setCurrentView] = useState<CompetitorView>('overview');
-  const [competitors, setCompetitors] = useState<Competitor[]>(MOCK_COMPETITORS);
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
   const [selectedCompetitor, setSelectedCompetitor] = useState<Competitor | null>(null);
-  const [insights] = useState<Insight[]>(MOCK_INSIGHTS);
+  const [insights, setInsights] = useState<Insight[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [newCompetitorHandle, setNewCompetitorHandle] = useState('');
   const [newCompetitorPlatform, setNewCompetitorPlatform] = useState('instagram');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load competitors from database API
+  const loadCompetitors = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (feed?.id) params.set('feedId', feed.id);
+      const res = await fetch(`/api/competitors?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = (data.competitors || []).map(mapDBCompetitorToLocal);
+        setCompetitors(mapped);
+        const userFollowers = feed?.metrics?.followers || 0;
+        const userEngagement = feed?.metrics?.engagement || 0;
+        setInsights(generateInsights(mapped, userFollowers, userEngagement));
+      }
+    } catch (err) {
+      console.error('Failed to load competitors:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [feed]);
+
+  useEffect(() => {
+    loadCompetitors();
+  }, [loadCompetitors]);
 
   const handleViewCompetitor = (competitor: Competitor) => {
     setSelectedCompetitor(competitor);
     setCurrentView('detail');
   };
 
-  const handleAddCompetitor = () => {
+  const handleAddCompetitor = async () => {
     if (!newCompetitorHandle.trim()) return;
 
-    const newCompetitor: Competitor = {
-      id: `comp-${Date.now()}`,
-      handle: newCompetitorHandle.startsWith('@') ? newCompetitorHandle : `@${newCompetitorHandle}`,
-      platform: newCompetitorPlatform,
-      displayName: newCompetitorHandle.replace('@', ''),
-      addedAt: new Date(),
-      metrics: {
-        followers: Math.floor(Math.random() * 100000) + 10000,
-        following: Math.floor(Math.random() * 1000) + 100,
-        posts: Math.floor(Math.random() * 1000) + 100,
-        engagement: Math.random() * 5 + 2,
-        avgLikes: Math.floor(Math.random() * 5000) + 500,
-        avgComments: Math.floor(Math.random() * 200) + 50,
-        postsPerWeek: Math.floor(Math.random() * 10) + 3,
-        followerGrowth: Math.random() * 3 + 0.5,
-      },
-      topContent: [],
-      postingSchedule: {
-        bestDays: ['Monday', 'Wednesday', 'Friday'],
-        bestTimes: ['9:00 AM', '6:00 PM'],
-        frequency: 5,
-      },
-      contentMix: { images: 40, videos: 20, carousels: 25, reels: 15 },
-    };
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/competitors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          handle: newCompetitorHandle,
+          platform: newCompetitorPlatform,
+          feedId: feed?.id || null,
+        }),
+      });
 
-    setCompetitors([...competitors, newCompetitor]);
-    setNewCompetitorHandle('');
-    setCurrentView('overview');
+      if (res.ok) {
+        await loadCompetitors();
+        setNewCompetitorHandle('');
+        setCurrentView('overview');
+      } else {
+        const err = await res.json();
+        console.error('Failed to add competitor:', err);
+      }
+    } catch (err) {
+      console.error('Failed to add competitor:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRemoveCompetitor = (competitorId: string) => {
-    setCompetitors(competitors.filter(c => c.id !== competitorId));
-    if (selectedCompetitor?.id === competitorId) {
-      setSelectedCompetitor(null);
-      setCurrentView('overview');
+  const handleRemoveCompetitor = async (competitorId: string) => {
+    try {
+      const res = await fetch(`/api/competitors?id=${competitorId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setCompetitors(competitors.filter(c => c.id !== competitorId));
+        if (selectedCompetitor?.id === competitorId) {
+          setSelectedCompetitor(null);
+          setCurrentView('overview');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to remove competitor:', err);
     }
   };
 

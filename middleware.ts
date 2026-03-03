@@ -44,9 +44,9 @@ export function middleware(request: NextRequest) {
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://*.cdninstagram.com https://*.fbcdn.net",
-      "media-src 'self' blob:",
-      "connect-src 'self' https://graph.instagram.com https://graph.facebook.com https://api.instagram.com https://*.vercel.app",
+      "img-src 'self' data: blob: https://*.cdninstagram.com https://*.fbcdn.net https://scontent.cdninstagram.com",
+      "media-src 'self' blob: https://*.cdninstagram.com https://*.fbcdn.net",
+      "connect-src 'self' https://graph.instagram.com https://graph.facebook.com https://api.instagram.com https://www.facebook.com https://*.vercel.app",
       "frame-ancestors 'none'",
     ].join('; ')
   );

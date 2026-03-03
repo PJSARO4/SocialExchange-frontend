@@ -17,6 +17,7 @@ import type {
   ActivityNotification,
   OrganismAction,
   PlatformName,
+  CopilotBridgeItem,
 } from '@/app/cockpit/my-e-assets/my-e-storage/organism/types/organism';
 import * as oStore from '@/app/cockpit/my-e-assets/my-e-storage/organism/lib/organism-store';
 import { isBehaviorEnabled } from '@/app/cockpit/my-e-assets/my-e-storage/organism/lib/organism-store';
@@ -61,6 +62,10 @@ interface OrganismContextType {
 
   // Notifications
   dismissNotification: (id: string) => void;
+
+  // Copilot Bridge
+  clipForCopilot: (itemIds: string[]) => void;
+  getCopilotClipboard: () => CopilotBridgeItem[];
 }
 
 // ============================================
@@ -475,6 +480,63 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ============================================
+  // COPILOT BRIDGE
+  // ============================================
+
+  const COPILOT_CLIPBOARD_KEY = 'sx_organism_clipboard';
+
+  const clipForCopilot = useCallback(
+    (itemIds: string[]) => {
+      const clipped: CopilotBridgeItem[] = itemIds
+        .map((id) => {
+          const item = eStorage.items.find((i) => i.id === id);
+          if (!item) return null;
+          return {
+            id: item.id,
+            title: item.title,
+            type: item.type,
+            tags: item.tags,
+            folder: item.folder,
+            clippedAt: new Date().toISOString(),
+            description: item.description,
+          };
+        })
+        .filter(Boolean) as CopilotBridgeItem[];
+
+      if (clipped.length > 0) {
+        // Merge with existing clipboard (keep last 20)
+        try {
+          const existing = JSON.parse(
+            localStorage.getItem(COPILOT_CLIPBOARD_KEY) || '[]'
+          );
+          const merged = [...clipped, ...existing].slice(0, 20);
+          localStorage.setItem(COPILOT_CLIPBOARD_KEY, JSON.stringify(merged));
+          pushNotification(
+            '📋',
+            `Clipped ${clipped.length} item${clipped.length !== 1 ? 's' : ''} for Copilot`
+          );
+        } catch {
+          localStorage.setItem(
+            COPILOT_CLIPBOARD_KEY,
+            JSON.stringify(clipped)
+          );
+        }
+      }
+    },
+    [eStorage.items, pushNotification]
+  );
+
+  const getCopilotClipboard = useCallback((): CopilotBridgeItem[] => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(COPILOT_CLIPBOARD_KEY) || '[]'
+      );
+    } catch {
+      return [];
+    }
+  }, []);
+
+  // ============================================
   // AUTONOMOUS TASK RUNNER (10s interval)
   // ============================================
 
@@ -552,6 +614,8 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
         toggleBehavior,
         saveTraining,
         dismissNotification,
+        clipForCopilot,
+        getCopilotClipboard,
       }}
     >
       {children}

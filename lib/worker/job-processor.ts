@@ -3,118 +3,290 @@
  *
  * Handles the execution of different job types.
  * Each job type has its own handler that implements the business logic.
+ *
+ * For PUBLISH_POST jobs, the processor:
+ * 1. Fetches the latest access token from the SocialFeed record
+ * 2. Creates media container(s) via Instagram Graph API
+ * 3. Polls for container readiness (critical for video/reels)
+ * 4. Publishes the container
+ * 5. Updates the ScheduledPostNew record with the result
  */
 
 import { Job, JobResult, JobType, PublishPostPayload, AutoLikePayload, AutoCommentPayload, AutoFollowPayload, AutoDMPayload } from '../queue/types';
 
+const GRAPH_API_BASE = 'https://graph.facebook.com/v21.0';
+
+// =============================================
+// Utility: Fetch fresh access token for a feed
+// =============================================
+
+async function getFeedCredentials(feedId: string): Promise<{
+  accessToken: string;
+  instagramUserId: string;
+} | null> {
+  try {
+    const { prisma } = await import('@/lib/prisma');
+    const feed = await prisma.socialFeed.findUnique({
+      where: { id: feedId },
+      select: { accessToken: true, platformAccountId: true, isConnected: true },
+    });
+
+    if (!feed || !feed.isConnected || !feed.accessToken) {
+      return null;
+    }
+
+    return {
+      accessToken: feed.accessToken,
+      instagramUserId: feed.platformAccountId,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// =============================================
+// Utility: Update scheduled post status
+// =============================================
+
+async function updateScheduledPost(
+  scheduledPostId: string,
+  data: { status?: string; instagramPostId?: string; lastError?: string; attempts?: number }
+) {
+  try {
+    const { prisma } = await import('@/lib/prisma');
+    await prisma.scheduledPostNew.update({
+      where: { id: scheduledPostId },
+      data: data as any,
+    });
+  } catch (e) {
+    console.warn(`[job-processor] Could not update scheduled post ${scheduledPostId}:`, e);
+  }
+}
+
+// =============================================
+// Utility: Create media container
+// =============================================
+
+async function createMediaContainer(
+  instagramUserId: string,
+  accessToken: string,
+  params: Record<string, string>
+): Promise<string> {
+  const response = await fetch(`${GRAPH_API_BASE}/${instagramUserId}/media`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ access_token: accessToken, ...params }),
+  });
+
+  const data = await response.json();
+  if (data.error) {
+    throw new Error(data.error.message || 'Failed to create media container');
+  }
+
+  return data.id;
+}
+
+// =============================================
+// Utility: Poll container status
+// =============================================
+
+async function waitForContainer(
+  containerId: string,
+  accessToken: string,
+  maxAttempts: number = 30,
+  intervalMs: number = 3000
+): Promise<void> {
+  for (let i = 0; i < maxAttempts; i++) {
+    const response = await fetch(
+      `${GRAPH_API_BASE}/${containerId}?fields=status_code&access_token=${accessToken}`
+    );
+    const data = await response.json();
+
+    if (data.status_code === 'FINISHED') return;
+    if (data.status_code === 'ERROR') {
+      throw new Error(`Media container processing failed (status: ERROR)`);
+    }
+
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+
+  throw new Error('Timeout waiting for media container to finish processing');
+}
+
+// =============================================
+// Utility: Publish a container
+// =============================================
+
+async function publishContainer(
+  instagramUserId: string,
+  accessToken: string,
+  containerId: string
+): Promise<string> {
+  const response = await fetch(`${GRAPH_API_BASE}/${instagramUserId}/media_publish`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      access_token: accessToken,
+      creation_id: containerId,
+    }),
+  });
+
+  const data = await response.json();
+  if (data.error) {
+    throw new Error(data.error.message || 'Failed to publish media');
+  }
+
+  return data.id;
+}
+
+// =============================================
 // Job Handlers
+// =============================================
 
 async function handlePublishPost(payload: PublishPostPayload): Promise<JobResult> {
-  console.log(`📤 Publishing post for feed ${payload.feedId}`);
+  const { feedId, scheduledPostId, caption, mediaUrls, mediaType } = payload;
+
+  console.log(`[publish] Starting publish for feed ${feedId}, type: ${mediaType}`);
+
+  // Fetch fresh credentials from the database
+  const creds = await getFeedCredentials(feedId);
+  if (!creds) {
+    const error = 'Feed not found, disconnected, or missing access token';
+    await updateScheduledPost(scheduledPostId, { status: 'FAILED', lastError: error });
+    return { success: false, error };
+  }
+
+  const { accessToken, instagramUserId } = creds;
 
   try {
-    // Step 1: Create media container (must use form-urlencoded, not JSON)
-    const containerParams: Record<string, string> = {
-      access_token: payload.accessToken,
-      image_url: payload.mediaUrls[0],
-    };
-    if (payload.caption) containerParams.caption = payload.caption;
+    // Mark as processing
+    await updateScheduledPost(scheduledPostId, { status: 'PROCESSING' });
 
-    const containerResponse = await fetch(
-      `https://graph.facebook.com/v21.0/${payload.instagramUserId}/media`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(containerParams),
+    let publishedMediaId: string;
+
+    switch (mediaType) {
+      case 'IMAGE': {
+        // Single image: create container → publish
+        const containerId = await createMediaContainer(instagramUserId, accessToken, {
+          image_url: mediaUrls[0],
+          ...(caption && { caption }),
+        });
+        publishedMediaId = await publishContainer(instagramUserId, accessToken, containerId);
+        break;
       }
-    );
 
-    const containerData = await containerResponse.json();
-    if (containerData.error) {
-      throw new Error(containerData.error.message);
-    }
-
-    const containerId = containerData.id;
-
-    // Step 2: Wait for processing (poll status)
-    let status = 'IN_PROGRESS';
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    while (status === 'IN_PROGRESS' && attempts < maxAttempts) {
-      await new Promise((r) => setTimeout(r, 3000)); // Wait 3 seconds
-      attempts++;
-
-      const statusResponse = await fetch(
-        `https://graph.facebook.com/v21.0/${containerId}?fields=status_code&access_token=${payload.accessToken}`
-      );
-      const statusData = await statusResponse.json();
-      status = statusData.status_code;
-    }
-
-    if (status !== 'FINISHED') {
-      throw new Error(`Media processing failed with status: ${status}`);
-    }
-
-    // Step 3: Publish (must use form-urlencoded)
-    const publishResponse = await fetch(
-      `https://graph.facebook.com/v21.0/${payload.instagramUserId}/media_publish`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          access_token: payload.accessToken,
-          creation_id: containerId,
-        }),
+      case 'VIDEO': {
+        // Video: create container → wait for processing → publish
+        const containerId = await createMediaContainer(instagramUserId, accessToken, {
+          video_url: mediaUrls[0],
+          media_type: 'VIDEO',
+          ...(caption && { caption }),
+        });
+        await waitForContainer(containerId, accessToken, 60, 5000); // Videos take longer
+        publishedMediaId = await publishContainer(instagramUserId, accessToken, containerId);
+        break;
       }
-    );
 
-    const publishData = await publishResponse.json();
-    if (publishData.error) {
-      throw new Error(publishData.error.message);
+      case 'REELS': {
+        // Reels: create container → wait for processing → publish
+        const containerId = await createMediaContainer(instagramUserId, accessToken, {
+          video_url: mediaUrls[0],
+          media_type: 'REELS',
+          share_to_feed: 'true',
+          ...(caption && { caption }),
+        });
+        await waitForContainer(containerId, accessToken, 60, 5000);
+        publishedMediaId = await publishContainer(instagramUserId, accessToken, containerId);
+        break;
+      }
+
+      case 'CAROUSEL': {
+        // Carousel: create item containers → create carousel container → publish
+        if (!mediaUrls || mediaUrls.length < 2) {
+          throw new Error('Carousel requires at least 2 media items');
+        }
+
+        // Step 1: Create individual item containers (no caption on items)
+        const childContainerIds: string[] = [];
+        for (const url of mediaUrls) {
+          const isVideo = /\.(mp4|mov|avi|wmv|webm)$/i.test(url);
+          const params: Record<string, string> = isVideo
+            ? { video_url: url, media_type: 'VIDEO', is_carousel_item: 'true' }
+            : { image_url: url, is_carousel_item: 'true' };
+
+          const childId = await createMediaContainer(instagramUserId, accessToken, params);
+
+          // Wait for video items to process
+          if (isVideo) {
+            await waitForContainer(childId, accessToken, 60, 5000);
+          }
+
+          childContainerIds.push(childId);
+        }
+
+        // Step 2: Create the carousel container
+        const carouselId = await createMediaContainer(instagramUserId, accessToken, {
+          media_type: 'CAROUSEL',
+          children: childContainerIds.join(','),
+          ...(caption && { caption }),
+        });
+
+        // Step 3: Publish the carousel
+        publishedMediaId = await publishContainer(instagramUserId, accessToken, carouselId);
+        break;
+      }
+
+      default:
+        throw new Error(`Unsupported media type: ${mediaType}`);
     }
 
-    console.log(`✅ Post published: ${publishData.id}`);
-    return { success: true, data: { postId: publishData.id } };
+    // Update the scheduled post as published
+    await updateScheduledPost(scheduledPostId, {
+      status: 'PUBLISHED',
+      instagramPostId: publishedMediaId,
+    });
+
+    console.log(`[publish] Published successfully: ${publishedMediaId}`);
+    return { success: true, data: { postId: publishedMediaId } };
   } catch (error: any) {
-    console.error(`❌ Publish failed:`, error.message);
+    console.error(`[publish] Failed:`, error.message);
+
+    await updateScheduledPost(scheduledPostId, {
+      status: 'FAILED',
+      lastError: error.message,
+    });
+
     return { success: false, error: error.message };
   }
 }
 
 async function handleAutoLike(payload: AutoLikePayload): Promise<JobResult> {
-  console.log(`❤️ Auto-liking post ${payload.targetPostId} for feed ${payload.feedId}`);
+  console.log(`[auto-like] Post ${payload.targetPostId} for feed ${payload.feedId}`);
 
-  try {
-    // Instagram Graph API doesn't support liking via API for most use cases
-    // This would need Instagram Basic Display API or unofficial methods
-    // For now, we'll simulate the action
+  // Instagram Graph API doesn't support liking via API for most use cases
+  console.log(`[auto-like] Instagram API limitations - action logged but not executed`);
 
-    // In production, you'd use the Instagram Graph API like:
-    // POST /{media-id}/likes with access_token
-
-    console.log(`⚠️ Auto-like: Instagram API limitations - action logged but not executed`);
-
-    return {
-      success: true,
-      data: { message: 'Like action recorded (API limitations apply)' },
-    };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
+  return {
+    success: true,
+    data: { message: 'Like action recorded (API limitations apply)' },
+  };
 }
 
 async function handleAutoComment(payload: AutoCommentPayload): Promise<JobResult> {
-  console.log(`💬 Auto-commenting on post ${payload.targetPostId}`);
+  console.log(`[auto-comment] Post ${payload.targetPostId}`);
+
+  // Fetch fresh token
+  const creds = await getFeedCredentials(payload.feedId);
+  const accessToken = creds?.accessToken || payload.accessToken;
 
   try {
     const response = await fetch(
-      `https://graph.facebook.com/v21.0/${payload.targetPostId}/comments`,
+      `${GRAPH_API_BASE}/${payload.targetPostId}/comments`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
-          access_token: payload.accessToken,
+          access_token: accessToken,
           message: payload.comment,
         }),
       }
@@ -125,20 +297,19 @@ async function handleAutoComment(payload: AutoCommentPayload): Promise<JobResult
       throw new Error(data.error.message);
     }
 
-    console.log(`✅ Comment posted: ${data.id}`);
+    console.log(`[auto-comment] Comment posted: ${data.id}`);
     return { success: true, data: { commentId: data.id } };
   } catch (error: any) {
-    console.error(`❌ Comment failed:`, error.message);
+    console.error(`[auto-comment] Failed:`, error.message);
     return { success: false, error: error.message };
   }
 }
 
 async function handleAutoFollow(payload: AutoFollowPayload): Promise<JobResult> {
-  console.log(`👤 Auto-follow user ${payload.targetUserId}`);
+  console.log(`[auto-follow] User ${payload.targetUserId}`);
 
   // Instagram Graph API doesn't support follow/unfollow actions
-  // This feature would need unofficial API methods
-  console.log(`⚠️ Auto-follow: Instagram API limitations - action logged but not executed`);
+  console.log(`[auto-follow] Instagram API limitations - action logged but not executed`);
 
   return {
     success: true,
@@ -147,20 +318,20 @@ async function handleAutoFollow(payload: AutoFollowPayload): Promise<JobResult> 
 }
 
 async function handleAutoDM(payload: AutoDMPayload): Promise<JobResult> {
-  console.log(`📨 Sending DM to user ${payload.targetUserId}`);
+  console.log(`[auto-dm] User ${payload.targetUserId}`);
+
+  // Fetch fresh token
+  const creds = await getFeedCredentials(payload.feedId);
+  const accessToken = creds?.accessToken || payload.accessToken;
 
   try {
-    // Instagram Graph API supports messaging through Instagram Messaging API
-    // Requires specific permissions and business account
-
-    // Instagram DM API requires JSON format (not form-urlencoded)
     const response = await fetch(
       `https://graph.instagram.com/v21.0/me/messages`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${payload.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           recipient: { id: payload.targetUserId },
@@ -174,18 +345,20 @@ async function handleAutoDM(payload: AutoDMPayload): Promise<JobResult> {
       throw new Error(data.error.message);
     }
 
-    console.log(`✅ DM sent: ${data.message_id}`);
+    console.log(`[auto-dm] DM sent: ${data.message_id}`);
     return { success: true, data: { messageId: data.message_id } };
   } catch (error: any) {
-    console.error(`❌ DM failed:`, error.message);
+    console.error(`[auto-dm] Failed:`, error.message);
     return { success: false, error: error.message };
   }
 }
 
-// Main processor function
+// =============================================
+// Main processor
+// =============================================
 
 export async function processJob(job: Job): Promise<JobResult> {
-  console.log(`🔧 Processing job ${job.id} (${job.type})`);
+  console.log(`[job-processor] Processing ${job.id} (${job.type})`);
 
   switch (job.type) {
     case 'PUBLISH_POST':
@@ -204,7 +377,6 @@ export async function processJob(job: Job): Promise<JobResult> {
       return handleAutoDM(job.payload as AutoDMPayload);
 
     case 'FETCH_ANALYTICS':
-      // Analytics fetching would go here
       return { success: true, data: { message: 'Analytics fetched' } };
 
     default:

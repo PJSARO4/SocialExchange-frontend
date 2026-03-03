@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 import { processJob } from '@/lib/worker/job-processor';
 
 // Force dynamic rendering
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 /**
  * Cron Job Processor
  *
- * Called by Vercel Cron every 5 minutes to process pending jobs.
+ * Called daily by Vercel Cron to process pending jobs from the JobQueue table.
  * Processes up to 10 jobs per invocation.
  *
  * Security: Validates CRON_SECRET to ensure only Vercel can trigger this.
@@ -31,106 +32,103 @@ export async function GET(request: NextRequest) {
   const results: Array<{ jobId: string; type: string; success: boolean; error?: string }> = [];
 
   try {
-    // Try to use Prisma for job queue if available
-    let prisma: any;
-    try {
-      const { PrismaClient } = await import('@prisma/client');
-      prisma = new PrismaClient();
-    } catch {
-      // Prisma not available - return info
-      return NextResponse.json({
-        message: 'Job processor ready. Prisma not configured - using demo mode.',
-        processed: 0,
-        duration_ms: Date.now() - startTime,
-      });
-    }
-
-    // Fetch pending jobs ordered by scheduled time
-    const pendingJobs = await prisma.job.findMany({
+    // Fetch pending jobs from JobQueue, ordered by priority then scheduled time
+    const pendingJobs = await prisma.jobQueue.findMany({
       where: {
         status: 'PENDING',
-        scheduledFor: {
-          lte: new Date(),
-        },
+        OR: [
+          { scheduledFor: null },
+          { scheduledFor: { lte: new Date() } },
+        ],
+        attempts: { lt: 3 }, // Don't retry exhausted jobs
       },
-      orderBy: {
-        scheduledFor: 'asc',
-      },
+      orderBy: [
+        { priority: 'desc' },
+        { scheduledFor: 'asc' },
+        { createdAt: 'asc' },
+      ],
       take: MAX_JOBS_PER_RUN,
     });
 
-    console.log(`🔧 Processing ${pendingJobs.length} pending jobs...`);
+    console.log(`[process-jobs] Processing ${pendingJobs.length} pending jobs...`);
 
     for (const job of pendingJobs) {
       try {
         // Lock the job
-        await prisma.job.update({
+        await prisma.jobQueue.update({
           where: { id: job.id },
           data: {
             status: 'PROCESSING',
-            startedAt: new Date(),
+            processedAt: new Date(),
+            workerId: 'vercel-cron',
           },
         });
 
         // Process the job
         const result = await processJob({
           id: job.id,
-          type: job.type,
-          payload: job.payload,
-          status: 'PROCESSING',
+          type: job.jobType as any,
+          payload: job.payload as any,
+          status: 'PROCESSING' as any,
+          priority: job.priority,
           attempts: job.attempts,
           maxAttempts: job.maxAttempts,
-          scheduledFor: job.scheduledFor,
+          scheduledFor: job.scheduledFor || undefined,
           createdAt: job.createdAt,
+          updatedAt: job.updatedAt,
         });
 
         // Update job status
-        await prisma.job.update({
+        await prisma.jobQueue.update({
           where: { id: job.id },
           data: {
             status: result.success ? 'COMPLETED' : 'FAILED',
             completedAt: new Date(),
-            result: result.data || null,
-            error: result.error || null,
+            lastError: result.error || null,
             attempts: job.attempts + 1,
+            lockedAt: null,
+            lockExpiry: null,
+            workerId: null,
           },
         });
 
         results.push({
           jobId: job.id,
-          type: job.type,
+          type: job.jobType,
           success: result.success,
           error: result.error,
         });
 
-        console.log(`${result.success ? '✅' : '❌'} Job ${job.id} (${job.type}): ${result.success ? 'completed' : result.error}`);
+        console.log(`[process-jobs] ${result.success ? 'OK' : 'FAIL'} Job ${job.id} (${job.jobType}): ${result.success ? 'completed' : result.error}`);
       } catch (error: any) {
-        // Mark job as failed
-        await prisma.job.update({
+        // Mark job as failed or retry
+        const attempts = job.attempts + 1;
+        await prisma.jobQueue.update({
           where: { id: job.id },
           data: {
-            status: job.attempts + 1 >= job.maxAttempts ? 'FAILED' : 'PENDING',
-            error: error.message,
-            attempts: job.attempts + 1,
+            status: attempts >= job.maxAttempts ? 'FAILED' : 'PENDING',
+            lastError: error.message,
+            attempts,
+            lockedAt: null,
+            lockExpiry: null,
+            workerId: null,
           },
         });
 
         results.push({
           jobId: job.id,
-          type: job.type,
+          type: job.jobType,
           success: false,
           error: error.message,
         });
       }
     }
 
-    await prisma.$disconnect();
-
     const duration = Date.now() - startTime;
     const succeeded = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
 
-    console.log(`🏁 Cron complete: ${succeeded} succeeded, ${failed} failed (${duration}ms)`);
+    console.log(`[process-jobs] Done: ${succeeded} succeeded, ${failed} failed (${duration}ms)`);
 
     return NextResponse.json({
       processed: results.length,
@@ -140,7 +138,7 @@ export async function GET(request: NextRequest) {
       results,
     });
   } catch (error: any) {
-    console.error('❌ Cron processor error:', error);
+    console.error('[process-jobs] Critical error:', error);
     return NextResponse.json(
       { error: 'Cron processor failed', details: error.message },
       { status: 500 }

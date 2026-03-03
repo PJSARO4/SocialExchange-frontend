@@ -5,12 +5,15 @@ import { jobQueue } from '@/lib/queue';
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
 
-
 /**
  * Scheduler API
  *
  * Handles scheduled posts with database persistence and job queue integration.
- * Posts are stored in PostgreSQL and publishing jobs are queued for the worker.
+ * Posts are stored in PostgreSQL (ScheduledPostNew model) and publishing jobs
+ * are queued for the cron worker to process.
+ *
+ * The worker fetches access tokens from the SocialFeed record at execution time,
+ * so we don't store tokens in the scheduled post or job payload.
  */
 
 // GET - List scheduled posts
@@ -24,7 +27,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const posts = await prisma.scheduledPost.findMany({
+    const posts = await prisma.scheduledPostNew.findMany({
       where: {
         feedId,
         ...(status && { status: status.toUpperCase() as any }),
@@ -78,8 +81,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify the feed exists and is connected
+    const feed = await prisma.socialFeed.findUnique({
+      where: { id: feed_id },
+      select: { id: true, isConnected: true, platformAccountId: true, accessToken: true },
+    });
+
+    if (!feed) {
+      return NextResponse.json({ error: 'Feed not found' }, { status: 404 });
+    }
+
+    if (!feed.isConnected || !feed.accessToken) {
+      return NextResponse.json(
+        { error: 'Feed is not connected or missing access token' },
+        { status: 400 }
+      );
+    }
+
     // Create the scheduled post in database
-    const post = await prisma.scheduledPost.create({
+    const post = await prisma.scheduledPostNew.create({
       data: {
         feedId: feed_id,
         caption: content || '',
@@ -92,8 +112,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Queue the job for the worker
-    // Note: We'll need the access token when the job runs
-    // For now, we just queue the post ID - the worker will fetch tokens from the Feed record
+    // Worker will fetch access token from the Feed record at execution time
     try {
       const jobId = await jobQueue.addJob(
         'PUBLISH_POST',
@@ -103,9 +122,9 @@ export async function POST(request: NextRequest) {
           caption: post.caption,
           mediaUrls: post.mediaUrls,
           mediaType: post.mediaType,
-          // Access token will be fetched by the worker from the Feed record
-          accessToken: '', // Placeholder
-          instagramUserId: '', // Placeholder
+          // Worker fetches these from the Feed record at execution time
+          accessToken: feed.accessToken,
+          instagramUserId: feed.platformAccountId,
         },
         {
           scheduledFor: scheduledDate,
@@ -113,8 +132,8 @@ export async function POST(request: NextRequest) {
         }
       );
 
-      // Update post with job ID
-      await prisma.scheduledPost.update({
+      // Update post with job ID and status
+      await prisma.scheduledPostNew.update({
         where: { id: post.id },
         data: {
           jobId,
@@ -123,12 +142,13 @@ export async function POST(request: NextRequest) {
       });
     } catch (queueError) {
       console.warn('Failed to queue job:', queueError);
-      // Post is still saved, just not queued
+      // Post is still saved, just not queued yet
     }
 
-    console.log('📅 Scheduled new post:', {
+    console.log('[scheduler] Scheduled new post:', {
       id: post.id,
       scheduled_time: post.scheduledFor,
+      media_type: post.mediaType,
     });
 
     // Return API-formatted response
@@ -162,7 +182,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Post ID is required' }, { status: 400 });
     }
 
-    const existingPost = await prisma.scheduledPost.findUnique({
+    const existingPost = await prisma.scheduledPostNew.findUnique({
       where: { id },
     });
 
@@ -195,36 +215,45 @@ export async function PUT(request: NextRequest) {
     }
     if (updates.status !== undefined) updateData.status = updates.status.toUpperCase();
 
-    const updatedPost = await prisma.scheduledPost.update({
+    const updatedPost = await prisma.scheduledPostNew.update({
       where: { id },
       data: updateData,
     });
 
-    // If time changed, we should update the job in the queue
-    // For simplicity, we'll cancel the old job and create a new one
+    // If time changed, cancel old job and create a new one
     if (updates.scheduled_time && existingPost.jobId) {
-      await jobQueue.cancelJob(existingPost.jobId);
+      try {
+        await jobQueue.cancelJob(existingPost.jobId);
 
-      const jobId = await jobQueue.addJob(
-        'PUBLISH_POST',
-        {
-          feedId: updatedPost.feedId,
-          scheduledPostId: updatedPost.id,
-          caption: updatedPost.caption,
-          mediaUrls: updatedPost.mediaUrls,
-          mediaType: updatedPost.mediaType,
-          accessToken: '',
-          instagramUserId: '',
-        },
-        {
-          scheduledFor: updatedPost.scheduledFor,
-        }
-      );
+        // Fetch feed details for the new job
+        const feed = await prisma.socialFeed.findUnique({
+          where: { id: updatedPost.feedId },
+          select: { platformAccountId: true, accessToken: true },
+        });
 
-      await prisma.scheduledPost.update({
-        where: { id },
-        data: { jobId },
-      });
+        const jobId = await jobQueue.addJob(
+          'PUBLISH_POST',
+          {
+            feedId: updatedPost.feedId,
+            scheduledPostId: updatedPost.id,
+            caption: updatedPost.caption,
+            mediaUrls: updatedPost.mediaUrls,
+            mediaType: updatedPost.mediaType,
+            accessToken: feed?.accessToken || '',
+            instagramUserId: feed?.platformAccountId || '',
+          },
+          {
+            scheduledFor: updatedPost.scheduledFor,
+          }
+        );
+
+        await prisma.scheduledPostNew.update({
+          where: { id },
+          data: { jobId },
+        });
+      } catch (rescheduleError) {
+        console.warn('Failed to reschedule job:', rescheduleError);
+      }
     }
 
     const formattedPost = {
@@ -259,7 +288,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const existingPost = await prisma.scheduledPost.findUnique({
+    const existingPost = await prisma.scheduledPostNew.findUnique({
       where: { id },
     });
 
@@ -277,14 +306,18 @@ export async function DELETE(request: NextRequest) {
 
     // Cancel the job if queued
     if (existingPost.jobId) {
-      await jobQueue.cancelJob(existingPost.jobId);
+      try {
+        await jobQueue.cancelJob(existingPost.jobId);
+      } catch (cancelError) {
+        console.warn('Failed to cancel job:', cancelError);
+      }
     }
 
-    await prisma.scheduledPost.delete({
+    await prisma.scheduledPostNew.delete({
       where: { id },
     });
 
-    console.log('🗑️ Deleted scheduled post:', id);
+    console.log('[scheduler] Deleted scheduled post:', id);
 
     return NextResponse.json({ success: true, deleted_id: id });
   } catch (error: any) {

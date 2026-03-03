@@ -549,37 +549,55 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
       ]);
 
       try {
-        // Simulate upload progress
+        // Start uploading
         setUploadProgress(prev =>
-          prev.map(p => (p.id === uploadId ? { ...p, status: 'uploading' as const } : p))
+          prev.map(p => (p.id === uploadId ? { ...p, status: 'uploading' as const, progress: 10 } : p))
         );
 
-        // Simulate chunked upload
-        for (let i = 0; i <= 100; i += 20) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-          setUploadProgress(prev =>
-            prev.map(p => (p.id === uploadId ? { ...p, progress: i } : p))
-          );
+        // Upload to Vercel Blob via API
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('title', file.name.replace(/\.[^/.]+$/, ''));
+        if (feedId) formData.append('feedId', feedId);
+
+        setUploadProgress(prev =>
+          prev.map(p => (p.id === uploadId ? { ...p, progress: 30 } : p))
+        );
+
+        const response = await fetch('/api/content/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        setUploadProgress(prev =>
+          prev.map(p => (p.id === uploadId ? { ...p, progress: 80 } : p))
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Upload failed' }));
+          throw new Error(errorData.error || `Upload failed (${response.status})`);
         }
+
+        const data = await response.json();
+        const uploaded = data.content;
 
         // Determine content type
         const isVideo = file.type.startsWith('video/');
-        const isImage = file.type.startsWith('image/');
-        const type = isVideo ? 'video' : isImage ? 'image' : 'text';
+        const type = isVideo ? 'video' : 'image';
 
-        // Create content item
-        // TODO: Replace with actual upload to storage
-        const fakeUrl = URL.createObjectURL(file);
+        // Also add to local content state
         const newContent = await addContent({
           type,
-          title: file.name.replace(/\.[^/.]+$/, ''),
-          mediaUrls: [fakeUrl],
+          title: uploaded.title || file.name.replace(/\.[^/.]+$/, ''),
+          mediaUrls: [uploaded.storageUrl],
           sourceType: 'upload',
           feedId,
           metadata: {
             originalFilename: file.name,
             fileSize: file.size,
             mimeType: file.type,
+            contentId: uploaded.id,
+            storageUrl: uploaded.storageUrl,
           },
         });
 
@@ -593,6 +611,7 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
           )
         );
       } catch (err) {
+        console.error('Upload error:', err);
         setUploadProgress(prev =>
           prev.map(p =>
             p.id === uploadId

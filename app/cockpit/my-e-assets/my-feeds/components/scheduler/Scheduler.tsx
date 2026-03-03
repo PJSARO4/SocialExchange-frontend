@@ -26,8 +26,42 @@ export default function Scheduler({ feedId }: SchedulerProps) {
     // Context not available, use empty array
   }
 
-  // Mock scheduled posts (will be replaced with context/API)
+  // Scheduled posts from database
   const [scheduledPosts, setScheduledPosts] = useState<ScheduledPost[]>([]);
+
+  // Load scheduled posts from API on mount
+  const loadScheduledPosts = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (feedId) params.set('feed_id', feedId);
+      const res = await fetch(`/api/scheduler?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        const posts = (data.posts || []).map((p: any) => ({
+          id: p.id,
+          contentId: '',
+          feedId: p.feedId || p.feed_id,
+          platform: p.feed?.platform?.toLowerCase() || 'instagram',
+          scheduledFor: p.scheduledFor || p.scheduled_for,
+          timezone: p.timezone || 'UTC',
+          caption: p.caption || '',
+          mediaUrls: p.mediaUrls || p.media_urls || [],
+          hashtags: [],
+          status: (p.status || 'PENDING').toLowerCase(),
+          postedAt: p.publishedAt || p.published_at,
+          errorMessage: p.lastError || p.last_error,
+          createdAt: p.createdAt || p.created_at,
+          updatedAt: p.updatedAt || p.updated_at,
+        }));
+        setScheduledPosts(posts);
+      }
+    } catch (err) {
+      console.error('Failed to load scheduled posts:', err);
+    }
+  }, [feedId]);
+
+  // Load on mount
+  useState(() => { loadScheduledPosts(); });
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
@@ -66,30 +100,32 @@ export default function Scheduler({ feedId }: SchedulerProps) {
   const handleSchedule = async (payload: CreateSchedulePayload) => {
     setIsScheduling(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
       const feed = feeds.find((f) => f.id === payload.feedId);
       const contentItem = content.find((c) => c.id === payload.contentId);
 
       if (!feed || !contentItem) throw new Error('Invalid feed or content');
 
-      const newPost: ScheduledPost = {
-        id: `post-${Date.now()}`,
-        contentId: payload.contentId,
-        feedId: payload.feedId,
-        platform: feed.platform,
-        scheduledFor: payload.scheduledFor,
-        timezone: payload.timezone || 'UTC',
-        caption: payload.caption || contentItem.caption || '',
-        mediaUrls: contentItem.mediaUrls,
-        hashtags: payload.hashtags || contentItem.hashtags,
-        status: 'scheduled',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      // Call real scheduler API
+      const res = await fetch('/api/scheduler', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          feed_id: payload.feedId,
+          platform: feed.platform?.toLowerCase() || 'instagram',
+          content: payload.caption || contentItem.caption || '',
+          media_urls: contentItem.mediaUrls,
+          media_type: contentItem.type === 'video' ? 'VIDEO' : contentItem.type === 'carousel' ? 'CAROUSEL' : 'IMAGE',
+          scheduled_time: payload.scheduledFor,
+        }),
+      });
 
-      setScheduledPosts((prev) => [...prev, newPost]);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: 'Scheduling failed' }));
+        throw new Error(errData.error || 'Scheduling failed');
+      }
+
+      // Refresh from API
+      await loadScheduledPosts();
       setShowScheduleModal(false);
       setSelectedContent(null);
     } catch (err) {
@@ -100,15 +136,26 @@ export default function Scheduler({ feedId }: SchedulerProps) {
   };
 
   const handleCancelPost = async (postId: string) => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    setScheduledPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId
-          ? { ...p, status: 'cancelled' as const, updatedAt: new Date().toISOString() }
-          : p
-      )
-    );
+    try {
+      // Call scheduler API to cancel
+      const res = await fetch('/api/scheduler', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: postId, status: 'CANCELLED' }),
+      });
+
+      if (res.ok) {
+        setScheduledPosts((prev) =>
+          prev.map((p) =>
+            p.id === postId
+              ? { ...p, status: 'cancelled' as const, updatedAt: new Date().toISOString() }
+              : p
+          )
+        );
+      }
+    } catch (err) {
+      console.error('Failed to cancel post:', err);
+    }
   };
 
   const handleReschedule = (post: ScheduledPost) => {

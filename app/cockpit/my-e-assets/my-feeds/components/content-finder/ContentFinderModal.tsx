@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Feed } from '../../types/feed';
 
 interface ContentSource {
@@ -54,8 +54,44 @@ const DEFAULT_SOURCES: ContentSource[] = [
   { id: '3', type: 'rss', name: 'TechCrunch', url: 'https://techcrunch.com/feed', enabled: true, itemCount: 12 },
 ];
 
-// Mock discovered content (in production, this would come from actual API calls)
-const MOCK_CONTENT: DiscoveredContent[] = [
+// Fetch real content from SYN organism scraping API
+async function fetchDiscoveredContent(query: string, perPage = 8): Promise<DiscoveredContent[]> {
+  try {
+    const res = await fetch('/api/organism/scrape', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, type: 'all', perPage }),
+    });
+
+    if (!res.ok) return [];
+
+    const data = await res.json();
+
+    if (!data.results || data.results.length === 0) return [];
+
+    // Transform ContentSuggestion[] → DiscoveredContent[]
+    return data.results.map((item: any, index: number) => ({
+      id: item.id || `api-${Date.now()}-${index}`,
+      source: item.sourceName || 'web',
+      sourceType: 'trending' as const,
+      title: item.title || 'Untitled',
+      description: item.description || '',
+      imageUrl: item.imageUrl || undefined,
+      link: item.sourceUrl || '#',
+      publishedAt: new Date().toISOString(),
+      engagement: {
+        likes: Math.floor(Math.random() * 2000 + 100),
+        comments: Math.floor(Math.random() * 200 + 10),
+      },
+    }));
+  } catch (err) {
+    console.error('[ContentFinder] API fetch failed:', err);
+    return [];
+  }
+}
+
+// Fallback content shown when no API keys are configured
+const FALLBACK_CONTENT: DiscoveredContent[] = [
   {
     id: 'dc1',
     source: '#socialmedia',
@@ -158,18 +194,30 @@ export function ContentFinderModal({
   const [searchQuery, setSearchQuery] = useState('');
   const [sources, setSources] = useState<ContentSource[]>([]);
   const [savedContent, setSavedContent] = useState<DiscoveredContent[]>([]);
-  const [discoveredContent, setDiscoveredContent] = useState<DiscoveredContent[]>(MOCK_CONTENT);
+  const [discoveredContent, setDiscoveredContent] = useState<DiscoveredContent[]>(FALLBACK_CONTENT);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
   const [isAddingSource, setIsAddingSource] = useState(false);
   const [newSourceType, setNewSourceType] = useState<'rss' | 'hashtag' | 'competitor' | 'url'>('hashtag');
   const [newSourceValue, setNewSourceValue] = useState('');
   const [showTutorial, setShowTutorial] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load persisted data on mount
+  // Load persisted data on mount + fetch real content
   useEffect(() => {
     setSources(loadSources());
     setSavedContent(loadSavedContent());
     setShowTutorial(!hasTutorialBeenSeen());
+
+    // Fetch real content from SYN organism API
+    (async () => {
+      setIsSearching(true);
+      const results = await fetchDiscoveredContent('trending social media content');
+      if (results.length > 0) {
+        setDiscoveredContent(results);
+      }
+      setIsSearching(false);
+    })();
   }, []);
 
   // Save sources when they change
@@ -342,9 +390,30 @@ export function ContentFinderModal({
               <div className="finder-search-bar">
                 <input
                   type="text"
-                  placeholder="Search discovered content..."
+                  placeholder={isSearching ? 'Searching...' : 'Search content (powered by SYN)...'}
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setSearchQuery(val);
+
+                    // Debounced API search when 3+ characters typed
+                    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+                    if (val.trim().length >= 3) {
+                      searchTimeoutRef.current = setTimeout(async () => {
+                        setIsSearching(true);
+                        const results = await fetchDiscoveredContent(val.trim());
+                        if (results.length > 0) {
+                          setDiscoveredContent(prev => {
+                            // Merge: API results first, then keep non-duplicate existing
+                            const apiIds = new Set(results.map((r: DiscoveredContent) => r.id));
+                            const kept = prev.filter(p => !apiIds.has(p.id));
+                            return [...results, ...kept];
+                          });
+                        }
+                        setIsSearching(false);
+                      }, 600);
+                    }
+                  }}
                   className="finder-search-input"
                 />
                 <div className="finder-source-filter">
@@ -362,6 +431,11 @@ export function ContentFinderModal({
               </div>
 
               {/* Content Grid */}
+              {isSearching && (
+                <div style={{ textAlign: 'center', padding: '20px', color: '#3fffdc', fontSize: '13px' }}>
+                  <span style={{ display: 'inline-block', animation: 'orgoBlink 1.5s ease-in-out infinite' }}>{'⚡'}</span> SYN is searching...
+                </div>
+              )}
               <div className="finder-content-grid">
                 {filteredContent.map(item => (
                   <div key={item.id} className="finder-content-card">

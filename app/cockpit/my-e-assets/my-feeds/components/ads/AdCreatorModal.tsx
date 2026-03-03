@@ -141,23 +141,116 @@ const MOCK_TEMPLATES: AdTemplate[] = [
 type ViewMode = 'dashboard' | 'templates' | 'creator' | 'campaigns';
 type CreatorStep = 'objective' | 'platform' | 'creative' | 'targeting' | 'budget' | 'review';
 
-const STORAGE_KEY = 'se-ad-campaigns';
-
-// Load campaigns from localStorage
-function loadCampaigns(): Campaign[] {
-  if (typeof window === 'undefined') return [];
+// API-based campaign persistence
+async function fetchCampaigns(): Promise<Campaign[]> {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const res = await fetch('/api/ads');
+    if (!res.ok) return [];
+    const data = await res.json();
+    // Map DB campaigns to frontend Campaign type
+    return (data.campaigns || []).map((c: any) => ({
+      id: c.id,
+      feedId: c.feedId || '',
+      name: c.name,
+      objective: c.objective,
+      status: c.status?.toLowerCase() || 'draft',
+      budget: {
+        type: c.budgetType || 'daily',
+        amount: parseFloat(c.budgetAmount) || 0,
+        currency: c.budgetCurrency || 'USD',
+        bidStrategy: c.bidStrategy || 'lowest_cost',
+      },
+      schedule: {
+        startDate: c.startDate ? new Date(c.startDate).toISOString().split('T')[0] : '',
+        endDate: c.endDate ? new Date(c.endDate).toISOString().split('T')[0] : undefined,
+        timezone: c.timezone || 'UTC',
+      },
+      ads: (c.ads || []).map((ad: any) => ({
+        id: ad.id,
+        campaignId: c.id,
+        name: ad.name,
+        platform: ad.platform,
+        objective: c.objective,
+        creative: {
+          type: ad.format || 'single_image',
+          headline: ad.headline,
+          primaryText: ad.primaryText,
+          callToAction: ad.callToAction || 'Learn More',
+          destinationUrl: ad.destinationUrl,
+          mediaUrls: ad.mediaUrls || [],
+        },
+        targeting: {
+          locations: ad.targetLocations || [],
+          ageMin: ad.targetAgeMin || 18,
+          ageMax: ad.targetAgeMax || 65,
+          genders: ad.targetGenders || ['all'],
+          interests: ad.targetInterests || [],
+          behaviors: [],
+          customAudiences: [],
+          excludedAudiences: [],
+          languages: [],
+          placements: [],
+        },
+        budget: {
+          type: c.budgetType || 'daily',
+          amount: parseFloat(c.budgetAmount) || 0,
+          currency: c.budgetCurrency || 'USD',
+          bidStrategy: c.bidStrategy || 'lowest_cost',
+        },
+        schedule: {
+          startDate: c.startDate ? new Date(c.startDate).toISOString().split('T')[0] : '',
+          endDate: c.endDate ? new Date(c.endDate).toISOString().split('T')[0] : undefined,
+          timezone: c.timezone || 'UTC',
+        },
+        status: ad.status || 'draft',
+        createdAt: ad.createdAt,
+        updatedAt: ad.updatedAt,
+      })),
+      totalSpend: parseFloat(c.totalSpend) || 0,
+      totalImpressions: c.totalImpressions || 0,
+      totalClicks: c.totalClicks || 0,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
+    }));
   } catch {
     return [];
   }
 }
 
-// Save campaigns to localStorage
-function saveCampaigns(campaigns: Campaign[]) {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(campaigns));
+async function saveCampaignToAPI(campaign: {
+  name: string;
+  feedId?: string;
+  objective: string;
+  budgetType: string;
+  budgetAmount: number;
+  budgetCurrency: string;
+  bidStrategy: string;
+  startDate?: string;
+  endDate?: string;
+  timezone: string;
+  ads: any[];
+}): Promise<Campaign | null> {
+  try {
+    const res = await fetch('/api/ads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(campaign),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.campaign;
+  } catch {
+    return null;
+  }
+}
+
+async function deleteCampaignFromAPI(campaignId: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/ads?campaignId=${campaignId}`, { method: 'DELETE' });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCampaign }: AdCreatorModalProps) {
@@ -196,17 +289,20 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 
-  // Load campaigns on mount
-  useEffect(() => {
-    setCampaigns(loadCampaigns());
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Save campaigns when they change
+  // Load campaigns from API on mount
   useEffect(() => {
-    if (campaigns.length > 0) {
-      saveCampaigns(campaigns);
-    }
-  }, [campaigns]);
+    let cancelled = false;
+    setIsLoading(true);
+    fetchCampaigns().then(data => {
+      if (!cancelled) {
+        setCampaigns(data);
+        setIsLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   if (!isOpen) return null;
 
@@ -272,41 +368,55 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
     }
   };
 
-  // Create ad
-  const handleCreateAd = () => {
-    const newCampaign: Campaign = {
-      id: `campaign-${Date.now()}`,
-      feedId: feedId || '',
-      name: `Campaign ${new Date().toLocaleDateString()}`,
-      objective: selectedObjective!,
-      status: 'draft',
-      budget: adBudget as AdBudget,
-      schedule: adSchedule as AdSchedule,
-      ads: [{
-        id: `ad-${Date.now()}`,
-        campaignId: `campaign-${Date.now()}`,
-        name: adCreative.headline || 'Untitled Ad',
-        platform: selectedPlatforms[0],
+  // Create ad - saves to database via API
+  const handleCreateAd = async () => {
+    setIsLoading(true);
+    try {
+      const payload = {
+        name: `Campaign ${new Date().toLocaleDateString()}`,
+        feedId: feedId || undefined,
         objective: selectedObjective!,
-        creative: adCreative as AdCreative,
-        targeting: adTargeting as AdTargeting,
-        budget: adBudget as AdBudget,
-        schedule: adSchedule as AdSchedule,
-        status: 'draft',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }],
-      totalSpend: 0,
-      totalImpressions: 0,
-      totalClicks: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+        budgetType: adBudget.type || 'daily',
+        budgetAmount: adBudget.amount || 0,
+        budgetCurrency: adBudget.currency || 'USD',
+        bidStrategy: adBudget.bidStrategy || 'lowest_cost',
+        startDate: adSchedule.startDate || undefined,
+        endDate: adSchedule.endDate || undefined,
+        timezone: adSchedule.timezone || 'UTC',
+        ads: selectedPlatforms.map(platform => ({
+          name: adCreative.headline || 'Untitled Ad',
+          platform,
+          format: adCreative.type || 'single_image',
+          headline: adCreative.headline || null,
+          primaryText: adCreative.primaryText || null,
+          callToAction: adCreative.callToAction || 'Learn More',
+          destinationUrl: adCreative.destinationUrl || null,
+          mediaUrls: adCreative.mediaUrls || [],
+          targetLocations: adTargeting.locations || [],
+          targetAgeMin: adTargeting.ageMin || 18,
+          targetAgeMax: adTargeting.ageMax || 65,
+          targetGenders: adTargeting.genders || ['all'],
+          targetInterests: adTargeting.interests || [],
+        })),
+      };
 
-    setCampaigns(prev => [...prev, newCampaign]);
-    onCreateCampaign?.(newCampaign);
-    setViewMode('dashboard');
-    resetCreator();
+      const saved = await saveCampaignToAPI(payload);
+
+      // Refresh campaigns from API
+      const refreshed = await fetchCampaigns();
+      setCampaigns(refreshed);
+
+      if (saved) {
+        onCreateCampaign?.(saved as any);
+      }
+
+      setViewMode('dashboard');
+      resetCreator();
+    } catch (err) {
+      console.error('Failed to create campaign:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Reset creator

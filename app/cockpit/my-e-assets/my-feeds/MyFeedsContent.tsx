@@ -21,6 +21,7 @@ import { Platform, PLATFORMS } from './types/feed';
 import ModeSelector from './components/ModeSelector';
 import MyEStorageContent from '../my-e-storage/MyEStorageContent';
 import '../my-e-storage/e-storage.css';
+import '../my-e-storage/organism/organism.css';
 
 // Workspace section type - these are internal to the workspace, not top-level tabs
 type WorkspaceSection = 'overview' | 'content' | 'e-storage' | 'scheduler' | 'earnex' | 'competitors';

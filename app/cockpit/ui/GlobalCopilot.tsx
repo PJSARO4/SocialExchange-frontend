@@ -120,6 +120,37 @@ const getAIResponse = (input: string, context: string): { content: string; actio
     };
   }
 
+  // SYN Organism clipboard — user asks about clipped items
+  if (lowerInput.includes('clip') || lowerInput.includes('syn') || lowerInput.includes('organism')) {
+    let clipInfo = '';
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('sx_organism_clipboard') : null;
+      if (raw) {
+        const items = JSON.parse(raw);
+        if (Array.isArray(items) && items.length > 0) {
+          clipInfo = items.slice(0, 5).map((i: any) => `• **${i.title}** (${i.type})`).join('\n');
+        }
+      }
+    } catch { /* ignore */ }
+
+    if (clipInfo) {
+      return {
+        content: `**SYN Clipboard** 📋\n\nItems SYN has clipped for you:\n\n${clipInfo}\n\nYou can use these in your next post or schedule them.`,
+        actions: [
+          { id: 'go-storage', label: 'Open E-Storage', type: 'navigate', payload: '/cockpit/my-e-assets/my-e-storage' },
+          { id: 'go-feeds', label: 'Create Post', type: 'navigate', payload: '/cockpit/my-e-assets/my-feeds' },
+        ],
+      };
+    }
+
+    return {
+      content: `**SYN Organism** 🧬\n\nSYN is your AI assistant living inside E-Storage. It can:\n\n• Compress images for social platforms\n• Auto-tag and organize your files\n• Find trending content\n• Clip items for use in Copilot\n\nVisit E-Storage to interact with SYN!`,
+      actions: [
+        { id: 'go-storage', label: 'Open E-Storage', type: 'navigate', payload: '/cockpit/my-e-assets/my-e-storage' },
+      ],
+    };
+  }
+
   // Content/feeds related
   if (lowerInput.includes('content') || lowerInput.includes('post') || lowerInput.includes('idea')) {
     const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
@@ -228,9 +259,26 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
+  // Read SYN organism clipboard for bridge context
+  const getOrganismClipboard = (): string => {
+    try {
+      const raw = localStorage.getItem('sx_organism_clipboard');
+      if (!raw) return '';
+      const items = JSON.parse(raw);
+      if (!Array.isArray(items) || items.length === 0) return '';
+      return items
+        .slice(0, 5)
+        .map((i: any) => `${i.title} (${i.type}, tags: ${(i.tags || []).join(', ')})`)
+        .join('; ');
+    } catch {
+      return '';
+    }
+  };
+
   // Call Anthropic API with fallback to local pattern matching
   const callCopilotAPI = async (userInput: string): Promise<{ content: string; actions?: CopilotAction[] }> => {
     try {
+      const synClipboard = getOrganismClipboard();
       const response = await fetch('/api/copilot/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -239,6 +287,7 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
           context: {
             page: context,
             pathname,
+            ...(synClipboard ? { synClipboard } : {}),
           },
         }),
       });

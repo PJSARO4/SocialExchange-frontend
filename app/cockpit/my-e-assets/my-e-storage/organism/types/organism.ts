@@ -135,7 +135,17 @@ export interface ActivityNotification {
   dismissed: boolean;
 }
 
-// --- Copilot Bridge (Future) ---
+// --- Copilot Bridge ---
+
+export interface CopilotBridgeItem {
+  id: string;
+  title: string;
+  type: string;
+  tags: string[];
+  folder: string;
+  clippedAt: string;
+  description?: string;
+}
 
 export interface CopilotBridge {
   requestClip: (itemIds: string[]) => Promise<void>;
