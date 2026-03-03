@@ -409,6 +409,116 @@ export default function MyEAssetsPage() {
             Manage Feeds →
           </div>
         </div>
+
+        {/* My E-Storage Card */}
+        <div
+          onClick={() => router.push('/cockpit/my-e-assets/my-e-storage')}
+          style={{
+            padding: '1.5rem',
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(63, 255, 220, 0.04) 100%)',
+            border: '1px solid rgba(139, 92, 246, 0.25)',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            transition: 'all 0.25s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(139, 92, 246, 0.12)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <div
+            style={{
+              fontSize: '2rem',
+              marginBottom: '0.75rem',
+            }}
+          >
+            💾
+          </div>
+          <h2
+            style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              color: '#a78bfa',
+              marginBottom: '0.5rem',
+            }}
+          >
+            My E-Storage
+          </h2>
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: '#9ca3af',
+              lineHeight: 1.5,
+              marginBottom: '1rem',
+            }}
+          >
+            Store scraped content, media assets, and files locally on your device.
+            Drag & drop, import via API, or scrape from the web.
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              gap: '1rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <span
+              style={{
+                fontSize: '0.6875rem',
+                padding: '0.25rem 0.5rem',
+                background: 'rgba(139, 92, 246, 0.15)',
+                borderRadius: '4px',
+                color: '#a78bfa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.25px',
+              }}
+            >
+              Local Storage
+            </span>
+            <span
+              style={{
+                fontSize: '0.6875rem',
+                padding: '0.25rem 0.5rem',
+                background: 'rgba(139, 92, 246, 0.15)',
+                borderRadius: '4px',
+                color: '#a78bfa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.25px',
+              }}
+            >
+              Drag & Drop
+            </span>
+            <span
+              style={{
+                fontSize: '0.6875rem',
+                padding: '0.25rem 0.5rem',
+                background: 'rgba(139, 92, 246, 0.15)',
+                borderRadius: '4px',
+                color: '#a78bfa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.25px',
+              }}
+            >
+              Organized
+            </span>
+          </div>
+          <div
+            style={{
+              marginTop: '1rem',
+              fontSize: '0.8125rem',
+              color: '#a78bfa',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}
+          >
+            Open Storage →
+          </div>
+        </div>
       </div>
 
       {/* Transparency Notice */}

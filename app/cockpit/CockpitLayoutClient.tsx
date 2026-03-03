@@ -292,7 +292,22 @@ function CockpitContent({ children }: { children: ReactNode }) {
           onClick={() => setCopilotOpen(v => !v)}
           title="AI Copilot"
         >
-          🧠 COPILOT
+          {'🧠'} COPILOT
+        </span>
+
+        <span
+          className="footer-tab"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+          title="SYN Organism"
+        >
+          <span style={{
+            width: '6px',
+            height: '6px',
+            borderRadius: '50%',
+            background: '#a78bfa',
+            display: 'inline-block',
+          }} />
+          SYN
         </span>
 
         <span

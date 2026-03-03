@@ -19,9 +19,11 @@ import { CompetitorsTab } from './components/competitors';
 import { PageTutorial } from './components/PageTutorial';
 import { Platform, PLATFORMS } from './types/feed';
 import ModeSelector from './components/ModeSelector';
+import MyEStorageContent from '../my-e-storage/MyEStorageContent';
+import '../my-e-storage/e-storage.css';
 
 // Workspace section type - these are internal to the workspace, not top-level tabs
-type WorkspaceSection = 'overview' | 'content' | 'scheduler' | 'earnex' | 'competitors';
+type WorkspaceSection = 'overview' | 'content' | 'e-storage' | 'scheduler' | 'earnex' | 'competitors';
 
 export default function MyFeedsContent() {
   const { feeds, selectedFeed, selectedFeedId, feedsLoading, addFeed, updateFeed, toggleAutomation, setControlMode } = useFeeds();
@@ -258,6 +260,13 @@ export default function MyFeedsContent() {
                   <span className="nav-label">Content</span>
                 </button>
                 <button
+                  className={`workspace-nav-item ${workspaceSection === 'e-storage' ? 'active' : ''}`}
+                  onClick={() => setWorkspaceSection('e-storage')}
+                >
+                  <span className="nav-icon">💾</span>
+                  <span className="nav-label">E-Storage</span>
+                </button>
+                <button
                   className={`workspace-nav-item ${workspaceSection === 'scheduler' ? 'active' : ''}`}
                   onClick={() => setWorkspaceSection('scheduler')}
                 >
@@ -449,6 +458,10 @@ export default function MyFeedsContent() {
 
                 {workspaceSection === 'content' && (
                   <ContentLibrary />
+                )}
+
+                {workspaceSection === 'e-storage' && (
+                  <MyEStorageContent embedded />
                 )}
 
                 {workspaceSection === 'scheduler' && (
