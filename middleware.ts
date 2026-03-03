@@ -1,43 +1,14 @@
 import { NextResponse, NextRequest } from 'next/server';
 
 /**
- * Next.js Middleware - Geo-Blocking + Security Headers
- * 
- * 1. Blocks US-based users (redirects to /restricted)
- * 2. Applies security headers to all matched responses
+ * Next.js Middleware - Security Headers
+ *
+ * Applies security headers to all matched responses
  */
 
-// Countries that are blocked from accessing the platform
-const BLOCKED_COUNTRIES = ['US'];
-
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
   // -------------------------------------------
-  // 0. Skip geo-block for static assets, API routes, and the restricted page itself
-  // -------------------------------------------
-  const skipGeoBlock =
-    pathname.startsWith('/restricted') ||
-    pathname.startsWith('/api/') ||
-    pathname.startsWith('/_next/');
-
-  // -------------------------------------------
-  // 1. Geo-blocking (Vercel provides country header)
-  // -------------------------------------------
-  if (!skipGeoBlock) {
-    const country = request.headers.get('x-vercel-ip-country') || '';
-    // Only bypass geo-blocking in local development (NODE_ENV=development)
-    // No query-param bypass allowed — prevents production security holes
-    const isDev = process.env.NODE_ENV === 'development';
-
-    if (BLOCKED_COUNTRIES.includes(country) && !isDev) {
-      const restrictedUrl = new URL('/restricted', request.url);
-      return NextResponse.redirect(restrictedUrl);
-    }
-  }
-
-  // -------------------------------------------
-  // 2. Security Headers (applied to ALL routes)
+  // Security Headers (applied to ALL routes)
   // -------------------------------------------
   const response = NextResponse.next();
 
