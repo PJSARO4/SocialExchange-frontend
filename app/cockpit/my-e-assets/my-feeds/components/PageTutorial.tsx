@@ -1,6 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { ReactNode } from 'react';
+import {
+  RocketLaunchIcon,
+  DevicePhoneMobileIcon,
+  ChartBarIcon,
+  BookOpenIcon,
+  CalendarDaysIcon,
+  BoltIcon,
+  CursorArrowRaysIcon,
+} from '@heroicons/react/24/outline';
 
 const TUTORIAL_STORAGE_KEY = 'se-myfeeds-tutorial-seen';
 
@@ -8,7 +18,7 @@ interface TutorialStep {
   id: string;
   title: string;
   description: string;
-  icon: string;
+  icon: ReactNode;
   highlight?: string;
 }
 
@@ -17,47 +27,47 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     id: 'welcome',
     title: 'Welcome to My Feeds',
     description: 'Your command center for managing all your social media accounts in one place.',
-    icon: '🚀',
+    icon: <RocketLaunchIcon style={{ width: 32, height: 32 }} />,
   },
   {
     id: 'accounts',
     title: 'Connect Your Accounts',
     description: 'Add your social media accounts from the left panel. Click the + button to connect Instagram, Twitter, and more.',
-    icon: '📱',
+    icon: <DevicePhoneMobileIcon style={{ width: 32, height: 32 }} />,
     highlight: 'feeds-panel',
   },
   {
     id: 'workspace',
     title: 'Workspace Tab',
     description: 'View account metrics, toggle automation, and access quick actions for each connected account.',
-    icon: '📊',
+    icon: <ChartBarIcon style={{ width: 32, height: 32 }} />,
     highlight: 'workspace-tab',
   },
   {
     id: 'content',
     title: 'Content Library',
     description: 'Store and organize your media. Upload images, videos, and manage your content for scheduling.',
-    icon: '📚',
+    icon: <BookOpenIcon style={{ width: 32, height: 32 }} />,
     highlight: 'content-tab',
   },
   {
     id: 'scheduler',
     title: 'Scheduler',
     description: 'Plan your posts with a calendar view. Drag and drop content to schedule optimal posting times.',
-    icon: '📅',
+    icon: <CalendarDaysIcon style={{ width: 32, height: 32 }} />,
     highlight: 'scheduler-tab',
   },
   {
     id: 'automation',
     title: 'Automation Modes',
     description: 'Choose how automated you want each account: Automated (full auto), Independent (manual with AI help), or Observe (monitoring only).',
-    icon: '⚡',
+    icon: <BoltIcon style={{ width: 32, height: 32 }} />,
   },
   {
     id: 'features',
     title: 'Quick Actions',
     description: 'Access AI Copilot for content help, Automation for workflows, Content Finder for discovering trends, and Analytics for insights.',
-    icon: '🎯',
+    icon: <CursorArrowRaysIcon style={{ width: 32, height: 32 }} />,
   },
 ];
 

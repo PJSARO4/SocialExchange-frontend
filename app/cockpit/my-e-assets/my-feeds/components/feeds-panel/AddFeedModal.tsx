@@ -1,6 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  LockClosedIcon,
+  PencilIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/24/outline';
 import { signIn } from 'next-auth/react';
 import { Platform, PLATFORMS, CreateFeedPayload } from '../../types/feed';
 
@@ -144,7 +150,7 @@ export default function AddFeedModal({
                   onClick={() => setConnectionMode('oauth')}
                   disabled={isLoading || isConnecting}
                 >
-                  <span className="mode-icon">🔐</span>
+                  <span className="mode-icon"><LockClosedIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="mode-label">OAuth</span>
                   <span className="mode-desc">Real data &amp; posting</span>
                 </button>
@@ -154,7 +160,7 @@ export default function AddFeedModal({
                   onClick={() => setConnectionMode('manual')}
                   disabled={isLoading || isConnecting}
                 >
-                  <span className="mode-icon">✏️</span>
+                  <span className="mode-icon"><PencilIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="mode-label">Manual</span>
                   <span className="mode-desc">Observation only</span>
                 </button>
@@ -185,7 +191,7 @@ export default function AddFeedModal({
 
               {platform === 'instagram' && (
                 <div className="oauth-requirements">
-                  <span className="requirements-icon">ℹ</span>
+                  <span className="requirements-icon"><InformationCircleIcon style={{ width: 16, height: 16 }} /></span>
                   <div className="requirements-text">
                     <strong>Requirements:</strong>
                     <ul>
@@ -259,7 +265,7 @@ export default function AddFeedModal({
 
               {/* Manual Mode Notice */}
               <div className="modal-notice warning">
-                <span className="modal-notice-icon">⚠</span>
+                <span className="modal-notice-icon"><ExclamationTriangleIcon style={{ width: 16, height: 16, color: '#ff9500' }} /></span>
                 <span className="modal-notice-text">
                   Manual accounts are <strong>observation only</strong>.
                   You won't be able to post or view real analytics.
@@ -291,7 +297,7 @@ export default function AddFeedModal({
           {/* Error Message */}
           {error && (
             <div className="modal-error">
-              <span className="modal-error-icon">⚠</span>
+              <span className="modal-error-icon"><ExclamationTriangleIcon style={{ width: 16, height: 16, color: '#ff4444' }} /></span>
               {error}
             </div>
           )}

@@ -1,5 +1,12 @@
 'use client';
 
+import React from 'react';
+import {
+  CpuChipIcon,
+  HandRaisedIcon,
+  EyeIcon,
+  LockClosedIcon,
+} from '@heroicons/react/20/solid';
 import { Feed, PLATFORMS, ControlMode } from '../../types/feed';
 
 interface FeedCardProps {
@@ -10,27 +17,27 @@ interface FeedCardProps {
 }
 
 // Mode configuration with icons and colors
-const MODE_CONFIG: Record<ControlMode, { icon: string; label: string; color: string; description: string }> = {
+const MODE_CONFIG: Record<ControlMode, { icon: React.ReactNode; label: string; color: string; description: string }> = {
   autopilot: {
-    icon: '🤖',
+    icon: <CpuChipIcon style={{ width: 14, height: 14 }} />,
     label: 'AUTO',
     color: '#00ff88',
     description: 'AI auto-curates and posts'
   },
   manual: {
-    icon: '✋',
+    icon: <HandRaisedIcon style={{ width: 14, height: 14 }} />,
     label: 'MANUAL',
     color: '#00d4ff',
     description: 'User-driven content'
   },
   observation: {
-    icon: '👁️',
+    icon: <EyeIcon style={{ width: 14, height: 14 }} />,
     label: 'OBSERVE',
     color: '#ff9500',
     description: 'Track public metrics only'
   },
   escrow: {
-    icon: '🔒',
+    icon: <LockClosedIcon style={{ width: 14, height: 14 }} />,
     label: 'ESCROW',
     color: '#a855f7',
     description: 'Pending approval'
@@ -115,9 +122,7 @@ export default function FeedCard({
         <span
           className="feed-card-automation-dot"
           style={{ color: feed.automationEnabled ? modeConfig.color : undefined }}
-        >
-          ⦿
-        </span>
+        />
       </div>
 
       {/* Remove button */}

@@ -1,5 +1,14 @@
 'use client';
 
+import { ReactNode } from 'react';
+import {
+  CameraIcon,
+  MusicalNoteIcon,
+  UserGroupIcon,
+  PlayIcon,
+  BriefcaseIcon,
+} from '@heroicons/react/20/solid';
+
 // ============================================
 // PLATFORM TYPES
 // ============================================
@@ -75,7 +84,7 @@ export interface Feed {
 export interface PlatformInfo {
   id: Platform;
   label: string;
-  icon: string;
+  icon: ReactNode;
   color: string;
   supportsVideo: boolean;
   supportsCarousel: boolean;
@@ -86,7 +95,7 @@ export const PLATFORMS: Record<Platform, PlatformInfo> = {
   instagram: {
     id: 'instagram',
     label: 'Instagram',
-    icon: '📸',
+    icon: <CameraIcon style={{ width: 16, height: 16 }} />,
     color: '#E4405F',
     supportsVideo: true,
     supportsCarousel: true,
@@ -95,7 +104,7 @@ export const PLATFORMS: Record<Platform, PlatformInfo> = {
   tiktok: {
     id: 'tiktok',
     label: 'TikTok',
-    icon: '🎵',
+    icon: <MusicalNoteIcon style={{ width: 16, height: 16 }} />,
     color: '#000000',
     supportsVideo: true,
     supportsCarousel: false,
@@ -104,7 +113,7 @@ export const PLATFORMS: Record<Platform, PlatformInfo> = {
   facebook: {
     id: 'facebook',
     label: 'Facebook',
-    icon: '👤',
+    icon: <UserGroupIcon style={{ width: 16, height: 16 }} />,
     color: '#1877F2',
     supportsVideo: true,
     supportsCarousel: true,
@@ -122,7 +131,7 @@ export const PLATFORMS: Record<Platform, PlatformInfo> = {
   youtube: {
     id: 'youtube',
     label: 'YouTube',
-    icon: '▶️',
+    icon: <PlayIcon style={{ width: 16, height: 16 }} />,
     color: '#FF0000',
     supportsVideo: true,
     supportsCarousel: false,
@@ -131,7 +140,7 @@ export const PLATFORMS: Record<Platform, PlatformInfo> = {
   linkedin: {
     id: 'linkedin',
     label: 'LinkedIn',
-    icon: '💼',
+    icon: <BriefcaseIcon style={{ width: 16, height: 16 }} />,
     color: '#0A66C2',
     supportsVideo: true,
     supportsCarousel: true,

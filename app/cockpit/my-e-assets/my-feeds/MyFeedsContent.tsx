@@ -23,6 +23,30 @@ import MyEStorageContent from '../my-e-storage/MyEStorageContent';
 import '../my-e-storage/e-storage.css';
 import '../my-e-storage/organism/organism.css';
 
+import {
+  HomeIcon,
+  BookOpenIcon,
+  CircleStackIcon,
+  CalendarDaysIcon,
+  CurrencyDollarIcon,
+  EyeIcon,
+  PencilSquareIcon,
+  CalendarIcon,
+  ChartBarIcon,
+  CpuChipIcon,
+  BoltIcon,
+  MagnifyingGlassIcon,
+  LinkIcon,
+  Cog6ToothIcon,
+  InformationCircleIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  InboxIcon,
+  SignalIcon,
+  CameraIcon,
+} from '@heroicons/react/24/outline';
+
 // Workspace section type - these are internal to the workspace, not top-level tabs
 type WorkspaceSection = 'overview' | 'content' | 'e-storage' | 'scheduler' | 'earnex' | 'competitors';
 
@@ -250,42 +274,42 @@ export default function MyFeedsContent() {
                   className={`workspace-nav-item ${workspaceSection === 'overview' ? 'active' : ''}`}
                   onClick={() => setWorkspaceSection('overview')}
                 >
-                  <span className="nav-icon">🏠</span>
+                  <span className="nav-icon"><HomeIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="nav-label">Overview</span>
                 </button>
                 <button
                   className={`workspace-nav-item ${workspaceSection === 'content' ? 'active' : ''}`}
                   onClick={() => setWorkspaceSection('content')}
                 >
-                  <span className="nav-icon">📚</span>
+                  <span className="nav-icon"><BookOpenIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="nav-label">Content</span>
                 </button>
                 <button
                   className={`workspace-nav-item ${workspaceSection === 'e-storage' ? 'active' : ''}`}
                   onClick={() => setWorkspaceSection('e-storage')}
                 >
-                  <span className="nav-icon">💾</span>
+                  <span className="nav-icon"><CircleStackIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="nav-label">E-Storage</span>
                 </button>
                 <button
                   className={`workspace-nav-item ${workspaceSection === 'scheduler' ? 'active' : ''}`}
                   onClick={() => setWorkspaceSection('scheduler')}
                 >
-                  <span className="nav-icon">📅</span>
+                  <span className="nav-icon"><CalendarDaysIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="nav-label">Scheduler</span>
                 </button>
                 <button
                   className={`workspace-nav-item ${workspaceSection === 'earnex' ? 'active' : ''}`}
                   onClick={() => setWorkspaceSection('earnex')}
                 >
-                  <span className="nav-icon">💰</span>
+                  <span className="nav-icon"><CurrencyDollarIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="nav-label">EarnEx</span>
                 </button>
                 <button
                   className={`workspace-nav-item ${workspaceSection === 'competitors' ? 'active' : ''}`}
                   onClick={() => setWorkspaceSection('competitors')}
                 >
-                  <span className="nav-icon">👁️</span>
+                  <span className="nav-icon"><EyeIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="nav-label">Competitors</span>
                 </button>
               </nav>
@@ -300,36 +324,36 @@ export default function MyFeedsContent() {
                       <h3 className="section-title">Quick Actions</h3>
                       <div className="quick-actions-grid">
                         <button className="quick-action-card" onClick={() => setCreatePostOpen(true)}>
-                          <span className="action-icon">📝</span>
+                          <span className="action-icon"><PencilSquareIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">Create Post</span>
                         </button>
                         <button className="quick-action-card" onClick={() => setSchedulerOpen(true)}>
-                          <span className="action-icon">📆</span>
+                          <span className="action-icon"><CalendarIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">Schedule</span>
                         </button>
                         <button className="quick-action-card" onClick={() => setAnalyticsOpen(true)}>
-                          <span className="action-icon">📊</span>
+                          <span className="action-icon"><ChartBarIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">Analytics</span>
                         </button>
                         <button className="quick-action-card" onClick={() => setCopilotModalOpen(true)}>
-                          <span className="action-icon">🤖</span>
+                          <span className="action-icon"><CpuChipIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">AI Copilot</span>
                         </button>
                         <button className="quick-action-card" onClick={() => setAutomationOpen(true)}>
-                          <span className="action-icon">⚡</span>
+                          <span className="action-icon"><BoltIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">Automation</span>
                         </button>
                         <button className="quick-action-card" onClick={() => setContentFinderOpen(true)}>
-                          <span className="action-icon">🔍</span>
+                          <span className="action-icon"><MagnifyingGlassIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">Find Content</span>
                         </button>
                         <button className="quick-action-card linkex" onClick={() => setAutomationOpen(true)}>
-                          <span className="action-icon">⛓️</span>
+                          <span className="action-icon"><LinkIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">LinkEx</span>
                           <span className="action-subtitle">Chain Builder</span>
                         </button>
                         <button className="quick-action-card" onClick={() => setSettingsOpen(true)}>
-                          <span className="action-icon">⚙️</span>
+                          <span className="action-icon"><Cog6ToothIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">Settings</span>
                         </button>
                       </div>
@@ -340,7 +364,7 @@ export default function MyFeedsContent() {
                       <div className="section-header-with-tooltip">
                         <h3 className="section-title">Telemetry</h3>
                         <div className="tooltip-trigger">
-                          <span className="info-icon">ℹ️</span>
+                          <span className="info-icon"><InformationCircleIcon style={{ width: 16, height: 16 }} /></span>
                           <div className="tooltip-content">
                             <strong>Real-time account health metrics</strong>
                             <p>Monitor your account's performance at a glance. These metrics update automatically when synced with your connected platform.</p>
@@ -376,7 +400,7 @@ export default function MyFeedsContent() {
                       <div className="section-header-with-tooltip">
                         <h3 className="section-title">Automation</h3>
                         <div className="tooltip-trigger">
-                          <span className="info-icon">ℹ️</span>
+                          <span className="info-icon"><InformationCircleIcon style={{ width: 16, height: 16 }} /></span>
                           <div className="tooltip-content">
                             <strong>Workflow automation control</strong>
                             <p><b>ARMED:</b> Your automation chains are active and will execute based on triggers (schedules, events, etc.)</p>
@@ -390,13 +414,13 @@ export default function MyFeedsContent() {
                       {selectedFeed.platform === 'instagram' && (
                         <div className="api-limitations-banner">
                           <div className="api-limitations-header">
-                            <span className="api-limitations-icon">⚠️</span>
+                            <span className="api-limitations-icon"><ExclamationTriangleIcon style={{ width: 18, height: 18, color: '#ff9500' }} /></span>
                             <strong>Instagram API Limitations</strong>
                           </div>
                           <div className="api-limitations-content">
                             <div className="api-limitations-columns">
                               <div className="api-limitations-column">
-                                <span className="column-title">✅ Available</span>
+                                <span className="column-title"><CheckCircleIcon style={{ width: 14, height: 14, color: '#00ff88', display: 'inline' }} /> Available</span>
                                 <ul>
                                   <li>Publish posts (Business account)</li>
                                   <li>Schedule posts</li>
@@ -405,7 +429,7 @@ export default function MyFeedsContent() {
                                 </ul>
                               </div>
                               <div className="api-limitations-column">
-                                <span className="column-title">❌ Not Available</span>
+                                <span className="column-title"><XCircleIcon style={{ width: 14, height: 14, color: '#ff4444', display: 'inline' }} /> Not Available</span>
                                 <ul>
                                   <li>Auto-like (API blocked)</li>
                                   <li>Auto-follow (API blocked)</li>
@@ -424,7 +448,7 @@ export default function MyFeedsContent() {
                             className={`automation-toggle ${selectedFeed.automationEnabled ? 'armed' : 'idle'}`}
                             onClick={() => toggleAutomation(selectedFeed.id)}
                           >
-                            <span className={`toggle-indicator ${selectedFeed.automationEnabled ? 'pulse-glow' : ''}`}>⦿</span>
+                            <span className={`toggle-indicator ${selectedFeed.automationEnabled ? 'pulse-glow' : ''}`} />
                             <span className="toggle-label">
                               {selectedFeed.automationEnabled ? 'ARMED' : 'IDLE'}
                             </span>
@@ -437,7 +461,7 @@ export default function MyFeedsContent() {
                           className="automation-configure-btn"
                           onClick={() => setAutomationOpen(true)}
                         >
-                          ⛓️ Configure Chains
+                          <LinkIcon style={{ width: 16, height: 16, display: 'inline', verticalAlign: 'middle', marginRight: 6 }} /> Configure Chains
                         </button>
                       </div>
                     </section>
@@ -447,7 +471,7 @@ export default function MyFeedsContent() {
                       <h3 className="section-title">Upcoming</h3>
                       <div className="upcoming-panel">
                         <div className="upcoming-empty">
-                          <span className="upcoming-empty-icon">📭</span>
+                          <span className="upcoming-empty-icon"><InboxIcon style={{ width: 32, height: 32 }} /></span>
                           <span className="upcoming-empty-text">No scheduled posts</span>
                           <button className="upcoming-action" onClick={() => setSchedulerOpen(true)}>
                             + Schedule Post
@@ -484,7 +508,7 @@ export default function MyFeedsContent() {
             /* No Account Selected State */
             <div className="no-account-selected">
               <div className="no-account-content">
-                <div className="no-account-icon">📡</div>
+                <div className="no-account-icon"><SignalIcon style={{ width: 48, height: 48 }} /></div>
                 <h2 className="no-account-title">Select an Account</h2>
                 <p className="no-account-text">
                   Choose an account from the left panel to start managing your content
@@ -498,7 +522,7 @@ export default function MyFeedsContent() {
                       href="/api/auth/signin/instagram"
                       className="connect-instagram-btn"
                     >
-                      <span className="connect-instagram-icon">📸</span>
+                      <span className="connect-instagram-icon"><CameraIcon style={{ width: 20, height: 20 }} /></span>
                       <span>Connect Instagram</span>
                     </a>
                     <p className="connect-requirement">

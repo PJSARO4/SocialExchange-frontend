@@ -1,6 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { ReactNode } from 'react';
+import {
+  CpuChipIcon,
+  HandRaisedIcon,
+  EyeIcon,
+} from '@heroicons/react/20/solid';
 import { ControlMode } from '../types/feed';
 
 interface ModeSelectorProps {
@@ -13,7 +19,7 @@ interface ModeSelectorProps {
 // Mode configuration with full details
 const MODES: Array<{
   id: ControlMode;
-  icon: string;
+  icon: ReactNode;
   label: string;
   shortLabel: string;
   color: string;
@@ -23,7 +29,7 @@ const MODES: Array<{
 }> = [
   {
     id: 'autopilot',
-    icon: '🤖',
+    icon: <CpuChipIcon style={{ width: 18, height: 18 }} />,
     label: 'Automated',
     shortLabel: 'AUTO',
     color: '#00ff88',
@@ -38,7 +44,7 @@ const MODES: Array<{
   },
   {
     id: 'manual',
-    icon: '✋',
+    icon: <HandRaisedIcon style={{ width: 18, height: 18 }} />,
     label: 'Independent',
     shortLabel: 'MANUAL',
     color: '#00d4ff',
@@ -53,7 +59,7 @@ const MODES: Array<{
   },
   {
     id: 'observation',
-    icon: '👁️',
+    icon: <EyeIcon style={{ width: 18, height: 18 }} />,
     label: 'Observe',
     shortLabel: 'OBSERVE',
     color: '#ff9500',

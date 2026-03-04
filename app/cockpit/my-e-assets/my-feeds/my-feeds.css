@@ -16024,3 +16024,542 @@
   -webkit-backdrop-filter: blur(4px);
   border-radius: 10px;
 }
+
+
+/* ======================================================
+   SVG ICON SYSTEM - HEROICONS INTEGRATION
+   Replaces emoji icons with crisp SVG rendering.
+   Ensures color inheritance, alignment, and glow effects.
+====================================================== */
+
+/* === Global SVG icon defaults === */
+.nav-icon svg,
+.action-icon svg,
+.info-icon svg,
+.upcoming-empty-icon svg,
+.no-account-icon svg,
+.feeds-list-empty-icon svg,
+.connect-instagram-icon svg,
+.mode-icon svg,
+.mode-card-icon svg,
+.mode-details-icon svg,
+.mode-dropdown-item .mode-icon svg,
+.api-limitations-icon svg,
+.column-title svg,
+.modal-notice-icon svg,
+.modal-error-icon svg,
+.requirements-icon svg,
+.tutorial-step-icon svg,
+.feed-card-avatar-fallback svg,
+.feed-card-mode-badge svg,
+.workspace-platform-badge svg,
+.workspace-platform-icon svg,
+.platform-tile-icon svg,
+.stat-icon svg,
+.empty-icon svg {
+  color: currentColor;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* === Nav icon SVG specific sizing & alignment === */
+.workspace-nav-item .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: currentColor;
+}
+
+.workspace-nav-item .nav-icon svg {
+  color: currentColor;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.3s ease,
+              color 0.3s ease;
+}
+
+.workspace-nav-item:hover .nav-icon svg {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 6px rgba(63, 255, 220, 0.4));
+  color: var(--tac-accent-system);
+}
+
+.workspace-nav-item.active .nav-icon svg {
+  color: var(--tac-accent-system);
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px rgba(63, 255, 220, 0.5));
+}
+
+/* === Action icon SVG sizing & glow === */
+.quick-action-card .action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(63, 255, 220, 0.06);
+  border: 1px solid rgba(63, 255, 220, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--tac-accent-system);
+}
+
+.quick-action-card .action-icon svg {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.3s ease;
+}
+
+.quick-action-card:hover .action-icon {
+  background: rgba(63, 255, 220, 0.12);
+  border-color: rgba(63, 255, 220, 0.25);
+  box-shadow: 0 0 16px rgba(63, 255, 220, 0.15);
+  transform: scale(1.1);
+}
+
+.quick-action-card:hover .action-icon svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 8px rgba(63, 255, 220, 0.5));
+}
+
+/* Per-card accent colors for action icons */
+.quick-action-card:nth-child(3) .action-icon,
+.quick-action-card:nth-child(4) .action-icon {
+  background: rgba(167, 139, 250, 0.06);
+  border-color: rgba(167, 139, 250, 0.1);
+  color: #a78bfa;
+}
+
+.quick-action-card:nth-child(3):hover .action-icon,
+.quick-action-card:nth-child(4):hover .action-icon {
+  background: rgba(167, 139, 250, 0.15);
+  border-color: rgba(167, 139, 250, 0.3);
+  box-shadow: 0 0 16px rgba(167, 139, 250, 0.2);
+}
+
+.quick-action-card:nth-child(5) .action-icon {
+  background: rgba(16, 185, 129, 0.06);
+  border-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.quick-action-card:nth-child(5):hover .action-icon {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
+}
+
+.quick-action-card.linkex .action-icon {
+  background: rgba(63, 255, 220, 0.08);
+  border-color: rgba(63, 255, 220, 0.15);
+  color: var(--tac-accent-system);
+}
+
+.quick-action-card:nth-child(8) .action-icon {
+  background: rgba(107, 114, 128, 0.06);
+  border-color: rgba(107, 114, 128, 0.1);
+  color: #9ca3af;
+}
+
+.quick-action-card:nth-child(8):hover .action-icon {
+  background: rgba(107, 114, 128, 0.12);
+  border-color: rgba(107, 114, 128, 0.25);
+  box-shadow: 0 0 12px rgba(107, 114, 128, 0.15);
+}
+
+/* Settings cog rotation on hover */
+.quick-action-card:nth-child(8):hover .action-icon svg {
+  animation: cogSpin 0.6s ease-out forwards;
+}
+
+@keyframes cogSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(90deg); }
+}
+
+/* === Info icon SVG (tooltip triggers) === */
+.tooltip-trigger .info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--tac-text-ghost);
+  transition: color 0.2s, opacity 0.2s;
+}
+
+.tooltip-trigger:hover .info-icon {
+  color: var(--tac-accent-system);
+  opacity: 1;
+}
+
+.tooltip-trigger .info-icon svg {
+  filter: drop-shadow(0 0 4px rgba(63, 255, 220, 0.2));
+}
+
+/* === Empty state icon SVG glow === */
+.upcoming-empty-icon,
+.no-account-icon,
+.feeds-list-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tac-text-tertiary);
+}
+
+.upcoming-empty-icon svg {
+  animation: floatBob 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(63, 255, 220, 0.15));
+  color: var(--tac-accent-system);
+  opacity: 0.6;
+}
+
+.no-account-icon svg {
+  animation: floatBob 4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 16px rgba(63, 255, 220, 0.2));
+  color: var(--tac-accent-system);
+  opacity: 0.5;
+}
+
+.feeds-list-empty-icon svg {
+  animation: floatBob 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 2px 8px rgba(63, 255, 220, 0.15));
+  color: var(--tac-text-tertiary);
+  opacity: 0.6;
+}
+
+/* === Connect Instagram button SVG icon === */
+.connect-instagram-icon {
+  display: inline-flex;
+  align-items: center;
+  color: currentColor;
+}
+
+.connect-instagram-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #E4405F 0%, #833AB4 50%, #F77737 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.connect-instagram-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: none;
+  pointer-events: none;
+}
+
+.connect-instagram-btn:hover::after {
+  animation: shineSlide 0.6s ease-out forwards;
+}
+
+.connect-instagram-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(228, 64, 95, 0.3), 0 0 40px rgba(131, 58, 180, 0.15);
+}
+
+/* === Platform tile icon SVG === */
+.platform-tile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.platform-tile:hover .platform-tile-icon svg {
+  transform: scale(1.15);
+}
+
+/* === Feed card avatar fallback SVG === */
+.feed-card-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--tac-text-tertiary);
+}
+
+.feed-card-avatar-fallback svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* === Mode badge and platform badge SVG icons === */
+.feed-card-mode-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feed-card-mode-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+.workspace-platform-badge svg,
+.workspace-platform-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* === API limitations banner SVG icons === */
+.api-limitations-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.column-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.column-title svg {
+  flex-shrink: 0;
+}
+
+/* === Automation configure button SVG icon === */
+.automation-configure-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.automation-configure-btn:hover svg {
+  transform: rotate(15deg) scale(1.1);
+  filter: drop-shadow(0 0 6px rgba(63, 255, 220, 0.4));
+}
+
+/* === Toggle indicator: use a CSS circle instead of emoji ⦿ === */
+.toggle-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.automation-toggle.armed .toggle-indicator {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2), 0 0 12px rgba(16, 185, 129, 0.4);
+  animation: statusDotPulse 1.5s ease-in-out infinite;
+}
+
+/* === Feed card automation dot: CSS circle === */
+.feed-card-automation-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  transition: all 0.3s ease;
+}
+
+.feed-card-automation.armed .feed-card-automation-dot {
+  box-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+  animation: statusDotPulse 1.5s ease-in-out infinite;
+}
+
+/* === Tutorial step icon SVG === */
+.tutorial-step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(63, 255, 220, 0.08);
+  border: 1px solid rgba(63, 255, 220, 0.15);
+  color: var(--tac-accent-system);
+  margin: 0 auto 1rem;
+}
+
+.tutorial-step-icon svg {
+  filter: drop-shadow(0 0 8px rgba(63, 255, 220, 0.3));
+}
+
+/* === Modal icon SVG alignment === */
+.modal-notice-icon,
+.modal-error-icon,
+.requirements-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* === Mode selector SVG icons === */
+.mode-card-icon,
+.mode-details-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mode-card-icon svg {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.mode-card:hover .mode-card-icon svg {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* OAuth icon sizing */
+.oauth-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* === ENHANCED: Quick action grid - larger cards, bento-inspired === */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+/* LinkEx card spans 2 rows for emphasis */
+.quick-action-card.linkex {
+  grid-row: span 1;
+  background: linear-gradient(135deg, rgba(5, 15, 20, 0.8) 0%, rgba(63, 255, 220, 0.06) 100%);
+  border-color: rgba(63, 255, 220, 0.15);
+}
+
+@media (max-width: 900px) {
+  .quick-actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* === ENHANCED: Section title with accent bar === */
+.workspace-section .section-title {
+  position: relative;
+  padding-left: 12px;
+}
+
+.workspace-section .section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 14px;
+  background: var(--tac-accent-system);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(63, 255, 220, 0.3);
+}
+
+/* === ENHANCED: Workspace section hover lift === */
+.workspace-section {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.workspace-section:hover {
+  border-color: rgba(63, 255, 220, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* === ENHANCED: Header compact - more refined === */
+.feeds-deck-header.compact {
+  padding: 1.25rem 2rem 1rem 2rem;
+}
+
+.feeds-deck-header.compact .feeds-deck-title {
+  font-size: 1.25rem;
+  letter-spacing: 6px;
+  margin-bottom: 0.5rem;
+}
+
+/* === ENHANCED: Scrollbar styling for workspace === */
+.workspace-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.workspace-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.workspace-content::-webkit-scrollbar-thumb {
+  background: rgba(63, 255, 220, 0.15);
+  border-radius: 3px;
+}
+
+.workspace-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(63, 255, 220, 0.3);
+}
+
+.feeds-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.feeds-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.feeds-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+.feeds-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* === ENHANCED: Keyboard focused states for accessibility === */
+.workspace-nav-item:focus-visible {
+  outline: 2px solid var(--tac-accent-system);
+  outline-offset: -2px;
+}
+
+.quick-action-card:focus-visible {
+  outline: 2px solid var(--tac-accent-system);
+  outline-offset: 2px;
+}
+
+.feed-card:focus-visible {
+  outline: 2px solid var(--tac-accent-system);
+  outline-offset: -2px;
+}
+
+/* === ENHANCED: Active press feedback === */
+.quick-action-card:active {
+  transform: translateY(0) scale(0.98);
+  transition-duration: 0.1s;
+}
+
+.workspace-nav-item:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+.automation-toggle:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}

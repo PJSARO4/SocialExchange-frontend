@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { SignalIcon } from '@heroicons/react/24/outline';
 import { useFeeds } from '../../context/FeedsContext';
 import FeedCard from './FeedCard';
 import AddFeedModal from './AddFeedModal';
@@ -54,7 +55,7 @@ export default function FeedsList() {
       <div className="feeds-list">
         {feeds.length === 0 ? (
           <div className="feeds-list-empty">
-            <div className="feeds-list-empty-icon">📡</div>
+            <div className="feeds-list-empty-icon"><SignalIcon style={{ width: 32, height: 32 }} /></div>
             <div className="feeds-list-empty-title">NO ACCOUNTS</div>
             <div className="feeds-list-empty-text">
               Connect your first social account to get started
