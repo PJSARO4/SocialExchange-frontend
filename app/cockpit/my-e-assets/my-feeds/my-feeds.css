@@ -14940,3 +14940,1087 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ======================================================
+   ENHANCED UI OVERHAUL - ALIVE & DYNAMIC
+   Making the interface feel alive with glassmorphism,
+   micro-interactions, and glowing accents
+====================================================== */
+
+/* === NEW KEYFRAMES === */
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(63, 255, 220, 0.15), 0 0 8px rgba(63, 255, 220, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(63, 255, 220, 0.3), 0 0 24px rgba(63, 255, 220, 0.1);
+  }
+}
+
+@keyframes floatBob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes shineSlide {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 200%;
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes counterUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUnderline {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 80%;
+    opacity: 1;
+  }
+}
+
+@keyframes cardLift {
+  from {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  to {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(63, 255, 220, 0.15);
+  }
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.6;
+  }
+}
+
+@keyframes automationPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    text-shadow: 0 0 4px currentColor;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.7;
+    text-shadow: 0 0 12px currentColor, 0 0 24px currentColor;
+  }
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    border-color: rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.1);
+  }
+  50% {
+    border-color: rgba(16, 185, 129, 0.6);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2), 0 0 40px rgba(16, 185, 129, 0.05);
+  }
+}
+
+@keyframes swingSubtle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(8deg);
+  }
+  75% {
+    transform: rotate(-8deg);
+  }
+}
+
+@keyframes meshGradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes statusDotPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0);
+  }
+}
+
+@keyframes tabContentFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes feedCardEntrance {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes avatarRingPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 2px rgba(63, 255, 220, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(63, 255, 220, 0.1), 0 0 12px rgba(63, 255, 220, 0.15);
+  }
+}
+
+
+/* === ENHANCED: Section 1 - Workspace Navigation Tabs === */
+
+.workspace-nav {
+  position: relative;
+  background: rgba(5, 10, 15, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0 1rem;
+}
+
+.workspace-nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--tac-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  overflow: hidden;
+}
+
+.workspace-nav-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(63, 255, 220, 0.05) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.workspace-nav-item:hover::before {
+  opacity: 1;
+}
+
+.workspace-nav-item:hover {
+  color: var(--tac-text-primary);
+  background: transparent;
+  transform: none;
+}
+
+.workspace-nav-item:hover .nav-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 6px rgba(63, 255, 220, 0.4));
+}
+
+.workspace-nav-item .nav-icon {
+  font-size: 1rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.workspace-nav-item .nav-label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
+}
+
+.workspace-nav-item.active {
+  color: var(--tac-accent-system);
+  background: var(--tac-surface-active);
+  border-bottom-color: transparent;
+}
+
+.workspace-nav-item.active .nav-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px rgba(63, 255, 220, 0.5));
+}
+
+.workspace-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 10%;
+  width: 80%;
+  height: 2px;
+  background: var(--tac-accent-system);
+  box-shadow: 0 0 8px rgba(63, 255, 220, 0.5), 0 0 16px rgba(63, 255, 220, 0.2);
+  animation: slideUnderline 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  z-index: 2;
+}
+
+.workspace-nav-item:hover:not(.active) {
+  background: transparent;
+  transform: none;
+}
+
+.workspace-nav-item.active .nav-label {
+  text-shadow: 0 0 8px rgba(63, 255, 220, 0.3);
+}
+
+
+/* === ENHANCED: Section 2 - Account Header Bar (Glassmorphism) === */
+
+.workspace-account-bar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 1.5rem;
+  background: rgba(10, 17, 24, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(63, 255, 220, 0.1);
+  border-top: none;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  animation: fadeSlideUp 0.3s ease-out;
+}
+
+/* === ENHANCED: Avatar pulsing glow when connected === */
+.workspace-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(63, 255, 220, 0.3);
+  transition: all 0.3s ease;
+  animation: avatarRingPulse 3s ease-in-out infinite;
+}
+
+.workspace-avatar:hover {
+  border-color: rgba(63, 255, 220, 0.6);
+  box-shadow: 0 0 16px rgba(63, 255, 220, 0.3);
+}
+
+/* === ENHANCED: Platform badge rotate on hover === */
+.workspace-platform-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  border: 2px solid rgba(10, 17, 24, 0.9);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.workspace-avatar-container:hover .workspace-platform-badge {
+  transform: rotate(360deg);
+}
+
+/* === ENHANCED: Status badge pulsing dot for ACTIVE === */
+.quick-metric-value.status {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  background: var(--tac-status-armed);
+  color: #000;
+  position: relative;
+}
+
+.quick-metric-value.status.active::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -4px;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tac-status-armed);
+  animation: statusDotPulse 1.5s ease-in-out infinite;
+}
+
+/* === ENHANCED: Quick metrics glow on numbers === */
+.quick-metric-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tac-text-critical);
+  text-shadow: 0 0 8px rgba(63, 255, 220, 0.2);
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.3s ease;
+}
+
+.quick-metric:hover .quick-metric-value {
+  color: var(--tac-accent-system);
+  text-shadow: 0 0 12px rgba(63, 255, 220, 0.4), 0 0 24px rgba(63, 255, 220, 0.15);
+}
+
+
+/* === ENHANCED: Section 3 - Quick Actions Grid (Glassmorphism + Shimmer) === */
+
+.quick-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Shimmer sweep pseudo-element */
+.quick-action-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 60%,
+    transparent 100%
+  );
+  transition: none;
+  pointer-events: none;
+}
+
+.quick-action-card:hover::after {
+  animation: shineSlide 0.6s ease-out forwards;
+}
+
+.quick-action-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(63, 255, 220, 0.3);
+  transform: translateY(-4px) scale(1.04);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(63, 255, 220, 0.15),
+    inset 0 0 30px rgba(63, 255, 220, 0.05);
+}
+
+.quick-action-card:hover .action-icon {
+  transform: scale(1.3) rotate(5deg);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quick-action-card .action-icon {
+  font-size: 1.5rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quick-action-card .action-label {
+  font-size: 0.75rem;
+  color: var(--tac-text-secondary);
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.quick-action-card:hover .action-label {
+  color: var(--tac-text-primary);
+}
+
+/* === ENHANCED: Per-card accent colors on hover === */
+/* Create Post = cyan */
+.quick-action-card:nth-child(1):hover {
+  border-color: rgba(63, 255, 220, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(63, 255, 220, 0.2), inset 0 0 30px rgba(63, 255, 220, 0.05);
+}
+/* Schedule = cyan */
+.quick-action-card:nth-child(2):hover {
+  border-color: rgba(63, 255, 220, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(63, 255, 220, 0.2), inset 0 0 30px rgba(63, 255, 220, 0.05);
+}
+/* Analytics = purple */
+.quick-action-card:nth-child(3):hover {
+  border-color: rgba(167, 139, 250, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(167, 139, 250, 0.2), inset 0 0 30px rgba(167, 139, 250, 0.05);
+}
+.quick-action-card:nth-child(3):hover .action-label {
+  color: #a78bfa;
+}
+/* AI Copilot = purple */
+.quick-action-card:nth-child(4):hover {
+  border-color: rgba(167, 139, 250, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(167, 139, 250, 0.2), inset 0 0 30px rgba(167, 139, 250, 0.05);
+}
+.quick-action-card:nth-child(4):hover .action-label {
+  color: #a78bfa;
+}
+/* Automation = green */
+.quick-action-card:nth-child(5):hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.2), inset 0 0 30px rgba(16, 185, 129, 0.05);
+}
+.quick-action-card:nth-child(5):hover .action-label {
+  color: #10b981;
+}
+/* Find Content = cyan */
+.quick-action-card:nth-child(6):hover {
+  border-color: rgba(63, 255, 220, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(63, 255, 220, 0.2), inset 0 0 30px rgba(63, 255, 220, 0.05);
+}
+/* LinkEx = already has special styling, enhance green */
+.quick-action-card.linkex:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15), inset 0 0 30px rgba(16, 185, 129, 0.05);
+}
+/* Settings = muted gray */
+.quick-action-card:nth-child(8):hover {
+  border-color: rgba(107, 114, 128, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(107, 114, 128, 0.2), inset 0 0 30px rgba(107, 114, 128, 0.05);
+}
+.quick-action-card:nth-child(8):hover .action-label {
+  color: #9ca3af;
+}
+
+
+/* === ENHANCED: Section 4 - Telemetry Cards (Glowing + Grid Pattern) === */
+
+.telemetry-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 1rem;
+  background: rgba(5, 10, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 3px solid var(--tac-accent-system);
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Subtle grid line background pattern */
+.telemetry-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, transparent 95%, rgba(255, 255, 255, 0.02) 95%),
+    linear-gradient(90deg, transparent 95%, rgba(255, 255, 255, 0.02) 95%);
+  background-size: 20px 20px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.telemetry-card:hover {
+  transform: translateY(-4px);
+  background: rgba(63, 255, 220, 0.04);
+  border-color: rgba(63, 255, 220, 0.2);
+  border-top-color: var(--tac-accent-system);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(63, 255, 220, 0.1),
+    0 -3px 12px rgba(63, 255, 220, 0.1);
+}
+
+.telemetry-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--tac-text-critical);
+  text-shadow: 0 0 8px rgba(63, 255, 220, 0.25);
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+  animation: counterUp 0.5s ease-out;
+}
+
+.telemetry-card:hover .telemetry-value {
+  color: var(--tac-accent-system);
+  text-shadow: 0 0 12px rgba(63, 255, 220, 0.4), 0 0 24px rgba(63, 255, 220, 0.15);
+}
+
+.telemetry-label {
+  font-size: 0.7rem;
+  color: var(--tac-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 0.375rem;
+  position: relative;
+  z-index: 1;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Telemetry tooltip animate from below */
+.telemetry-tooltip {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(63, 255, 220, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+  color: var(--tac-text-secondary);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+.telemetry-card:hover .telemetry-tooltip {
+  opacity: 1;
+  visibility: visible;
+  bottom: -12px;
+}
+
+/* Per-card top border color variation */
+.telemetry-card.pulse-subtle:nth-child(1) {
+  border-top-color: #3fffdc;
+}
+.telemetry-card.pulse-subtle:nth-child(2) {
+  border-top-color: #a78bfa;
+}
+.telemetry-card.pulse-subtle:nth-child(3) {
+  border-top-color: #10b981;
+}
+.telemetry-card.pulse-subtle:nth-child(4) {
+  border-top-color: #3fffdc;
+}
+
+.telemetry-card.pulse-subtle:nth-child(2):hover .telemetry-value {
+  color: #a78bfa;
+  text-shadow: 0 0 12px rgba(167, 139, 250, 0.4);
+}
+
+.telemetry-card.pulse-subtle:nth-child(3):hover .telemetry-value {
+  color: #10b981;
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+
+/* === ENHANCED: Section 5 - Feed Cards Left Panel === */
+
+.feed-card {
+  position: relative;
+  padding: 1rem;
+  background: rgba(13, 20, 25, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.feed-card:hover {
+  background: rgba(18, 26, 34, 0.9);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.feed-card.selected {
+  background: rgba(10, 26, 31, 0.9);
+  border-color: var(--tac-accent-system);
+  box-shadow: 0 0 0 1px var(--tac-accent-system), inset 0 0 20px rgba(63, 255, 220, 0.06), 0 4px 20px rgba(63, 255, 220, 0.1);
+  transform: scale(1.01);
+}
+
+.feed-card.selected .feed-card-platform-indicator {
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* Staggered entrance animation for feed list */
+.feeds-list .feed-card {
+  animation: feedCardEntrance 0.35s ease-out forwards;
+  opacity: 0;
+}
+
+.feeds-list .feed-card:nth-child(1) { animation-delay: 0.05s; }
+.feeds-list .feed-card:nth-child(2) { animation-delay: 0.1s; }
+.feeds-list .feed-card:nth-child(3) { animation-delay: 0.15s; }
+.feeds-list .feed-card:nth-child(4) { animation-delay: 0.2s; }
+.feeds-list .feed-card:nth-child(5) { animation-delay: 0.25s; }
+.feeds-list .feed-card:nth-child(6) { animation-delay: 0.3s; }
+.feeds-list .feed-card:nth-child(7) { animation-delay: 0.35s; }
+.feeds-list .feed-card:nth-child(8) { animation-delay: 0.4s; }
+
+/* Platform indicator animate height on hover */
+.feed-card-platform-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feed-card:hover .feed-card-platform-indicator {
+  width: 4px;
+  box-shadow: 2px 0 8px rgba(255, 255, 255, 0.1);
+}
+
+/* Avatar border glow on hover */
+.feed-card-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--tac-bg-void);
+  border: 1px solid var(--tac-border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.feed-card:hover .feed-card-avatar {
+  border-color: rgba(63, 255, 220, 0.3);
+  box-shadow: 0 0 10px rgba(63, 255, 220, 0.15);
+}
+
+/* Automation dot pulse for armed state */
+.feed-card-automation.armed .feed-card-automation-dot {
+  color: var(--tac-status-armed);
+  animation: automationPulse 1.5s ease-in-out infinite;
+}
+
+
+/* === ENHANCED: Section 6 - Upcoming Section === */
+
+.upcoming-panel {
+  min-height: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle animated gradient mesh background */
+.upcoming-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(63, 255, 220, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(167, 139, 250, 0.02) 0%, transparent 50%);
+  background-size: 200% 200%;
+  animation: meshGradient 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.upcoming-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Floating empty icon */
+.upcoming-empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.6;
+  animation: floatBob 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.upcoming-empty-text {
+  font-size: 0.875rem;
+  color: var(--tac-text-tertiary);
+  font-family: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+  letter-spacing: 0.5px;
+}
+
+/* Action button glow + pulse when empty */
+.upcoming-action {
+  margin-top: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  background: transparent;
+  border: 1px solid var(--tac-accent-system);
+  border-radius: 8px;
+  color: var(--tac-accent-system);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+  animation: glowPulse 2.5s ease-in-out infinite;
+}
+
+.upcoming-action::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(63, 255, 220, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.upcoming-action:hover {
+  background: rgba(63, 255, 220, 0.1);
+  border-color: var(--tac-accent-system);
+  color: var(--tac-accent-system);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(63, 255, 220, 0.2), 0 0 0 1px rgba(63, 255, 220, 0.15);
+  animation: none;
+}
+
+.upcoming-action:hover::before {
+  opacity: 1;
+}
+
+
+/* === ENHANCED: Section 8 - Automation Panel === */
+
+/* Armed state: glowing border around entire panel */
+.workspace-section.automation-section-armed {
+  border-color: rgba(16, 185, 129, 0.2);
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+.automation-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  position: relative;
+}
+
+.automation-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--tac-border-secondary);
+  background: rgba(5, 10, 15, 0.6);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  color: var(--tac-text-secondary);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.automation-toggle.armed {
+  border-color: var(--tac-status-armed);
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--tac-status-armed);
+  animation: breathe 2s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+}
+
+.automation-toggle:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 16px rgba(63, 255, 220, 0.15);
+}
+
+.automation-toggle.armed:hover {
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+}
+
+.automation-toggle.armed .toggle-indicator {
+  animation: automationPulse 1.5s ease-in-out infinite;
+}
+
+/* Chain icon swing animation */
+.automation-configure-btn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(63, 255, 220, 0.3);
+  border-radius: 8px;
+  color: var(--tac-accent-system);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.automation-configure-btn:hover {
+  background: rgba(63, 255, 220, 0.08);
+  border-color: var(--tac-accent-system);
+  color: var(--tac-accent-system);
+  transform: scale(1.03);
+  box-shadow: 0 0 16px rgba(63, 255, 220, 0.15);
+}
+
+
+/* === ENHANCED: Section 9 - Workspace Content Transitions === */
+
+.workspace-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: var(--tac-bg-deep);
+}
+
+.workspace-content > * {
+  animation: tabContentFade 0.35s ease-out forwards;
+}
+
+/* Workspace sections glassmorphism */
+.workspace-section {
+  background: rgba(10, 17, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 1.25rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.workspace-section:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.workspace-section .section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tac-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0 0 1rem 0;
+  font-family: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+
+/* === ENHANCED: Section 10 - Responsive Polish === */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Reduce animation intensity on mobile */
+  .quick-action-card:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  .telemetry-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .feed-card.selected {
+    transform: none;
+  }
+
+  .upcoming-empty-icon {
+    font-size: 2rem;
+    animation-duration: 4s;
+  }
+
+  .workspace-nav {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .workspace-account-bar {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Simplify glassmorphism on mobile for performance */
+  .workspace-section {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--tac-bg-surface);
+  }
+}
+
+@media (max-width: 480px) {
+  .telemetry-value {
+    font-size: 1.25rem;
+  }
+
+  .quick-action-card::after {
+    display: none;
+  }
+
+  .upcoming-action {
+    animation: none;
+  }
+}
+
+
+/* === ENHANCED: Additional polish for workspace overview === */
+
+.workspace-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Section entrance stagger */
+.workspace-overview .workspace-section:nth-child(1) {
+  animation-delay: 0s;
+}
+.workspace-overview .workspace-section:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.workspace-overview .workspace-section:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.workspace-overview .workspace-section:nth-child(4) {
+  animation-delay: 0.24s;
+}
+
+/* No account selected - enhanced */
+.no-account-icon {
+  font-size: 4rem;
+  opacity: 0.5;
+  animation: floatBob 4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 12px rgba(63, 255, 220, 0.15));
+}
+
+.no-account-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.no-account-selected::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(63, 255, 220, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(167, 139, 250, 0.02) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* All accounts summary enhanced */
+.all-accounts-summary {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(10, 17, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--tac-accent-system);
+  text-shadow: 0 0 8px rgba(63, 255, 220, 0.3);
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Feeds list container glass effect */
+.feeds-list-container {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Mode badge enhancement */
+.feed-card-mode-badge {
+  transition: all 0.3s ease;
+}
+
+.feed-card:hover .feed-card-mode-badge {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+/* API limitations banner glassmorphism */
+.api-limitations-banner {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+}

@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useEStorage } from '@/app/context/EStorageContext';
 import StorageDropZone from './components/StorageDropZone';
 import StorageItemCard from './components/StorageItemCard';
 import QuotaBar from './components/QuotaBar';
+import ItemDetailModal from './components/ItemDetailModal';
+import ImageLightbox from './components/ImageLightbox';
 import type { EStorageFilters, StorageItemType, EStorageItemMeta } from './types/e-storage';
 import { formatBytes, getTypeIcon } from './lib/thumbnail-utils';
 import OrganismEStorageIntegration from './organism/components/OrganismEStorageIntegration';
@@ -39,6 +41,8 @@ export default function MyEStorageContent({ embedded = false }: MyEStorageConten
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [editingItem, setEditingItem] = useState<EStorageItemMeta | null>(null);
+  const [detailItem, setDetailItem] = useState<EStorageItemMeta | null>(null);
+  const [lightboxItem, setLightboxItem] = useState<EStorageItemMeta | null>(null);
   const [showMoveMenu, setShowMoveMenu] = useState(false);
 
   const filteredItems = useMemo(
@@ -53,6 +57,7 @@ export default function MyEStorageContent({ embedded = false }: MyEStorageConten
     { label: 'Audio', value: 'audio' },
     { label: 'Docs', value: 'document' },
     { label: 'Text', value: 'text' },
+    { label: 'Links', value: 'link' },
   ];
 
   const handleSelect = useCallback((id: string) => {
@@ -98,6 +103,45 @@ export default function MyEStorageContent({ embedded = false }: MyEStorageConten
       setShowNewFolder(false);
     }
   }, [newFolderName, createFolder]);
+
+  const handleOpenItem = useCallback((item: EStorageItemMeta) => {
+    setDetailItem(item);
+  }, []);
+
+  const handleOpenLightbox = useCallback((item: EStorageItemMeta) => {
+    setDetailItem(null);
+    setLightboxItem(item);
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      // Don't trigger if typing in an input
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+      // Delete selected items
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedIds.size > 0) {
+          e.preventDefault();
+          handleDeleteSelected();
+        }
+      }
+      // Escape — close modals or deselect
+      if (e.key === 'Escape') {
+        if (detailItem) { setDetailItem(null); return; }
+        if (lightboxItem) { setLightboxItem(null); return; }
+        if (selectedIds.size > 0) setSelectedIds(new Set());
+      }
+      // Ctrl+A / Cmd+A — select all
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+        handleSelectAll();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [selectedIds, detailItem, lightboxItem, handleDeleteSelected, handleSelectAll]);
 
   return (
     <div className={`e-storage ${embedded ? 'e-storage-embedded' : ''}`}>
@@ -381,6 +425,7 @@ export default function MyEStorageContent({ embedded = false }: MyEStorageConten
                   item={item}
                   selected={selectedIds.has(item.id)}
                   onSelect={handleSelect}
+                  onOpen={handleOpenItem}
                   viewMode="grid"
                 />
               ))}
@@ -393,6 +438,7 @@ export default function MyEStorageContent({ embedded = false }: MyEStorageConten
                   item={item}
                   selected={selectedIds.has(item.id)}
                   onSelect={handleSelect}
+                  onOpen={handleOpenItem}
                   viewMode="list"
                 />
               ))}
@@ -403,6 +449,25 @@ export default function MyEStorageContent({ embedded = false }: MyEStorageConten
 
       {/* SYN Organism — The Grid + Panel */}
       <OrganismEStorageIntegration />
+
+      {/* Item Detail Modal */}
+      {detailItem && (
+        <ItemDetailModal
+          item={detailItem}
+          onClose={() => setDetailItem(null)}
+          onOpenLightbox={handleOpenLightbox}
+        />
+      )}
+
+      {/* Image Lightbox */}
+      {lightboxItem && (
+        <ImageLightbox
+          item={lightboxItem}
+          items={filteredItems}
+          onClose={() => setLightboxItem(null)}
+          onNavigate={(item) => setLightboxItem(item)}
+        />
+      )}
     </div>
   );
 }

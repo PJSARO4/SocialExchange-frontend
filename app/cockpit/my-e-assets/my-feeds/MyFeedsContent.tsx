@@ -292,6 +292,7 @@ export default function MyFeedsContent() {
 
               {/* Workspace Content */}
               <div className="workspace-content">
+                <div key={workspaceSection} style={{ animation: 'tabContentFade 0.35s ease-out forwards' }}>
                 {workspaceSection === 'overview' && (
                   <div className="workspace-overview">
                     {/* Quick Actions Grid */}
@@ -371,7 +372,7 @@ export default function MyFeedsContent() {
                     </section>
 
                     {/* Automation Status */}
-                    <section className="workspace-section animate-in" style={{ animationDelay: '0.15s' }}>
+                    <section className={`workspace-section animate-in ${selectedFeed.automationEnabled ? 'automation-section-armed' : ''}`} style={{ animationDelay: '0.15s' }}>
                       <div className="section-header-with-tooltip">
                         <h3 className="section-title">Automation</h3>
                         <div className="tooltip-trigger">
@@ -476,6 +477,7 @@ export default function MyFeedsContent() {
                 {workspaceSection === 'competitors' && (
                   <CompetitorsTab feed={selectedFeed} feeds={feeds} />
                 )}
+                </div>
               </div>
             </div>
           ) : (
