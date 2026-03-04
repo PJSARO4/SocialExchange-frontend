@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { searchAllSources } from '@/app/cockpit/my-e-assets/my-e-storage/organism/lib/content-sources';
+import { checkRateLimit } from '../rate-limit';
 
 // ============================================
 // POST /api/organism/scrape
@@ -8,6 +9,16 @@ import { searchAllSources } from '@/app/cockpit/my-e-assets/my-e-storage/organis
 
 export async function POST(req: Request) {
   try {
+    // Rate limiting
+    const clientIp = req.headers.get('x-forwarded-for') || 'anonymous';
+    const rateCheck = checkRateLimit('scrape', clientIp);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Try again shortly.' },
+        { status: 429 }
+      );
+    }
+
     const { query, type = 'all', perPage = 8 } = await req.json();
 
     if (!query) {

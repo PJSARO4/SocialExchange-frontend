@@ -5,6 +5,7 @@ import {
   buildOrganismSystemPrompt,
   getLocalFallbackResponse,
 } from '@/app/cockpit/my-e-assets/my-e-storage/organism/lib/qwen-client';
+import { checkRateLimit } from '../rate-limit';
 
 // ============================================
 // POST /api/organism/chat
@@ -13,12 +14,24 @@ import {
 
 export async function POST(req: Request) {
   try {
+    // Rate limiting
+    const clientIp = req.headers.get('x-forwarded-for') || 'anonymous';
+    const rateCheck = checkRateLimit('chat', clientIp);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Try again shortly.' },
+        { status: 429 }
+      );
+    }
+
     let message: string;
     let context: Record<string, unknown> | undefined;
+    let history: Array<{role: string; content: string}> | undefined;
     try {
       const body = await req.json();
       message = body.message;
       context = body.context;
+      history = body.history;
     } catch {
       return NextResponse.json(
         { error: 'Invalid request body' },
@@ -50,9 +63,24 @@ export async function POST(req: Request) {
           userTraining,
         });
 
-        const reply = await chatCompletion(systemPrompt, [
-          { role: 'user', content: message },
-        ]);
+        // Build messages with conversation history
+        const messages: Array<{role: 'system' | 'user' | 'assistant'; content: string}> = [];
+
+        // Include last 10 messages of history for context
+        if (history && history.length > 0) {
+          const recentHistory = history.slice(-10);
+          for (const msg of recentHistory) {
+            messages.push({
+              role: msg.role === 'organism' ? 'assistant' : (msg.role as 'user' | 'assistant'),
+              content: msg.content,
+            });
+          }
+        }
+
+        // Add current message
+        messages.push({ role: 'user', content: message });
+
+        const reply = await chatCompletion(systemPrompt, messages);
 
         // Parse action markers from response
         const suggestedActions: Array<{

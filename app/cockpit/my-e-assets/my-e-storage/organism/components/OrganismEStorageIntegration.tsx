@@ -4,6 +4,7 @@ import { useOrganism } from '@/app/context/OrganismContext';
 import OrganismCity from './OrganismCity';
 import OrganismActivityBubble from './OrganismActivityBubble';
 import OrganismPanel from './OrganismPanel';
+import { OrganismErrorBoundary } from './OrganismErrorBoundary';
 
 // ============================================
 // E-STORAGE INTEGRATION WRAPPER
@@ -14,23 +15,25 @@ export default function OrganismEStorageIntegration() {
   const { isPanelOpen, closePanel } = useOrganism();
 
   return (
-    <>
-      {/* The Grid — bottom-left of E-Storage area */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: '60px', // above footer
-          left: '280px', // offset for sidebar
-          zIndex: 1000,
-          pointerEvents: 'auto',
-        }}
-      >
-        <OrganismCity />
-        <OrganismActivityBubble />
-      </div>
+    <OrganismErrorBoundary fallbackMessage="SYN organism encountered an error">
+      <>
+        {/* The Grid — bottom-left of E-Storage area */}
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '60px', // above footer
+            left: '280px', // offset for sidebar
+            zIndex: 1000,
+            pointerEvents: 'auto',
+          }}
+        >
+          <OrganismCity />
+          <OrganismActivityBubble />
+        </div>
 
-      {/* Panel */}
-      <OrganismPanel isOpen={isPanelOpen} onClose={closePanel} />
-    </>
+        {/* Panel */}
+        <OrganismPanel isOpen={isPanelOpen} onClose={closePanel} />
+      </>
+    </OrganismErrorBoundary>
   );
 }

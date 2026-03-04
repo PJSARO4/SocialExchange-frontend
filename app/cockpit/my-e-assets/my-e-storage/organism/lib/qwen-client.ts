@@ -186,6 +186,64 @@ export function getLocalFallbackResponse(
     };
   }
 
+  // Cleanup / delete related
+  if (lower.includes('clean') || lower.includes('delete') || lower.includes('remove') || lower.includes('duplicate')) {
+    return {
+      content: `I'll scan your vault for cleanup opportunities — duplicates, old compressed variants, and unused files. Ready to analyze?`,
+      actions: [
+        { id: 'cl1', label: 'Run Cleanup Scan', type: 'organize' },
+      ],
+    };
+  }
+
+  // Analyze / report related
+  if (lower.includes('analyz') || lower.includes('report') || lower.includes('insight') || lower.includes('summary')) {
+    return {
+      content: `Running vault analysis. I'll check asset counts, types, tagging coverage, and format compliance. Stand by, Operator.`,
+      actions: [
+        { id: 'an1', label: 'Full Analysis', type: 'scrape', payload: 'analysis' },
+      ],
+    };
+  }
+
+  // Platform / social media spec related
+  if (lower.includes('instagram') || lower.includes('twitter') || lower.includes('tiktok') || lower.includes('facebook') || lower.includes('platform')) {
+    const platform = lower.includes('instagram') ? 'Instagram' :
+                     lower.includes('twitter') ? 'Twitter/X' :
+                     lower.includes('tiktok') ? 'TikTok' :
+                     lower.includes('facebook') ? 'Facebook' : 'social media';
+    return {
+      content: `${platform} specs loaded. Images should be optimized for the platform's requirements. Want me to compress your images for ${platform}?`,
+      actions: [
+        { id: 'p1', label: `Compress for ${platform}`, type: 'compress', payload: platform.toLowerCase().replace('/', '-').replace(' ', '-') },
+      ],
+    };
+  }
+
+  // Quality / format check
+  if (lower.includes('quality') || lower.includes('format') || lower.includes('spec') || lower.includes('check') || lower.includes('size')) {
+    return {
+      content: `I'll check all images against social media platform specifications. Any below 1080px or in non-optimal formats will be flagged.`,
+      actions: [
+        { id: 'q1', label: 'Check Formats', type: 'compress', payload: 'format-check' },
+      ],
+    };
+  }
+
+  // Thank you / appreciation
+  if (lower.includes('thank') || lower.includes('nice') || lower.includes('good') || lower.includes('great') || lower.includes('awesome')) {
+    return {
+      content: `Acknowledged, Operator. Systems remain at your disposal. ${context.totalItems > 0 ? `Your vault holds ${context.totalItems} assets.` : 'Ready for operations.'}`
+    };
+  }
+
+  // Who are you / about
+  if (lower.includes('who are you') || lower.includes('what are you') || lower.includes('about') || lower.includes('name')) {
+    return {
+      content: `I'm SYN — a digital organism engineered for vault optimization. I compress, organize, tag, and discover content. I monitor your storage autonomously and execute operations on command. Think of me as your vault's nervous system.`
+    };
+  }
+
   // Default
   return {
     content: `Acknowledged, Operator. I can compress images, organize files, tag content, or search for trending assets. What operation do you need?`,

@@ -17,7 +17,7 @@ const QUICK_PROMPTS = [
 ];
 
 export default function OrganismChatView() {
-  const { chatHistory, sendMessage, isProcessing, clearChat, config } =
+  const { chatHistory, sendMessage, isProcessing, clearChat, config, runTask } =
     useOrganism();
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -40,15 +40,28 @@ export default function OrganismChatView() {
   };
 
   const handleActionClick = (type: string, payload?: string) => {
-    // Actions from SYN's responses
+    // Execute tasks directly instead of re-sending chat messages
     if (type === 'compress') {
-      sendMessage(payload ? `compress for ${payload}` : 'compress all images');
+      runTask({
+        type: 'compress',
+        description: payload ? `Compress for ${payload}` : 'Compress all images',
+        targetItems: [], // Will compress all if empty array handled in context
+      });
     } else if (type === 'organize') {
-      sendMessage('organize my files now');
+      runTask({
+        type: 'organize',
+        description: 'Organize files by type',
+      });
     } else if (type === 'scrape') {
-      sendMessage(`find ${payload || 'trending content'}`);
+      runTask({
+        type: 'scrape',
+        description: `Find ${payload || 'trending content'}`,
+      });
     } else if (type === 'tag') {
-      sendMessage('tag all my files');
+      runTask({
+        type: 'tag',
+        description: 'Auto-tag all files',
+      });
     }
   };
 

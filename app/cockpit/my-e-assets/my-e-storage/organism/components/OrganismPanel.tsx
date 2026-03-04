@@ -6,6 +6,7 @@ import OrganismAvatar from './OrganismAvatar';
 import OrganismChatView from './OrganismChatView';
 import OrganismTasksView from './OrganismTasksView';
 import OrganismSettingsView from './OrganismSettingsView';
+import { OrganismErrorBoundary } from './OrganismErrorBoundary';
 
 // ============================================
 // ORGANISM PANEL — Slide-in from right
@@ -151,9 +152,11 @@ export default function OrganismPanel({ isOpen, onClose }: OrganismPanelProps) {
 
         {/* Body */}
         <div className="organism-panel-body">
-          {activeTab === 'chat' && <OrganismChatView />}
-          {activeTab === 'tasks' && <OrganismTasksView />}
-          {activeTab === 'settings' && <OrganismSettingsView />}
+          <OrganismErrorBoundary fallbackMessage="SYN panel view encountered an error">
+            {activeTab === 'chat' && <OrganismChatView />}
+            {activeTab === 'tasks' && <OrganismTasksView />}
+            {activeTab === 'settings' && <OrganismSettingsView />}
+          </OrganismErrorBoundary>
         </div>
       </div>
     </>

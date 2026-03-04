@@ -167,11 +167,17 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
         let responseActions: OrganismAction[] | undefined;
 
         try {
+          // Get recent chat history for context
+          const recentHistory = chatHistory
+            .slice(-10)
+            .map(msg => ({ role: msg.role, content: msg.content }));
+
           const res = await fetch('/api/organism/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               message,
+              history: recentHistory,
               context: {
                 totalItems: eStorage.items.length,
                 usedPercent: eStorage.stats?.usedPercent || 0,
@@ -226,7 +232,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
         setIsProcessing(false);
       }
     },
-    [eStorage.items.length, eStorage.stats, tasks, config.userTraining]
+    [eStorage.items.length, eStorage.stats, tasks, config.userTraining, chatHistory]
   );
 
   const clearChat = useCallback(() => {
@@ -377,6 +383,89 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
                 ? `${nonCompliant.length} image${nonCompliant.length !== 1 ? 's' : ''} below 1080px — may need upscaling`
                 : 'All images meet minimum specs';
             pushNotification('✅', result);
+            break;
+          }
+
+          case 'scrape': {
+            const query = task.description.replace(/^(Searching|Search|Find|Scrape|Looking for)\s*/i, '').trim() || 'trending';
+            try {
+              const res = await fetch('/api/organism/scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, type: 'all', perPage: 8 }),
+              });
+              if (res.ok) {
+                const data = await res.json();
+                const count = data.results?.length || 0;
+                result = count > 0
+                  ? `Found ${count} result${count !== 1 ? 's' : ''} for "${query}"`
+                  : data.message || `No results found for "${query}"`;
+                if (count > 0) pushNotification('🔍', result);
+              } else {
+                result = 'Content search failed — check API keys';
+              }
+            } catch (err) {
+              console.error('[SYN] Scrape task error:', err);
+              result = 'Content search unavailable';
+            }
+            break;
+          }
+
+          case 'analyze': {
+            // Analyze storage patterns
+            const images = eStorage.items.filter(i => i.type === 'image');
+            const videos = eStorage.items.filter(i => i.type === 'video');
+            const untagged = eStorage.items.filter(i => i.tags.length === 0);
+            const unsorted = eStorage.items.filter(i => i.folder === 'Unsorted');
+
+            const insights: string[] = [];
+            insights.push(`${eStorage.items.length} total assets`);
+            insights.push(`${images.length} images, ${videos.length} videos`);
+            if (untagged.length > 0) insights.push(`${untagged.length} untagged`);
+            if (unsorted.length > 0) insights.push(`${unsorted.length} unsorted`);
+
+            // Check for small images
+            const smallImages = images.filter(i =>
+              i.dimensions && (i.dimensions.width < 1080 || i.dimensions.height < 1080)
+            );
+            if (smallImages.length > 0) {
+              insights.push(`${smallImages.length} image${smallImages.length !== 1 ? 's' : ''} below 1080px`);
+            }
+
+            result = `Vault analysis: ${insights.join(' · ')}`;
+            pushNotification('📊', result);
+            break;
+          }
+
+          case 'cleanup': {
+            // Find duplicate-named files and very small files
+            const seen = new Map<string, number>();
+            let duplicates = 0;
+
+            eStorage.items.forEach(item => {
+              const key = item.filename.toLowerCase();
+              seen.set(key, (seen.get(key) || 0) + 1);
+            });
+
+            seen.forEach((count) => {
+              if (count > 1) duplicates += count - 1;
+            });
+
+            const insights: string[] = [];
+            if (duplicates > 0) insights.push(`${duplicates} potential duplicate${duplicates !== 1 ? 's' : ''}`);
+
+            // Count compressed variants
+            const compressed = eStorage.items.filter(i =>
+              i.tags.includes('compressed') || i.filename.includes('_compressed')
+            );
+            if (compressed.length > 0) {
+              insights.push(`${compressed.length} compressed variant${compressed.length !== 1 ? 's' : ''}`);
+            }
+
+            result = insights.length > 0
+              ? `Cleanup scan: ${insights.join(', ')}`
+              : 'Vault is clean — no duplicates or issues detected';
+            pushNotification('🧹', result);
             break;
           }
 
@@ -605,10 +694,54 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
             eStorage.updateItem(item.id, { tags });
           }
         }
+
+        // Format-check behavior
+        if (
+          item.type === 'image' &&
+          isBehaviorEnabled('format-check') &&
+          item.dimensions &&
+          (item.dimensions.width < 1080 || item.dimensions.height < 1080)
+        ) {
+          pushNotification('⚠️', `${item.title} is below 1080px — may not meet social media specs`);
+        }
+
+        // Duplicate-detect behavior
+        if (isBehaviorEnabled('duplicate-detect')) {
+          const possibleDuplicates = eStorage.items.filter(
+            existing => existing.id !== item.id &&
+            existing.filename.toLowerCase() === item.filename.toLowerCase()
+          );
+          if (possibleDuplicates.length > 0) {
+            pushNotification('🔍', `Possible duplicate: ${item.title} (${possibleDuplicates.length} match${possibleDuplicates.length !== 1 ? 'es' : ''})`);
+          }
+        }
       });
+
+      // Auto-organize behavior: trigger when 10+ unsorted files
+      const unsortedCount = eStorage.items.filter(i => i.folder === 'Unsorted').length;
+      if (isBehaviorEnabled('auto-organize') && unsortedCount >= 10) {
+        // Check if we already have a pending/running organize task
+        const hasOrganizeTask = tasksRef.current.some(
+          t => t.type === 'organize' && (t.status === 'pending' || t.status === 'running')
+        );
+        if (!hasOrganizeTask) {
+          runTask({
+            type: 'organize',
+            description: `Organizing ${unsortedCount} unsorted files`,
+          });
+        }
+      }
+
+      // Quota-watch behavior: alert at 80%+ storage
+      if (isBehaviorEnabled('quota-watch') && eStorage.stats) {
+        const usedPercent = eStorage.stats.usedPercent || 0;
+        if (usedPercent > 80) {
+          pushNotification('📊', `Storage at ${usedPercent}% — consider cleanup`);
+        }
+      }
     }
     prevItemCount.current = currentCount;
-  }, [eStorage.items.length, eStorage, runTask]);
+  }, [eStorage.items.length, eStorage, runTask, pushNotification]);
 
   // ============================================
   // RENDER
