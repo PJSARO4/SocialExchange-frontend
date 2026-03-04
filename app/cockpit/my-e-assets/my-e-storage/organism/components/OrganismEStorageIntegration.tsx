@@ -21,7 +21,7 @@ export default function OrganismEStorageIntegration() {
           position: 'fixed',
           bottom: '60px', // above footer
           left: '280px', // offset for sidebar
-          zIndex: 100,
+          zIndex: 1000,
           pointerEvents: 'auto',
         }}
       >

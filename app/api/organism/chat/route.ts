@@ -13,7 +13,18 @@ import {
 
 export async function POST(req: Request) {
   try {
-    const { message, context } = await req.json();
+    let message: string;
+    let context: Record<string, unknown> | undefined;
+    try {
+      const body = await req.json();
+      message = body.message;
+      context = body.context;
+    } catch {
+      return NextResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
 
     if (!message) {
       return NextResponse.json(

@@ -63,7 +63,13 @@ export async function chatCompletion(
   }
 
   const data = await response.json();
-  return data.choices?.[0]?.message?.content || 'No response generated.';
+
+  if (!data.choices || !Array.isArray(data.choices) || !data.choices[0]?.message) {
+    console.error('[SYN] Unexpected Qwen API response format:', JSON.stringify(data).slice(0, 200));
+    throw new Error('Invalid response format from Qwen API');
+  }
+
+  return data.choices[0].message.content || 'No response generated.';
 }
 
 // ============================================

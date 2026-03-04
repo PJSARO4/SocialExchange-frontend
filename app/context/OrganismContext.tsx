@@ -100,6 +100,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
   // Track previous item count to detect new uploads
   const prevItemCount = useRef(eStorage.items.length);
   const taskRunning = useRef(false);
+  const tasksRef = useRef<OrganismTask[]>(tasks);
 
   // ============================================
   // PANEL CONTROLS
@@ -270,13 +271,18 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
                 if (!item || item.type !== 'image') continue;
 
                 try {
-                  const blob = await eStorage.getBlobUrl(item.blobKey);
-                  if (!blob) continue;
+                  const blobUrl = await eStorage.getBlobUrl(item.blobKey);
+                  if (!blobUrl) continue;
 
-                  // Fetch blob from object URL
-                  const response = await fetch(blob);
-                  const originalBlob = await response.blob();
-                  URL.revokeObjectURL(blob);
+                  // Fetch blob from object URL, always revoke
+                  let originalBlob: Blob;
+                  try {
+                    const response = await fetch(blobUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    originalBlob = await response.blob();
+                  } finally {
+                    URL.revokeObjectURL(blobUrl);
+                  }
 
                   const compressed = await compressForPlatform(
                     originalBlob,
@@ -515,11 +521,21 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
             '📋',
             `Clipped ${clipped.length} item${clipped.length !== 1 ? 's' : ''} for Copilot`
           );
-        } catch {
-          localStorage.setItem(
-            COPILOT_CLIPBOARD_KEY,
-            JSON.stringify(clipped)
-          );
+        } catch (err) {
+          console.warn('[SYN] Clipboard operation failed:', err);
+          try {
+            localStorage.setItem(
+              COPILOT_CLIPBOARD_KEY,
+              JSON.stringify(clipped)
+            );
+            pushNotification(
+              '📋',
+              `Clipped ${clipped.length} item${clipped.length !== 1 ? 's' : ''} for Copilot`
+            );
+          } catch (quotaErr) {
+            console.error('[SYN] Clipboard quota exceeded:', quotaErr);
+            pushNotification('⚠', 'Clipboard storage full');
+          }
         }
       }
     },
@@ -540,19 +556,24 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
   // AUTONOMOUS TASK RUNNER (10s interval)
   // ============================================
 
+  // Keep tasksRef in sync to avoid stale closures
+  useEffect(() => {
+    tasksRef.current = tasks;
+  }, [tasks]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       if (taskRunning.current) return;
 
-      // Check for pending tasks
-      const pending = tasks.find((t) => t.status === 'pending');
+      // Use ref to avoid stale closure
+      const pending = tasksRef.current.find((t) => t.status === 'pending');
       if (pending) {
         executeTask(pending);
       }
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [tasks, executeTask]);
+  }, [executeTask]);
 
   // ============================================
   // WATCH E-STORAGE FOR NEW UPLOADS
@@ -587,7 +608,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
       });
     }
     prevItemCount.current = currentCount;
-  }, [eStorage.items.length, eStorage.items, eStorage, runTask]);
+  }, [eStorage.items.length, eStorage, runTask]);
 
   // ============================================
   // RENDER
