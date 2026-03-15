@@ -1187,11 +1187,69 @@
 /* --- Light Mode --- */
 [data-theme="light"] .comms-page {
   background: radial-gradient(ellipse at top, #f8fafc 0%, #f0f4f8 50%, #e2e8f0 100%);
+  color: #111827;
+}
+
+[data-theme="light"] .comms-main-panel {
+  background: #f8fafc;
+  color: #111827;
+}
+
+[data-theme="light"] .comms-header {
+  background: #ffffff;
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+  color: #111827;
+}
+
+[data-theme="light"] .comms-header h2,
+[data-theme="light"] .comms-header h3,
+[data-theme="light"] .comms-channel-name {
+  color: #111827;
+}
+
+[data-theme="light"] .comms-channel-desc,
+[data-theme="light"] .comms-header-subtitle {
+  color: #6b7280;
+}
+
+[data-theme="light"] .comms-header-btn {
+  background: #f0f4f8;
+  color: #6b7280;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .comms-header-btn:hover {
+  background: #e2e8f0;
+  color: #111827;
+}
+
+[data-theme="light"] .comms-status-indicator {
+  background: #e2e8f0;
+  color: #059669;
+}
+
+[data-theme="light"] .comms-add-button {
+  background: #f0f4f8;
+  color: #059669;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .comms-add-button:hover {
+  background: rgba(5, 150, 105, 0.08);
 }
 
 [data-theme="light"] .comms-channel-item {
   background: #f8fafc;
   border-color: rgba(0, 0, 0, 0.06);
+  color: #111827;
+}
+
+[data-theme="light"] .comms-channel-item .comms-channel-name {
+  color: #111827;
+}
+
+[data-theme="light"] .comms-channel-item .comms-channel-preview {
+  color: #6b7280;
 }
 
 [data-theme="light"] .comms-channel-item:hover {
@@ -1207,6 +1265,32 @@
 [data-theme="light"] .comms-message {
   background: #ffffff;
   border-color: rgba(0, 0, 0, 0.06);
+  color: #111827;
+}
+
+[data-theme="light"] .comms-message-author {
+  color: #111827;
+}
+
+[data-theme="light"] .comms-message-text,
+[data-theme="light"] .comms-message-content {
+  color: #374151;
+}
+
+[data-theme="light"] .comms-message-time {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .comms-message.system {
+  background: #f0f4f8;
+}
+
+[data-theme="light"] .comms-messages-list {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .comms-typing-indicator {
+  color: #6b7280;
 }
 
 [data-theme="light"] .comms-message-input,
@@ -1222,6 +1306,17 @@
 [data-theme="light"] .comms-thread-header,
 [data-theme="light"] .comms-left-panel {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  color: #111827;
+}
+
+[data-theme="light"] .comms-left-panel h2,
+[data-theme="light"] .comms-left-panel h3,
+[data-theme="light"] .comms-section-label {
+  color: #111827;
+}
+
+[data-theme="light"] .comms-list-tab {
+  color: #6b7280;
 }
 
 [data-theme="light"] .comms-input-form {

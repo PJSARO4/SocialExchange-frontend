@@ -7,14 +7,18 @@
   padding: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  animation: homePageFadeIn 0.6s ease forwards;
 }
 
-.home-page.animate-in {
-  opacity: 1;
-  transform: translateY(0);
+@keyframes homePageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .home-loading {

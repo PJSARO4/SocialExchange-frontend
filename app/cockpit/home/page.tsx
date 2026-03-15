@@ -210,9 +210,10 @@ export default function HomePage() {
   const firstName = user.displayName?.split(' ')[0] || 'Operator';
 
   return (
-    <div className={`home-page ${animateIn ? 'animate-in' : ''}`}>
-      {/* Welcome Video Modal - shows on first visit if video exists */}
+    <>
+      {/* Welcome Video Modal - rendered outside home-page to avoid transform containing block */}
       <WelcomeVideoModal />
+    <div className={`home-page ${animateIn ? 'animate-in' : ''}`}>
 
       {/* Hero Section */}
       <section className="home-hero">
@@ -357,5 +358,6 @@ export default function HomePage() {
         </Link>
       </section>
     </div>
+    </>
   );
 }
