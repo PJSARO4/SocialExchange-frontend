@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Play, Download, Search, Pencil, Bot, GitBranch, Timer, CheckCircle, Calendar, Globe, Flag, MousePointer, Lightbulb } from 'lucide-react';
 import {
   ChainNode,
   NodeType,
@@ -20,6 +21,20 @@ interface NodeConfigPanelProps {
   onClose: () => void;
 }
 
+const ICON_MAP: Record<string, React.ReactNode> = {
+  'play': <Play size={16} />,
+  'download': <Download size={16} />,
+  'search': <Search size={16} />,
+  'pencil': <Pencil size={16} />,
+  'bot': <Bot size={16} />,
+  'git-branch': <GitBranch size={16} />,
+  'timer': <Timer size={16} />,
+  'check-circle': <CheckCircle size={16} />,
+  'calendar': <Calendar size={16} />,
+  'globe': <Globe size={16} />,
+  'flag': <Flag size={16} />,
+};
+
 export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
   node,
   onUpdate,
@@ -29,7 +44,7 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
     return (
       <div className="config-panel empty">
         <div className="config-empty">
-          <span className="config-empty-icon">👆</span>
+          <span className="config-empty-icon"><MousePointer size={20} /></span>
           <p>Select a node to configure it</p>
         </div>
       </div>
@@ -49,7 +64,7 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({
   return (
     <div className="config-panel">
       <div className="config-header" style={{ borderColor: catalogItem?.color }}>
-        <span className="config-icon">{catalogItem?.icon}</span>
+        <span className="config-icon">{catalogItem ? (ICON_MAP[catalogItem.icon] || catalogItem.icon) : null}</span>
         <div className="config-title">
           <h3>{catalogItem?.label}</h3>
           <p>{catalogItem?.description}</p>
@@ -453,7 +468,7 @@ const FilterConfig: React.FC<{
     </div>
 
     <div className="config-info">
-      <p>💡 Filter nodes have two outputs: "Yes" (condition met) and "No" (condition not met)</p>
+      <p><Lightbulb size={14} /> Filter nodes have two outputs: &quot;Yes&quot; (condition met) and &quot;No&quot; (condition not met)</p>
     </div>
   </div>
 );
@@ -593,7 +608,7 @@ const DelayConfig: React.FC<{
 
     {data.delayType === 'human-like' && (
       <div className="config-info">
-        <p>🤖 Human-like delays vary between 30-180 seconds with natural patterns to avoid detection.</p>
+        <p><Bot size={14} /> Human-like delays vary between 30-180 seconds with natural patterns to avoid detection.</p>
       </div>
     )}
   </div>

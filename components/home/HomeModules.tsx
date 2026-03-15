@@ -1,6 +1,7 @@
 "use client";
 
 import HomeModuleCard from "@/components/home/HomeModuleCard";
+import { ShoppingCart, Settings, BarChart3 } from "lucide-react";
 
 type ModuleCard = {
   id: string;
@@ -15,21 +16,21 @@ const MODULES: ModuleCard[] = [
     title: "Marketplace",
     description:
       "Discover, list, and trade social assets with secure workflows and clear permissions.",
-    icon: "🛒",
+    icon: <ShoppingCart size={20} />,
   },
   {
     id: "automation",
     title: "Automation",
     description:
       "Automate publishing, engagement, and exchange flows using reliable, auditable actions.",
-    icon: "⚙️",
+    icon: <Settings size={20} />,
   },
   {
     id: "analytics",
     title: "Analytics",
     description:
       "Measure performance, attribution, and growth across profiles and campaigns.",
-    icon: "📊",
+    icon: <BarChart3 size={20} />,
   },
 ];
 

@@ -22,6 +22,7 @@ import { recordPricePoint } from './lib/e-shares-store';
 
 import { getWallet, deposit, withdraw, type Wallet, type WalletTransaction } from './lib/wallet-store';
 
+import { BarChart3, Briefcase, Sparkles } from 'lucide-react';
 import UpperTicker from './components/UpperTicker';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import './e-shares.css';
@@ -237,7 +238,7 @@ function MarketplaceView({
   if (brands.length === 0) {
     return (
       <div className="e-shares-empty">
-        <div className="e-shares-empty-icon">📊</div>
+        <div className="e-shares-empty-icon"><BarChart3 size={24} /></div>
         <div className="e-shares-empty-title">No Brands Listed Yet</div>
         <div className="e-shares-empty-text">
           Be the first to list your brand and let your community invest in your growth!
@@ -335,7 +336,7 @@ function PortfolioView({
   if (holdings.length === 0) {
     return (
       <div className="e-shares-empty">
-        <div className="e-shares-empty-icon">💼</div>
+        <div className="e-shares-empty-icon"><Briefcase size={24} /></div>
         <div className="e-shares-empty-title">Your Portfolio is Empty</div>
         <div className="e-shares-empty-text">
           Start investing in brands you believe in. Browse the marketplace to find
@@ -845,7 +846,7 @@ function ListBrandView({
   if (step === 'success') {
     return (
       <div className="e-shares-empty">
-        <div className="e-shares-empty-icon">🎉</div>
+        <div className="e-shares-empty-icon"><Sparkles size={24} /></div>
         <div className="e-shares-empty-title">Brand Listed Successfully!</div>
         <div className="e-shares-empty-text">
           Your brand is now live on the E-Shares marketplace. Investors can now

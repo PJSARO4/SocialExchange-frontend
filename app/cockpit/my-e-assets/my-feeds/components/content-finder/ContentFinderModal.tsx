@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Radio, Lightbulb, Search, TrendingUp, Zap, MessageSquare, User, Globe, Flame } from 'lucide-react';
 import { Feed } from '../../types/feed';
 
 interface ContentSource {
@@ -324,7 +325,7 @@ export function ContentFinderModal({
                   </div>
                 </div>
                 <div className="tutorial-step">
-                  <span className="step-icon">📡</span>
+                  <span className="step-icon"><Radio size={16} /></span>
                   <div className="step-content">
                     <strong>Sources</strong>
                     <p>Add and manage your content sources - track hashtags, RSS feeds, and competitors</p>
@@ -338,7 +339,7 @@ export function ContentFinderModal({
                   </div>
                 </div>
                 <div className="tutorial-note">
-                  <span className="note-icon">💡</span>
+                  <span className="note-icon"><Lightbulb size={14} /></span>
                   <p><strong>Storage Note:</strong> We save links and references only - not actual images. This keeps your data light and fast!</p>
                 </div>
               </div>
@@ -352,7 +353,7 @@ export function ContentFinderModal({
         {/* Header */}
         <header className="finder-modal-header">
           <div className="finder-header-title">
-            <span className="finder-icon">🔍</span>
+            <span className="finder-icon"><Search size={16} /></span>
             <h2>Content Finder</h2>
             <button
               className="finder-help-btn"
@@ -374,8 +375,8 @@ export function ContentFinderModal({
               onClick={() => setActiveTab(tab)}
             >
               {tab === 'discover' && '🔎'}
-              {tab === 'sources' && '📡'}
-              {tab === 'trending' && '📈'}
+              {tab === 'sources' && <Radio size={14} />}
+              {tab === 'trending' && <TrendingUp size={14} />}
               {tab === 'saved' && '💾'}
               {tab.toUpperCase()}
             </button>
@@ -433,7 +434,7 @@ export function ContentFinderModal({
               {/* Content Grid */}
               {isSearching && (
                 <div style={{ textAlign: 'center', padding: '20px', color: '#3fffdc', fontSize: '13px' }}>
-                  <span style={{ display: 'inline-block', animation: 'orgoBlink 1.5s ease-in-out infinite' }}>{'⚡'}</span> SYN is searching...
+                  <span style={{ display: 'inline-block', animation: 'orgoBlink 1.5s ease-in-out infinite' }}><Zap size={14} /></span> SYN is searching...
                 </div>
               )}
               <div className="finder-content-grid">
@@ -455,7 +456,7 @@ export function ContentFinderModal({
                         {item.engagement && (
                           <div className="finder-card-engagement">
                             <span>❤️ {formatNumber(item.engagement.likes)}</span>
-                            <span>💬 {formatNumber(item.engagement.comments)}</span>
+                            <span><MessageSquare size={12} /> {formatNumber(item.engagement.comments)}</span>
                           </div>
                         )}
                       </div>
@@ -534,8 +535,8 @@ export function ContentFinderModal({
                     <div className="finder-source-icon">
                       {source.type === 'hashtag' && '#️⃣'}
                       {source.type === 'rss' && '📰'}
-                      {source.type === 'competitor' && '👤'}
-                      {source.type === 'url' && '🌐'}
+                      {source.type === 'competitor' && <User size={14} />}
+                      {source.type === 'url' && <Globe size={14} />}
                     </div>
                     <div className="finder-source-info">
                       <span className="finder-source-name">{source.name}</span>
@@ -566,7 +567,7 @@ export function ContentFinderModal({
           {activeTab === 'trending' && (
             <div className="finder-trending">
               <div className="finder-trending-header">
-                <h3>🔥 Trending Now</h3>
+                <h3><Flame size={16} /> Trending Now</h3>
                 <span className="finder-trending-update">Updated 5 minutes ago</span>
               </div>
               <div className="finder-trending-list">
@@ -598,7 +599,7 @@ export function ContentFinderModal({
                   <div className="finder-saved-header">
                     <h3>Saved Content ({savedContent.length})</h3>
                     <span className="finder-storage-note">
-                      💡 Saving references only - no heavy downloads!
+                      <Lightbulb size={12} /> Saving references only - no heavy downloads!
                     </span>
                   </div>
                   <div className="finder-content-grid">

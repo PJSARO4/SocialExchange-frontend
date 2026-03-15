@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { Search } from 'lucide-react';
 import Link from 'next/link';
 
 import {
@@ -209,7 +210,7 @@ export default function BrandDetailPage() {
     return (
       <div className="brand-detail-root">
         <div className="e-shares-empty">
-          <div className="e-shares-empty-icon">🔍</div>
+          <div className="e-shares-empty-icon"><Search size={24} /></div>
           <div className="e-shares-empty-title">Brand Not Found</div>
           <Link href="/cockpit/my-e-assets/my-e-shares" className="e-shares-btn secondary">
             Back to Marketplace

@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { Feed, PLATFORMS } from '../../types/feed';
+import {
+  Megaphone, Search, Users, DollarSign, CalendarDays, Timer
+} from 'lucide-react';
 import './earnex.css';
 
 // ============================================
@@ -283,7 +286,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
           <div className="earnex-nav-grid">
             {/* Owned Campaigns Card */}
             <div className="earnex-nav-card owned" onClick={() => setCurrentView('owned')}>
-              <div className="nav-card-icon">📢</div>
+              <div className="nav-card-icon"><Megaphone size={20} /></div>
               <div className="nav-card-content">
                 <h3>Owned Campaigns</h3>
                 <p>Create and manage your advertising campaigns</p>
@@ -297,7 +300,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
 
             {/* Find Campaigns Card */}
             <div className="earnex-nav-card find" onClick={() => setCurrentView('find')}>
-              <div className="nav-card-icon">🔍</div>
+              <div className="nav-card-icon"><Search size={20} /></div>
               <div className="nav-card-content">
                 <h3>Find Campaigns</h3>
                 <p>Discover opportunities and apply to earn</p>
@@ -311,7 +314,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
 
             {/* Participating Card */}
             <div className="earnex-nav-card participating" onClick={() => setCurrentView('participating')}>
-              <div className="nav-card-icon">🤝</div>
+              <div className="nav-card-icon"><Users size={20} /></div>
               <div className="nav-card-content">
                 <h3>Participating</h3>
                 <p>Track campaigns you're part of</p>
@@ -325,7 +328,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
 
             {/* My Earnings Card */}
             <div className="earnex-nav-card earnings" onClick={() => setCurrentView('earnings')}>
-              <div className="nav-card-icon">💰</div>
+              <div className="nav-card-icon"><DollarSign size={20} /></div>
               <div className="nav-card-content">
                 <h3>My Earnings</h3>
                 <p>View earnings and cash out</p>
@@ -344,7 +347,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
               <span>+</span> Create Campaign
             </button>
             <button className="quick-action-btn secondary" onClick={() => setCurrentView('find')}>
-              <span>🔍</span> Browse Opportunities
+              <span><Search size={14} /></span> Browse Opportunities
             </button>
           </div>
 
@@ -354,7 +357,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
             <div className="recent-list">
               {earnings.slice(0, 3).map(earning => (
                 <div key={earning.id} className="recent-item">
-                  <div className="recent-icon">💵</div>
+                  <div className="recent-icon"><DollarSign size={16} /></div>
                   <div className="recent-content">
                     <span className="recent-title">{earning.campaignName}</span>
                     <span className="recent-date">{earning.date.toLocaleDateString()}</span>
@@ -444,7 +447,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
             </div>
           ) : (
             <div className="empty-state">
-              <div className="empty-icon">📢</div>
+              <div className="empty-icon"><Megaphone size={20} /></div>
               <h3>No Campaigns Yet</h3>
               <p>Create your first campaign to start promoting</p>
               <button className="create-btn" onClick={() => setCurrentView('create')}>
@@ -468,7 +471,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
           {/* Search and Filter */}
           <div className="find-filters">
             <div className="search-box">
-              <span className="search-icon">🔍</span>
+              <span className="search-icon"><Search size={16} /></span>
               <input
                 type="text"
                 placeholder="Search campaigns..."
@@ -532,7 +535,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
                 </div>
 
                 <div className="campaign-dates">
-                  <span>📅 {campaign.startDate.toLocaleDateString()} - {campaign.endDate?.toLocaleDateString()}</span>
+                  <span><CalendarDays size={14} /> {campaign.startDate.toLocaleDateString()} - {campaign.endDate?.toLocaleDateString()}</span>
                 </div>
 
                 <button
@@ -608,7 +611,7 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
             </div>
           ) : (
             <div className="empty-state">
-              <div className="empty-icon">🤝</div>
+              <div className="empty-icon"><Users size={20} /></div>
               <h3>Not Participating in Any Campaigns</h3>
               <p>Browse available campaigns and apply to start earning</p>
               <button className="create-btn" onClick={() => setCurrentView('find')}>
@@ -632,14 +635,14 @@ export const EarnExTab: React.FC<EarnExTabProps> = ({ feed, feeds = [] }) => {
           {/* Earnings Summary */}
           <div className="earnings-summary">
             <div className="earnings-card total">
-              <span className="earnings-icon">💰</span>
+              <span className="earnings-icon"><DollarSign size={16} /></span>
               <div className="earnings-info">
                 <span className="earnings-value">${totalEarnings.toLocaleString()}</span>
                 <span className="earnings-label">Total Earned</span>
               </div>
             </div>
             <div className="earnings-card pending">
-              <span className="earnings-icon">⏳</span>
+              <span className="earnings-icon"><Timer size={16} /></span>
               <div className="earnings-info">
                 <span className="earnings-value">${pendingEarnings.toLocaleString()}</span>
                 <span className="earnings-label">Pending</span>

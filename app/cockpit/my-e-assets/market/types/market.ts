@@ -316,11 +316,11 @@ export function formatFollowers(count: number): string {
 
 export function getPlatformIcon(platform: Platform): string {
   const icons: Record<Platform, string> = {
-    instagram: '📸',
-    tiktok: '🎵',
-    twitter: '𝕏',
-    youtube: '▶️',
-    facebook: '📘',
+    instagram: 'camera',
+    tiktok: 'music',
+    twitter: 'twitter',
+    youtube: 'play',
+    facebook: 'book-open',
   };
   return icons[platform];
 }

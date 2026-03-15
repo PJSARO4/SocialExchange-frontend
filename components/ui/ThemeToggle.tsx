@@ -1,6 +1,7 @@
 'use client';
 
 import { useTheme } from '@/app/context/ThemeContext';
+import { Moon, Sun } from 'lucide-react';
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -14,7 +15,7 @@ export default function ThemeToggle() {
     >
       <div className="theme-toggle-track">
         <div className={`theme-toggle-thumb ${theme}`}>
-          {theme === 'dark' ? '🌙' : '☀️'}
+          {theme === 'dark' ? <Moon size={10} /> : <Sun size={10} />}
         </div>
       </div>
 

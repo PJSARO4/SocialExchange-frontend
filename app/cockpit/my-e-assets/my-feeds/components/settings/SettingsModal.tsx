@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { User, Bot, BarChart3, AlertTriangle, CheckCircle, MessageSquare } from 'lucide-react';
 import { Feed, PLATFORMS } from '../../types/feed';
 
 interface SettingsModalProps {
@@ -99,25 +100,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             className={`settings-tab ${activeTab === 'account' ? 'active' : ''}`}
             onClick={() => setActiveTab('account')}
           >
-            👤 Account
+            <User size={14} /> Account
           </button>
           <button
             className={`settings-tab ${activeTab === 'automation' ? 'active' : ''}`}
             onClick={() => setActiveTab('automation')}
           >
-            🤖 Automation
+            <Bot size={14} /> Automation
           </button>
           <button
             className={`settings-tab ${activeTab === 'limits' ? 'active' : ''}`}
             onClick={() => setActiveTab('limits')}
           >
-            📊 Rate Limits
+            <BarChart3 size={14} /> Rate Limits
           </button>
           <button
             className={`settings-tab ${activeTab === 'danger' ? 'active' : ''}`}
             onClick={() => setActiveTab('danger')}
           >
-            ⚠️ Danger Zone
+            <AlertTriangle size={14} /> Danger Zone
           </button>
         </div>
 
@@ -163,7 +164,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="token-status">
                   {feed.accessToken ? (
                     <div className="token-valid">
-                      <span className="token-icon">✅</span>
+                      <span className="token-icon"><CheckCircle size={14} /></span>
                       <div className="token-info">
                         <span className="token-title">Access Token Active</span>
                         <span className="token-detail">
@@ -175,7 +176,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     </div>
                   ) : (
                     <div className="token-invalid">
-                      <span className="token-icon">⚠️</span>
+                      <span className="token-icon"><AlertTriangle size={14} /></span>
                       <div className="token-info">
                         <span className="token-title">No Access Token</span>
                         <span className="token-detail">Reconnect to restore API access</span>
@@ -235,7 +236,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <span className="limit-value">150/day</span>
                   </div>
                   <div className="limit-info-card">
-                    <span className="limit-icon">💬</span>
+                    <span className="limit-icon"><MessageSquare size={14} /></span>
                     <span className="limit-name">Comments</span>
                     <span className="limit-value">30/day</span>
                   </div>
@@ -323,7 +324,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === 'danger' && (
             <>
               <section className="settings-section danger">
-                <h3 className="settings-section-title">⚠️ DANGER ZONE</h3>
+                <h3 className="settings-section-title"><AlertTriangle size={16} /> DANGER ZONE</h3>
                 <p className="danger-warning">
                   These actions are irreversible. Please proceed with caution.
                 </p>

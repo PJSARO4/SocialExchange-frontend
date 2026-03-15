@@ -38,7 +38,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'deep-space',
     name: 'Deep Space',
     description: 'Vast cosmic ambience',
-    icon: '🌌',
+    icon: 'galaxy',
     type: 'mp3',
     src: '/audio/deep-space.mp3',
   },
@@ -46,7 +46,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'cyber-pulse',
     name: 'Cyber Pulse',
     description: 'Electronic rhythmic pulses',
-    icon: '💠',
+    icon: 'cpu',
     type: 'synth',
     synth: {
       baseFreq: 55,
@@ -63,7 +63,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'station-hum',
     name: 'Station Hum',
     description: 'Space station machinery',
-    icon: '🛸',
+    icon: 'rocket',
     type: 'synth',
     synth: {
       baseFreq: 60,
@@ -80,7 +80,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'data-stream',
     name: 'Data Stream',
     description: 'Digital flow & cascading bits',
-    icon: '📡',
+    icon: 'radio',
     type: 'synth',
     synth: {
       baseFreq: 110,
@@ -97,7 +97,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'nebula-drift',
     name: 'Nebula Drift',
     description: 'Ethereal cosmic winds',
-    icon: '🌀',
+    icon: 'wind',
     type: 'synth',
     synth: {
       baseFreq: 40,
@@ -114,7 +114,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'warp-core',
     name: 'Warp Core',
     description: 'Deep engine rumble',
-    icon: '⚛️',
+    icon: 'atom',
     type: 'synth',
     synth: {
       baseFreq: 35,
@@ -131,7 +131,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'aurora-waves',
     name: 'Aurora Waves',
     description: 'Shimmering northern lights',
-    icon: '🌊',
+    icon: 'waves',
     type: 'synth',
     synth: {
       baseFreq: 82,
@@ -150,7 +150,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'crystal-cavern',
     name: 'Crystal Cavern',
     description: 'Echoing mineral resonance',
-    icon: '💎',
+    icon: 'gem',
     type: 'synth',
     synth: {
       baseFreq: 220,
@@ -169,7 +169,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'solar-wind',
     name: 'Solar Wind',
     description: 'Radiant plasma streams',
-    icon: '☀️',
+    icon: 'sun',
     type: 'synth',
     synth: {
       baseFreq: 65,
@@ -187,7 +187,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'quantum-field',
     name: 'Quantum Field',
     description: 'Subatomic particle haze',
-    icon: '⚡',
+    icon: 'zap',
     type: 'synth',
     synth: {
       baseFreq: 150,
@@ -207,7 +207,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'midnight-tide',
     name: 'Midnight Tide',
     description: 'Dark ocean currents',
-    icon: '🌙',
+    icon: 'moon',
     type: 'synth',
     synth: {
       baseFreq: 45,
@@ -225,7 +225,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'neon-district',
     name: 'Neon District',
     description: 'Cyberpunk city ambience',
-    icon: '🌃',
+    icon: 'building',
     type: 'synth',
     synth: {
       baseFreq: 73,
@@ -245,7 +245,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'frozen-orbit',
     name: 'Frozen Orbit',
     description: 'Ice crystals in zero gravity',
-    icon: '❄️',
+    icon: 'snowflake',
     type: 'synth',
     synth: {
       baseFreq: 330,
@@ -266,7 +266,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'black-hole',
     name: 'Black Hole',
     description: 'Gravitational bass distortion',
-    icon: '🕳️',
+    icon: 'circle',
     type: 'synth',
     synth: {
       baseFreq: 25,
@@ -284,7 +284,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'signal-ghost',
     name: 'Signal Ghost',
     description: 'Lost transmissions in the void',
-    icon: '👻',
+    icon: 'signal',
     type: 'synth',
     synth: {
       baseFreq: 196,
@@ -305,7 +305,7 @@ export const AMBIENT_TRACKS: AmbientTrack[] = [
     id: 'terraform',
     name: 'Terraform',
     description: 'Planetary atmosphere generation',
-    icon: '🌍',
+    icon: 'globe',
     type: 'synth',
     synth: {
       baseFreq: 52,

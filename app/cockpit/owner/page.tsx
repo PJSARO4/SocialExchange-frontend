@@ -5,6 +5,29 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, hasRole, seedAuthIfEmpty } from '@/app/lib/auth/auth-store';
 import { ROLE_PERMISSIONS } from '@/app/lib/auth/types';
+import {
+  Lock,
+  AlertTriangle,
+  BarChart3,
+  Users,
+  User,
+  DollarSign,
+  Scale,
+  Settings,
+  Plug,
+  FileText,
+  Flag,
+  Megaphone,
+  XCircle,
+  CheckCircle,
+  Info,
+  TrendingUp,
+  Search,
+  ClipboardList,
+  Key,
+  FolderOpen,
+  Square,
+} from 'lucide-react';
 import './owner.css';
 
 /**
@@ -117,7 +140,7 @@ export default function OwnerDashboard() {
     return (
       <div className="owner-access-denied">
         <div className="owner-access-denied-card">
-          <div className="owner-access-denied-icon">🔒</div>
+          <div className="owner-access-denied-icon"><Lock size={32} /></div>
           <h1 className="owner-access-denied-title">Access Restricted</h1>
           <p className="owner-access-denied-text">
             This area is restricted to owners and developers only.
@@ -129,7 +152,7 @@ export default function OwnerDashboard() {
           </p>
           <div className="owner-access-denied-actions">
             <Link href="/auth/owner" className="owner-access-btn primary">
-              🔐 Owner Login
+              <Lock size={16} /> Owner Login
             </Link>
             <Link href="/cockpit" className="owner-access-btn secondary">
               ← Back to Cockpit
@@ -330,7 +353,7 @@ export default function OwnerDashboard() {
       {/* Alerts Banner */}
       {alerts.filter(a => !a.resolved).length > 0 && (
         <div className="alerts-banner">
-          <span className="alerts-icon">⚠️</span>
+          <span className="alerts-icon"><AlertTriangle size={16} /></span>
           <span>{alerts.filter(a => !a.resolved).length} unresolved alerts require attention</span>
           <button onClick={() => setActiveTab('compliance')}>View Alerts</button>
         </div>
@@ -339,13 +362,13 @@ export default function OwnerDashboard() {
       {/* Navigation Tabs */}
       <div className="owner-tabs">
         {[
-          { key: 'overview', label: 'Overview', icon: '📊' },
-          { key: 'communities', label: 'Communities', icon: '👥' },
-          { key: 'users', label: 'Users', icon: '👤' },
-          { key: 'revenue', label: 'Revenue', icon: '💰' },
-          { key: 'compliance', label: 'Compliance', icon: '⚖️' },
-          { key: 'settings', label: 'Settings', icon: '⚙️' },
-          { key: 'api-status', label: 'API Status', icon: '🔌' },
+          { key: 'overview', label: 'Overview', icon: <BarChart3 size={16} /> },
+          { key: 'communities', label: 'Communities', icon: <Users size={16} /> },
+          { key: 'users', label: 'Users', icon: <User size={16} /> },
+          { key: 'revenue', label: 'Revenue', icon: <DollarSign size={16} /> },
+          { key: 'compliance', label: 'Compliance', icon: <Scale size={16} /> },
+          { key: 'settings', label: 'Settings', icon: <Settings size={16} /> },
+          { key: 'api-status', label: 'API Status', icon: <Plug size={16} /> },
         ].map(tab => (
           <button
             key={tab.key}
@@ -410,16 +433,16 @@ function OverviewTab({ metrics, alerts }: { metrics: PlatformMetrics | null; ale
         <h3>Quick Actions</h3>
         <div className="quick-actions">
           <button className="action-btn">
-            <span>📝</span> Review Pending ({metrics.pendingReviews})
+            <span><FileText size={16} /></span> Review Pending ({metrics.pendingReviews})
           </button>
           <button className="action-btn warning">
-            <span>🚩</span> Flagged Content ({metrics.flaggedContent})
+            <span><Flag size={16} /></span> Flagged Content ({metrics.flaggedContent})
           </button>
           <button className="action-btn">
-            <span>📢</span> Send Announcement
+            <span><Megaphone size={16} /></span> Send Announcement
           </button>
           <button className="action-btn">
-            <span>📊</span> Generate Report
+            <span><BarChart3 size={16} /></span> Generate Report
           </button>
         </div>
       </div>
@@ -431,10 +454,10 @@ function OverviewTab({ metrics, alerts }: { metrics: PlatformMetrics | null; ale
           {alerts.slice(0, 5).map(alert => (
             <div key={alert.id} className={`alert-item ${alert.type} ${alert.resolved ? 'resolved' : ''}`}>
               <div className="alert-icon">
-                {alert.type === 'warning' && '⚠️'}
-                {alert.type === 'error' && '❌'}
-                {alert.type === 'info' && 'ℹ️'}
-                {alert.type === 'success' && '✅'}
+                {alert.type === 'warning' && <AlertTriangle size={16} />}
+                {alert.type === 'error' && <XCircle size={16} />}
+                {alert.type === 'info' && <Info size={16} />}
+                {alert.type === 'success' && <CheckCircle size={16} />}
               </div>
               <div className="alert-content">
                 <div className="alert-title">{alert.title}</div>
@@ -647,9 +670,9 @@ function RevenueTab({ metrics }: { metrics: PlatformMetrics | null }) {
       <div className="section">
         <h3>Export Options</h3>
         <div className="quick-actions">
-          <button className="action-btn">📊 Export CSV</button>
-          <button className="action-btn">📄 Generate Tax Report</button>
-          <button className="action-btn">📈 Financial Summary</button>
+          <button className="action-btn"><BarChart3 size={16} /> Export CSV</button>
+          <button className="action-btn"><FileText size={16} /> Generate Tax Report</button>
+          <button className="action-btn"><TrendingUp size={16} /> Financial Summary</button>
         </div>
       </div>
     </div>
@@ -677,17 +700,17 @@ function ComplianceTab({
       {/* Compliance Status */}
       <div className="compliance-status">
         <div className="compliance-card success">
-          <div className="compliance-icon">✅</div>
+          <div className="compliance-icon"><CheckCircle size={20} /></div>
           <div className="compliance-title">Howey Test Compliance</div>
           <div className="compliance-desc">All communities using approved utility-based language</div>
         </div>
         <div className="compliance-card success">
-          <div className="compliance-icon">✅</div>
+          <div className="compliance-icon"><CheckCircle size={20} /></div>
           <div className="compliance-title">Terms of Service</div>
           <div className="compliance-desc">Last updated: Jan 15, 2026</div>
         </div>
         <div className="compliance-card warning">
-          <div className="compliance-icon">⚠️</div>
+          <div className="compliance-icon"><AlertTriangle size={20} /></div>
           <div className="compliance-title">Content Review</div>
           <div className="compliance-desc">3 items pending review</div>
         </div>
@@ -701,10 +724,10 @@ function ComplianceTab({
             <div key={alert.id} className={`alert-item-full ${alert.type} ${alert.resolved ? 'resolved' : ''}`}>
               <div className="alert-header">
                 <div className="alert-icon-large">
-                  {alert.type === 'warning' && '⚠️'}
-                  {alert.type === 'error' && '❌'}
-                  {alert.type === 'info' && 'ℹ️'}
-                  {alert.type === 'success' && '✅'}
+                  {alert.type === 'warning' && <AlertTriangle size={20} />}
+                  {alert.type === 'error' && <XCircle size={20} />}
+                  {alert.type === 'info' && <Info size={20} />}
+                  {alert.type === 'success' && <CheckCircle size={20} />}
                 </div>
                 <div className="alert-info">
                   <div className="alert-title">{alert.title}</div>
@@ -730,10 +753,10 @@ function ComplianceTab({
       <div className="section">
         <h3>Compliance Tools</h3>
         <div className="quick-actions">
-          <button className="action-btn">🔍 Run Compliance Scan</button>
-          <button className="action-btn">📋 Review Pending Content</button>
-          <button className="action-btn">📊 Generate Compliance Report</button>
-          <button className="action-btn">⚖️ Update Legal Terms</button>
+          <button className="action-btn"><Search size={16} /> Run Compliance Scan</button>
+          <button className="action-btn"><ClipboardList size={16} /> Review Pending Content</button>
+          <button className="action-btn"><BarChart3 size={16} /> Generate Compliance Report</button>
+          <button className="action-btn"><Scale size={16} /> Update Legal Terms</button>
         </div>
       </div>
     </div>
@@ -889,7 +912,7 @@ function ApiStatusTab() {
           {apis.map((api, i) => (
             <div key={i} className={`alert-item ${api.status === 'configured' ? 'success' : api.status === 'needs-keys' ? 'warning' : 'info'}`}>
               <div className="alert-icon">
-                {api.status === 'configured' ? '✅' : api.status === 'needs-keys' ? '🔑' : api.status === 'local' ? '📁' : '⬜'}
+                {api.status === 'configured' ? <CheckCircle size={16} /> : api.status === 'needs-keys' ? <Key size={16} /> : api.status === 'local' ? <FolderOpen size={16} /> : <Square size={16} />}
               </div>
               <div className="alert-content">
                 <div className="alert-title">{api.name}</div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Zap, AlertTriangle, Lock, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { login, seedAuthIfEmpty, isAuthenticated, forceResetAuth, repairAuthIfNeeded } from '@/app/lib/auth/auth-store';
 import '../auth.css';
@@ -127,7 +128,7 @@ export default function LoginPage() {
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">
-            <span className="auth-logo-icon">⚡</span>
+            <span className="auth-logo-icon"><Zap size={24} /></span>
             <span className="auth-logo-text">SOCIAL EXCHANGE</span>
           </div>
           <h1 className="auth-title">Welcome Back</h1>
@@ -137,7 +138,7 @@ export default function LoginPage() {
         <form className="auth-form" onSubmit={handleSubmit}>
           {generalError && (
             <div className="auth-error-banner">
-              <span className="auth-error-icon">⚠️</span>
+              <span className="auth-error-icon"><AlertTriangle size={16} /></span>
               <span>{generalError}</span>
             </div>
           )}
@@ -248,7 +249,7 @@ export default function LoginPage() {
             letterSpacing: '0.05em',
           }}
         >
-          {isLoading ? 'Signing in...' : '⚡ Demo Login (One Click)'}
+          {isLoading ? 'Signing in...' : <><Zap size={16} /> Demo Login (One Click)</>}
         </button>
 
         <div className="auth-alternate-actions">
@@ -256,7 +257,7 @@ export default function LoginPage() {
             Create New Account
           </Link>
           <Link href="/auth/owner" className="auth-owner-link">
-            🔐 Owner/Developer Access
+            <Lock size={16} /> Owner/Developer Access
           </Link>
         </div>
 
@@ -287,7 +288,7 @@ export default function LoginPage() {
               transition: 'all 0.2s ease',
             }}
           >
-            🔄 Reset Demo Data (if login fails)
+            <RefreshCw size={16} /> Reset Demo Data (if login fails)
           </button>
         </div>
       </div>

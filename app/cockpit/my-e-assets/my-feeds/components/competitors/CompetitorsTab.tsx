@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { BarChart3, Lightbulb, Target, AlertTriangle, TrendingUp, Eye, Camera, Film, BookOpen, Clapperboard, Heart, MessageSquare } from 'lucide-react';
 import { Feed, PLATFORMS } from '../../types/feed';
 import './competitors.css';
 
@@ -285,7 +286,7 @@ export const CompetitorsTab: React.FC<CompetitorsTabProps> = ({ feed, feeds = []
             </div>
             <div className="header-actions">
               <button className="compare-btn" onClick={() => setCurrentView('compare')} disabled={competitors.length < 2}>
-                📊 Compare All
+                <BarChart3 size={14} /> Compare All
               </button>
               <button className="add-btn" onClick={() => setCurrentView('add')}>
                 + Add Competitor
@@ -329,15 +330,15 @@ export const CompetitorsTab: React.FC<CompetitorsTabProps> = ({ feed, feeds = []
           {/* Insights Section */}
           {insights.length > 0 && (
             <div className="insights-section">
-              <h3>💡 AI Insights</h3>
+              <h3><Lightbulb size={16} /> AI Insights</h3>
               <div className="insights-list">
                 {insights.map(insight => (
                   <div key={insight.id} className={`insight-card ${insight.type}`}>
                     <div className="insight-icon">
-                      {insight.type === 'opportunity' && '🎯'}
-                      {insight.type === 'threat' && '⚠️'}
-                      {insight.type === 'trend' && '📈'}
-                      {insight.type === 'tip' && '💡'}
+                      {insight.type === 'opportunity' && <Target size={16} />}
+                      {insight.type === 'threat' && <AlertTriangle size={16} />}
+                      {insight.type === 'trend' && <TrendingUp size={16} />}
+                      {insight.type === 'tip' && <Lightbulb size={16} />}
                     </div>
                     <div className="insight-content">
                       <h4>{insight.title}</h4>
@@ -433,7 +434,7 @@ export const CompetitorsTab: React.FC<CompetitorsTabProps> = ({ feed, feeds = []
               </div>
             ) : (
               <div className="empty-state">
-                <div className="empty-icon">👁️</div>
+                <div className="empty-icon"><Eye size={24} /></div>
                 <h3>No Competitors Tracked Yet</h3>
                 <p>Start tracking competitor accounts to gain insights into their strategies</p>
                 <button className="add-btn" onClick={() => setCurrentView('add')}>
@@ -654,18 +655,18 @@ export const CompetitorsTab: React.FC<CompetitorsTabProps> = ({ feed, feeds = []
                 {selectedCompetitor.topContent.map(content => (
                   <div key={content.id} className="top-content-item">
                     <div className="content-type">
-                      {content.type === 'image' && '📷'}
-                      {content.type === 'video' && '🎬'}
-                      {content.type === 'carousel' && '📚'}
-                      {content.type === 'reel' && '🎞️'}
+                      {content.type === 'image' && <Camera size={14} />}
+                      {content.type === 'video' && <Film size={14} />}
+                      {content.type === 'carousel' && <BookOpen size={14} />}
+                      {content.type === 'reel' && <Clapperboard size={14} />}
                       <span>{content.type}</span>
                     </div>
                     <div className="content-preview">
                       <p>{content.caption}</p>
                     </div>
                     <div className="content-stats">
-                      <span>❤️ {content.likes.toLocaleString()}</span>
-                      <span>💬 {content.comments.toLocaleString()}</span>
+                      <span><Heart size={12} /> {content.likes.toLocaleString()}</span>
+                      <span><MessageSquare size={12} /> {content.comments.toLocaleString()}</span>
                       <span className="engagement">{content.engagement.toFixed(1)}% eng</span>
                     </div>
                   </div>

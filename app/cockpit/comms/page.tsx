@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, ReactNode } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { CommsProvider } from './context/CommsContext';
 import ChannelList from './components/ChannelList';
 import RightPanel from './components/RightPanel';
@@ -32,7 +33,7 @@ class CommsErrorBoundary extends Component<
             borderRadius: '8px',
             maxWidth: '400px',
           }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>⚠️</div>
+            <div style={{ fontSize: '1.5rem', marginBottom: '1rem' }}><AlertTriangle size={24} /></div>
             <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#f87171', marginBottom: '0.5rem', letterSpacing: '1px' }}>
               COMMS MODULE ERROR
             </div>

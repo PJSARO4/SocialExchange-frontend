@@ -1,7 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import Link from 'next/link';
+import {
+  Camera,
+  Music,
+  Package,
+  Rocket,
+  DollarSign,
+  ShoppingCart,
+  ClipboardList,
+  Heart,
+  Store,
+  Flame,
+  TrendingUp,
+  ShieldCheck,
+  Lock,
+  CheckCircle,
+  MessageSquare,
+  BarChart3,
+} from 'lucide-react';
 import './trading-post.css';
 
 // ============================================
@@ -12,7 +30,7 @@ interface MarketplaceCategory {
   id: string;
   title: string;
   description: string;
-  icon: string;
+  icon: ReactNode;
   href: string;
   stats: {
     listings: number;
@@ -26,7 +44,7 @@ interface MarketplaceCategory {
 interface QuickAction {
   id: string;
   label: string;
-  icon: string;
+  icon: ReactNode;
   description: string;
   href: string;
   color: string;
@@ -48,7 +66,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     id: 'instagram-accounts',
     title: 'Instagram Accounts',
     description: 'Buy and sell verified Instagram accounts with real followers',
-    icon: '📷',
+    icon: <Camera size={24} />,
     href: '/cockpit/my-e-assets/market?platform=instagram',
     stats: {
       listings: 1247,
@@ -62,7 +80,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     id: 'tiktok-accounts',
     title: 'TikTok Accounts',
     description: 'Monetizable TikTok accounts with established audiences',
-    icon: '🎵',
+    icon: <Music size={24} />,
     href: '/cockpit/my-e-assets/market?platform=tiktok',
     stats: {
       listings: 856,
@@ -88,7 +106,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     id: 'youtube-channels',
     title: 'YouTube Channels',
     description: 'Monetized YouTube channels with active subscribers',
-    icon: '▶️',
+    icon: '▶',
     href: '/cockpit/my-e-assets/market?platform=youtube',
     stats: {
       listings: 412,
@@ -101,7 +119,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     id: 'content-packs',
     title: 'Content Packs',
     description: 'Premium content bundles, templates, and presets',
-    icon: '📦',
+    icon: <Package size={24} />,
     href: '/cockpit/my-e-assets/market?type=content',
     stats: {
       listings: 2341,
@@ -114,7 +132,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     id: 'services',
     title: 'Growth Services',
     description: 'Professional social media management and growth services',
-    icon: '🚀',
+    icon: <Rocket size={24} />,
     href: '/cockpit/my-e-assets/market?type=services',
     stats: {
       listings: 534,
@@ -129,7 +147,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   {
     id: 'sell-account',
     label: 'Sell My Account',
-    icon: '💰',
+    icon: <DollarSign size={20} />,
     description: 'List your social media account for sale',
     href: '/cockpit/my-e-assets/market?action=create',
     color: '#3fffdc',
@@ -137,7 +155,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   {
     id: 'browse-all',
     label: 'Browse Marketplace',
-    icon: '🛒',
+    icon: <ShoppingCart size={20} />,
     description: 'Explore all available listings',
     href: '/cockpit/my-e-assets/market',
     color: '#8B5CF6',
@@ -145,7 +163,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   {
     id: 'my-listings',
     label: 'My Listings',
-    icon: '📋',
+    icon: <ClipboardList size={20} />,
     description: 'Manage your active listings',
     href: '/cockpit/my-e-assets/market?tab=selling',
     color: '#F59E0B',
@@ -153,7 +171,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   {
     id: 'saved',
     label: 'Saved Items',
-    icon: '❤️',
+    icon: <Heart size={20} />,
     description: 'View your saved listings',
     href: '/cockpit/my-e-assets/market?tab=saved',
     color: '#EF4444',
@@ -185,7 +203,7 @@ export default function TradingPostPage() {
         <div className="trading-post-header-content">
           <div className="trading-post-header-text">
             <h1 className="trading-post-title">
-              <span className="trading-post-title-icon">🏪</span>
+              <span className="trading-post-title-icon"><Store size={24} /></span>
               Trading Post
             </h1>
             <p className="trading-post-subtitle">
@@ -233,7 +251,7 @@ export default function TradingPostPage() {
 
       {/* Featured: Instagram Accounts */}
       <section className="trading-post-section featured-section">
-        <div className="featured-badge">🔥 Most Popular</div>
+        <div className="featured-badge"><Flame size={16} /> Most Popular</div>
         <Link
           href="/cockpit/my-e-assets/market?platform=instagram"
           className="featured-instagram-card"
@@ -241,7 +259,7 @@ export default function TradingPostPage() {
           <div className="featured-instagram-bg" />
           <div className="featured-instagram-content">
             <div className="featured-instagram-header">
-              <span className="featured-instagram-icon">📷</span>
+              <span className="featured-instagram-icon"><Camera size={24} /></span>
               <div>
                 <h3 className="featured-instagram-title">Instagram Account Marketplace</h3>
                 <p className="featured-instagram-subtitle">Buy & sell verified Instagram accounts with real, engaged followers</p>
@@ -310,7 +328,7 @@ export default function TradingPostPage() {
       {/* Market Trends */}
       <section className="trading-post-section">
         <h2 className="section-title">
-          <span>📈</span>
+          <span><TrendingUp size={20} /></span>
           Market Trends
         </h2>
         <div className="trends-container">
@@ -341,33 +359,33 @@ export default function TradingPostPage() {
       {/* Trust & Safety */}
       <section className="trading-post-section trust-section">
         <h2 className="section-title">
-          <span>🛡️</span>
+          <span><ShieldCheck size={20} /></span>
           Safe Trading Guaranteed
         </h2>
         <div className="trust-grid">
           <div className="trust-card">
-            <span className="trust-icon">🔒</span>
+            <span className="trust-icon"><Lock size={24} /></span>
             <h3 className="trust-title">Escrow Protection</h3>
             <p className="trust-description">
               All transactions are protected by our secure escrow system. Funds are only released after successful transfer verification.
             </p>
           </div>
           <div className="trust-card">
-            <span className="trust-icon">✅</span>
+            <span className="trust-icon"><CheckCircle size={24} /></span>
             <h3 className="trust-title">Verified Sellers</h3>
             <p className="trust-description">
               All sellers undergo identity verification and account authenticity checks before listing.
             </p>
           </div>
           <div className="trust-card">
-            <span className="trust-icon">💬</span>
+            <span className="trust-icon"><MessageSquare size={24} /></span>
             <h3 className="trust-title">Dispute Resolution</h3>
             <p className="trust-description">
               Our dedicated support team handles any issues with a fair and transparent resolution process.
             </p>
           </div>
           <div className="trust-card">
-            <span className="trust-icon">📊</span>
+            <span className="trust-icon"><BarChart3 size={24} /></span>
             <h3 className="trust-title">Analytics Verified</h3>
             <p className="trust-description">
               All account metrics are independently verified through official API integrations.
@@ -387,11 +405,11 @@ export default function TradingPostPage() {
           </div>
           <div className="cta-buttons">
             <Link href="/cockpit/my-e-assets/market?action=create" className="cta-btn primary">
-              <span>💰</span>
+              <span><DollarSign size={18} /></span>
               Sell Your Account
             </Link>
             <Link href="/cockpit/my-e-assets/market" className="cta-btn secondary">
-              <span>🛒</span>
+              <span><ShoppingCart size={18} /></span>
               Browse Marketplace
             </Link>
           </div>

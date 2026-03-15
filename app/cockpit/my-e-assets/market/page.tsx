@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import {
   MarketListing,
@@ -30,9 +30,21 @@ import {
   getTransactionsByBuyer,
   getTransactionsBySeller,
 } from './lib/escrow-store';
+import {
+  Search, Upload, Download, Heart, Settings, Lock, Eye,
+  MessageSquare, Shield, DollarSign, Camera, Music, Twitter, Play, BookOpen,
+} from 'lucide-react';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import './components/escrow/escrow.css';
 import './market.css';
+
+const PLATFORM_ICON_MAP: Record<string, ReactNode> = {
+  camera: <Camera size={14} />,
+  music: <Music size={14} />,
+  twitter: <Twitter size={14} />,
+  play: <Play size={14} />,
+  'book-open': <BookOpen size={14} />,
+};
 
 type ViewMode = 'grid' | 'list';
 type ActiveTab = 'browse' | 'selling' | 'buying' | 'saved';
@@ -164,25 +176,25 @@ export default function MarketplacePage() {
           className={`market-tab ${activeTab === 'browse' ? 'active' : ''}`}
           onClick={() => setActiveTab('browse')}
         >
-          🔍 Browse
+          <Search size={14} /> Browse
         </button>
         <button
           className={`market-tab ${activeTab === 'selling' ? 'active' : ''}`}
           onClick={() => setActiveTab('selling')}
         >
-          📤 My Listings
+          <Upload size={14} /> My Listings
         </button>
         <button
           className={`market-tab ${activeTab === 'buying' ? 'active' : ''}`}
           onClick={() => setActiveTab('buying')}
         >
-          📥 My Offers
+          <Download size={14} /> My Offers
         </button>
         <button
           className={`market-tab ${activeTab === 'saved' ? 'active' : ''}`}
           onClick={() => setActiveTab('saved')}
         >
-          ❤️ Saved ({savedIds.length})
+          <Heart size={14} /> Saved ({savedIds.length})
         </button>
       </div>
 
@@ -198,10 +210,10 @@ export default function MarketplacePage() {
                 onChange={(e) => handleFilterChange('platform', e.target.value ? [e.target.value as Platform] : undefined)}
               >
                 <option value="">All Platforms</option>
-                <option value="instagram">📸 Instagram</option>
-                <option value="tiktok">🎵 TikTok</option>
-                <option value="twitter">𝕏 Twitter</option>
-                <option value="youtube">▶️ YouTube</option>
+                <option value="instagram">Instagram</option>
+                <option value="tiktok">TikTok</option>
+                <option value="twitter">Twitter</option>
+                <option value="youtube">YouTube</option>
               </select>
 
               {/* Niche Filter */}
@@ -239,7 +251,7 @@ export default function MarketplacePage() {
                 className="market-filter-toggle"
                 onClick={() => setShowFilters(!showFilters)}
               >
-                ⚙️ More Filters
+                <Settings size={14} /> More Filters
               </button>
 
               {(filters.platform || filters.niche || filters.priceMin || filters.priceMax) && (
@@ -345,7 +357,7 @@ export default function MarketplacePage() {
             </div>
           ) : listings.length === 0 ? (
             <div className="market-empty">
-              <div className="market-empty-icon">🔍</div>
+              <div className="market-empty-icon"><Search size={24} /></div>
               <h3>No listings found</h3>
               <p>Try adjusting your filters or check back later</p>
             </div>
@@ -370,7 +382,7 @@ export default function MarketplacePage() {
             return (
               <div style={{ marginTop: '2rem' }}>
                 <h3 style={{ color: '#fff', fontSize: '1.125rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ color: '#3fffdc' }}>🔒</span> Escrow-Protected Listings
+                  <span style={{ color: '#3fffdc' }}><Lock size={18} /></span> Escrow-Protected Listings
                 </h3>
                 <div className={`market-listings ${viewMode}`}>
                   {escrowListings.map((el) => (
@@ -382,7 +394,7 @@ export default function MarketplacePage() {
                     >
                       <div className="market-card-header">
                         <div className="market-card-platform">
-                          <span className="market-platform-icon">{getPlatformIcon(el.platform)}</span>
+                          <span className="market-platform-icon">{PLATFORM_ICON_MAP[getPlatformIcon(el.platform)] || getPlatformIcon(el.platform)}</span>
                           <span className="market-platform-name">{el.platform}</span>
                         </div>
                         <span style={{ fontSize: '0.7rem', background: 'rgba(63, 255, 220, 0.15)', color: '#3fffdc', padding: '2px 8px', borderRadius: '4px' }}>ESCROW</span>
@@ -419,8 +431,8 @@ export default function MarketplacePage() {
                           <span className="market-price-value">${el.askingPrice.toLocaleString()}</span>
                         </div>
                         <div className="market-card-stats">
-                          <span className="market-card-stat">👁 {el.views}</span>
-                          <span className="market-card-stat">💬 {el.inquiries}</span>
+                          <span className="market-card-stat"><Eye size={14} /> {el.views}</span>
+                          <span className="market-card-stat"><MessageSquare size={14} /> {el.inquiries}</span>
                         </div>
                       </div>
                     </div>
@@ -436,7 +448,7 @@ export default function MarketplacePage() {
         <div className="market-saved-section">
           {savedIds.length === 0 ? (
             <div className="market-empty">
-              <div className="market-empty-icon">❤️</div>
+              <div className="market-empty-icon"><Heart size={24} /></div>
               <h3>No saved listings</h3>
               <p>Save listings you're interested in to view them here</p>
             </div>
@@ -460,7 +472,7 @@ export default function MarketplacePage() {
 
       {activeTab === 'selling' && (
         <div className="market-empty">
-          <div className="market-empty-icon">📤</div>
+          <div className="market-empty-icon"><Upload size={24} /></div>
           <h3>No active listings</h3>
           <p>List your first account to start selling</p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -499,7 +511,7 @@ export default function MarketplacePage() {
             </div>
           ) : (
             <div className="market-empty">
-              <div className="market-empty-icon">📥</div>
+              <div className="market-empty-icon"><Download size={24} /></div>
               <h3>No active offers</h3>
               <p>Browse listings and make offers to see them here</p>
             </div>
@@ -510,7 +522,7 @@ export default function MarketplacePage() {
       {/* Trust & Safety Banner */}
       <div className="market-trust-banner">
         <div className="market-trust-item">
-          <span className="market-trust-icon">🔒</span>
+          <span className="market-trust-icon"><Lock size={18} /></span>
           <div className="market-trust-text">
             <strong>Secure Escrow</strong>
             <span>Funds held safely until transfer verified</span>
@@ -524,14 +536,14 @@ export default function MarketplacePage() {
           </div>
         </div>
         <div className="market-trust-item">
-          <span className="market-trust-icon">🛡️</span>
+          <span className="market-trust-icon"><Shield size={18} /></span>
           <div className="market-trust-text">
             <strong>Buyer Protection</strong>
             <span>7-day verification period</span>
           </div>
         </div>
         <div className="market-trust-item">
-          <span className="market-trust-icon">💬</span>
+          <span className="market-trust-icon"><MessageSquare size={18} /></span>
           <div className="market-trust-text">
             <strong>24/7 Support</strong>
             <span>Help when you need it</span>
@@ -610,7 +622,7 @@ function ListingCard({ listing, isSaved, onSave, viewMode }: ListingCardProps) {
     <div className={`market-card ${viewMode}`}>
       <div className="market-card-header">
         <div className="market-card-platform">
-          <span className="market-platform-icon">{getPlatformIcon(listing.platform)}</span>
+          <span className="market-platform-icon">{PLATFORM_ICON_MAP[getPlatformIcon(listing.platform)] || getPlatformIcon(listing.platform)}</span>
           <span className="market-platform-name">{listing.platform}</span>
         </div>
         <button
@@ -620,7 +632,7 @@ function ListingCard({ listing, isSaved, onSave, viewMode }: ListingCardProps) {
             onSave();
           }}
         >
-          {isSaved ? '❤️' : '🤍'}
+          <Heart size={16} fill={isSaved ? 'currentColor' : 'none'} />
         </button>
       </div>
 
@@ -668,7 +680,7 @@ function ListingCard({ listing, isSaved, onSave, viewMode }: ListingCardProps) {
 
         {listing.monetization?.hasMonetization && (
           <div className="market-card-revenue">
-            <span className="market-revenue-icon">💰</span>
+            <span className="market-revenue-icon"><DollarSign size={14} /></span>
             <span>${listing.monetization.monthlyRevenue?.toLocaleString()}/mo revenue</span>
           </div>
         )}
@@ -679,8 +691,8 @@ function ListingCard({ listing, isSaved, onSave, viewMode }: ListingCardProps) {
             <span className="market-price-per">${listing.pricePerFollower.toFixed(3)}/follower</span>
           </div>
           <div className="market-card-stats">
-            <span className="market-card-stat">👁 {listing.views}</span>
-            <span className="market-card-stat">💬 {listing.inquiries}</span>
+            <span className="market-card-stat"><Eye size={14} /> {listing.views}</span>
+            <span className="market-card-stat"><MessageSquare size={14} /> {listing.inquiries}</span>
           </div>
         </div>
       </Link>

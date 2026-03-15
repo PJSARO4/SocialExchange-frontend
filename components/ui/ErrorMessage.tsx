@@ -1,5 +1,7 @@
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
+
 export default function ErrorMessage({
   title = 'Something went wrong',
   message,
@@ -22,7 +24,7 @@ export default function ErrorMessage({
         textAlign: 'center',
       }}
     >
-      <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>⚠️</div>
+      <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}><AlertTriangle size={32} /></div>
       <h3 style={{ color: '#ef4444', fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 600 }}>
         {title}
       </h3>

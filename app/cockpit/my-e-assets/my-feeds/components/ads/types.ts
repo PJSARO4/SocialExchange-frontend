@@ -107,32 +107,32 @@ export interface AdTemplate {
 
 // Template categories for browsing
 export const AD_TEMPLATE_CATEGORIES = [
-  { id: 'all', name: 'All Templates', icon: '📋' },
-  { id: 'product', name: 'Product Showcase', icon: '🛍️' },
-  { id: 'service', name: 'Service Promotion', icon: '💼' },
-  { id: 'event', name: 'Event & Launch', icon: '🎉' },
-  { id: 'seasonal', name: 'Seasonal & Holiday', icon: '🎄' },
-  { id: 'testimonial', name: 'Social Proof', icon: '⭐' },
-  { id: 'lead', name: 'Lead Generation', icon: '📧' },
+  { id: 'all', name: 'All Templates', icon: 'clipboard-list' },
+  { id: 'product', name: 'Product Showcase', icon: 'shopping-bag' },
+  { id: 'service', name: 'Service Promotion', icon: 'briefcase' },
+  { id: 'event', name: 'Event & Launch', icon: 'party-popper' },
+  { id: 'seasonal', name: 'Seasonal & Holiday', icon: 'tree-pine' },
+  { id: 'testimonial', name: 'Social Proof', icon: 'star' },
+  { id: 'lead', name: 'Lead Generation', icon: 'mail' },
 ];
 
 // Ad objectives with descriptions
 export const AD_OBJECTIVES: { id: AdObjective; name: string; description: string; icon: string }[] = [
-  { id: 'awareness', name: 'Brand Awareness', description: 'Reach people likely to pay attention to your ads', icon: '👁️' },
-  { id: 'traffic', name: 'Traffic', description: 'Send people to a destination like a website or app', icon: '🔗' },
-  { id: 'engagement', name: 'Engagement', description: 'Get more likes, comments, shares, and event responses', icon: '💬' },
-  { id: 'leads', name: 'Lead Generation', description: 'Collect leads for your business or brand', icon: '📋' },
-  { id: 'sales', name: 'Sales', description: 'Find people likely to purchase your product or service', icon: '💰' },
-  { id: 'app_installs', name: 'App Installs', description: 'Get people to install your app', icon: '📱' },
+  { id: 'awareness', name: 'Brand Awareness', description: 'Reach people likely to pay attention to your ads', icon: 'eye' },
+  { id: 'traffic', name: 'Traffic', description: 'Send people to a destination like a website or app', icon: 'link-2' },
+  { id: 'engagement', name: 'Engagement', description: 'Get more likes, comments, shares, and event responses', icon: 'message-square' },
+  { id: 'leads', name: 'Lead Generation', description: 'Collect leads for your business or brand', icon: 'clipboard-list' },
+  { id: 'sales', name: 'Sales', description: 'Find people likely to purchase your product or service', icon: 'dollar-sign' },
+  { id: 'app_installs', name: 'App Installs', description: 'Get people to install your app', icon: 'smartphone' },
 ];
 
 // Platform info
 export const AD_PLATFORMS: { id: AdPlatform; name: string; icon: string; formats: AdFormat[] }[] = [
-  { id: 'instagram', name: 'Instagram', icon: '📸', formats: ['single_image', 'carousel', 'video', 'story', 'reel'] },
-  { id: 'facebook', name: 'Facebook', icon: '👤', formats: ['single_image', 'carousel', 'video', 'collection'] },
-  { id: 'twitter', name: 'Twitter/X', icon: '🐦', formats: ['single_image', 'carousel', 'video'] },
-  { id: 'tiktok', name: 'TikTok', icon: '🎵', formats: ['video'] },
-  { id: 'linkedin', name: 'LinkedIn', icon: '💼', formats: ['single_image', 'carousel', 'video'] },
+  { id: 'instagram', name: 'Instagram', icon: 'camera', formats: ['single_image', 'carousel', 'video', 'story', 'reel'] },
+  { id: 'facebook', name: 'Facebook', icon: 'user', formats: ['single_image', 'carousel', 'video', 'collection'] },
+  { id: 'twitter', name: 'Twitter/X', icon: 'twitter', formats: ['single_image', 'carousel', 'video'] },
+  { id: 'tiktok', name: 'TikTok', icon: 'music', formats: ['video'] },
+  { id: 'linkedin', name: 'LinkedIn', icon: 'briefcase', formats: ['single_image', 'carousel', 'video'] },
 ];
 
 // Call to action options

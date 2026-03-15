@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Search, Music } from 'lucide-react';
 import { useEStorage } from '@/app/context/EStorageContext';
 import type { EStorageItemMeta } from '../types/e-storage';
 import { getTypeIcon, formatBytes } from '../lib/thumbnail-utils';
@@ -137,7 +138,7 @@ export default function ItemDetailModal({
             title="Click to open full-size"
           >
             <img src={previewUrl} alt={item.title} />
-            <div className="e-detail-preview-zoom">{'🔍'} Click to expand</div>
+            <div className="e-detail-preview-zoom"><Search size={14} /> Click to expand</div>
           </div>
         )}
 
@@ -149,7 +150,7 @@ export default function ItemDetailModal({
 
         {item.type === 'audio' && previewUrl && (
           <div className="e-detail-preview" style={{ padding: '2rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{'🎵'}</div>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}><Music size={48} /></div>
             <audio src={previewUrl} controls style={{ width: '100%' }} />
           </div>
         )}

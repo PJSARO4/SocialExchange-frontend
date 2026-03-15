@@ -9,7 +9,7 @@ import { useEffect, useState, useRef } from "react";
 const ACTIONS = [
   { text: "shares traded", icon: "◆", color: "#3fffdc" },
   { text: "feed synced", icon: "↻", color: "#10b981" },
-  { text: "workflow triggered", icon: "⚡", color: "#f59e0b" },
+  { text: "workflow triggered", icon: "↯", color: "#f59e0b" },
   { text: "listing viewed", icon: "◉", color: "#8b5cf6" },
   { text: "message sent", icon: "▸", color: "#6366f1" },
   { text: "account verified", icon: "✓", color: "#3fffdc" },

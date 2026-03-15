@@ -392,7 +392,7 @@ export function seedMarketplaceIfEmpty(): void {
       handle: '@urban_lifestyle_daily',
       displayName: 'Urban Lifestyle Daily',
       profileImageUrl: 'https://picsum.photos/seed/urban/200',
-      bio: '✨ City vibes & modern living | 📍 NYC | 🏙️ Architecture • Design • Culture',
+      bio: 'City vibes & modern living | NYC | Architecture - Design - Culture',
       niche: 'lifestyle',
       niches: ['lifestyle', 'travel', 'art'],
       metrics: {
@@ -463,7 +463,7 @@ export function seedMarketplaceIfEmpty(): void {
       handle: '@fitness_fuel_daily',
       displayName: 'Fitness Fuel',
       profileImageUrl: 'https://picsum.photos/seed/fitness/200',
-      bio: '💪 Transform your body | 🥗 Nutrition tips | 🏋️ Home workouts | Free guides 👇',
+      bio: 'Transform your body | Nutrition tips | Home workouts | Free guides',
       niche: 'fitness',
       niches: ['fitness', 'food'],
       metrics: {
@@ -519,7 +519,7 @@ export function seedMarketplaceIfEmpty(): void {
       handle: '@tech_insider_hub',
       displayName: 'Tech Insider',
       profileImageUrl: 'https://picsum.photos/seed/tech/200',
-      bio: '🚀 Latest in Tech | 💡 Gadgets & Innovation | 📱 Reviews | 🤖 AI Updates',
+      bio: 'Latest in Tech | Gadgets & Innovation | Reviews | AI Updates',
       niche: 'tech',
       niches: ['tech', 'business'],
       metrics: {
@@ -577,7 +577,7 @@ export function seedMarketplaceIfEmpty(): void {
       handle: '@viralclips_central',
       displayName: 'Viral Clips Central',
       profileImageUrl: 'https://picsum.photos/seed/viral/200',
-      bio: '😂 Daily entertainment | 🎬 Best clips | 📺 Movies & TV',
+      bio: 'Daily entertainment | Best clips | Movies & TV',
       niche: 'entertainment',
       niches: ['entertainment'],
       metrics: {
@@ -635,7 +635,7 @@ export function seedMarketplaceIfEmpty(): void {
       handle: '@minimal_home_inspo',
       displayName: 'Minimal Home',
       profileImageUrl: 'https://picsum.photos/seed/minimal/200',
-      bio: '🏠 Minimalist interiors | 🪴 Scandinavian design | ✨ Home decor inspiration',
+      bio: 'Minimalist interiors | Scandinavian design | Home decor inspiration',
       niche: 'lifestyle',
       niches: ['lifestyle', 'art'],
       metrics: {
@@ -683,5 +683,5 @@ export function seedMarketplaceIfEmpty(): void {
   ];
 
   saveListings(sampleListings);
-  console.log('✅ Marketplace seed data created');
+  console.log('[OK] Marketplace seed data created');
 }

@@ -6,7 +6,31 @@ import {
   AdCreative, AdTargeting, AdBudget, AdSchedule,
   AD_OBJECTIVES, AD_PLATFORMS, AD_TEMPLATE_CATEGORIES, CTA_OPTIONS
 } from './types';
+import {
+  Megaphone, ClipboardList, Sparkles, BarChart3, DollarSign,
+  Gift, Users, Rocket, Trash2, CheckCircle, Eye, Pencil, Plus, Camera,
+  ShoppingBag, Briefcase, PartyPopper, TreePine, Star, Mail, Link2, MessageSquare, Smartphone, User, Twitter, Music
+} from 'lucide-react';
 import './ad-creator.css';
+
+const AD_ICON_MAP: Record<string, React.ReactNode> = {
+  'clipboard-list': <ClipboardList size={14} />,
+  'shopping-bag': <ShoppingBag size={14} />,
+  'briefcase': <Briefcase size={14} />,
+  'party-popper': <PartyPopper size={14} />,
+  'tree-pine': <TreePine size={14} />,
+  'star': <Star size={14} />,
+  'mail': <Mail size={14} />,
+  'eye': <Eye size={14} />,
+  'link-2': <Link2 size={14} />,
+  'message-square': <MessageSquare size={14} />,
+  'dollar-sign': <DollarSign size={14} />,
+  'smartphone': <Smartphone size={14} />,
+  'camera': <Camera size={14} />,
+  'user': <User size={14} />,
+  'twitter': <Twitter size={14} />,
+  'music': <Music size={14} />,
+};
 
 interface AdCreatorModalProps {
   isOpen?: boolean;
@@ -117,7 +141,7 @@ const MOCK_TEMPLATES: AdTemplate[] = [
     objective: 'sales',
     creative: {
       headline: 'Holiday Special',
-      primaryText: '🎁 Up to [X]% off! Limited time only.',
+      primaryText: 'Up to [X]% off! Limited time only.',
       callToAction: 'Shop Now',
     },
   },
@@ -485,10 +509,10 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
               </button>
             )}
             <h2>
-              {viewMode === 'dashboard' && '📢 Ad Creator'}
-              {viewMode === 'templates' && '📋 Ad Templates'}
-              {viewMode === 'creator' && '✨ Create New Ad'}
-              {viewMode === 'campaigns' && '📊 Campaigns'}
+              {viewMode === 'dashboard' && <><Megaphone size={18} /> Ad Creator</>}
+              {viewMode === 'templates' && <><ClipboardList size={18} /> Ad Templates</>}
+              {viewMode === 'creator' && <><Sparkles size={18} /> Create New Ad</>}
+              {viewMode === 'campaigns' && <><BarChart3 size={18} /> Campaigns</>}
             </h2>
           </div>
           <button className="close-btn" onClick={onClose}>×</button>
@@ -500,28 +524,28 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
             {/* Stats */}
             <div className="ad-stats">
               <div className="stat-card">
-                <span className="stat-icon">📊</span>
+                <span className="stat-icon"><BarChart3 size={16} /></span>
                 <div className="stat-content">
                   <span className="stat-value">{totalCampaigns}</span>
                   <span className="stat-label">Campaigns</span>
                 </div>
               </div>
               <div className="stat-card">
-                <span className="stat-icon">🟢</span>
+                <span className="stat-icon"><CheckCircle size={16} /></span>
                 <div className="stat-content">
                   <span className="stat-value">{activeCampaigns}</span>
                   <span className="stat-label">Active</span>
                 </div>
               </div>
               <div className="stat-card">
-                <span className="stat-icon">💰</span>
+                <span className="stat-icon"><DollarSign size={16} /></span>
                 <div className="stat-content">
                   <span className="stat-value">${totalSpend.toFixed(2)}</span>
                   <span className="stat-label">Total Spend</span>
                 </div>
               </div>
               <div className="stat-card">
-                <span className="stat-icon">👁️</span>
+                <span className="stat-icon"><Eye size={16} /></span>
                 <div className="stat-content">
                   <span className="stat-value">{totalImpressions.toLocaleString()}</span>
                   <span className="stat-label">Impressions</span>
@@ -532,17 +556,17 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
             {/* Quick Actions */}
             <div className="quick-actions">
               <button className="action-card primary" onClick={handleStartBlank}>
-                <span className="action-icon">➕</span>
+                <span className="action-icon"><Plus size={16} /></span>
                 <span className="action-title">Create New Ad</span>
                 <span className="action-desc">Start from scratch</span>
               </button>
               <button className="action-card" onClick={() => setViewMode('templates')}>
-                <span className="action-icon">📋</span>
+                <span className="action-icon"><ClipboardList size={16} /></span>
                 <span className="action-title">Browse Templates</span>
                 <span className="action-desc">Use a pre-made design</span>
               </button>
               <button className="action-card" onClick={() => setViewMode('campaigns')}>
-                <span className="action-icon">📊</span>
+                <span className="action-icon"><BarChart3 size={16} /></span>
                 <span className="action-title">View Campaigns</span>
                 <span className="action-desc">Manage existing ads</span>
               </button>
@@ -553,7 +577,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
               <h3>Recent Campaigns</h3>
               {campaigns.length === 0 ? (
                 <div className="empty-campaigns">
-                  <span className="empty-icon">📢</span>
+                  <span className="empty-icon"><Megaphone size={20} /></span>
                   <p>No campaigns yet. Create your first ad to get started!</p>
                 </div>
               ) : (
@@ -598,7 +622,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                   className={`category-btn ${templateCategory === cat.id ? 'active' : ''}`}
                   onClick={() => setTemplateCategory(cat.id)}
                 >
-                  <span>{cat.icon}</span>
+                  <span>{AD_ICON_MAP[cat.icon] || cat.icon}</span>
                   <span>{cat.name}</span>
                 </button>
               ))}
@@ -612,7 +636,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                     <div className="template-platforms">
                       {template.platforms.map(p => (
                         <span key={p} className="platform-badge">
-                          {AD_PLATFORMS.find(pl => pl.id === p)?.icon}
+                          {AD_ICON_MAP[AD_PLATFORMS.find(pl => pl.id === p)?.icon || ''] || AD_PLATFORMS.find(pl => pl.id === p)?.icon}
                         </span>
                       ))}
                     </div>
@@ -623,7 +647,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                     <div className="template-meta">
                       <span className="format-badge">{template.format.replace('_', ' ')}</span>
                       <span className="objective-badge">
-                        {AD_OBJECTIVES.find(o => o.id === template.objective)?.icon}
+                        {AD_ICON_MAP[AD_OBJECTIVES.find(o => o.id === template.objective)?.icon || ''] || AD_OBJECTIVES.find(o => o.id === template.objective)?.icon}
                         {AD_OBJECTIVES.find(o => o.id === template.objective)?.name}
                       </span>
                     </div>
@@ -655,7 +679,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                         className={`objective-card ${selectedObjective === obj.id ? 'selected' : ''}`}
                         onClick={() => setSelectedObjective(obj.id)}
                       >
-                        <span className="objective-icon">{obj.icon}</span>
+                        <span className="objective-icon">{AD_ICON_MAP[obj.icon] || obj.icon}</span>
                         <span className="objective-name">{obj.name}</span>
                         <span className="objective-desc">{obj.description}</span>
                       </button>
@@ -676,7 +700,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                         className={`platform-card ${selectedPlatforms.includes(platform.id) ? 'selected' : ''}`}
                         onClick={() => togglePlatform(platform.id)}
                       >
-                        <span className="platform-icon">{platform.icon}</span>
+                        <span className="platform-icon">{AD_ICON_MAP[platform.icon] || platform.icon}</span>
                         <span className="platform-name">{platform.name}</span>
                         <span className="platform-formats">
                           {platform.formats.slice(0, 3).join(', ')}
@@ -752,7 +776,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                         <label>Media</label>
                         <div className="media-upload">
                           <button className="upload-btn">
-                            📷 Upload Image/Video
+                            <Camera size={14} /> Upload Image/Video
                           </button>
                           <span className="upload-hint">Recommended: 1080x1080 for feed, 1080x1920 for stories</span>
                         </div>
@@ -762,7 +786,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                       <h4>Preview</h4>
                       <div className="ad-preview-card">
                         <div className="preview-media">
-                          <span className="preview-placeholder">📷</span>
+                          <span className="preview-placeholder"><Camera size={24} /></span>
                         </div>
                         <div className="preview-content">
                           <p className="preview-text">{adCreative.primaryText || 'Your ad text will appear here...'}</p>
@@ -868,7 +892,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                       </div>
                     </div>
                     <div className="audience-estimate">
-                      <span className="estimate-icon">👥</span>
+                      <span className="estimate-icon"><Users size={14} /></span>
                       <div className="estimate-info">
                         <span className="estimate-label">Estimated Audience Size</span>
                         <span className="estimate-value">2.5M - 5M people</span>
@@ -1025,7 +1049,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                 </button>
               ) : (
                 <button className="nav-btn primary create" onClick={handleCreateAd}>
-                  🚀 Create Campaign
+                  <Rocket size={14} /> Create Campaign
                 </button>
               )}
             </div>
@@ -1043,7 +1067,7 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
             </div>
             {campaigns.length === 0 ? (
               <div className="empty-campaigns large">
-                <span className="empty-icon">📊</span>
+                <span className="empty-icon"><BarChart3 size={20} /></span>
                 <h3>No Campaigns Yet</h3>
                 <p>Create your first ad campaign to start reaching your audience</p>
                 <button className="action-btn primary" onClick={handleStartBlank}>
@@ -1057,9 +1081,9 @@ export function AdCreatorModal({ isOpen, onClose, feedId, onCreateAd, onCreateCa
                     <div className="campaign-header">
                       <div className={`status-badge ${campaign.status}`}>{campaign.status}</div>
                       <div className="campaign-actions">
-                        <button className="icon-btn" title="Edit">✏️</button>
-                        <button className="icon-btn" title="Duplicate">📋</button>
-                        <button className="icon-btn" title="Delete">🗑️</button>
+                        <button className="icon-btn" title="Edit"><Pencil size={14} /></button>
+                        <button className="icon-btn" title="Duplicate"><ClipboardList size={14} /></button>
+                        <button className="icon-btn" title="Delete"><Trash2 size={14} /></button>
                       </div>
                     </div>
                     <div className="campaign-body">

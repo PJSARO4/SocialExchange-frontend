@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Pin, Search, Zap } from 'lucide-react';
 import { useComms } from '../context/CommsContext';
 import MessageItem from './MessageItem';
 import QuickReplyTemplates from './QuickReplyTemplates';
@@ -163,7 +164,7 @@ export default function RightPanel() {
               onClick={() => setShowPinned(!showPinned)}
               title={`${pinnedMessages.length} pinned`}
             >
-              📌 {pinnedMessages.length}
+              <Pin size={14} /> {pinnedMessages.length}
             </button>
           )}
           <button
@@ -171,7 +172,7 @@ export default function RightPanel() {
             onClick={() => { setShowSearch(!showSearch); setSearchQuery(''); setSearchResults([]); }}
             title="Search messages"
           >
-            🔍
+            <Search size={14} />
           </button>
         </div>
       </div>
@@ -208,7 +209,7 @@ export default function RightPanel() {
       {/* Pinned messages bar */}
       {showPinned && pinnedMessages.length > 0 && (
         <div className="comms-pinned-bar">
-          <div className="comms-pinned-title">📌 Pinned Messages</div>
+          <div className="comms-pinned-title"><Pin size={14} /> Pinned Messages</div>
           {pinnedMessages.map(msg => (
             <div key={msg.id} className="comms-pinned-item">
               <div className="comms-pinned-item-header">
@@ -285,7 +286,7 @@ export default function RightPanel() {
           onClick={() => setShowTemplates(!showTemplates)}
           title="Quick Reply Templates"
         >
-          ⚡
+          <Zap size={14} />
         </button>
         <input
           ref={inputRef}

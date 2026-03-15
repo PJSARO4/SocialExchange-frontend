@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { TrendingUp, Smartphone, AlertTriangle, HardDrive } from 'lucide-react';
 
 import {
   getMyHoldings,
@@ -216,7 +217,7 @@ export default function MyEAssetsPage() {
               marginBottom: '0.75rem',
             }}
           >
-            📈
+            <TrendingUp size={32} />
           </div>
           <h2
             style={{
@@ -326,7 +327,7 @@ export default function MyEAssetsPage() {
               marginBottom: '0.75rem',
             }}
           >
-            📱
+            <Smartphone size={32} />
           </div>
           <h2
             style={{
@@ -436,7 +437,7 @@ export default function MyEAssetsPage() {
               marginBottom: '0.75rem',
             }}
           >
-            💾
+            <HardDrive size={32} />
           </div>
           <h2
             style={{
@@ -538,7 +539,7 @@ export default function MyEAssetsPage() {
             gap: '0.75rem',
           }}
         >
-          <span style={{ fontSize: '1.25rem' }}>⚠️</span>
+          <span style={{ fontSize: '1.25rem' }}><AlertTriangle size={20} /></span>
           <div>
             <div
               style={{

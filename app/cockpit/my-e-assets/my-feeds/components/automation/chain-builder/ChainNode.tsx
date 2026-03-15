@@ -1,7 +1,22 @@
 'use client';
 
 import React from 'react';
+import { Play, Download, Search, Pencil, Bot, GitBranch, Timer, CheckCircle, Calendar, Globe, Flag, AlertTriangle } from 'lucide-react';
 import { ChainNode as ChainNodeType, NODE_CATALOG } from './types';
+
+const ICON_MAP: Record<string, React.ReactNode> = {
+  'play': <Play size={14} />,
+  'download': <Download size={14} />,
+  'search': <Search size={14} />,
+  'pencil': <Pencil size={14} />,
+  'bot': <Bot size={14} />,
+  'git-branch': <GitBranch size={14} />,
+  'timer': <Timer size={14} />,
+  'check-circle': <CheckCircle size={14} />,
+  'calendar': <Calendar size={14} />,
+  'globe': <Globe size={14} />,
+  'flag': <Flag size={14} />,
+};
 
 interface ChainNodeProps {
   node: ChainNodeType;
@@ -55,7 +70,7 @@ export const ChainNode: React.FC<ChainNodeProps> = ({
 
       {/* Node Header */}
       <div className="node-header" style={{ backgroundColor: catalogItem.color }}>
-        <span className="node-icon">{catalogItem.icon}</span>
+        <span className="node-icon">{ICON_MAP[catalogItem.icon] || catalogItem.icon}</span>
         <span className="node-type">{catalogItem.label}</span>
         {isSelected && (
           <button className="node-delete" onClick={handleDelete}>×</button>
@@ -69,7 +84,7 @@ export const ChainNode: React.FC<ChainNodeProps> = ({
           <div className="node-description">{node.data.description}</div>
         )}
         {!node.data.isConfigured && (
-          <div className="node-warning">⚠️ Needs configuration</div>
+          <div className="node-warning"><AlertTriangle size={12} /> Needs configuration</div>
         )}
       </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { AlertTriangle, BarChart3, Sparkles, Lightbulb, TrendingUp, Bot, Trash2 } from 'lucide-react';
 import { Feed } from '../FeedsContext';
 
 interface Message {
@@ -32,28 +33,28 @@ const PROACTIVE_MESSAGES: Record<string, { trigger: string; message: string; sug
     },
     {
       trigger: 'low_content',
-      message: "⚠️ I noticed your content library is running low. With your current posting schedule, you'll run out of content in about 5 days. Want me to help you plan ahead?",
+      message: "I noticed your content library is running low. With your current posting schedule, you'll run out of content in about 5 days. Want me to help you plan ahead?",
       suggestions: ['Upload more content', 'Reduce posting frequency', 'Enable content recycling'],
     },
   ],
   scheduler: [
     {
       trigger: 'optimal_times',
-      message: "📊 Based on your audience analytics, your followers are most active at 9am, 1pm, and 7pm. Would you like me to adjust your posting schedule?",
+      message: "Based on your audience analytics, your followers are most active at 9am, 1pm, and 7pm. Would you like me to adjust your posting schedule?",
       suggestions: ['Yes, optimize my schedule', 'Show me the analytics', 'Keep current schedule'],
     },
   ],
   content: [
     {
       trigger: 'bulk_upload',
-      message: "✨ Nice! I see you uploaded new content. Would you like me to generate AI captions for these images?",
+      message: "Nice! I see you uploaded new content. Would you like me to generate AI captions for these images?",
       suggestions: ['Generate captions for all', 'Let me select which ones', 'No thanks'],
     },
   ],
   general: [
     {
       trigger: 'idle',
-      message: "💡 Did you know? Accounts that post consistently see 3x more engagement. I can help you set up a posting routine!",
+      message: "Did you know? Accounts that post consistently see 3x more engagement. I can help you set up a posting routine!",
       suggestions: ['Tell me more', 'Set up posting routine', 'Show engagement tips'],
     },
   ],
@@ -190,7 +191,7 @@ export default function CopilotAssistant({
   const quickActions = [
     { icon: '✍️', label: 'Write Caption', action: 'Help me write a caption for my next post' },
     { icon: '📅', label: 'Best Times', action: 'What are the best times to post?' },
-    { icon: '📈', label: 'Growth Tips', action: 'Give me tips to grow my account' },
+    { icon: <TrendingUp size={16} />, label: 'Growth Tips', action: 'Give me tips to grow my account' },
     { icon: '#️⃣', label: 'Hashtags', action: 'Suggest hashtags for my niche' },
   ];
 
@@ -202,7 +203,7 @@ export default function CopilotAssistant({
           <div className="presence-bubble">
             <div className="presence-avatar">
               <div className="avatar-glow" />
-              <span>🤖</span>
+              <span><Bot size={18} /></span>
               <div className="status-dot" />
             </div>
             <div className="presence-content">
@@ -245,7 +246,7 @@ export default function CopilotAssistant({
             <div className="copilot-header">
               <div className="copilot-identity">
                 <div className="copilot-avatar">
-                  <span>🤖</span>
+                  <span><Bot size={18} /></span>
                   <div className="avatar-ring" />
                 </div>
                 <div className="copilot-info">
@@ -258,7 +259,7 @@ export default function CopilotAssistant({
               </div>
               <div className="copilot-header-actions">
                 <button className="header-btn" title="Clear chat">
-                  🗑️
+                  <Trash2 size={16} />
                 </button>
                 <button className="header-btn close-btn" onClick={onClose}>
                   ×
@@ -285,7 +286,7 @@ export default function CopilotAssistant({
               {messages.map((message) => (
                 <div key={message.id} className={`message ${message.role}`}>
                   {message.role === 'assistant' && (
-                    <div className="message-avatar">🤖</div>
+                    <div className="message-avatar"><Bot size={16} /></div>
                   )}
                   <div className="message-content">
                     <p>{message.content}</p>
@@ -314,7 +315,7 @@ export default function CopilotAssistant({
 
               {isTyping && (
                 <div className="message assistant typing">
-                  <div className="message-avatar">🤖</div>
+                  <div className="message-avatar"><Bot size={16} /></div>
                   <div className="message-content">
                     <div className="typing-indicator">
                       <span></span>

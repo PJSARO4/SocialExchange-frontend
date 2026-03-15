@@ -2,6 +2,10 @@
 
 import React, { useState } from 'react';
 import { Feed, PLATFORMS } from '../../types/feed';
+import {
+  Eye, Link2, DollarSign, BarChart3, Pencil, Trash2,
+  ClipboardList, Smartphone, Monitor, Tablet, Globe
+} from 'lucide-react';
 import './linkex.css';
 
 // ============================================
@@ -71,7 +75,7 @@ const MOCK_LINK_PAGE: LinkPage = {
   slug: 'johndoe',
   theme: 'gradient',
   links: [
-    { id: 'l1', title: '🔥 My Latest Video', url: 'https://youtube.com/watch?v=xxx', clicks: 1234, enabled: true, order: 1, style: 'featured' },
+    { id: 'l1', title: 'My Latest Video', url: 'https://youtube.com/watch?v=xxx', clicks: 1234, enabled: true, order: 1, style: 'featured' },
     { id: 'l2', title: 'Shop My Favorites', url: 'https://amazon.com/shop/xxx', clicks: 892, enabled: true, order: 2, style: 'default' },
     { id: 'l3', title: 'Free E-Book Download', url: 'https://gumroad.com/xxx', clicks: 567, enabled: true, order: 3, style: 'default' },
     { id: 'l4', title: 'Book a Consultation', url: 'https://calendly.com/xxx', clicks: 234, enabled: true, order: 4, style: 'default' },
@@ -261,28 +265,28 @@ export const LinkExModal: React.FC<LinkExModalProps> = ({ feed, isOpen, onClose 
               {/* Quick Stats */}
               <div className="linkex-stats-grid">
                 <div className="linkex-stat-card">
-                  <span className="stat-icon">👁️</span>
+                  <span className="stat-icon"><Eye size={16} /></span>
                   <div className="stat-info">
                     <span className="stat-value">{linkPage.analytics.views.toLocaleString()}</span>
                     <span className="stat-label">Page Views</span>
                   </div>
                 </div>
                 <div className="linkex-stat-card">
-                  <span className="stat-icon">🔗</span>
+                  <span className="stat-icon"><Link2 size={16} /></span>
                   <div className="stat-info">
                     <span className="stat-value">{linkPage.analytics.totalClicks.toLocaleString()}</span>
                     <span className="stat-label">Total Clicks</span>
                   </div>
                 </div>
                 <div className="linkex-stat-card">
-                  <span className="stat-icon">💰</span>
+                  <span className="stat-icon"><DollarSign size={16} /></span>
                   <div className="stat-info">
                     <span className="stat-value">${totalAffiliateEarnings.toFixed(2)}</span>
                     <span className="stat-label">Affiliate Earnings</span>
                   </div>
                 </div>
                 <div className="linkex-stat-card">
-                  <span className="stat-icon">📊</span>
+                  <span className="stat-icon"><BarChart3 size={16} /></span>
                   <div className="stat-info">
                     <span className="stat-value">{((linkPage.analytics.totalClicks / linkPage.analytics.views) * 100).toFixed(1)}%</span>
                     <span className="stat-label">Click Rate</span>
@@ -405,12 +409,12 @@ export const LinkExModal: React.FC<LinkExModalProps> = ({ feed, isOpen, onClose 
                       >
                         <span className="toggle-knob" />
                       </button>
-                      <button className="link-edit-btn">✏️</button>
+                      <button className="link-edit-btn"><Pencil size={14} /></button>
                       <button
                         className="link-delete-btn"
                         onClick={() => handleRemoveLink(link.id)}
                       >
-                        🗑️
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -488,16 +492,16 @@ export const LinkExModal: React.FC<LinkExModalProps> = ({ feed, isOpen, onClose 
                         className="copy-btn"
                         onClick={() => copyToClipboard(`https://${link.shortUrl}`)}
                       >
-                        📋
+                        <ClipboardList size={14} />
                       </button>
                     </span>
                     <span className="link-clicks">{link.clicks.toLocaleString()}</span>
                     <span className="link-conversions">{link.conversions}</span>
                     <span className="link-earnings">${link.earnings.toFixed(2)}</span>
                     <span className="link-actions">
-                      <button className="action-btn">📊</button>
-                      <button className="action-btn">✏️</button>
-                      <button className="action-btn delete">🗑️</button>
+                      <button className="action-btn"><BarChart3 size={14} /></button>
+                      <button className="action-btn"><Pencil size={14} /></button>
+                      <button className="action-btn delete"><Trash2 size={14} /></button>
                     </span>
                   </div>
                 ))}
@@ -571,27 +575,27 @@ export const LinkExModal: React.FC<LinkExModalProps> = ({ feed, isOpen, onClose 
                 <h4>Top Locations</h4>
                 <div className="geo-list">
                   <div className="geo-item">
-                    <span className="geo-flag">🇺🇸</span>
+                    <span className="geo-flag"><Globe size={14} /></span>
                     <span className="geo-country">United States</span>
                     <span className="geo-percent">45%</span>
                   </div>
                   <div className="geo-item">
-                    <span className="geo-flag">🇬🇧</span>
+                    <span className="geo-flag"><Globe size={14} /></span>
                     <span className="geo-country">United Kingdom</span>
                     <span className="geo-percent">18%</span>
                   </div>
                   <div className="geo-item">
-                    <span className="geo-flag">🇨🇦</span>
+                    <span className="geo-flag"><Globe size={14} /></span>
                     <span className="geo-country">Canada</span>
                     <span className="geo-percent">12%</span>
                   </div>
                   <div className="geo-item">
-                    <span className="geo-flag">🇦🇺</span>
+                    <span className="geo-flag"><Globe size={14} /></span>
                     <span className="geo-country">Australia</span>
                     <span className="geo-percent">8%</span>
                   </div>
                   <div className="geo-item">
-                    <span className="geo-flag">🌍</span>
+                    <span className="geo-flag"><Globe size={14} /></span>
                     <span className="geo-country">Other</span>
                     <span className="geo-percent">17%</span>
                   </div>
@@ -603,7 +607,7 @@ export const LinkExModal: React.FC<LinkExModalProps> = ({ feed, isOpen, onClose 
                 <h4>Device Breakdown</h4>
                 <div className="devices-list">
                   <div className="device-item">
-                    <span className="device-icon">📱</span>
+                    <span className="device-icon"><Smartphone size={14} /></span>
                     <span className="device-name">Mobile</span>
                     <div className="device-bar">
                       <div className="device-fill" style={{ width: '68%' }} />
@@ -611,7 +615,7 @@ export const LinkExModal: React.FC<LinkExModalProps> = ({ feed, isOpen, onClose 
                     <span className="device-percent">68%</span>
                   </div>
                   <div className="device-item">
-                    <span className="device-icon">💻</span>
+                    <span className="device-icon"><Monitor size={14} /></span>
                     <span className="device-name">Desktop</span>
                     <div className="device-bar">
                       <div className="device-fill" style={{ width: '28%' }} />
@@ -619,7 +623,7 @@ export const LinkExModal: React.FC<LinkExModalProps> = ({ feed, isOpen, onClose 
                     <span className="device-percent">28%</span>
                   </div>
                   <div className="device-item">
-                    <span className="device-icon">📟</span>
+                    <span className="device-icon"><Tablet size={14} /></span>
                     <span className="device-name">Tablet</span>
                     <div className="device-bar">
                       <div className="device-fill" style={{ width: '4%' }} />

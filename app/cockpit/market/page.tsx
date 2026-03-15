@@ -9,10 +9,11 @@
  * - Track their portfolio
  * - Go public (IPO)
  *
- * ⚠️ DEMO MODE - Not for real trading
+ * DEMO MODE - Not for real trading
  */
 
 import { useState, useEffect } from 'react';
+import { AlertTriangle, BarChart3, Briefcase, Rocket, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import {
   formatCoins,
   formatUsd,
@@ -242,7 +243,7 @@ export default function TradingFloorPage() {
       {/* Demo Banner */}
       <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4">
         <div className="flex items-center gap-2 text-yellow-400">
-          <span className="text-xl">⚠️</span>
+          <span className="text-xl"><AlertTriangle size={20} /></span>
           <span className="font-bold">DEMO MODE</span>
         </div>
         <p className="text-yellow-200/70 text-sm mt-1">
@@ -289,9 +290,9 @@ export default function TradingFloorPage() {
                 : 'text-white/60 hover:text-white'
             }`}
           >
-            {tab === 'market' && '📊 Market'}
-            {tab === 'portfolio' && '💼 Portfolio'}
-            {tab === 'ipo' && '🚀 Go Public'}
+            {tab === 'market' && <><BarChart3 size={14} /> Market</>}
+            {tab === 'portfolio' && <><Briefcase size={14} /> Portfolio</>}
+            {tab === 'ipo' && <><Rocket size={14} /> Go Public</>}
           </button>
         ))}
       </div>
@@ -464,7 +465,7 @@ export default function TradingFloorPage() {
       {activeTab === 'ipo' && (
         <div className="max-w-2xl space-y-6">
           <div className="bg-[#0a1628] border border-cyan-500/30 rounded-lg p-6">
-            <h2 className="text-xl font-bold text-white mb-4">🚀 Go Public - Launch Your Brand</h2>
+            <h2 className="text-xl font-bold text-white mb-4"><Rocket size={20} /> Go Public - Launch Your Brand</h2>
             <p className="text-white/60 mb-6">
               List yourself on the trading floor. Investors can buy shares in your brand,
               and you earn 2% royalty on every trade.
@@ -569,7 +570,7 @@ export default function TradingFloorPage() {
                 disabled={submittingIPO || !ipoForm.ticker || !ipoForm.name || (wallet?.available || 0) < 1000}
                 className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all"
               >
-                {submittingIPO ? 'Processing IPO...' : '🚀 Launch IPO'}
+                {submittingIPO ? 'Processing IPO...' : <><Rocket size={14} /> Launch IPO</>}
               </button>
 
               {(wallet?.available || 0) < 1000 && (
@@ -587,7 +588,7 @@ export default function TradingFloorPage() {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-cyan-500/30 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold text-white mb-4">
-              {tradeType === 'BUY' ? '📈 Buy' : '📉 Sell'} ${selectedBrand.ticker}
+              {tradeType === 'BUY' ? <><TrendingUp size={14} /> Buy</> : <><TrendingDown size={14} /> Sell</>} ${selectedBrand.ticker}
             </h3>
 
             <div className="space-y-4">
@@ -654,10 +655,10 @@ export default function TradingFloorPage() {
       {showDepositModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-[#0a1628] border border-cyan-500/30 rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-white mb-4">💰 Add Funds</h3>
+            <h3 className="text-xl font-bold text-white mb-4"><DollarSign size={20} /> Add Funds</h3>
 
             <div className="bg-yellow-900/20 border border-yellow-500/30 rounded p-3 mb-4 text-sm">
-              <div className="text-yellow-400">⚠️ DEMO MODE</div>
+              <div className="text-yellow-400"><AlertTriangle size={14} /> DEMO MODE</div>
               <div className="text-yellow-200/60">No real money will be charged</div>
             </div>
 

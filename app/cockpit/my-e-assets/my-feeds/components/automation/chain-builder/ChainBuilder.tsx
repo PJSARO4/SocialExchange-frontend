@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { Save, AlertTriangle, Link2 } from 'lucide-react';
 import {
   ChainNode as ChainNodeType,
   NodeConnection,
@@ -343,7 +344,7 @@ export const ChainBuilder: React.FC<ChainBuilderProps> = ({
             </button>
           </div>
           <button className="test-btn">▶ Test Run</button>
-          <button className="save-btn" onClick={handleSave}>💾 Save Chain</button>
+          <button className="save-btn" onClick={handleSave}><Save size={14} /> Save Chain</button>
         </div>
       </div>
 
@@ -462,7 +463,7 @@ export const ChainBuilder: React.FC<ChainBuilderProps> = ({
                       <div className="node-description">{node.data.description}</div>
                     )}
                     {!node.data.isConfigured && (
-                      <div className="node-warning">⚠️ Needs configuration</div>
+                      <div className="node-warning"><AlertTriangle size={14} /> Needs configuration</div>
                     )}
                   </div>
 
@@ -509,7 +510,7 @@ export const ChainBuilder: React.FC<ChainBuilderProps> = ({
             {nodes.length === 0 && (
               <div className="canvas-empty">
                 <div className="empty-content">
-                  <span className="empty-icon">🔗</span>
+                  <span className="empty-icon"><Link2 size={20} /></span>
                   <h3>Start Building Your Chain</h3>
                   <p>Click nodes from the sidebar to add them to the canvas</p>
                   <button

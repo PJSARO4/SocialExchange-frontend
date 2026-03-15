@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Lock, AlertTriangle, Key, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { ownerLogin, seedAuthIfEmpty, isAuthenticated, hasRole } from '@/app/lib/auth/auth-store';
 import '../auth.css';
@@ -114,7 +115,7 @@ export default function OwnerAccessPage() {
       <div className="auth-card owner">
         <div className="auth-header">
           <div className="auth-secure-badge">
-            <span className="auth-secure-icon">🔐</span>
+            <span className="auth-secure-icon"><Lock size={24} /></span>
             <span className="auth-secure-text">SECURE ACCESS</span>
           </div>
           <h1 className="auth-title">Owner Portal</h1>
@@ -137,7 +138,7 @@ export default function OwnerAccessPage() {
           <form className="auth-form" onSubmit={handleCredentialsSubmit}>
             {generalError && (
               <div className="auth-error-banner">
-                <span className="auth-error-icon">⚠️</span>
+                <span className="auth-error-icon"><AlertTriangle size={16} /></span>
                 <span>{generalError}</span>
               </div>
             )}
@@ -181,13 +182,13 @@ export default function OwnerAccessPage() {
           <form className="auth-form" onSubmit={handleAccessCodeSubmit}>
             {generalError && (
               <div className="auth-error-banner">
-                <span className="auth-error-icon">⚠️</span>
+                <span className="auth-error-icon"><AlertTriangle size={16} /></span>
                 <span>{generalError}</span>
               </div>
             )}
 
             <div className="auth-access-info">
-              <div className="auth-access-icon">🔑</div>
+              <div className="auth-access-icon"><Key size={20} /></div>
               <p className="auth-access-text">
                 Enter your owner/developer access code. This code is provided
                 separately and is required for elevated access.
@@ -256,7 +257,7 @@ export default function OwnerAccessPage() {
         )}
 
         <div className="auth-security-notice">
-          <span className="auth-security-icon">🛡️</span>
+          <span className="auth-security-icon"><ShieldCheck size={16} /></span>
           <div className="auth-security-text">
             <strong>Security Notice:</strong> All access attempts are logged and monitored.
             Unauthorized access attempts will be reported.

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { FileText, Calendar, BarChart3, Settings, Bot, Zap, Search, Link2, Play, Layers, Heart, MessageSquare, Camera, Mailbox } from 'lucide-react';
 import { Feed, PLATFORMS, ControlMode } from '../../types/feed';
 import { useFeeds } from '../../context/FeedsContext';
 import ModeSelector from '../ModeSelector';
@@ -202,28 +203,28 @@ export default function FeedWorkspace({
             className="workspace-action-btn"
             onClick={onCreatePost}
           >
-            <span className="workspace-action-icon">📝</span>
+            <span className="workspace-action-icon"><FileText size={16} /></span>
             <span className="workspace-action-label">Create Post</span>
           </button>
           <button
             className="workspace-action-btn"
             onClick={onOpenScheduler}
           >
-            <span className="workspace-action-icon">📅</span>
+            <span className="workspace-action-icon"><Calendar size={16} /></span>
             <span className="workspace-action-label">Scheduler</span>
           </button>
           <button
             className="workspace-action-btn"
             onClick={onOpenAnalytics}
           >
-            <span className="workspace-action-icon">📊</span>
+            <span className="workspace-action-icon"><BarChart3 size={16} /></span>
             <span className="workspace-action-label">Analytics</span>
           </button>
           <button
             className="workspace-action-btn"
             onClick={onOpenSettings}
           >
-            <span className="workspace-action-icon">⚙️</span>
+            <span className="workspace-action-icon"><Settings size={16} /></span>
             <span className="workspace-action-label">Settings</span>
           </button>
         </div>
@@ -232,28 +233,28 @@ export default function FeedWorkspace({
             className="workspace-action-btn copilot"
             onClick={onOpenCopilot}
           >
-            <span className="workspace-action-icon">🤖</span>
+            <span className="workspace-action-icon"><Bot size={16} /></span>
             <span className="workspace-action-label">AI Copilot</span>
           </button>
           <button
             className="workspace-action-btn automation"
             onClick={onOpenAutomation}
           >
-            <span className="workspace-action-icon">⚡</span>
+            <span className="workspace-action-icon"><Zap size={16} /></span>
             <span className="workspace-action-label">Automation</span>
           </button>
           <button
             className="workspace-action-btn finder"
             onClick={onOpenContentFinder}
           >
-            <span className="workspace-action-icon">🔍</span>
+            <span className="workspace-action-icon"><Search size={16} /></span>
             <span className="workspace-action-label">Content Finder</span>
           </button>
           <button
             className="workspace-action-btn linkex"
             onClick={onOpenLinkEx}
           >
-            <span className="workspace-action-icon">🔗</span>
+            <span className="workspace-action-icon"><Link2 size={16} /></span>
             <span className="workspace-action-label">LinkEx</span>
           </button>
         </div>
@@ -293,22 +294,22 @@ export default function FeedWorkspace({
                         alt={post.caption?.substring(0, 50) || 'Instagram post'}
                       />
                       {post.mediaType === 'VIDEO' && (
-                        <span className="post-card-type">▶️</span>
+                        <span className="post-card-type"><Play size={14} /></span>
                       )}
                       {post.mediaType === 'CAROUSEL_ALBUM' && (
-                        <span className="post-card-type">📑</span>
+                        <span className="post-card-type"><Layers size={14} /></span>
                       )}
                     </div>
                     <div className="post-card-stats">
-                      <span className="post-stat">❤️ {formatNumber(post.likeCount)}</span>
-                      <span className="post-stat">💬 {formatNumber(post.commentsCount)}</span>
+                      <span className="post-stat"><Heart size={12} /> {formatNumber(post.likeCount)}</span>
+                      <span className="post-stat"><MessageSquare size={12} /> {formatNumber(post.commentsCount)}</span>
                     </div>
                   </a>
                 ))}
               </div>
             ) : (
               <div className="posts-empty">
-                <span className="posts-empty-icon">📷</span>
+                <span className="posts-empty-icon"><Camera size={20} /></span>
                 <span className="posts-empty-text">No posts yet</span>
               </div>
             )}
@@ -329,7 +330,7 @@ export default function FeedWorkspace({
         </div>
         <div className="feed-workspace-schedule-preview">
           <div className="schedule-empty">
-            <span className="schedule-empty-icon">📭</span>
+            <span className="schedule-empty-icon"><Mailbox size={20} /></span>
             <span className="schedule-empty-text">No scheduled posts</span>
             <button
               className="schedule-empty-btn"

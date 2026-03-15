@@ -1,6 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  Sparkles,
+  Palette,
+  Users,
+  Target,
+  Star,
+  Trophy,
+  Crown,
+  BookOpen,
+  Video,
+  MessageSquare,
+  BarChart3,
+  AlertTriangle,
+} from 'lucide-react';
 import './about.css';
 
 /**
@@ -94,7 +108,7 @@ function OverviewSection() {
 
       <div className="feature-grid">
         <div className="feature-card">
-          <div className="feature-icon">🌟</div>
+          <div className="feature-icon"><Sparkles size={24} /></div>
           <h3>For Supporters</h3>
           <ul>
             <li>Support creators you believe in</li>
@@ -106,7 +120,7 @@ function OverviewSection() {
         </div>
 
         <div className="feature-card">
-          <div className="feature-icon">🎨</div>
+          <div className="feature-icon"><Palette size={24} /></div>
           <h3>For Creators</h3>
           <ul>
             <li>Build a dedicated community</li>
@@ -118,7 +132,7 @@ function OverviewSection() {
         </div>
 
         <div className="feature-card">
-          <div className="feature-icon">🤝</div>
+          <div className="feature-icon"><Users size={24} /></div>
           <h3>Community First</h3>
           <ul>
             <li>Direct creator-fan relationships</li>
@@ -300,7 +314,7 @@ function HowToSection() {
 
       {/* For Supporters */}
       <div className="how-to-section">
-        <h3>🎯 For Supporters</h3>
+        <h3><Target size={18} /> For Supporters</h3>
 
         <div className="steps-container">
           <div className="step">
@@ -335,19 +349,19 @@ function HowToSection() {
               </p>
               <div className="tier-preview">
                 <div className="tier-item">
-                  <span className="tier-icon">🌱</span>
+                  <span className="tier-icon"><Sparkles size={16} /></span>
                   <span>100+ = Backer</span>
                 </div>
                 <div className="tier-item">
-                  <span className="tier-icon">⭐</span>
+                  <span className="tier-icon"><Star size={16} /></span>
                   <span>500+ = Supporter</span>
                 </div>
                 <div className="tier-item">
-                  <span className="tier-icon">🏆</span>
+                  <span className="tier-icon"><Trophy size={16} /></span>
                   <span>1000+ = Champion</span>
                 </div>
                 <div className="tier-item">
-                  <span className="tier-icon">👑</span>
+                  <span className="tier-icon"><Crown size={16} /></span>
                   <span>5000+ = Founding</span>
                 </div>
               </div>
@@ -369,7 +383,7 @@ function HowToSection() {
 
       {/* For Creators */}
       <div className="how-to-section">
-        <h3>🎨 For Creators</h3>
+        <h3><Palette size={18} /> For Creators</h3>
 
         <div className="steps-container">
           <div className="step">
@@ -442,7 +456,7 @@ function ResourcesSection() {
 
       <div className="resources-grid">
         <div className="resource-category">
-          <h3>📚 Guides</h3>
+          <h3><BookOpen size={18} /> Guides</h3>
           <div className="resource-list">
             <a href="#" className="resource-link">
               <span className="resource-title">Getting Started as a Supporter</span>
@@ -464,7 +478,7 @@ function ResourcesSection() {
         </div>
 
         <div className="resource-category">
-          <h3>📹 Video Tutorials</h3>
+          <h3><Video size={18} /> Video Tutorials</h3>
           <div className="resource-list">
             <a href="#" className="resource-link">
               <span className="resource-title">Platform Tour (5 min)</span>
@@ -482,7 +496,7 @@ function ResourcesSection() {
         </div>
 
         <div className="resource-category">
-          <h3>💬 Support</h3>
+          <h3><MessageSquare size={18} /> Support</h3>
           <div className="resource-list">
             <a href="#" className="resource-link">
               <span className="resource-title">Help Center</span>
@@ -504,7 +518,7 @@ function ResourcesSection() {
         </div>
 
         <div className="resource-category">
-          <h3>📊 Tools</h3>
+          <h3><BarChart3 size={18} /> Tools</h3>
           <div className="resource-list">
             <a href="#" className="resource-link">
               <span className="resource-title">Credit Calculator</span>
@@ -534,7 +548,7 @@ function LegalSection() {
       <h2>Legal & Terms</h2>
 
       <div className="legal-notice">
-        <h3>⚠️ Important Legal Notice</h3>
+        <h3><AlertTriangle size={18} /> Important Legal Notice</h3>
         <p>
           <strong>Community Credits are NOT securities, investments, or financial instruments.</strong>
         </p>

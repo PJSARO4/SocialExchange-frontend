@@ -1,9 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useOrganism } from '@/app/context/OrganismContext';
 import { PLATFORM_SPECS } from '../lib/compression-engine';
 import type { PlatformName } from '../types/organism';
+import {
+  Archive,
+  Tag,
+  FolderOpen,
+  Lightbulb,
+  BarChart3,
+  Search,
+  CheckCircle,
+} from 'lucide-react';
+
+const BEHAVIOR_ICON_MAP: Record<string, ReactNode> = {
+  archive: <Archive size={14} />,
+  tag: <Tag size={14} />,
+  folder: <FolderOpen size={14} />,
+  lightbulb: <Lightbulb size={14} />,
+  'bar-chart': <BarChart3 size={14} />,
+  search: <Search size={14} />,
+  'check-circle': <CheckCircle size={14} />,
+};
 
 // ============================================
 // SETTINGS VIEW — Behavior toggles + training
@@ -53,7 +72,7 @@ export default function OrganismSettingsView() {
                   marginBottom: '0.125rem',
                 }}
               >
-                <span style={{ fontSize: '0.875rem' }}>{behavior.icon}</span>
+                <span style={{ fontSize: '0.875rem' }}>{BEHAVIOR_ICON_MAP[behavior.icon] || behavior.icon}</span>
                 <span
                   style={{
                     fontSize: '0.8125rem',

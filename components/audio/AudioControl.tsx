@@ -1,11 +1,35 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import {
   getAmbientAudio,
   AMBIENT_TRACKS,
   type AmbientTrack,
 } from '@/lib/audio/AmbientAudioEngine';
+import {
+  Sparkles, Cpu, Rocket, Radio, Wind, Atom,
+  Waves, Gem, Sun, Zap, Moon, Building2,
+  Snowflake, Circle, Signal, Globe,
+} from 'lucide-react';
+
+const TRACK_ICON_MAP: Record<string, ReactNode> = {
+  galaxy: <Sparkles size={14} />,
+  cpu: <Cpu size={14} />,
+  rocket: <Rocket size={14} />,
+  radio: <Radio size={14} />,
+  wind: <Wind size={14} />,
+  atom: <Atom size={14} />,
+  waves: <Waves size={14} />,
+  gem: <Gem size={14} />,
+  sun: <Sun size={14} />,
+  zap: <Zap size={14} />,
+  moon: <Moon size={14} />,
+  building: <Building2 size={14} />,
+  snowflake: <Snowflake size={14} />,
+  circle: <Circle size={14} />,
+  signal: <Signal size={14} />,
+  globe: <Globe size={14} />,
+};
 
 interface AudioControlProps {
   className?: string;
@@ -143,7 +167,7 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
             className="ac-track-display"
             onClick={() => setShowTrackList(!showTrackList)}
           >
-            <span className="ac-track-icon">{currentTrack.icon}</span>
+            <span className="ac-track-icon">{TRACK_ICON_MAP[currentTrack.icon] || currentTrack.icon}</span>
             <div className="ac-track-info">
               <span className="ac-track-name">{currentTrack.name}</span>
               <span className="ac-track-desc">{currentTrack.description}</span>
@@ -160,7 +184,7 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
                   className={`ac-tracklist-item ${currentTrack.id === track.id ? 'active' : ''}`}
                   onClick={() => handleTrackSelect(track.id)}
                 >
-                  <span className="ac-tl-icon">{track.icon}</span>
+                  <span className="ac-tl-icon">{TRACK_ICON_MAP[track.icon] || track.icon}</span>
                   <div className="ac-tl-info">
                     <span className="ac-tl-name">{track.name}</span>
                     <span className="ac-tl-desc">{track.description}</span>

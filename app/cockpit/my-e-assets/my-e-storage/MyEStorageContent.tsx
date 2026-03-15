@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { FolderOpen, Search } from 'lucide-react';
 import { useEStorage } from '@/app/context/EStorageContext';
 import StorageDropZone from './components/StorageDropZone';
 import StorageItemCard from './components/StorageItemCard';
@@ -282,7 +283,7 @@ export default function MyEStorageContent({ embedded = false }: MyEStorageConten
             onClick={() => setFilters((f) => ({ ...f, folder: undefined }))}
           >
             <span className="folder-icon" style={{ color: '#3fffdc' }}>
-              {'📁'}
+              <FolderOpen size={16} />
             </span>
             <span className="folder-name">All Files</span>
             <span className="folder-count">{items.length}</span>
@@ -402,7 +403,7 @@ export default function MyEStorageContent({ embedded = false }: MyEStorageConten
           {/* Items */}
           {filteredItems.length === 0 && items.length > 0 ? (
             <div className="e-storage-empty">
-              <span className="e-storage-empty-icon">{'🔍'}</span>
+              <span className="e-storage-empty-icon"><Search size={24} /></span>
               <span className="e-storage-empty-text">
                 No items match your filters
               </span>

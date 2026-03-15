@@ -312,16 +312,16 @@ async function executeAIEnhanceNode(
   if (data.enhanceType === 'caption' || data.enhanceType === 'all') {
     // Simple local enhancement (no API call needed)
     if (!caption) {
-      caption = 'Check out this amazing content! 📸';
+      caption = 'Check out this amazing content!';
     }
 
     // Add emojis based on tone
     if (data.tone === 'professional') {
-      caption = `${caption} 💼`;
+      caption = `${caption}`;
     } else if (data.tone === 'casual') {
-      caption = `${caption} 😊`;
+      caption = `${caption}`;
     } else if (data.tone === 'funny') {
-      caption = `${caption} 😂`;
+      caption = `${caption}`;
     }
   }
 

@@ -52,7 +52,7 @@ export const SUPPORTER_TIERS: TierBenefits[] = [
       'Supporter badge on your profile',
       'Access to community announcements',
     ],
-    icon: '🌱',
+    icon: 'sprout',
     color: '#10b981',
   },
   {
@@ -64,7 +64,7 @@ export const SUPPORTER_TIERS: TierBenefits[] = [
       'Exclusive community channel access',
       'Monthly supporter newsletter',
     ],
-    icon: '⭐',
+    icon: 'star',
     color: '#3b82f6',
   },
   {
@@ -77,7 +77,7 @@ export const SUPPORTER_TIERS: TierBenefits[] = [
       'Exclusive merchandise discounts',
       'Recognition in content',
     ],
-    icon: '🏆',
+    icon: 'trophy',
     color: '#8b5cf6',
   },
   {
@@ -90,7 +90,7 @@ export const SUPPORTER_TIERS: TierBenefits[] = [
       'Co-creation opportunities',
       'Lifetime founding member status',
     ],
-    icon: '👑',
+    icon: 'crown',
     color: '#f59e0b',
   },
 ];

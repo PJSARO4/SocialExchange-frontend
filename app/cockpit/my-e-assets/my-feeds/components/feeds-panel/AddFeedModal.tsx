@@ -198,7 +198,7 @@ export default function AddFeedModal({
                       <li>Instagram Business or Creator account</li>
                     </ul>
                     <p className="requirements-note">
-                      ✨ No Facebook Page required! Sign in directly with Instagram.
+                      No Facebook Page required! Sign in directly with Instagram.
                     </p>
                   </div>
                 </div>

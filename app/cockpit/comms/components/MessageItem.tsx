@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { Pin, Trash2 } from 'lucide-react';
 import { Message } from '../types';
 import { useComms } from '../context/CommsContext';
 
@@ -92,7 +93,7 @@ export default function MessageItem({ message }: MessageItemProps) {
     >
       {/* Pin indicator */}
       {message.isPinned && (
-        <div className="comms-pin-indicator">📌 Pinned</div>
+        <div className="comms-pin-indicator"><Pin size={12} /> Pinned</div>
       )}
 
       <div className="comms-message-header">
@@ -168,7 +169,7 @@ export default function MessageItem({ message }: MessageItemProps) {
             title={message.isPinned ? 'Unpin' : 'Pin'}
             onClick={() => togglePin(message.id)}
           >
-            📌
+            <Pin size={14} />
           </button>
           {isOwn && (
             <button
@@ -176,7 +177,7 @@ export default function MessageItem({ message }: MessageItemProps) {
               title="Delete"
               onClick={() => deleteMessage(message.id)}
             >
-              🗑️
+              <Trash2 size={14} />
             </button>
           )}
         </div>

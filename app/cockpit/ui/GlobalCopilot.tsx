@@ -1,7 +1,28 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import {
+  BarChart3,
+  Lightbulb,
+  Bell,
+  TrendingUp,
+  DollarSign,
+  Briefcase,
+  Rocket,
+  Calendar,
+  Bot,
+  Zap,
+  Gem,
+  Search,
+  AlertTriangle,
+  Target,
+  HelpCircle,
+  Compass,
+  Star,
+  Brain,
+  X,
+} from 'lucide-react';
 import './global-copilot.css';
 
 // ============================================
@@ -25,7 +46,7 @@ interface CopilotAction {
 
 interface QuickPrompt {
   id: string;
-  icon: string;
+  icon: ReactNode;
   label: string;
   prompt: string;
   category: string;
@@ -37,40 +58,40 @@ interface QuickPrompt {
 
 const CONTEXT_PROMPTS: Record<string, QuickPrompt[]> = {
   dashboard: [
-    { id: 'overview', icon: '📊', label: 'System Overview', prompt: 'Give me an overview of my Social Exchange status', category: 'info' },
-    { id: 'tips', icon: '💡', label: 'Quick Tips', prompt: 'What should I focus on today?', category: 'strategy' },
-    { id: 'alerts', icon: '🔔', label: 'Check Alerts', prompt: 'Are there any important alerts or notifications?', category: 'info' },
-    { id: 'performance', icon: '📈', label: 'Performance', prompt: 'How is my overall performance?', category: 'analytics' },
+    { id: 'overview', icon: <BarChart3 size={16} />, label: 'System Overview', prompt: 'Give me an overview of my Social Exchange status', category: 'info' },
+    { id: 'tips', icon: <Lightbulb size={16} />, label: 'Quick Tips', prompt: 'What should I focus on today?', category: 'strategy' },
+    { id: 'alerts', icon: <Bell size={16} />, label: 'Check Alerts', prompt: 'Are there any important alerts or notifications?', category: 'info' },
+    { id: 'performance', icon: <TrendingUp size={16} />, label: 'Performance', prompt: 'How is my overall performance?', category: 'analytics' },
   ],
   market: [
-    { id: 'market-trends', icon: '📈', label: 'Market Trends', prompt: 'What are the current market trends?', category: 'market' },
-    { id: 'buy-advice', icon: '💰', label: 'Investment Tips', prompt: 'What creators should I consider investing in?', category: 'market' },
-    { id: 'portfolio', icon: '💼', label: 'Portfolio Review', prompt: 'Review my portfolio and suggest improvements', category: 'market' },
-    { id: 'ipo-help', icon: '🚀', label: 'IPO Help', prompt: 'How do I go public with my brand?', category: 'market' },
+    { id: 'market-trends', icon: <TrendingUp size={16} />, label: 'Market Trends', prompt: 'What are the current market trends?', category: 'market' },
+    { id: 'buy-advice', icon: <DollarSign size={16} />, label: 'Investment Tips', prompt: 'What creators should I consider investing in?', category: 'market' },
+    { id: 'portfolio', icon: <Briefcase size={16} />, label: 'Portfolio Review', prompt: 'Review my portfolio and suggest improvements', category: 'market' },
+    { id: 'ipo-help', icon: <Rocket size={16} />, label: 'IPO Help', prompt: 'How do I go public with my brand?', category: 'market' },
   ],
   feeds: [
-    { id: 'content-ideas', icon: '💡', label: 'Content Ideas', prompt: 'Give me 10 content ideas for this week', category: 'content' },
-    { id: 'growth-plan', icon: '📈', label: 'Growth Plan', prompt: 'Create a 30-day growth plan for my account', category: 'growth' },
-    { id: 'schedule', icon: '📅', label: 'Best Times', prompt: 'What are the best times to post?', category: 'automation' },
-    { id: 'automation', icon: '🤖', label: 'Automation', prompt: 'Help me set up automation for my feeds', category: 'automation' },
+    { id: 'content-ideas', icon: <Lightbulb size={16} />, label: 'Content Ideas', prompt: 'Give me 10 content ideas for this week', category: 'content' },
+    { id: 'growth-plan', icon: <TrendingUp size={16} />, label: 'Growth Plan', prompt: 'Create a 30-day growth plan for my account', category: 'growth' },
+    { id: 'schedule', icon: <Calendar size={16} />, label: 'Best Times', prompt: 'What are the best times to post?', category: 'automation' },
+    { id: 'automation', icon: <Bot size={16} />, label: 'Automation', prompt: 'Help me set up automation for my feeds', category: 'automation' },
   ],
   'e-assets': [
-    { id: 'asset-overview', icon: '📊', label: 'Asset Overview', prompt: 'Give me an overview of my e-assets', category: 'info' },
-    { id: 'optimize', icon: '⚡', label: 'Optimize', prompt: 'How can I optimize my digital assets?', category: 'strategy' },
-    { id: 'value', icon: '💎', label: 'Valuation', prompt: 'What is my total asset value?', category: 'info' },
-    { id: 'grow', icon: '🌱', label: 'Grow Assets', prompt: 'How can I grow my e-asset portfolio?', category: 'strategy' },
+    { id: 'asset-overview', icon: <BarChart3 size={16} />, label: 'Asset Overview', prompt: 'Give me an overview of my e-assets', category: 'info' },
+    { id: 'optimize', icon: <Zap size={16} />, label: 'Optimize', prompt: 'How can I optimize my digital assets?', category: 'strategy' },
+    { id: 'value', icon: <Gem size={16} />, label: 'Valuation', prompt: 'What is my total asset value?', category: 'info' },
+    { id: 'grow', icon: <TrendingUp size={16} />, label: 'Grow Assets', prompt: 'How can I grow my e-asset portfolio?', category: 'strategy' },
   ],
   trading: [
-    { id: 'trade-tips', icon: '💹', label: 'Trade Tips', prompt: 'What trading opportunities should I consider?', category: 'market' },
-    { id: 'analyze', icon: '🔍', label: 'Analysis', prompt: 'Analyze the current trading conditions', category: 'analytics' },
-    { id: 'risk', icon: '⚠️', label: 'Risk Check', prompt: 'What risks should I be aware of?', category: 'market' },
-    { id: 'strategy', icon: '🎯', label: 'Strategy', prompt: 'What trading strategy would you recommend?', category: 'strategy' },
+    { id: 'trade-tips', icon: <TrendingUp size={16} />, label: 'Trade Tips', prompt: 'What trading opportunities should I consider?', category: 'market' },
+    { id: 'analyze', icon: <Search size={16} />, label: 'Analysis', prompt: 'Analyze the current trading conditions', category: 'analytics' },
+    { id: 'risk', icon: <AlertTriangle size={16} />, label: 'Risk Check', prompt: 'What risks should I be aware of?', category: 'market' },
+    { id: 'strategy', icon: <Target size={16} />, label: 'Strategy', prompt: 'What trading strategy would you recommend?', category: 'strategy' },
   ],
   default: [
-    { id: 'help', icon: '❓', label: 'Get Help', prompt: 'What can you help me with?', category: 'help' },
-    { id: 'navigate', icon: '🧭', label: 'Navigate', prompt: 'Help me navigate Social Exchange', category: 'help' },
-    { id: 'tips', icon: '💡', label: 'Tips', prompt: 'Give me some tips to get started', category: 'strategy' },
-    { id: 'features', icon: '⭐', label: 'Features', prompt: 'What features does Social Exchange offer?', category: 'help' },
+    { id: 'help', icon: <HelpCircle size={16} />, label: 'Get Help', prompt: 'What can you help me with?', category: 'help' },
+    { id: 'navigate', icon: <Compass size={16} />, label: 'Navigate', prompt: 'Help me navigate Social Exchange', category: 'help' },
+    { id: 'tips', icon: <Lightbulb size={16} />, label: 'Tips', prompt: 'Give me some tips to get started', category: 'strategy' },
+    { id: 'features', icon: <Star size={16} />, label: 'Features', prompt: 'What features does Social Exchange offer?', category: 'help' },
   ],
 };
 
@@ -93,7 +114,7 @@ const getAIResponse = (input: string, context: string): { content: string; actio
   // Navigation help
   if (lowerInput.includes('navigate') || lowerInput.includes('where') || lowerInput.includes('find')) {
     return {
-      content: `**Social Exchange Navigation** 🧭\n\nHere's where to find things:\n\n• **Command Center** - Your main dashboard with overview stats\n• **My E-Assets** - Manage feeds and digital shares\n• **Trading Post** - Buy and sell digital assets\n• **Market** - Invest in creators with SExCOINS\n• **Comms** - Messages and communications\n\nWhat would you like to explore?`,
+      content: `**Social Exchange Navigation**\n\nHere's where to find things:\n\n• **Command Center** - Your main dashboard with overview stats\n• **My E-Assets** - Manage feeds and digital shares\n• **Trading Post** - Buy and sell digital assets\n• **Market** - Invest in creators with SExCOINS\n• **Comms** - Messages and communications\n\nWhat would you like to explore?`,
       actions: [
         { id: 'go-dashboard', label: 'Command Center', type: 'navigate', payload: '/cockpit/dashboard' },
         { id: 'go-assets', label: 'My E-Assets', type: 'navigate', payload: '/cockpit/my-e-assets' },
@@ -105,14 +126,14 @@ const getAIResponse = (input: string, context: string): { content: string; actio
   // Help / capabilities
   if (lowerInput.includes('help') || lowerInput.includes('what can you')) {
     return {
-      content: `**I'm your Social Exchange Copilot!** 🤖\n\nI can help you with:\n\n**📱 Social Media**\n• Content ideas and scheduling\n• Growth strategies\n• Analytics insights\n• Automation setup\n\n**💰 Market & Trading**\n• Investment guidance\n• Portfolio management\n• IPO assistance\n• Market analysis\n\n**🎯 Strategy**\n• Brand development\n• Audience growth\n• Monetization tips\n• Competitor analysis\n\n**🔧 Platform**\n• Navigation help\n• Feature explanations\n• Troubleshooting\n\nJust ask me anything!`,
+      content: `**I'm your Social Exchange Copilot!**\n\nI can help you with:\n\n**Social Media**\n• Content ideas and scheduling\n• Growth strategies\n• Analytics insights\n• Automation setup\n\n**Market & Trading**\n• Investment guidance\n• Portfolio management\n• IPO assistance\n• Market analysis\n\n**Strategy**\n• Brand development\n• Audience growth\n• Monetization tips\n• Competitor analysis\n\n**Platform**\n• Navigation help\n• Feature explanations\n• Troubleshooting\n\nJust ask me anything!`,
     };
   }
 
   // Market-related
   if (lowerInput.includes('market') || lowerInput.includes('invest') || lowerInput.includes('sexcoin')) {
     return {
-      content: `**SExCOINS Market** 💰\n\nThe market lets you invest in creators:\n\n**How it works:**\n• Buy SExCOINS with USD ($0.10 per coin)\n• Use coins to buy shares in creators\n• Prices move based on supply/demand\n• Cash out anytime (10% fee)\n\n**Creator IPO:**\n• Creators can "go public" for 1,000 coins ($100)\n• Set your own ticker and initial price\n• Earn 2% royalty on every trade\n\nWant me to help you get started?`,
+      content: `**SExCOINS Market**\n\nThe market lets you invest in creators:\n\n**How it works:**\n• Buy SExCOINS with USD ($0.10 per coin)\n• Use coins to buy shares in creators\n• Prices move based on supply/demand\n• Cash out anytime (10% fee)\n\n**Creator IPO:**\n• Creators can "go public" for 1,000 coins ($100)\n• Set your own ticker and initial price\n• Earn 2% royalty on every trade\n\nWant me to help you get started?`,
       actions: [
         { id: 'go-market', label: 'Open Market', type: 'navigate', payload: '/cockpit/market' },
         { id: 'learn-ipo', label: 'Learn About IPO', type: 'action', payload: 'ipo-info' },
@@ -135,7 +156,7 @@ const getAIResponse = (input: string, context: string): { content: string; actio
 
     if (clipInfo) {
       return {
-        content: `**SYN Clipboard** 📋\n\nItems SYN has clipped for you:\n\n${clipInfo}\n\nYou can use these in your next post or schedule them.`,
+        content: `**SYN Clipboard**\n\nItems SYN has clipped for you:\n\n${clipInfo}\n\nYou can use these in your next post or schedule them.`,
         actions: [
           { id: 'go-storage', label: 'Open E-Storage', type: 'navigate', payload: '/cockpit/my-e-assets/my-e-storage' },
           { id: 'go-feeds', label: 'Create Post', type: 'navigate', payload: '/cockpit/my-e-assets/my-feeds' },
@@ -144,7 +165,7 @@ const getAIResponse = (input: string, context: string): { content: string; actio
     }
 
     return {
-      content: `**SYN Organism** 🧬\n\nSYN is your AI assistant living inside E-Storage. It can:\n\n• Compress images for social platforms\n• Auto-tag and organize your files\n• Find trending content\n• Clip items for use in Copilot\n\nVisit E-Storage to interact with SYN!`,
+      content: `**SYN Organism**\n\nSYN is your AI assistant living inside E-Storage. It can:\n\n• Compress images for social platforms\n• Auto-tag and organize your files\n• Find trending content\n• Clip items for use in Copilot\n\nVisit E-Storage to interact with SYN!`,
       actions: [
         { id: 'go-storage', label: 'Open E-Storage', type: 'navigate', payload: '/cockpit/my-e-assets/my-e-storage' },
       ],
@@ -155,7 +176,7 @@ const getAIResponse = (input: string, context: string): { content: string; actio
   if (lowerInput.includes('content') || lowerInput.includes('post') || lowerInput.includes('idea')) {
     const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
     return {
-      content: `**Content Ideas for ${dayOfWeek}** 💡\n\n**Quick Wins:**\n1. Behind-the-scenes of your process\n2. A tip your audience can use today\n3. Share a recent win or milestone\n4. Ask your audience a question\n5. Repurpose your best-performing content\n\n**Format Ideas:**\n• Carousel with actionable tips\n• Quick video tutorial\n• Relatable meme or trend\n• Story Q&A session\n• User-generated content feature\n\n**Caption Formula:**\nHook → Story → Value → Call-to-action\n\nWant more specific ideas for your niche?`,
+      content: `**Content Ideas for ${dayOfWeek}**\n\n**Quick Wins:**\n1. Behind-the-scenes of your process\n2. A tip your audience can use today\n3. Share a recent win or milestone\n4. Ask your audience a question\n5. Repurpose your best-performing content\n\n**Format Ideas:**\n• Carousel with actionable tips\n• Quick video tutorial\n• Relatable meme or trend\n• Story Q&A session\n• User-generated content feature\n\n**Caption Formula:**\nHook > Story > Value > Call-to-action\n\nWant more specific ideas for your niche?`,
       actions: [
         { id: 'more-ideas', label: 'More Ideas', type: 'action', payload: 'content-ideas' },
         { id: 'go-feeds', label: 'Open My Feeds', type: 'navigate', payload: '/cockpit/my-e-assets/my-feeds' },
@@ -166,7 +187,7 @@ const getAIResponse = (input: string, context: string): { content: string; actio
   // Growth related
   if (lowerInput.includes('grow') || lowerInput.includes('follower') || lowerInput.includes('growth')) {
     return {
-      content: `**Growth Strategy** 📈\n\n**Daily Actions:**\n• Post 1-2x at optimal times\n• Engage 30 minutes in your niche\n• Reply to all comments within 1 hour\n• Share 3-5 Stories\n\n**Weekly Goals:**\n• Collaborate with 1 similar creator\n• Test 1 new content format\n• Review analytics and adjust\n• Engage with larger accounts\n\n**Quick Wins:**\n• Optimize your bio with clear value prop\n• Use trending audio in Reels\n• Create saveable content (tips, guides)\n• Go live once per week\n\nWant a detailed 30-day growth plan?`,
+      content: `**Growth Strategy**\n\n**Daily Actions:**\n• Post 1-2x at optimal times\n• Engage 30 minutes in your niche\n• Reply to all comments within 1 hour\n• Share 3-5 Stories\n\n**Weekly Goals:**\n• Collaborate with 1 similar creator\n• Test 1 new content format\n• Review analytics and adjust\n• Engage with larger accounts\n\n**Quick Wins:**\n• Optimize your bio with clear value prop\n• Use trending audio in Reels\n• Create saveable content (tips, guides)\n• Go live once per week\n\nWant a detailed 30-day growth plan?`,
       actions: [
         { id: 'growth-plan', label: '30-Day Plan', type: 'action', payload: 'growth-plan' },
         { id: 'go-analytics', label: 'View Analytics', type: 'navigate', payload: '/cockpit/my-e-assets/my-feeds' },
@@ -177,7 +198,7 @@ const getAIResponse = (input: string, context: string): { content: string; actio
   // Automation
   if (lowerInput.includes('automat') || lowerInput.includes('schedule') || lowerInput.includes('autopilot')) {
     return {
-      content: `**Automation Setup** 🤖\n\n**What we can automate:**\n\n✅ **Content Scheduling**\n• Queue posts days/weeks ahead\n• Auto-post at optimal times\n• Cross-post to multiple platforms\n\n✅ **Smart Timing**\n• Post when your audience is active\n• Adjust for time zones\n• Weekend vs weekday optimization\n\n✅ **Workflow**\n• Content approval flows\n• Team collaboration\n• Performance alerts\n\n**Control Modes:**\n• 🤖 Autopilot - Full automation\n• 🔒 Escrow - Needs approval\n• ✋ Manual - You control everything\n\nReady to set up automation?`,
+      content: `**Automation Setup**\n\n**What we can automate:**\n\n**Content Scheduling**\n• Queue posts days/weeks ahead\n• Auto-post at optimal times\n• Cross-post to multiple platforms\n\n**Smart Timing**\n• Post when your audience is active\n• Adjust for time zones\n• Weekend vs weekday optimization\n\n**Workflow**\n• Content approval flows\n• Team collaboration\n• Performance alerts\n\n**Control Modes:**\n• Autopilot - Full automation\n• Escrow - Needs approval\n• Manual - You control everything\n\nReady to set up automation?`,
       actions: [
         { id: 'setup-auto', label: 'Set Up Automation', type: 'navigate', payload: '/cockpit/my-e-assets/my-feeds' },
       ],
@@ -186,12 +207,12 @@ const getAIResponse = (input: string, context: string): { content: string; actio
 
   // Context-specific default responses
   const contextResponses: Record<string, string> = {
-    dashboard: `You're in the Command Center! 📊\n\nFrom here you can monitor your overall Social Exchange activity. What would you like to know about?\n\n• Account performance\n• Recent activity\n• Market updates\n• Upcoming scheduled posts`,
-    market: `You're in the Trading Floor! 💹\n\nHere you can invest in creators and manage your portfolio. I can help with:\n\n• Finding creators to invest in\n• Understanding market trends\n• Managing your holdings\n• Going public with your brand`,
-    feeds: `You're in My Feeds! 📱\n\nThis is your social media command center. I can help with:\n\n• Content ideas and scheduling\n• Growth strategies\n• Analytics and insights\n• Automation setup`,
-    'e-assets': `You're in My E-Assets! 💎\n\nManage all your digital assets here. I can help with:\n\n• Understanding your portfolio\n• Optimizing your assets\n• Growing your brand value\n• Trading strategies`,
-    trading: `You're in the Trading Post! 🏪\n\nBuy, sell, and trade digital assets. I can help with:\n\n• Finding good deals\n• Pricing your assets\n• Market analysis\n• Trading strategies`,
-    default: `Welcome to Social Exchange! 🚀\n\nI'm here to help you navigate and succeed. What would you like to explore?\n\n• Social media management\n• Creator investments\n• Digital asset trading\n• Growth strategies`,
+    dashboard: `You're in the Command Center!\n\nFrom here you can monitor your overall Social Exchange activity. What would you like to know about?\n\n• Account performance\n• Recent activity\n• Market updates\n• Upcoming scheduled posts`,
+    market: `You're in the Trading Floor!\n\nHere you can invest in creators and manage your portfolio. I can help with:\n\n• Finding creators to invest in\n• Understanding market trends\n• Managing your holdings\n• Going public with your brand`,
+    feeds: `You're in My Feeds!\n\nThis is your social media command center. I can help with:\n\n• Content ideas and scheduling\n• Growth strategies\n• Analytics and insights\n• Automation setup`,
+    'e-assets': `You're in My E-Assets!\n\nManage all your digital assets here. I can help with:\n\n• Understanding your portfolio\n• Optimizing your assets\n• Growing your brand value\n• Trading strategies`,
+    trading: `You're in the Trading Post!\n\nBuy, sell, and trade digital assets. I can help with:\n\n• Finding good deals\n• Pricing your assets\n• Market analysis\n• Trading strategies`,
+    default: `Welcome to Social Exchange!\n\nI'm here to help you navigate and succeed. What would you like to explore?\n\n• Social media management\n• Creator investments\n• Digital asset trading\n• Growth strategies`,
   };
 
   return {
@@ -221,7 +242,7 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
     {
       id: 'welcome',
       role: 'assistant',
-      content: "Hey! 👋 I'm your Social Exchange Copilot. I can help you navigate the platform, grow your social presence, and manage your digital assets. What can I help you with?",
+      content: "Hey! I'm your Social Exchange Copilot. I can help you navigate the platform, grow your social presence, and manage your digital assets. What can I help you with?",
       timestamp: new Date(),
     },
   ]);
@@ -394,7 +415,7 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
         <header className="global-copilot-header">
           <div className="global-copilot-header-left">
             <div className="global-copilot-avatar">
-              <span className="global-copilot-avatar-icon">🧠</span>
+              <span className="global-copilot-avatar-icon"><Brain size={18} /></span>
               <span className="global-copilot-avatar-pulse" />
             </div>
             <div className="global-copilot-header-info">
@@ -406,7 +427,7 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
             </div>
           </div>
           <button className="global-copilot-close" onClick={onClose}>
-            ✕
+            <X size={18} />
           </button>
         </header>
 
@@ -415,7 +436,7 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
           {messages.map(message => (
             <div key={message.id} className={`global-copilot-message ${message.role}`}>
               {message.role === 'assistant' && (
-                <div className="global-copilot-message-avatar">🧠</div>
+                <div className="global-copilot-message-avatar"><Brain size={16} /></div>
               )}
               <div className="global-copilot-message-content">
                 <div className="global-copilot-message-text">
@@ -446,7 +467,7 @@ export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
 
           {isTyping && (
             <div className="global-copilot-message assistant">
-              <div className="global-copilot-message-avatar">🧠</div>
+              <div className="global-copilot-message-avatar"><Brain size={16} /></div>
               <div className="global-copilot-message-content">
                 <div className="global-copilot-typing">
                   <span className="global-copilot-typing-dot" />

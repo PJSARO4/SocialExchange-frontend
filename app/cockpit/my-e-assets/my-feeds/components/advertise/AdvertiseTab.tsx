@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Megaphone, Palette, Sparkles, Briefcase, Tag, Smartphone, Link2, FileText, DollarSign, Handshake, Mail, Image, Camera, Droplets, Save, Calendar } from 'lucide-react';
 import { Feed } from '../../types/feed';
 import './advertise.css';
 
@@ -199,7 +200,7 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
       {/* Header with View Tabs */}
       <header className="advertise-header">
         <div className="advertise-title-group">
-          <h2>📢 Advertise & Promote</h2>
+          <h2><Megaphone size={20} /> Advertise & Promote</h2>
           <span className="advertise-subtitle">Create branded content & join campaigns</span>
         </div>
         <nav className="advertise-nav">
@@ -236,28 +237,28 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
           {/* Stats */}
           <div className="advertise-stats">
             <div className="stat-card">
-              <span className="stat-icon">🎨</span>
+              <span className="stat-icon"><Palette size={16} /></span>
               <div className="stat-info">
                 <span className="stat-value">{brandKits.length}</span>
                 <span className="stat-label">Brand Kits</span>
               </div>
             </div>
             <div className="stat-card">
-              <span className="stat-icon">✨</span>
+              <span className="stat-icon"><Sparkles size={16} /></span>
               <div className="stat-info">
                 <span className="stat-value">{brandedCount}</span>
                 <span className="stat-label">Branded Content</span>
               </div>
             </div>
             <div className="stat-card">
-              <span className="stat-icon">🤝</span>
+              <span className="stat-icon"><Handshake size={16} /></span>
               <div className="stat-info">
                 <span className="stat-value">{openCampaigns}</span>
                 <span className="stat-label">Open Campaigns</span>
               </div>
             </div>
             <div className="stat-card">
-              <span className="stat-icon">📬</span>
+              <span className="stat-icon"><Mail size={16} /></span>
               <div className="stat-info">
                 <span className="stat-value">{appliedCampaigns}</span>
                 <span className="stat-label">Applied</span>
@@ -268,17 +269,17 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
           {/* Quick Actions */}
           <div className="quick-actions-grid">
             <button className="quick-action primary" onClick={() => setViewMode('editor')}>
-              <span className="action-icon">🖼️</span>
+              <span className="action-icon"><Image size={16} /></span>
               <span className="action-text">Brand Content</span>
               <span className="action-desc">Add logos, QR codes & overlays</span>
             </button>
             <button className="quick-action" onClick={() => setViewMode('brandkit')}>
-              <span className="action-icon">🎨</span>
+              <span className="action-icon"><Palette size={16} /></span>
               <span className="action-text">Manage Brand Kit</span>
               <span className="action-desc">Colors, logos, watermarks</span>
             </button>
             <button className="quick-action" onClick={() => setViewMode('campaigns')}>
-              <span className="action-icon">💼</span>
+              <span className="action-icon"><Briefcase size={16} /></span>
               <span className="action-text">Find Campaigns</span>
               <span className="action-desc">Partner with brands</span>
             </button>
@@ -344,35 +345,35 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
                   className={`tool-btn ${editorTool === 'logo' ? 'active' : ''}`}
                   onClick={() => setEditorTool('logo')}
                 >
-                  <span>🏷️</span>
+                  <span><Tag size={14} /></span>
                   <span>Logo</span>
                 </button>
                 <button
                   className={`tool-btn ${editorTool === 'qr' ? 'active' : ''}`}
                   onClick={() => setEditorTool('qr')}
                 >
-                  <span>📱</span>
+                  <span><Smartphone size={14} /></span>
                   <span>QR Code</span>
                 </button>
                 <button
                   className={`tool-btn ${editorTool === 'link' ? 'active' : ''}`}
                   onClick={() => setEditorTool('link')}
                 >
-                  <span>🔗</span>
+                  <span><Link2 size={14} /></span>
                   <span>Link</span>
                 </button>
                 <button
                   className={`tool-btn ${editorTool === 'watermark' ? 'active' : ''}`}
                   onClick={() => setEditorTool('watermark')}
                 >
-                  <span>💧</span>
+                  <span><Droplets size={14} /></span>
                   <span>Watermark</span>
                 </button>
                 <button
                   className={`tool-btn ${editorTool === 'text' ? 'active' : ''}`}
                   onClick={() => setEditorTool('text')}
                 >
-                  <span>📝</span>
+                  <span><FileText size={14} /></span>
                   <span>Text</span>
                 </button>
               </div>
@@ -384,7 +385,7 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
                 <div className="option-group">
                   <label>Upload Logo</label>
                   <div className="upload-area">
-                    <span>📷</span>
+                    <span><Camera size={16} /></span>
                     <span>Click or drag to upload</span>
                   </div>
                   <button className="add-overlay-btn" onClick={() => handleAddOverlay('logo')}>
@@ -404,7 +405,7 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
                   />
                   <div className="qr-preview">
                     <div className="qr-placeholder">
-                      <span>📱</span>
+                      <span><Smartphone size={16} /></span>
                       <span>QR Preview</span>
                     </div>
                   </div>
@@ -524,11 +525,11 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
                 {overlays.map(overlay => (
                   <div key={overlay.id} className="overlay-item">
                     <span className="overlay-type">
-                      {overlay.type === 'logo' && '🏷️'}
-                      {overlay.type === 'qr' && '📱'}
-                      {overlay.type === 'link' && '🔗'}
-                      {overlay.type === 'watermark' && '💧'}
-                      {overlay.type === 'text' && '📝'}
+                      {overlay.type === 'logo' && <Tag size={14} />}
+                      {overlay.type === 'qr' && <Smartphone size={14} />}
+                      {overlay.type === 'link' && <Link2 size={14} />}
+                      {overlay.type === 'watermark' && <Droplets size={14} />}
+                      {overlay.type === 'text' && <FileText size={14} />}
                     </span>
                     <span className="overlay-label">
                       {overlay.type.charAt(0).toUpperCase() + overlay.type.slice(1)}
@@ -565,7 +566,7 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
                     }}
                   >
                     {overlay.type === 'qr' && (
-                      <div className="qr-overlay-preview">📱</div>
+                      <div className="qr-overlay-preview"><Smartphone size={16} /></div>
                     )}
                     {overlay.type === 'link' && (
                       <button className="link-overlay-btn">{linkText}</button>
@@ -577,14 +578,14 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
                       <span className="text-overlay-content">{overlay.content}</span>
                     )}
                     {overlay.type === 'logo' && (
-                      <div className="logo-overlay-placeholder">🏷️</div>
+                      <div className="logo-overlay-placeholder"><Tag size={16} /></div>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
               <div className="canvas-empty">
-                <span className="empty-icon">🖼️</span>
+                <span className="empty-icon"><Image size={20} /></span>
                 <h3>Select Content to Edit</h3>
                 <p>Choose from your content library below</p>
               </div>
@@ -616,10 +617,10 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
               Preview
             </button>
             <button className="action-btn primary" disabled={!selectedContent || overlays.length === 0}>
-              💾 Save Branded Content
+              <Save size={14} /> Save Branded Content
             </button>
             <button className="action-btn primary" disabled={!selectedContent || overlays.length === 0}>
-              📅 Schedule Post
+              <Calendar size={14} /> Schedule Post
             </button>
           </div>
         </div>
@@ -630,7 +631,7 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
         <div className="advertise-brandkit">
           {brandKits.length === 0 ? (
             <div className="brandkit-empty">
-              <span className="empty-icon">🎨</span>
+              <span className="empty-icon"><Palette size={20} /></span>
               <h3>Create Your Brand Kit</h3>
               <p>Set up your brand identity with logos, colors, and watermarks</p>
               <button className="create-kit-btn" onClick={handleCreateBrandKit}>
@@ -676,7 +677,7 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
                     <h4>Logo</h4>
                     <div className="logo-upload">
                       <div className="upload-area large">
-                        <span>📷</span>
+                        <span><Camera size={16} /></span>
                         <span>Upload your logo</span>
                         <span className="upload-hint">PNG or SVG, transparent background recommended</span>
                       </div>
@@ -754,11 +755,11 @@ export function AdvertiseTab({ feed }: AdvertiseTabProps) {
 
                   <div className="campaign-details">
                     <div className="detail-row">
-                      <span className="detail-icon">💰</span>
+                      <span className="detail-icon"><DollarSign size={14} /></span>
                       <span>{campaign.compensation}</span>
                     </div>
                     <div className="detail-row">
-                      <span className="detail-icon">📅</span>
+                      <span className="detail-icon"><Calendar size={14} /></span>
                       <span>Deadline: {campaign.deadline}</span>
                     </div>
                   </div>

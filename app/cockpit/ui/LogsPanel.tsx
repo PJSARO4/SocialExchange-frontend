@@ -11,6 +11,16 @@ import {
   getLogs,
   seedDemoLogs,
 } from '@/lib/logging/activity-logger';
+import {
+  ClipboardList,
+  Inbox,
+  User,
+  Play,
+  Pause,
+  ArrowDown,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react';
 import './logs-panel.css';
 
 // ============================================
@@ -19,16 +29,16 @@ import './logs-panel.css';
 
 const CATEGORY_OPTIONS: { value: LogCategory | 'all'; label: string }[] = [
   { value: 'all', label: 'All Categories' },
-  { value: 'auth', label: '🔐 Auth' },
-  { value: 'user', label: '👤 User' },
-  { value: 'market', label: '📈 Market' },
-  { value: 'content', label: '📝 Content' },
-  { value: 'automation', label: '🤖 Automation' },
-  { value: 'feeds', label: '📱 Feeds' },
-  { value: 'system', label: '⚙️ System' },
-  { value: 'security', label: '🛡️ Security' },
-  { value: 'payment', label: '💰 Payment' },
-  { value: 'admin', label: '👑 Admin' },
+  { value: 'auth', label: 'Auth' },
+  { value: 'user', label: 'User' },
+  { value: 'market', label: 'Market' },
+  { value: 'content', label: 'Content' },
+  { value: 'automation', label: 'Automation' },
+  { value: 'feeds', label: 'Feeds' },
+  { value: 'system', label: 'System' },
+  { value: 'security', label: 'Security' },
+  { value: 'payment', label: 'Payment' },
+  { value: 'admin', label: 'Admin' },
 ];
 
 const LEVEL_OPTIONS: { value: LogLevel | 'all'; label: string }[] = [
@@ -135,7 +145,7 @@ export default function LogsPanel() {
       {/* Header */}
       <header className="logs-panel-header">
         <div className="logs-panel-title">
-          <span className="logs-panel-icon">📋</span>
+          <span className="logs-panel-icon"><ClipboardList size={18} /></span>
           <h2>Activity Logs</h2>
           <span className="logs-count">{filteredLogs.length} entries</span>
         </div>
@@ -146,14 +156,14 @@ export default function LogsPanel() {
             onClick={() => setIsPaused(!isPaused)}
             title={isPaused ? 'Resume' : 'Pause'}
           >
-            {isPaused ? '▶' : '⏸'}
+            {isPaused ? <Play size={14} /> : <Pause size={14} />}
           </button>
           <button
             className={`logs-control-btn ${autoScroll ? 'active' : ''}`}
             onClick={() => setAutoScroll(!autoScroll)}
             title="Auto-scroll"
           >
-            ↓
+            <ArrowDown size={14} />
           </button>
         </div>
       </header>
@@ -199,7 +209,7 @@ export default function LogsPanel() {
       >
         {filteredLogs.length === 0 ? (
           <div className="logs-empty">
-            <span className="logs-empty-icon">📭</span>
+            <span className="logs-empty-icon"><Inbox size={24} /></span>
             <p>No logs match your filters</p>
           </div>
         ) : (
@@ -239,7 +249,7 @@ export default function LogsPanel() {
 
                   {log.userName && (
                     <div className="log-user">
-                      <span className="log-user-icon">👤</span>
+                      <span className="log-user-icon"><User size={14} /></span>
                       {log.userName}
                     </div>
                   )}
@@ -284,7 +294,7 @@ export default function LogsPanel() {
 
                 {/* Expand Indicator */}
                 <div className="log-expand-icon">
-                  {isExpanded ? '▼' : '▶'}
+                  {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                 </div>
               </div>
             );

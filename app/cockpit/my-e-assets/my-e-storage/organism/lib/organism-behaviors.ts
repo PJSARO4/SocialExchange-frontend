@@ -13,7 +13,7 @@ export const DEFAULT_BEHAVIORS: OrganismBehavior[] = [
     name: 'Auto-Compress Uploads',
     description:
       'Automatically compress new images to fit social media specs when added to storage.',
-    icon: '🗜',
+    icon: 'archive',
     enabled: true,
     triggerCondition: 'New image added to E-Storage',
     requiresApproval: false,
@@ -23,7 +23,7 @@ export const DEFAULT_BEHAVIORS: OrganismBehavior[] = [
     name: 'Auto-Tag Content',
     description:
       'Analyze filenames and file types to automatically assign relevant tags.',
-    icon: '🏷',
+    icon: 'tag',
     enabled: true,
     triggerCondition: 'New file added to E-Storage',
     requiresApproval: false,
@@ -33,7 +33,7 @@ export const DEFAULT_BEHAVIORS: OrganismBehavior[] = [
     name: 'Smart Organize',
     description:
       'Suggest folder organization when 10+ files are unsorted. Groups by type and date.',
-    icon: '📂',
+    icon: 'folder',
     enabled: false,
     triggerCondition: '10+ unsorted files detected',
     requiresApproval: false,
@@ -43,7 +43,7 @@ export const DEFAULT_BEHAVIORS: OrganismBehavior[] = [
     name: 'Content Suggestions',
     description:
       'Proactively suggest trending content based on your tags and preferences.',
-    icon: '💡',
+    icon: 'lightbulb',
     enabled: true,
     triggerCondition: 'User opens E-Storage',
     requiresApproval: false,
@@ -53,7 +53,7 @@ export const DEFAULT_BEHAVIORS: OrganismBehavior[] = [
     name: 'Storage Quota Alerts',
     description:
       'Alert when device storage exceeds 80%. Suggest cleanup operations.',
-    icon: '📊',
+    icon: 'bar-chart',
     enabled: true,
     triggerCondition: 'Storage usage > 80%',
     requiresApproval: false,
@@ -63,7 +63,7 @@ export const DEFAULT_BEHAVIORS: OrganismBehavior[] = [
     name: 'Duplicate Detection',
     description:
       'Check for files with similar names or sizes when new files are added.',
-    icon: '🔍',
+    icon: 'search',
     enabled: false,
     triggerCondition: 'New file added to E-Storage',
     requiresApproval: false,
@@ -73,7 +73,7 @@ export const DEFAULT_BEHAVIORS: OrganismBehavior[] = [
     name: 'Format Compliance',
     description:
       'Check if images meet social media platform specs and suggest compression.',
-    icon: '✅',
+    icon: 'check-circle',
     enabled: true,
     triggerCondition: 'Image added to E-Storage',
     requiresApproval: false,

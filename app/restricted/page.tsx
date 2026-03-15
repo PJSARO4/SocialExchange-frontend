@@ -1,3 +1,5 @@
+import { Globe } from 'lucide-react';
+
 export default function RestrictedPage() {
   return (
     <div
@@ -29,7 +31,7 @@ export default function RestrictedPage() {
           fontSize: '3rem',
         }}
       >
-        🌐
+        <Globe size={48} />
       </div>
 
       <h1

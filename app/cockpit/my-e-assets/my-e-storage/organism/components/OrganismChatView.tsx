@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { Eye } from 'lucide-react';
 import { useOrganism } from '@/app/context/OrganismContext';
 
 // ============================================
@@ -72,7 +73,7 @@ export default function OrganismChatView() {
         {chatHistory.length === 0 && (
           <div className="orgo-chat-message system">
             <div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>
-              {'🔮'}
+              <Eye size={20} />
             </div>
             <div>
               {config.name} is online. Ask me anything about your vault, or use

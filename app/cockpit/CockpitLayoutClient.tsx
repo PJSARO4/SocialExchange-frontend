@@ -18,12 +18,13 @@ import { PageTransitionProvider } from '@/components/transitions/PageTransition'
 import { AmbientAudioProvider, useAmbientAudio } from '@/lib/audio/useAmbientAudio';
 import AudioControl from '@/components/audio/AudioControl';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { Brain } from 'lucide-react';
 import MoodBackground from '@/components/audio/MoodBackground';
 import GlobalChatWidget from './comms/components/GlobalChatWidget';
 import { ToastProvider } from './ui/toast/ToastProvider';
 import { ThemeProvider } from '@/app/context/ThemeContext';
 
-// ✅ CORRECT PATH (file lives in app/cockpit/context)
+// CORRECT PATH (file lives in app/cockpit/context)
 import { AccountProvider } from './context/AccountContext';
 
 // Mobile menu hook
@@ -303,7 +304,7 @@ function CockpitContent({ children }: { children: ReactNode }) {
           onClick={() => setCopilotOpen(v => !v)}
           title="AI Copilot"
         >
-          {'🧠'} COPILOT
+          <Brain size={14} /> COPILOT
         </span>
 
         <span

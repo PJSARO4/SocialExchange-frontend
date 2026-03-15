@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { FolderOpen, Search, Sparkles, Trash2 } from 'lucide-react';
 import { Feed } from '../FeedsContext';
 
 interface ContentItem {
@@ -276,7 +277,7 @@ export default function ContentLibraryModal({
         {/* Header */}
         <div className="library-header">
           <div className="header-title">
-            <h2>📁 Content Library</h2>
+            <h2><FolderOpen size={20} /> Content Library</h2>
             <span className="content-count">{content.length} items</span>
           </div>
           <button className="close-btn" onClick={onClose}>×</button>
@@ -326,7 +327,7 @@ export default function ContentLibraryModal({
 
           <div className="toolbar-center">
             <div className="search-box">
-              <span className="search-icon">🔍</span>
+              <span className="search-icon"><Search size={16} /></span>
               <input
                 type="text"
                 placeholder="Search content..."
@@ -365,10 +366,10 @@ export default function ContentLibraryModal({
               onClick={generateCaptions}
               disabled={isGeneratingCaptions}
             >
-              {isGeneratingCaptions ? '⏳ Generating...' : '✨ Generate Captions'}
+              {isGeneratingCaptions ? 'Generating...' : <><Sparkles size={14} /> Generate Captions</>}
             </button>
             <button className="btn-small btn-danger" onClick={deleteSelected}>
-              🗑️ Delete
+              <Trash2 size={14} /> Delete
             </button>
             {selectionMode && (
               <button
@@ -407,7 +408,7 @@ export default function ContentLibraryModal({
           {dragActive && (
             <div className="drag-overlay">
               <div className="drag-message">
-                <span className="drag-icon">📁</span>
+                <span className="drag-icon"><FolderOpen size={24} /></span>
                 <p>Drop files here to upload</p>
               </div>
             </div>
@@ -416,7 +417,7 @@ export default function ContentLibraryModal({
           {/* Empty state */}
           {filteredContent.length === 0 && !isUploading && (
             <div className="empty-state">
-              <div className="empty-icon">📁</div>
+              <div className="empty-icon"><FolderOpen size={32} /></div>
               <h3>No content yet</h3>
               <p>Upload images or videos to get started</p>
               <button

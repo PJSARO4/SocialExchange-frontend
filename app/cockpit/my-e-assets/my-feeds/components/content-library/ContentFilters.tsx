@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Search, Settings } from 'lucide-react';
 import { ContentFilters as Filters, ContentType, ContentStatus } from '../../types/content';
 import { useFeeds } from '../../context/FeedsContext';
 
@@ -37,7 +38,7 @@ export default function ContentFilters({
     <div className="content-filters">
       {/* Search */}
       <div className="content-filters-search">
-        <span className="content-filters-search-icon">🔍</span>
+        <span className="content-filters-search-icon"><Search size={14} /></span>
         <input
           type="text"
           placeholder="Search content..."
@@ -122,7 +123,7 @@ export default function ContentFilters({
           className={`content-filters-toggle ${showAdvanced ? 'active' : ''}`}
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
-          ⚙
+          <Settings size={14} />
         </button>
 
         {/* Clear All */}

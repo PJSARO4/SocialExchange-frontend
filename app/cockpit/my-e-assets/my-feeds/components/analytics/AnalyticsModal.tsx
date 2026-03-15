@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { AlertTriangle, BarChart3, TrendingUp, Camera, Users, Scale, Heart, Eye, Radio, User, Target, Rocket, Star, Trophy, Film, Calendar, FileText, Sunrise, Smartphone, Globe, MessageSquare } from 'lucide-react';
 import { Feed, PLATFORMS } from '../../types/feed';
 
 interface AnalyticsModalProps {
@@ -196,7 +197,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
 
         {refreshError && (
           <div className="analytics-error-banner">
-            ⚠️ {refreshError}
+            <AlertTriangle size={14} /> {refreshError}
           </div>
         )}
 
@@ -205,31 +206,31 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
             className={`analytics-tab ${activeTab === 'overview' ? 'active' : ''}`}
             onClick={() => setActiveTab('overview')}
           >
-            📊 Overview
+            <BarChart3 size={14} /> Overview
           </button>
           <button
             className={`analytics-tab ${activeTab === 'growth' ? 'active' : ''}`}
             onClick={() => setActiveTab('growth')}
           >
-            📈 Growth
+            <TrendingUp size={14} /> Growth
           </button>
           <button
             className={`analytics-tab ${activeTab === 'content' ? 'active' : ''}`}
             onClick={() => setActiveTab('content')}
           >
-            📸 Content
+            <Camera size={14} /> Content
           </button>
           <button
             className={`analytics-tab ${activeTab === 'audience' ? 'active' : ''}`}
             onClick={() => setActiveTab('audience')}
           >
-            👥 Audience
+            <Users size={14} /> Audience
           </button>
           <button
             className={`analytics-tab ${activeTab === 'compare' ? 'active' : ''}`}
             onClick={() => setActiveTab('compare')}
           >
-            ⚖️ Compare
+            <Scale size={14} /> Compare
           </button>
         </div>
 
@@ -285,7 +286,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                 )}
                 <div className="analytics-engagement-grid">
                   <div className="analytics-engagement-item">
-                    <span className="analytics-engagement-icon">❤️</span>
+                    <span className="analytics-engagement-icon"><Heart size={16} /></span>
                     <div className="analytics-engagement-info">
                       <span className="analytics-engagement-value">
                         {formatNumber(insights?.totalInteractions ?? avgLikesPerPost)}
@@ -294,7 +295,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                     </div>
                   </div>
                   <div className="analytics-engagement-item">
-                    <span className="analytics-engagement-icon">👁️</span>
+                    <span className="analytics-engagement-icon"><Eye size={16} /></span>
                     <div className="analytics-engagement-info">
                       <span className="analytics-engagement-value">
                         {formatNumber(insights?.impressions ?? Math.round((feed.metrics.followers || 1500) * 0.5))}
@@ -303,7 +304,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                     </div>
                   </div>
                   <div className="analytics-engagement-item">
-                    <span className="analytics-engagement-icon">📡</span>
+                    <span className="analytics-engagement-icon"><Radio size={16} /></span>
                     <div className="analytics-engagement-info">
                       <span className="analytics-engagement-value">
                         {formatNumber(insights?.reach ?? Math.round((feed.metrics.followers || 1500) * 0.35))}
@@ -312,7 +313,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                     </div>
                   </div>
                   <div className="analytics-engagement-item">
-                    <span className="analytics-engagement-icon">👤</span>
+                    <span className="analytics-engagement-icon"><User size={16} /></span>
                     <div className="analytics-engagement-info">
                       <span className="analytics-engagement-value">
                         {formatNumber(insights?.profileViews ?? Math.round((feed.metrics.followers || 1500) * 0.1))}
@@ -457,21 +458,21 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                 <h3 className="analytics-section-title">GROWTH PROJECTIONS</h3>
                 <div className="projections-grid">
                   <div className="projection-card">
-                    <span className="projection-icon">🎯</span>
+                    <span className="projection-icon"><Target size={16} /></span>
                     <div className="projection-info">
                       <span className="projection-value">{formatNumber(Math.round((feed.metrics.followers || 1520) * 1.5))}</span>
                       <span className="projection-label">3-Month Projection</span>
                     </div>
                   </div>
                   <div className="projection-card">
-                    <span className="projection-icon">🚀</span>
+                    <span className="projection-icon"><Rocket size={16} /></span>
                     <div className="projection-info">
                       <span className="projection-value">{formatNumber(Math.round((feed.metrics.followers || 1520) * 2.2))}</span>
                       <span className="projection-label">6-Month Projection</span>
                     </div>
                   </div>
                   <div className="projection-card">
-                    <span className="projection-icon">⭐</span>
+                    <span className="projection-icon"><Star size={16} /></span>
                     <div className="projection-info">
                       <span className="projection-value">{formatNumber(Math.round((feed.metrics.followers || 1520) * 3.5))}</span>
                       <span className="projection-label">12-Month Projection</span>
@@ -534,7 +535,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                   {contentPerformance.map((item, index) => (
                     <div key={item.type} className={`table-row ${index === 0 ? 'top-performer' : ''}`}>
                       <span className="content-type">
-                        {index === 0 && <span className="top-badge">🏆</span>}
+                        {index === 0 && <span className="top-badge"><Trophy size={14} /></span>}
                         {item.type}
                       </span>
                       <span className="engagement-rate">{item.avgEngagement}%</span>
@@ -555,8 +556,8 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                         <span className="post-rank">#{i}</span>
                       </div>
                       <div className="post-stats">
-                        <span>❤️ {formatNumber(Math.round(Math.random() * 500 + 100))}</span>
-                        <span>💬 {Math.round(Math.random() * 50 + 10)}</span>
+                        <span><Heart size={12} /> {formatNumber(Math.round(Math.random() * 500 + 100))}</span>
+                        <span><MessageSquare size={12} /> {Math.round(Math.random() * 50 + 10)}</span>
                       </div>
                     </div>
                   ))}
@@ -567,21 +568,21 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                 <h3 className="analytics-section-title">CONTENT RECOMMENDATIONS</h3>
                 <div className="recommendations-list">
                   <div className="recommendation-card">
-                    <span className="rec-icon">🎬</span>
+                    <span className="rec-icon"><Film size={16} /></span>
                     <div className="rec-content">
                       <h4>Post More Reels</h4>
                       <p>Your Reels get 74% more engagement than photos. Try posting 2-3 per week.</p>
                     </div>
                   </div>
                   <div className="recommendation-card">
-                    <span className="rec-icon">📅</span>
+                    <span className="rec-icon"><Calendar size={16} /></span>
                     <div className="rec-content">
                       <h4>Increase Posting Frequency</h4>
                       <p>Accounts posting 5+ times/week grow 40% faster. You're at 3/week.</p>
                     </div>
                   </div>
                   <div className="recommendation-card">
-                    <span className="rec-icon">📑</span>
+                    <span className="rec-icon"><FileText size={16} /></span>
                     <div className="rec-content">
                       <h4>Try Carousel Posts</h4>
                       <p>Carousels get saved 3x more often. Great for educational content!</p>
@@ -654,21 +655,21 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                 <h3 className="analytics-section-title">AUDIENCE ACTIVITY</h3>
                 <div className="activity-insights">
                   <div className="activity-card">
-                    <span className="activity-icon">🌅</span>
+                    <span className="activity-icon"><Sunrise size={16} /></span>
                     <div className="activity-info">
                       <span className="activity-title">Most Active Time</span>
                       <span className="activity-value">5 PM - 9 PM</span>
                     </div>
                   </div>
                   <div className="activity-card">
-                    <span className="activity-icon">📱</span>
+                    <span className="activity-icon"><Smartphone size={16} /></span>
                     <div className="activity-info">
                       <span className="activity-title">Most Active Day</span>
                       <span className="activity-value">Thursday</span>
                     </div>
                   </div>
                   <div className="activity-card">
-                    <span className="activity-icon">🌍</span>
+                    <span className="activity-icon"><Globe size={16} /></span>
                     <div className="activity-info">
                       <span className="activity-title">Primary Timezone</span>
                       <span className="activity-value">PST (UTC-8)</span>
@@ -770,7 +771,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
               <section className="analytics-section">
                 <h3 className="analytics-section-title">COMPETITOR INSIGHTS</h3>
                 <div className="competitor-insights-empty">
-                  <span className="competitor-insights-icon">👁️</span>
+                  <span className="competitor-insights-icon"><Eye size={20} /></span>
                   <h4>Track Competitors</h4>
                   <p>Add accounts in Observe mode to see competitor analytics</p>
                   <button className="competitor-add-btn">+ Add Competitor</button>

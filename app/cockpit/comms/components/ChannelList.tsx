@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { MessageSquare, Bell, BellOff, Ban } from 'lucide-react';
 import { useComms } from '../context/CommsContext';
 import { GroupThread, DirectThread } from '../types';
 import { toggleBlockContact, toggleMuteContact } from '../lib/comms-store';
@@ -92,21 +93,21 @@ export default function ChannelList() {
                       title="Send DM"
                       onClick={() => { createDirectThread(contact.name); setShowContacts(false); }}
                     >
-                      💬
+                      <MessageSquare size={14} />
                     </button>
                     <button
                       className={`comms-contact-action-btn ${contact.isMuted ? 'active' : ''}`}
                       title={contact.isMuted ? 'Unmute' : 'Mute'}
                       onClick={() => toggleMuteContact(contact.id)}
                     >
-                      {contact.isMuted ? '🔇' : '🔔'}
+                      {contact.isMuted ? <BellOff size={14} /> : <Bell size={14} />}
                     </button>
                     <button
                       className={`comms-contact-action-btn ${contact.isBlocked ? 'active' : ''}`}
                       title={contact.isBlocked ? 'Unblock' : 'Block'}
                       onClick={() => toggleBlockContact(contact.id)}
                     >
-                      🚫
+                      <Ban size={14} />
                     </button>
                   </div>
                 </div>

@@ -71,7 +71,7 @@ export function addScheduledPost(post: Omit<ScheduledPost, 'id' | 'createdAt' | 
     posts.push(newPost);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
 
-    console.log('📅 Added scheduled post:', {
+    console.log('[SCHEDULE] Added scheduled post:', {
       id: newPost.id,
       scheduledFor: newPost.scheduledFor,
     });
@@ -108,7 +108,7 @@ export function updateScheduledPost(
     posts[postIndex] = updatedPost;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
 
-    console.log('✏️ Updated scheduled post:', id);
+    console.log('[SCHEDULE] Updated scheduled post:', id);
 
     return updatedPost;
   } catch (error) {
@@ -133,7 +133,7 @@ export function removeScheduledPost(id: string): boolean {
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredPosts));
-    console.log('🗑️ Removed scheduled post:', id);
+    console.log('[SCHEDULE] Removed scheduled post:', id);
 
     return true;
   } catch (error) {
@@ -225,7 +225,7 @@ async function publishScheduledPost(post: ScheduledPost): Promise<void> {
       error: undefined,
     });
 
-    console.log('✅ Post published successfully:', post.id);
+    console.log('[OK] Post published successfully:', post.id);
   } catch (error: any) {
     console.error('Failed to publish post:', error);
 
@@ -267,12 +267,12 @@ async function checkAndPublishDuePosts(): Promise<void> {
  */
 export function startSchedulerPolling(): void {
   if (isPollingActive) {
-    console.log('ℹ️ Scheduler polling already active');
+    console.log('[INFO] Scheduler polling already active');
     return;
   }
 
   isPollingActive = true;
-  console.log('▶️ Starting scheduler polling');
+  console.log('[START] Starting scheduler polling');
 
   // Check immediately on start
   checkAndPublishDuePosts().catch((error) => {
@@ -295,7 +295,7 @@ export function stopSchedulerPolling(): void {
     clearInterval(pollingIntervalId);
     pollingIntervalId = null;
     isPollingActive = false;
-    console.log('⏸️ Scheduler polling stopped');
+    console.log('[STOP] Scheduler polling stopped');
   }
 }
 

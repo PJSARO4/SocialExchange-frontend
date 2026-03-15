@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { AlertTriangle, Lightbulb } from 'lucide-react';
 import { ContentItem } from '../../types/content';
 import { Feed, PLATFORMS } from '../../types/feed';
 import { CreateSchedulePayload, generateTimeSlots } from '../../types/schedule';
@@ -227,14 +228,14 @@ export default function SchedulePostModal({
           {/* Error */}
           {error && (
             <div className="modal-error">
-              <span className="modal-error-icon">⚠</span>
+              <span className="modal-error-icon"><AlertTriangle size={14} /></span>
               {error}
             </div>
           )}
 
           {/* Optimal Times Suggestion */}
           <div className="schedule-suggestion">
-            <span className="schedule-suggestion-icon">💡</span>
+            <span className="schedule-suggestion-icon"><Lightbulb size={14} /></span>
             <span className="schedule-suggestion-text">
               Best times to post:{' '}
               <strong>9:00 AM, 12:00 PM, 6:00 PM</strong>

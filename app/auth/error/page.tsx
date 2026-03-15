@@ -3,6 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { AlertTriangle } from 'lucide-react';
 
 function ErrorContent() {
   const searchParams = useSearchParams();
@@ -77,7 +78,7 @@ function ErrorContent() {
           margin: '0 auto 24px',
           fontSize: '32px',
         }}>
-          ⚠️
+          <AlertTriangle size={32} />
         </div>
 
         <h1 style={{

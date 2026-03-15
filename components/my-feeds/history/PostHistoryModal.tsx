@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { BarChart3, Search, MessageSquare, Film, Bot, RefreshCw, Calendar, Mailbox, Heart, Play, Pencil, Camera, Eye } from 'lucide-react';
 import { Feed } from '../FeedsContext';
 
 interface HistoricalPost {
@@ -185,7 +186,7 @@ export default function PostHistoryModal({
         {/* Header */}
         <div className="history-header">
           <div className="header-title">
-            <h2>📊 Post History</h2>
+            <h2><BarChart3 size={20} /> Post History</h2>
             <span className="post-count">{stats.totalPosts} posts</span>
           </div>
           <button className="close-btn" onClick={onClose}>×</button>
@@ -250,7 +251,7 @@ export default function PostHistoryModal({
 
           <div className="toolbar-center">
             <div className="search-box">
-              <span className="search-icon">🔍</span>
+              <span className="search-icon"><Search size={16} /></span>
               <input
                 type="text"
                 placeholder="Search captions or hashtags..."
@@ -281,7 +282,7 @@ export default function PostHistoryModal({
                 onClick={() => setViewMode('calendar')}
                 title="Calendar View"
               >
-                📅
+                <Calendar size={14} />
               </button>
             </div>
           </div>
@@ -296,7 +297,7 @@ export default function PostHistoryModal({
             </div>
           ) : filteredPosts.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">📭</div>
+              <div className="empty-icon"><Mailbox size={20} /></div>
               <h3>No posts found</h3>
               <p>Try adjusting your filters or date range</p>
             </div>
@@ -319,26 +320,26 @@ export default function PostHistoryModal({
                         )}
                         <div className="post-overlay">
                           <span className="overlay-stat">
-                            ❤️ {formatNumber(post.metrics.likes)}
+                            <Heart size={12} /> {formatNumber(post.metrics.likes)}
                           </span>
                           <span className="overlay-stat">
-                            💬 {formatNumber(post.metrics.comments)}
+                            <MessageSquare size={14} /> {formatNumber(post.metrics.comments)}
                           </span>
                         </div>
                         {post.mediaType === 'VIDEO' && (
-                          <span className="media-badge">▶️</span>
+                          <span className="media-badge"><Play size={12} /></span>
                         )}
                         {post.mediaType === 'CAROUSEL' && (
                           <span className="media-badge">◫</span>
                         )}
                         {post.mediaType === 'REELS' && (
-                          <span className="media-badge">🎬</span>
+                          <span className="media-badge"><Film size={14} /></span>
                         )}
                         <span className={`source-badge ${post.source}`}>
-                          {post.source === 'autopilot' && '🤖'}
-                          {post.source === 'scheduled' && '📅'}
-                          {post.source === 'manual' && '✏️'}
-                          {post.source === 'instagram' && '📷'}
+                          {post.source === 'autopilot' && <Bot size={14} />}
+                          {post.source === 'scheduled' && <Calendar size={12} />}
+                          {post.source === 'manual' && <Pencil size={12} />}
+                          {post.source === 'instagram' && <Camera size={12} />}
                         </span>
                       </div>
                       <div className="post-info">
@@ -393,21 +394,21 @@ export default function PostHistoryModal({
                           onClick={() => setSelectedPost(post)}
                           title="View Details"
                         >
-                          👁️
+                          <Eye size={14} />
                         </button>
                         <button
                           className="action-btn"
                           onClick={() => onAnalyzeCaption?.(post)}
                           title="Analyze Caption"
                         >
-                          📊
+                          <BarChart3 size={14} />
                         </button>
                         <button
                           className="action-btn"
                           onClick={() => onRepost?.(post)}
                           title="Repost"
                         >
-                          🔄
+                          <RefreshCw size={14} />
                         </button>
                       </span>
                     </div>
@@ -442,10 +443,10 @@ export default function PostHistoryModal({
                       Posted {new Date(selectedPost.postedAt).toLocaleString()}
                     </span>
                     <span className={`detail-source ${selectedPost.source}`}>
-                      {selectedPost.source === 'autopilot' && '🤖 Autopilot'}
-                      {selectedPost.source === 'scheduled' && '📅 Scheduled'}
-                      {selectedPost.source === 'manual' && '✏️ Manual'}
-                      {selectedPost.source === 'instagram' && '📷 Instagram'}
+                      {selectedPost.source === 'autopilot' && <><Bot size={14} /> Autopilot</>}
+                      {selectedPost.source === 'scheduled' && <><Calendar size={12} /> Scheduled</>}
+                      {selectedPost.source === 'manual' && <><Pencil size={12} /> Manual</>}
+                      {selectedPost.source === 'instagram' && <><Camera size={12} /> Instagram</>}
                     </span>
                   </div>
 
@@ -493,13 +494,13 @@ export default function PostHistoryModal({
                       className="btn-secondary"
                       onClick={() => onAnalyzeCaption?.(selectedPost)}
                     >
-                      📊 Analyze Performance
+                      <BarChart3 size={16} /> Analyze Performance
                     </button>
                     <button
                       className="btn-primary"
                       onClick={() => onRepost?.(selectedPost)}
                     >
-                      🔄 Repost This
+                      <RefreshCw size={16} /> Repost This
                     </button>
                   </div>
                 </div>

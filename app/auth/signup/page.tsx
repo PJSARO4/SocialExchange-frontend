@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Zap, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import {
   signup,
@@ -189,7 +190,7 @@ export default function SignupPage() {
       <div className="auth-card signup">
         <div className="auth-header">
           <div className="auth-logo">
-            <span className="auth-logo-icon">⚡</span>
+            <span className="auth-logo-icon"><Zap size={24} /></span>
             <span className="auth-logo-text">SOCIAL EXCHANGE</span>
           </div>
           <h1 className="auth-title">Create Account</h1>
@@ -199,7 +200,7 @@ export default function SignupPage() {
         <form className="auth-form" onSubmit={handleSubmit}>
           {generalError && (
             <div className="auth-error-banner">
-              <span className="auth-error-icon">⚠️</span>
+              <span className="auth-error-icon"><AlertTriangle size={16} /></span>
               <span>{generalError}</span>
             </div>
           )}

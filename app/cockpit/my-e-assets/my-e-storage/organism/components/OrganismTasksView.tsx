@@ -1,19 +1,21 @@
 'use client';
 
+import { ReactNode } from 'react';
+import { Tag, FolderOpen, Search, BarChart3, CheckCircle, Zap, XCircle } from 'lucide-react';
 import { useOrganism } from '@/app/context/OrganismContext';
 
 // ============================================
 // TASKS VIEW — Task queue + completed log
 // ============================================
 
-const TASK_ICONS: Record<string, string> = {
-  compress: '🗜',
-  tag: '🏷',
-  organize: '📂',
-  scrape: '🔍',
-  analyze: '📊',
-  cleanup: '🧹',
-  'format-check': '✅',
+const TASK_ICONS: Record<string, ReactNode> = {
+  compress: <Zap size={14} />,
+  tag: <Tag size={14} />,
+  organize: <FolderOpen size={14} />,
+  scrape: <Search size={14} />,
+  analyze: <BarChart3 size={14} />,
+  cleanup: <Zap size={14} />,
+  'format-check': <CheckCircle size={14} />,
 };
 
 function formatTimeAgo(isoDate: string): string {
@@ -50,7 +52,7 @@ export default function OrganismTasksView() {
             }}
           >
             <span style={{ fontSize: '1rem' }}>
-              {TASK_ICONS[task.type] || '⚡'}
+              {TASK_ICONS[task.type] || <Zap size={14} />}
             </span>
             <span
               style={{
@@ -133,7 +135,7 @@ export default function OrganismTasksView() {
             >
               <span style={{ fontSize: '0.875rem' }}>
                 {task.status === 'failed'
-                  ? '❌'
+                  ? <XCircle size={14} />
                   : TASK_ICONS[task.type] || '✓'}
               </span>
               <span
@@ -192,7 +194,7 @@ export default function OrganismTasksView() {
           }}
         >
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>
-            {'⚡'}
+            <Zap size={24} />
           </div>
           <div style={{ fontSize: '0.75rem' }}>
             No tasks yet. SYN will work autonomously or you can trigger tasks

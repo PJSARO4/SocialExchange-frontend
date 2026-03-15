@@ -1,5 +1,8 @@
 'use client';
 
+import { ReactNode } from 'react';
+import { Camera, Twitter, Music, MonitorPlay, Briefcase, Smartphone, Calendar } from 'lucide-react';
+
 interface UpcomingPost {
   id: number;
   platform: 'instagram' | 'twitter' | 'tiktok' | 'youtube' | 'linkedin';
@@ -19,20 +22,20 @@ export default function ManagementHubPanel({
   upcomingPosts,
   onNavigateToFeeds,
 }: Props) {
-  const platformIcon = (platform: UpcomingPost['platform']) => {
+  const platformIcon = (platform: UpcomingPost['platform']): ReactNode => {
     switch (platform) {
       case 'instagram':
-        return '📷';
+        return <Camera size={14} />;
       case 'twitter':
-        return '🐦';
+        return <Twitter size={14} />;
       case 'tiktok':
-        return '🎵';
+        return <Music size={14} />;
       case 'youtube':
-        return '📺';
+        return <MonitorPlay size={14} />;
       case 'linkedin':
-        return '💼';
+        return <Briefcase size={14} />;
       default:
-        return '📱';
+        return <Smartphone size={14} />;
     }
   };
 
@@ -48,7 +51,7 @@ export default function ManagementHubPanel({
       <div className="panel-body">
         {upcomingPosts.length === 0 ? (
           <div className="management-hub-empty">
-            <div className="management-hub-empty-icon">📅</div>
+            <div className="management-hub-empty-icon"><Calendar size={20} /></div>
             <div className="management-hub-empty-text">
               No upcoming posts scheduled
             </div>

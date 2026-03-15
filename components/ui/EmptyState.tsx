@@ -1,14 +1,17 @@
 'use client';
 
+import { type ReactNode } from 'react';
+import { Mailbox } from 'lucide-react';
+
 export default function EmptyState({
-  icon = '📭',
+  icon = <Mailbox size={40} />,
   title,
   description,
   actionLabel,
   onAction,
   className = '',
 }: {
-  icon?: string;
+  icon?: ReactNode;
   title: string;
   description?: string;
   actionLabel?: string;

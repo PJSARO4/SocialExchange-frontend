@@ -315,7 +315,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
                 : 0;
               result = `Compressed ${compressedCount} image${compressedCount !== 1 ? 's' : ''} — avg ${avgSavings}% saved`;
               if (compressedCount > 0) {
-                pushNotification('🗜', result);
+                pushNotification('archive', result);
               }
             }
             break;
@@ -333,7 +333,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
               }
             }
             result = `Tagged ${taggedCount} file${taggedCount !== 1 ? 's' : ''}`;
-            if (taggedCount > 0) pushNotification('🏷', result);
+            if (taggedCount > 0) pushNotification('tag', result);
             break;
           }
 
@@ -363,7 +363,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
 
             const movedCount = unsorted.length;
             result = `Organized ${movedCount} file${movedCount !== 1 ? 's' : ''} into ${Object.keys(typeGroups).length} folder${Object.keys(typeGroups).length !== 1 ? 's' : ''}`;
-            if (movedCount > 0) pushNotification('📂', result);
+            if (movedCount > 0) pushNotification('folder', result);
             break;
           }
 
@@ -382,7 +382,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
               nonCompliant.length > 0
                 ? `${nonCompliant.length} image${nonCompliant.length !== 1 ? 's' : ''} below 1080px — may need upscaling`
                 : 'All images meet minimum specs';
-            pushNotification('✅', result);
+            pushNotification('check-circle', result);
             break;
           }
 
@@ -400,7 +400,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
                 result = count > 0
                   ? `Found ${count} result${count !== 1 ? 's' : ''} for "${query}"`
                   : data.message || `No results found for "${query}"`;
-                if (count > 0) pushNotification('🔍', result);
+                if (count > 0) pushNotification('search', result);
               } else {
                 result = 'Content search failed — check API keys';
               }
@@ -433,7 +433,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
             }
 
             result = `Vault analysis: ${insights.join(' · ')}`;
-            pushNotification('📊', result);
+            pushNotification('bar-chart', result);
             break;
           }
 
@@ -465,7 +465,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
             result = insights.length > 0
               ? `Cleanup scan: ${insights.join(', ')}`
               : 'Vault is clean — no duplicates or issues detected';
-            pushNotification('🧹', result);
+            pushNotification('trash-2', result);
             break;
           }
 
@@ -607,7 +607,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
           const merged = [...clipped, ...existing].slice(0, 20);
           localStorage.setItem(COPILOT_CLIPBOARD_KEY, JSON.stringify(merged));
           pushNotification(
-            '📋',
+            'clipboard',
             `Clipped ${clipped.length} item${clipped.length !== 1 ? 's' : ''} for Copilot`
           );
         } catch (err) {
@@ -618,12 +618,12 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
               JSON.stringify(clipped)
             );
             pushNotification(
-              '📋',
+              'clipboard',
               `Clipped ${clipped.length} item${clipped.length !== 1 ? 's' : ''} for Copilot`
             );
           } catch (quotaErr) {
             console.error('[SYN] Clipboard quota exceeded:', quotaErr);
-            pushNotification('⚠', 'Clipboard storage full');
+            pushNotification('alert-triangle', 'Clipboard storage full');
           }
         }
       }
@@ -702,7 +702,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
           item.dimensions &&
           (item.dimensions.width < 1080 || item.dimensions.height < 1080)
         ) {
-          pushNotification('⚠️', `${item.title} is below 1080px — may not meet social media specs`);
+          pushNotification('alert-triangle', `${item.title} is below 1080px — may not meet social media specs`);
         }
 
         // Duplicate-detect behavior
@@ -712,7 +712,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
             existing.filename.toLowerCase() === item.filename.toLowerCase()
           );
           if (possibleDuplicates.length > 0) {
-            pushNotification('🔍', `Possible duplicate: ${item.title} (${possibleDuplicates.length} match${possibleDuplicates.length !== 1 ? 'es' : ''})`);
+            pushNotification('search', `Possible duplicate: ${item.title} (${possibleDuplicates.length} match${possibleDuplicates.length !== 1 ? 'es' : ''})`);
           }
         }
       });
@@ -736,7 +736,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
       if (isBehaviorEnabled('quota-watch') && eStorage.stats) {
         const usedPercent = eStorage.stats.usedPercent || 0;
         if (usedPercent > 80) {
-          pushNotification('📊', `Storage at ${usedPercent}% — consider cleanup`);
+          pushNotification('bar-chart', `Storage at ${usedPercent}% — consider cleanup`);
         }
       }
     }

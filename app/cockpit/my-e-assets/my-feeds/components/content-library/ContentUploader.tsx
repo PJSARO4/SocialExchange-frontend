@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, DragEvent } from 'react';
+import { Download, Upload } from 'lucide-react';
 import { useFeeds } from '../../context/FeedsContext';
 
 interface ContentUploaderProps {
@@ -76,7 +77,7 @@ export default function ContentUploader({
         />
 
         <div className="content-uploader-icon">
-          {isDragging ? '📥' : '📤'}
+          {isDragging ? <Download size={20} /> : <Upload size={20} />}
         </div>
 
         <div className="content-uploader-text">

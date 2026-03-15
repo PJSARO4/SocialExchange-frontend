@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { AlertTriangle } from 'lucide-react';
 
 interface Props {
   children: React.ReactNode;
@@ -40,7 +41,7 @@ export class OrganismErrorBoundary extends React.Component<Props, State> {
             textAlign: 'center',
           }}
         >
-          <div style={{ marginBottom: '8px', fontSize: '1.2rem' }}>⚠</div>
+          <div style={{ marginBottom: '8px', fontSize: '1.2rem' }}><AlertTriangle size={20} /></div>
           <div>{this.props.fallbackMessage || 'SYN encountered an error'}</div>
           <button
             onClick={() => this.setState({ hasError: false, error: undefined })}

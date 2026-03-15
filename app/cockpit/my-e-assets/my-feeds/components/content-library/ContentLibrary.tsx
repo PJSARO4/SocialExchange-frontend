@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { Download, Mailbox } from 'lucide-react';
 import { useFeeds } from '../../context/FeedsContext';
 import { ContentFilters as Filters } from '../../types/content';
 import ContentCard from './ContentCard';
@@ -103,7 +104,7 @@ export default function ContentLibrary() {
             onClick={() => setShowCSVImporter(true)}
             title="Import from CSV"
           >
-            📥 CSV
+            <Download size={14} /> CSV
           </button>
           <button
             className="content-library-action-btn primary"
@@ -155,7 +156,7 @@ export default function ContentLibrary() {
           </div>
         ) : filteredContent.length === 0 ? (
           <div className="content-library-empty">
-            <div className="content-library-empty-icon">📭</div>
+            <div className="content-library-empty-icon"><Mailbox size={24} /></div>
             <div className="content-library-empty-title">
               {content.length === 0 ? 'NO CONTENT YET' : 'NO MATCHES'}
             </div>

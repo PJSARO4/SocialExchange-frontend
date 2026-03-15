@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { Film, Music, AlertTriangle } from 'lucide-react';
 import { useEStorage } from '@/app/context/EStorageContext';
 import { formatBytes } from '../lib/thumbnail-utils';
 
@@ -155,12 +156,12 @@ export default function QuotaBar({ compact = false }: QuotaBarProps) {
         )}
         {stats.byType.video > 0 && (
           <div style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
-            {'🎬'} {stats.byType.video}
+            <Film size={14} /> {stats.byType.video}
           </div>
         )}
         {stats.byType.audio > 0 && (
           <div style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
-            {'🎵'} {stats.byType.audio}
+            <Music size={14} /> {stats.byType.audio}
           </div>
         )}
         {stats.byType.document > 0 && (
@@ -176,7 +177,7 @@ export default function QuotaBar({ compact = false }: QuotaBarProps) {
               fontWeight: '600',
             }}
           >
-            {'⚠'} Storage nearly full
+            <AlertTriangle size={14} /> Storage nearly full
           </div>
         )}
       </div>

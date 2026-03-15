@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Bot, RefreshCw, BarChart3, Zap, ClipboardList, Wrench, Trash2,
+  BookOpen, Eye, Timer, Play, Pencil, Save
+} from 'lucide-react';
 import { ChainBuilder } from './chain-builder/ChainBuilder';
 import { AutomationChain, ChainNode, NodeConnection } from './chain-builder/types';
 import { useWorkflowEvents } from '../../context/WorkflowEventsContext';
@@ -40,7 +44,7 @@ interface WorkflowTemplate {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon: React.ReactNode;
   category: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   nodes: ChainNode[];
@@ -52,7 +56,7 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     id: 'auto-post-library',
     name: 'Auto Post from Library',
     description: 'Automatically post content from your library on a schedule',
-    icon: '📚',
+    icon: <BookOpen size={16} />,
     category: 'Publishing',
     difficulty: 'beginner',
     nodes: [
@@ -71,7 +75,7 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     id: 'ai-caption-generator',
     name: 'AI Caption Generator',
     description: 'Enhance content with AI-generated captions before posting',
-    icon: '🤖',
+    icon: <Bot size={16} />,
     category: 'AI Enhancement',
     difficulty: 'beginner',
     nodes: [
@@ -90,7 +94,7 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     id: 'content-repurposer',
     name: 'Content Repurposer',
     description: 'Automatically adapt content for different platforms',
-    icon: '🔄',
+    icon: <RefreshCw size={16} />,
     category: 'Multi-Platform',
     difficulty: 'intermediate',
     nodes: [
@@ -114,7 +118,7 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     id: 'competitor-monitor',
     name: 'Competitor Content Monitor',
     description: 'Track and save competitor content for inspiration',
-    icon: '👁️',
+    icon: <Eye size={16} />,
     category: 'Research',
     difficulty: 'intermediate',
     nodes: [
@@ -135,7 +139,7 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     id: 'smart-queue',
     name: 'Smart Content Queue',
     description: 'Intelligently schedule content based on optimal timing and analytics',
-    icon: '📊',
+    icon: <BarChart3 size={16} />,
     category: 'Scheduling',
     difficulty: 'advanced',
     nodes: [
@@ -554,9 +558,9 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
               </button>
             )}
             <h2>
-              {viewMode === 'list' && '⚡ Automation Workflows'}
-              {viewMode === 'templates' && '📋 Workflow Templates'}
-              {viewMode === 'builder' && `🔧 ${editingChain?.name || 'New Workflow'}`}
+              {viewMode === 'list' && <><Zap size={16} /> Automation Workflows</>}
+              {viewMode === 'templates' && <><ClipboardList size={16} /> Workflow Templates</>}
+              {viewMode === 'builder' && <><Wrench size={16} /> {editingChain?.name || 'New Workflow'}</>}
             </h2>
           </div>
           <button className="close-btn" onClick={onClose}>×</button>
@@ -651,7 +655,7 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
                     </div>
                     <div className="workflow-actions">
                       <button className="icon-btn" onClick={() => deleteApiRule(rule.id)} title="Delete">
-                        🗑️
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -665,7 +669,7 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
                 + Create New Workflow
               </button>
               <button className="action-btn" onClick={() => setViewMode('templates')}>
-                📋 Browse Templates
+                <ClipboardList size={14} /> Browse Templates
               </button>
             </div>
 
@@ -679,7 +683,7 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
             <div className="workflow-list">
               {chains.length === 0 ? (
                 <div className="empty-state">
-                  <span className="empty-icon">⚡</span>
+                  <span className="empty-icon"><Zap size={24} /></span>
                   <h3>No Workflows Yet</h3>
                   <p>Create your first automation workflow to streamline your content management</p>
                   <button className="action-btn primary" onClick={() => setViewMode('templates')}>
@@ -726,13 +730,13 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
                               background: runningChainId === chain.id ? 'rgba(0, 255, 200, 0.2)' : 'transparent',
                             }}
                           >
-                            {runningChainId === chain.id ? '⏳' : '▶️'}
+                            {runningChainId === chain.id ? <Timer size={14} /> : <Play size={14} />}
                           </button>
                           <button className="icon-btn" onClick={() => handleEditChain(chain)} title="Edit">
-                            ✏️
+                            <Pencil size={14} />
                           </button>
                           <button className="icon-btn" onClick={() => handleDeleteChain(chain.id)} title="Delete">
-                            🗑️
+                            <Trash2 size={14} />
                           </button>
                         </div>
                       </div>
@@ -850,7 +854,7 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
                 className="save-btn"
                 onClick={() => handleSaveChain(editingChain)}
               >
-                💾 Save Workflow
+                <Save size={14} /> Save Workflow
               </button>
             </div>
 

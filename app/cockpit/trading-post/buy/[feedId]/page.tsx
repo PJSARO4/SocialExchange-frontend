@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { logTransaction } from '../../../systems/transactionLog';
 import './feed-detail.css';
@@ -133,7 +134,7 @@ export default function BuyConfirmPage() {
       {success ? (
         <div className="confirm-actions">
           <div className="confirm-btn" style={{ textAlign: 'center', cursor: 'default' }}>
-            ✅ ACQUISITION COMPLETE — Redirecting...
+            <CheckCircle size={16} /> ACQUISITION COMPLETE — Redirecting...
           </div>
         </div>
       ) : (

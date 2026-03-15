@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Calendar, Smartphone, Clock, RefreshCw, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react';
 import { ScheduledPost, ScheduleFilters } from '../../types/schedule';
 import { PLATFORMS } from '../../types/feed';
 
@@ -61,7 +62,7 @@ export default function PostQueue({
       <div className="post-queue-list">
         {filteredPosts.length === 0 ? (
           <div className="post-queue-empty">
-            <span className="post-queue-empty-icon">📅</span>
+            <span className="post-queue-empty-icon"><Calendar size={20} /></span>
             <span className="post-queue-empty-text">
               {filter === 'upcoming'
                 ? 'No upcoming posts scheduled'
@@ -139,7 +140,7 @@ function PostQueueItem({
           className="post-queue-item-platform"
           style={{ backgroundColor: platform?.color }}
         >
-          {platform?.icon || '📱'}
+          {platform?.icon || <Smartphone size={14} />}
         </div>
 
         {/* Info */}
@@ -158,8 +159,8 @@ function PostQueueItem({
 
         {/* Status */}
         <div className={`post-queue-item-status ${post.status}`}>
-          {post.status === 'scheduled' && '⏳'}
-          {post.status === 'posting' && '🔄'}
+          {post.status === 'scheduled' && <Clock size={14} />}
+          {post.status === 'posting' && <RefreshCw size={14} />}
           {post.status === 'posted' && '✓'}
           {post.status === 'failed' && '✕'}
           {post.status === 'cancelled' && '⊘'}
@@ -167,7 +168,7 @@ function PostQueueItem({
 
         {/* Expand */}
         <button className="post-queue-item-expand">
-          {isExpanded ? '▲' : '▼'}
+          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
       </div>
 
@@ -211,7 +212,7 @@ function PostQueueItem({
           {/* Error Message */}
           {post.status === 'failed' && post.errorMessage && (
             <div className="post-queue-item-error">
-              <span className="post-queue-item-error-icon">⚠</span>
+              <span className="post-queue-item-error-icon"><AlertTriangle size={14} /></span>
               {post.errorMessage}
             </div>
           )}

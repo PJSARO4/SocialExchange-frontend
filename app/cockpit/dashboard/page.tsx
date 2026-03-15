@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCurrentUser, seedAuthIfEmpty, logout } from '@/app/lib/auth/auth-store';
@@ -21,6 +21,26 @@ import {
 } from '../my-e-assets/market/lib/market-store';
 
 import ErrorBoundary from '@/components/ErrorBoundary';
+import {
+  Users,
+  TrendingUp,
+  Calendar,
+  Gem,
+  DollarSign,
+  Tag,
+  Hand,
+  Sparkles,
+  ClipboardList,
+  ShoppingCart,
+  Banknote,
+  Landmark,
+  Radio,
+  Store,
+  BookOpen,
+  Lock,
+  Camera,
+  Music,
+} from 'lucide-react';
 import './command-center.css';
 
 const currentUserId = 'demo-user-main';
@@ -31,7 +51,7 @@ interface QuickStat {
   value: string;
   change?: string;
   changeType?: 'up' | 'down' | 'neutral';
-  icon: string;
+  icon: ReactNode;
 }
 
 interface Activity {
@@ -39,7 +59,7 @@ interface Activity {
   type: 'post' | 'transaction' | 'follower' | 'alert' | 'system';
   message: string;
   time: string;
-  icon: string;
+  icon: ReactNode;
 }
 
 interface ScheduledPost {
@@ -94,15 +114,15 @@ export default function CommandCenter() {
 
   // Live data state
   const [quickStats, setQuickStats] = useState<QuickStat[]>([
-    { label: 'Total Followers', value: '—', change: 'Loading...', changeType: 'neutral', icon: '👥' },
-    { label: 'Engagement Rate', value: '—', change: 'Loading...', changeType: 'neutral', icon: '📈' },
-    { label: 'Scheduled Posts', value: '0', change: 'None', changeType: 'neutral', icon: '📅' },
-    { label: 'Community Credits', value: '$0', change: '—', changeType: 'neutral', icon: '💎' },
-    { label: 'Portfolio Value', value: '$0', change: '—', changeType: 'neutral', icon: '💰' },
-    { label: 'Active Listings', value: '0', change: 'None', changeType: 'neutral', icon: '🏷️' },
+    { label: 'Total Followers', value: '—', change: 'Loading...', changeType: 'neutral', icon: <Users size={20} /> },
+    { label: 'Engagement Rate', value: '—', change: 'Loading...', changeType: 'neutral', icon: <TrendingUp size={20} /> },
+    { label: 'Scheduled Posts', value: '0', change: 'None', changeType: 'neutral', icon: <Calendar size={20} /> },
+    { label: 'Community Credits', value: '$0', change: '—', changeType: 'neutral', icon: <Gem size={20} /> },
+    { label: 'Portfolio Value', value: '$0', change: '—', changeType: 'neutral', icon: <DollarSign size={20} /> },
+    { label: 'Active Listings', value: '0', change: 'None', changeType: 'neutral', icon: <Tag size={20} /> },
   ]);
   const [recentActivity, setRecentActivity] = useState<Activity[]>([
-    { id: '1', type: 'system', message: 'Welcome to Social Exchange! Connect your feeds to get started.', time: 'Just now', icon: '👋' },
+    { id: '1', type: 'system', message: 'Welcome to Social Exchange! Connect your feeds to get started.', time: 'Just now', icon: <Hand size={16} /> },
   ]);
   const [marketTrending, setMarketTrending] = useState<MarketItem[]>([]);
   const [communityItems, setCommunityItems] = useState<CommunityItem[]>([]);
@@ -160,28 +180,28 @@ export default function CommandCenter() {
           value: totalFollowers > 0 ? formatFollowers(totalFollowers) : '—',
           change: totalFollowers > 0 ? `${allMarketListings.length} accounts` : 'Connect feeds',
           changeType: totalFollowers > 0 ? 'up' : 'neutral',
-          icon: '👥',
+          icon: <Users size={20} />,
         },
         {
           label: 'Engagement Rate',
           value: avgEngagement > 0 ? `${avgEngagement.toFixed(1)}%` : '—',
           change: avgEngagement > 0 ? `Avg across ${engagementRates.length} listings` : 'Connect feeds',
           changeType: avgEngagement >= 3 ? 'up' : avgEngagement > 0 ? 'neutral' : 'neutral',
-          icon: '📈',
+          icon: <TrendingUp size={20} />,
         },
         {
           label: 'Scheduled Posts',
           value: '0',
           change: 'Connect feeds',
           changeType: 'neutral',
-          icon: '📅',
+          icon: <Calendar size={20} />,
         },
         {
           label: 'Credits Balance',
           value: `$${creditsBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
           change: creditsBalance > 0 ? 'Available' : 'Deposit to start',
           changeType: creditsBalance > 0 ? 'up' : 'neutral',
-          icon: '💎',
+          icon: <Gem size={20} />,
         },
         {
           label: 'Portfolio Value',
@@ -190,14 +210,14 @@ export default function CommandCenter() {
             : '$0.00',
           change: holdings.length > 0 ? `${holdings.length} holdings` : 'No holdings yet',
           changeType: portfolioValue > 0 ? 'up' : 'neutral',
-          icon: '💰',
+          icon: <DollarSign size={20} />,
         },
         {
           label: 'Active Listings',
           value: activeListingsCount.toString(),
           change: activeListingsCount > 0 ? `${activeListingsCount} on market` : 'None',
           changeType: activeListingsCount > 0 ? 'up' : 'neutral',
-          icon: '🏷️',
+          icon: <Tag size={20} />,
         },
       ]);
 
@@ -255,29 +275,29 @@ export default function CommandCenter() {
       const walletTxns = wallet.transactions || [];
 
       // Combine and sort by timestamp descending
-      type ActivitySource = { ts: number; msg: string; type: Activity['type']; icon: string };
+      type ActivitySource = { ts: number; msg: string; type: Activity['type']; icon: ReactNode };
       const activitySources: ActivitySource[] = [];
 
       // E-Share transactions
       eShareTxns.forEach((t: any) => {
         const txType = t.type || '';
         let msg = '';
-        let icon = '💎';
+        let icon: ReactNode = <Gem size={16} />;
         if (txType === 'BUY' || txType === 'SUPPORT') {
           msg = `Purchased ${t.shares || t.credits || 0} credits in ${t.brandName || t.communityName || 'community'}`;
-          icon = '🛒';
+          icon = <ShoppingCart size={16} />;
         } else if (txType === 'SELL' || txType === 'TRANSFER') {
           msg = `Sold ${t.shares || t.credits || 0} credits in ${t.brandName || t.communityName || 'community'}`;
-          icon = '💸';
+          icon = <Banknote size={16} />;
         } else if (txType === 'DEPOSIT' || txType === 'SETUP') {
           msg = `Deposited $${(t.totalAmount || t.amount || 0).toFixed(2)} for ${t.brandName || t.communityName || 'community'}`;
-          icon = '🏦';
+          icon = <Landmark size={16} />;
         } else if (txType === 'MINT') {
           msg = `${t.shares || t.credits || 0} credits minted for ${t.brandName || t.communityName || 'community'}`;
-          icon = '✨';
+          icon = <Sparkles size={16} />;
         } else {
           msg = `${txType} transaction: ${t.brandName || t.communityName || ''}`;
-          icon = '📋';
+          icon = <ClipboardList size={16} />;
         }
         activitySources.push({ ts: t.timestamp, msg, type: 'transaction', icon });
       });
@@ -288,7 +308,7 @@ export default function CommandCenter() {
           ts: t.timestamp,
           msg: t.description || `Wallet ${t.type}: $${Math.abs(t.amount).toFixed(2)}`,
           type: 'transaction',
-          icon: t.type === 'deposit' ? '🏦' : t.type === 'buy' ? '🛒' : '💸',
+          icon: t.type === 'deposit' ? <Landmark size={16} /> : t.type === 'buy' ? <ShoppingCart size={16} /> : <Banknote size={16} />,
         });
       });
 
@@ -313,7 +333,7 @@ export default function CommandCenter() {
             type: 'system',
             message: 'Welcome to Social Exchange! Explore the marketplace to get started.',
             time: 'Just now',
-            icon: '👋',
+            icon: <Hand size={16} />,
           },
         ]);
       }
@@ -425,20 +445,20 @@ export default function CommandCenter() {
         </div>
         <div className="cc-quick-actions">
           <Link href="/cockpit/my-e-assets/my-feeds" className="cc-quick-action">
-            <span className="cc-qa-icon">📅</span>
+            <span className="cc-qa-icon"><Calendar size={20} /></span>
             <span className="cc-qa-label">Schedule Post</span>
           </Link>
           <Link href="/cockpit/my-e-assets/my-e-shares" className="cc-quick-action">
-            <span className="cc-qa-icon">💎</span>
+            <span className="cc-qa-icon"><Gem size={20} /></span>
             <span className="cc-qa-label">View Credits</span>
           </Link>
           <Link href="/cockpit/my-e-assets/market" className="cc-quick-action">
-            <span className="cc-qa-icon">🏪</span>
+            <span className="cc-qa-icon"><Store size={20} /></span>
             <span className="cc-qa-label">Marketplace</span>
           </Link>
           {permissions?.canAccessOwnerDashboard && (
             <Link href="/cockpit/owner" className="cc-quick-action owner">
-              <span className="cc-qa-icon">🔐</span>
+              <span className="cc-qa-icon"><Lock size={20} /></span>
               <span className="cc-qa-label">Owner Panel</span>
             </Link>
           )}
@@ -498,16 +518,16 @@ export default function CommandCenter() {
           <div className="cc-schedule-list">
             {upcomingPosts.length === 0 ? (
               <div className="cc-empty-state">
-                <span className="cc-empty-icon">📅</span>
+                <span className="cc-empty-icon"><Calendar size={24} /></span>
                 <span className="cc-empty-text">No posts scheduled</span>
               </div>
             ) : upcomingPosts.map((post) => (
               <div key={post.id} className="cc-schedule-item">
                 <div className="cc-schedule-platform">
-                  {post.platform === 'instagram' && '📸'}
-                  {post.platform === 'tiktok' && '🎵'}
+                  {post.platform === 'instagram' && <Camera size={16} />}
+                  {post.platform === 'tiktok' && <Music size={16} />}
                   {post.platform === 'twitter' && '𝕏'}
-                  {post.platform === 'youtube' && '▶️'}
+                  {post.platform === 'youtube' && '▶'}
                 </div>
                 <div className="cc-schedule-content">
                   <div className="cc-schedule-header">
@@ -536,7 +556,7 @@ export default function CommandCenter() {
           <div className="cc-market-list">
             {marketTrending.length === 0 ? (
               <div className="cc-empty-state">
-                <span className="cc-empty-icon">🏪</span>
+                <span className="cc-empty-icon"><Store size={24} /></span>
                 <span className="cc-empty-text">No market listings yet</span>
               </div>
             ) : marketTrending.map((item) => (
@@ -584,7 +604,7 @@ export default function CommandCenter() {
           <div className="cc-shares-communities">
             {communityItems.length === 0 ? (
               <div className="cc-empty-state">
-                <span className="cc-empty-icon">💎</span>
+                <span className="cc-empty-icon"><Gem size={24} /></span>
                 <span className="cc-empty-text">No communities listed yet</span>
               </div>
             ) : (
@@ -612,7 +632,7 @@ export default function CommandCenter() {
       {/* Navigation Cards */}
       <section className="cc-nav-cards">
         <Link href="/cockpit/my-e-assets/my-feeds" className="cc-nav-card feeds">
-          <div className="cc-nav-card-icon">📡</div>
+          <div className="cc-nav-card-icon"><Radio size={24} /></div>
           <div className="cc-nav-card-content">
             <h3 className="cc-nav-card-title">E-Feeds</h3>
             <p className="cc-nav-card-desc">Manage & automate your social media accounts</p>
@@ -621,7 +641,7 @@ export default function CommandCenter() {
         </Link>
 
         <Link href="/cockpit/my-e-assets/my-e-shares" className="cc-nav-card shares">
-          <div className="cc-nav-card-icon">💎</div>
+          <div className="cc-nav-card-icon"><Gem size={24} /></div>
           <div className="cc-nav-card-content">
             <h3 className="cc-nav-card-title">E-Shares</h3>
             <p className="cc-nav-card-desc">Community credits & creator support</p>
@@ -630,7 +650,7 @@ export default function CommandCenter() {
         </Link>
 
         <Link href="/cockpit/my-e-assets/market" className="cc-nav-card market">
-          <div className="cc-nav-card-icon">🏪</div>
+          <div className="cc-nav-card-icon"><Store size={24} /></div>
           <div className="cc-nav-card-content">
             <h3 className="cc-nav-card-title">Market</h3>
             <p className="cc-nav-card-desc">Buy & sell digital assets securely</p>
@@ -639,7 +659,7 @@ export default function CommandCenter() {
         </Link>
 
         <Link href="/cockpit/about" className="cc-nav-card about">
-          <div className="cc-nav-card-icon">📚</div>
+          <div className="cc-nav-card-icon"><BookOpen size={24} /></div>
           <div className="cc-nav-card-content">
             <h3 className="cc-nav-card-title">Resources</h3>
             <p className="cc-nav-card-desc">FAQ, guides, and documentation</p>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { FileText, FolderOpen, AlertTriangle } from 'lucide-react';
 import { useFeeds } from '../../context/FeedsContext';
 import { CSVImportResult } from '../../types/content';
 
@@ -105,7 +106,7 @@ export default function CSVImporter({
               {selectedFile ? (
                 <div className="csv-importer-selected">
                   <div className="csv-importer-file">
-                    <span className="csv-importer-file-icon">📄</span>
+                    <span className="csv-importer-file-icon"><FileText size={14} /></span>
                     <span className="csv-importer-file-name">
                       {selectedFile.name}
                     </span>
@@ -126,7 +127,7 @@ export default function CSVImporter({
                   className="csv-importer-dropzone"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <span className="csv-importer-dropzone-icon">📁</span>
+                  <span className="csv-importer-dropzone-icon"><FolderOpen size={20} /></span>
                   <span className="csv-importer-dropzone-text">
                     Click to select CSV file
                   </span>
@@ -138,7 +139,7 @@ export default function CSVImporter({
           {/* Error */}
           {error && (
             <div className="csv-importer-error">
-              <span className="csv-importer-error-icon">⚠</span>
+              <span className="csv-importer-error-icon"><AlertTriangle size={14} /></span>
               {error}
             </div>
           )}
@@ -148,7 +149,7 @@ export default function CSVImporter({
             <div className={`csv-importer-result ${result.success ? 'success' : 'partial'}`}>
               <div className="csv-importer-result-header">
                 <span className="csv-importer-result-icon">
-                  {result.success ? '✓' : '⚠'}
+                  {result.success ? '✓' : <AlertTriangle size={14} />}
                 </span>
                 <span className="csv-importer-result-title">
                   {result.success ? 'Import Complete' : 'Import Completed with Errors'}

@@ -2,6 +2,12 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Feed, PLATFORMS } from '../../types/feed';
+import {
+  PenTool, Hash, User, BarChart3, Lightbulb, CalendarDays, Bot, FileText,
+  MessageSquare, Target, Zap, Eye, Settings, Rocket, ClipboardList,
+  RefreshCw, CheckCircle, XCircle, AlertTriangle, TrendingUp, Pin,
+  Timer, Sparkles, Lock, Info
+} from 'lucide-react';
 
 // ============================================
 // TYPES
@@ -76,19 +82,19 @@ type TabType = 'chat' | 'generate' | 'actions' | 'insights' | 'competitors' | 'w
 // KNOWLEDGE BASE
 // ============================================
 
-const GENERATION_TYPES = [
-  { type: 'caption', label: 'Caption', icon: '✍️', description: 'Engaging post captions' },
-  { type: 'hashtags', label: 'Hashtags', icon: '#️⃣', description: 'Strategic hashtag sets' },
-  { type: 'bio', label: 'Bio', icon: '👤', description: 'Profile bio options' },
-  { type: 'strategy', label: 'Strategy', icon: '📊', description: 'Content strategy' },
-  { type: 'post-ideas', label: 'Post Ideas', icon: '💡', description: 'Content ideas for the week' },
+const GENERATION_TYPES: { type: string; label: string; icon: React.ReactNode; description: string }[] = [
+  { type: 'caption', label: 'Caption', icon: <PenTool size={16} />, description: 'Engaging post captions' },
+  { type: 'hashtags', label: 'Hashtags', icon: <Hash size={16} />, description: 'Strategic hashtag sets' },
+  { type: 'bio', label: 'Bio', icon: <User size={16} />, description: 'Profile bio options' },
+  { type: 'strategy', label: 'Strategy', icon: <BarChart3 size={16} />, description: 'Content strategy' },
+  { type: 'post-ideas', label: 'Post Ideas', icon: <Lightbulb size={16} />, description: 'Content ideas for the week' },
 ];
 
 const ACTION_CATEGORIES = [
   {
     id: 'scheduling',
     label: 'Scheduling',
-    icon: '📅',
+    icon: <CalendarDays size={16} />,
     actions: [
       { id: 'schedule-optimal', label: 'Schedule at Optimal Times', description: 'Auto-schedule posts for best engagement' },
       { id: 'fill-content-gap', label: 'Fill Content Gaps', description: 'Generate posts for empty days' },
@@ -98,7 +104,7 @@ const ACTION_CATEGORIES = [
   {
     id: 'automation',
     label: 'Automation',
-    icon: '🤖',
+    icon: <Bot size={16} />,
     actions: [
       { id: 'enable-autopilot', label: 'Enable Autopilot', description: 'Turn on automated posting' },
       { id: 'create-workflow', label: 'Create Workflow', description: 'Build an automation workflow' },
@@ -108,7 +114,7 @@ const ACTION_CATEGORIES = [
   {
     id: 'content',
     label: 'Content',
-    icon: '📝',
+    icon: <FileText size={16} />,
     actions: [
       { id: 'generate-week-content', label: 'Generate Week\'s Content', description: 'Create 7 days of posts' },
       { id: 'repurpose-top-posts', label: 'Repurpose Top Posts', description: 'Create variations of best content' },
@@ -118,7 +124,7 @@ const ACTION_CATEGORIES = [
   {
     id: 'engagement',
     label: 'Engagement',
-    icon: '💬',
+    icon: <MessageSquare size={16} />,
     actions: [
       { id: 'analyze-best-times', label: 'Find Best Times', description: 'Analyze optimal posting times' },
       { id: 'hashtag-research', label: 'Research Hashtags', description: 'Find trending hashtags' },
@@ -358,7 +364,7 @@ export const CopilotModal: React.FC<CopilotModalProps> = ({
     {
       id: '1',
       role: 'assistant',
-      content: `Hey! 👋 I'm your Social Exchange Copilot. I have access to ${allFeeds.length > 0 ? `your ${allFeeds.length} connected account${allFeeds.length > 1 ? 's' : ''}` : 'your accounts'} and can help you with:
+      content: `Hey! I'm your Social Exchange Copilot. I have access to ${allFeeds.length > 0 ? `your ${allFeeds.length} connected account${allFeeds.length > 1 ? 's' : ''}` : 'your accounts'} and can help you with:
 
 • **Content**: Write captions, find hashtags, generate ideas
 • **Strategy**: Analyze performance, plan growth
@@ -550,8 +556,8 @@ What would you like to work on today?`,
         id: Date.now().toString(),
         role: 'system',
         content: success
-          ? `✅ Action "${action.label}" completed successfully.`
-          : `❌ Action "${action.label}" could not be completed.`,
+          ? `Action "${action.label}" completed successfully.`
+          : `Action "${action.label}" could not be completed.`,
         timestamp: new Date()
       };
 
@@ -590,7 +596,7 @@ What would you like to work on today?`,
         <header className="copilot-modal-header">
           <div className="copilot-header-left">
             <div className="copilot-avatar">
-              <span className="copilot-avatar-icon">🧠</span>
+              <span className="copilot-avatar-icon">AI</span>
               <span className="copilot-avatar-pulse" />
             </div>
             <div className="copilot-header-info">
@@ -612,12 +618,12 @@ What would you like to work on today?`,
               className={`copilot-tab ${activeTab === tab ? 'active' : ''}`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === 'chat' && '💬'}
-              {tab === 'generate' && '⚡'}
-              {tab === 'actions' && '🎯'}
-              {tab === 'insights' && '📊'}
-              {tab === 'competitors' && '👁️'}
-              {tab === 'workflows' && '⚙️'}
+              {tab === 'chat' && <MessageSquare size={14} />}
+              {tab === 'generate' && <Zap size={14} />}
+              {tab === 'actions' && <Target size={14} />}
+              {tab === 'insights' && <BarChart3 size={14} />}
+              {tab === 'competitors' && <Eye size={14} />}
+              {tab === 'workflows' && <Settings size={14} />}
               <span>{tab.charAt(0).toUpperCase() + tab.slice(1)}</span>
             </button>
           ))}
@@ -632,7 +638,7 @@ What would you like to work on today?`,
                 {messages.map(message => (
                   <div key={message.id} className={`copilot-message ${message.role}`}>
                     {message.role === 'assistant' && (
-                      <div className="copilot-message-avatar">🧠</div>
+                      <div className="copilot-message-avatar">AI</div>
                     )}
                     <div className="copilot-message-content">
                       <div className="copilot-message-text">
@@ -665,7 +671,7 @@ What would you like to work on today?`,
                 ))}
                 {isGenerating && (
                   <div className="copilot-message assistant">
-                    <div className="copilot-message-avatar">🧠</div>
+                    <div className="copilot-message-avatar">AI</div>
                     <div className="copilot-message-content">
                       <div className="copilot-typing">
                         <span className="copilot-typing-dot" />
@@ -766,7 +772,7 @@ What would you like to work on today?`,
                     </>
                   ) : (
                     <>
-                      <span>⚡</span>
+                      <Zap size={14} />
                       Generate {GENERATION_TYPES.find(t => t.type === generationType)?.label}
                     </>
                   )}
@@ -778,7 +784,7 @@ What would you like to work on today?`,
                   <div className="generated-result-header">
                     <h4>Generated {GENERATION_TYPES.find(t => t.type === generatedContent.type)?.label}</h4>
                     <button className="copy-btn" onClick={() => copyToClipboard(generatedContent.content)}>
-                      📋 Copy
+                      <ClipboardList size={14} /> Copy
                     </button>
                   </div>
                   <div className="generated-result-content">
@@ -786,14 +792,14 @@ What would you like to work on today?`,
                   </div>
                   <div className="generated-result-actions">
                     <button className="regenerate-btn" onClick={handleGenerate}>
-                      🔄 Regenerate
+                      <RefreshCw size={14} /> Regenerate
                     </button>
                     <button className="use-btn" onClick={() => {
                       // Add to message as confirmation
                       const msg: Message = {
                         id: Date.now().toString(),
                         role: 'system',
-                        content: `✅ Generated ${generatedContent.type} copied and ready to use!`,
+                        content: `Generated ${generatedContent.type} copied and ready to use!`,
                         timestamp: new Date()
                       };
                       setMessages(prev => [...prev, msg]);
@@ -811,7 +817,7 @@ What would you like to work on today?`,
           {activeTab === 'actions' && (
             <div className="copilot-actions-view">
               <div className="actions-intro">
-                <h3>🎯 Quick Actions</h3>
+                <h3><Target size={18} /> Quick Actions</h3>
                 <p>Execute actions across your connected accounts with AI assistance.</p>
               </div>
 
@@ -859,7 +865,7 @@ What would you like to work on today?`,
           {activeTab === 'insights' && (
             <div className="copilot-insights-view">
               <div className="insights-header">
-                <h3>📊 Performance Insights</h3>
+                <h3><BarChart3 size={18} /> Performance Insights</h3>
                 <p>AI-generated analysis of your accounts</p>
               </div>
 
@@ -868,15 +874,15 @@ What would you like to work on today?`,
                   {insights.map((insight, i) => (
                     <div key={i} className={`insight-card ${insight.type}`}>
                       <div className="insight-icon">
-                        {insight.type === 'positive' && '✅'}
-                        {insight.type === 'negative' && '⚠️'}
-                        {insight.type === 'neutral' && 'ℹ️'}
+                        {insight.type === 'positive' && <CheckCircle size={16} />}
+                        {insight.type === 'negative' && <AlertTriangle size={16} />}
+                        {insight.type === 'neutral' && <Info size={16} />}
                       </div>
                       <div className="insight-content">
                         <span className="insight-metric">{insight.metric}</span>
                         <p className="insight-message">{insight.message}</p>
                         {insight.suggestion && (
-                          <p className="insight-suggestion">💡 {insight.suggestion}</p>
+                          <p className="insight-suggestion"><Lightbulb size={14} /> {insight.suggestion}</p>
                         )}
                       </div>
                     </div>
@@ -884,7 +890,7 @@ What would you like to work on today?`,
                 </div>
               ) : (
                 <div className="insights-empty">
-                  <span className="insights-empty-icon">📈</span>
+                  <span className="insights-empty-icon"><TrendingUp size={20} /></span>
                   <p>Connect accounts to see personalized insights</p>
                 </div>
               )}
@@ -926,7 +932,7 @@ What would you like to work on today?`,
           {activeTab === 'competitors' && (
             <div className="copilot-competitors-view">
               <div className="competitors-header">
-                <h3>👁️ Competitive Analysis</h3>
+                <h3><Eye size={18} /> Competitive Analysis</h3>
                 <p>AI-powered insights on similar accounts in your niche</p>
               </div>
 
@@ -1015,7 +1021,7 @@ What would you like to work on today?`,
 
                   {/* Competitive Tips */}
                   <div className="competitive-tips">
-                    <h4>💡 AI Recommendations</h4>
+                    <h4><Lightbulb size={16} /> AI Recommendations</h4>
                     <ul className="tips-list">
                       <li>Post more carousel content - competitors see 2x engagement with this format</li>
                       <li>Increase posting frequency by 2 posts/week to match niche average</li>
@@ -1026,7 +1032,7 @@ What would you like to work on today?`,
                 </>
               ) : (
                 <div className="competitors-empty">
-                  <span className="empty-icon">👁️</span>
+                  <span className="empty-icon"><Eye size={20} /></span>
                   <p>Select an account to see competitive analysis</p>
                 </div>
               )}
@@ -1037,7 +1043,7 @@ What would you like to work on today?`,
           {activeTab === 'workflows' && (
             <div className="copilot-workflows-view">
               <div className="workflows-header">
-                <h3>⚙️ Suggested Workflows</h3>
+                <h3><Settings size={18} /> Suggested Workflows</h3>
                 <p>AI-recommended automations based on your account activity</p>
               </div>
 
@@ -1055,11 +1061,11 @@ What would you like to work on today?`,
 
                     <div className="workflow-details">
                       <div className="workflow-detail">
-                        <span className="detail-icon">⏰</span>
+                        <span className="detail-icon"><Timer size={14} /></span>
                         <span className="detail-text">{workflow.trigger}</span>
                       </div>
                       <div className="workflow-detail">
-                        <span className="detail-icon">✨</span>
+                        <span className="detail-icon"><Sparkles size={14} /></span>
                         <span className="detail-text">{workflow.benefit}</span>
                       </div>
                     </div>
@@ -1074,21 +1080,21 @@ What would you like to work on today?`,
 
               {/* Quick Setup */}
               <div className="quick-setup">
-                <h4>⚡ Quick Setup</h4>
+                <h4><Zap size={16} /> Quick Setup</h4>
                 <p>Get started with one click - we'll configure everything for you</p>
                 <div className="quick-setup-options">
                   <button className="quick-setup-btn">
-                    <span className="setup-icon">🚀</span>
+                    <span className="setup-icon"><Rocket size={16} /></span>
                     <span className="setup-text">Auto-Post Daily</span>
                     <span className="setup-desc">Post from library at optimal times</span>
                   </button>
                   <button className="quick-setup-btn">
-                    <span className="setup-icon">🧠</span>
+                    <span className="setup-icon">AI</span>
                     <span className="setup-text">AI Content Helper</span>
                     <span className="setup-desc">Auto-generate captions & hashtags</span>
                   </button>
                   <button className="quick-setup-btn">
-                    <span className="setup-icon">📊</span>
+                    <span className="setup-icon"><BarChart3 size={16} /></span>
                     <span className="setup-text">Weekly Reports</span>
                     <span className="setup-desc">Get analytics delivered weekly</span>
                   </button>
@@ -1098,11 +1104,11 @@ What would you like to work on today?`,
               {/* Account-Specific Recommendations */}
               {primaryFeed && (
                 <div className="account-recommendations">
-                  <h4>📌 Recommended for @{primaryFeed.handle}</h4>
+                  <h4><Pin size={16} /> Recommended for @{primaryFeed.handle}</h4>
                   <div className="recommendation-cards">
                     {(primaryFeed.metrics.postsPerWeek || 0) < 4 && (
                       <div className="recommendation-card">
-                        <span className="rec-icon">📅</span>
+                        <span className="rec-icon"><CalendarDays size={16} /></span>
                         <div className="rec-content">
                           <span className="rec-title">Increase Posting Frequency</span>
                           <span className="rec-text">You're posting {primaryFeed.metrics.postsPerWeek || 0} times/week. Set up auto-posting to reach 5+/week.</span>
@@ -1112,7 +1118,7 @@ What would you like to work on today?`,
                     )}
                     {(primaryFeed.metrics.engagement || 0) < 3 && (
                       <div className="recommendation-card">
-                        <span className="rec-icon">💬</span>
+                        <span className="rec-icon"><MessageSquare size={16} /></span>
                         <div className="rec-content">
                           <span className="rec-title">Boost Engagement</span>
                           <span className="rec-text">Your {(primaryFeed.metrics.engagement || 0).toFixed(1)}% engagement can improve with AI-optimized captions.</span>
@@ -1121,7 +1127,7 @@ What would you like to work on today?`,
                       </div>
                     )}
                     <div className="recommendation-card">
-                      <span className="rec-icon">⏰</span>
+                      <span className="rec-icon"><Timer size={16} /></span>
                       <div className="rec-content">
                         <span className="rec-title">Optimal Timing</span>
                         <span className="rec-text">Let AI find and use your best posting times automatically.</span>
@@ -1139,7 +1145,7 @@ What would you like to work on today?`,
         {pendingAction && (
           <div className="copilot-confirm-overlay">
             <div className="copilot-confirm-dialog">
-              <div className="confirm-icon">⚡</div>
+              <div className="confirm-icon"><Zap size={20} /></div>
               <h4>Confirm Action</h4>
               <p>{pendingAction.action.confirmationMessage || `Execute "${pendingAction.action.label}"?`}</p>
               <div className="confirm-actions">
@@ -1202,7 +1208,7 @@ function generateLocalResponse(input: string, feeds: Feed[]): { content: string;
 
   if (lowerInput.includes('automat') || lowerInput.includes('autopilot')) {
     return {
-      content: `**Automation Options:**\n\n🤖 **Autopilot Mode** - Full automation\n🔒 **Escrow Mode** - Review before posting\n✋ **Manual Mode** - Complete control\n\nI can help you set up automation workflows that post content at optimal times while you focus on strategy.`,
+      content: `**Automation Options:**\n\n**Autopilot Mode** - Full automation\n**Escrow Mode** - Review before posting\n**Manual Mode** - Complete control\n\nI can help you set up automation workflows that post content at optimal times while you focus on strategy.`,
       actions: [
         { id: 'go-actions', label: 'Set Up Automation', type: 'navigate', payload: 'actions' }
       ]
@@ -1223,13 +1229,13 @@ function generateFallbackContent(type: string, topic: string, feed?: Feed): stri
 
   switch (type) {
     case 'caption':
-      return `✨ ${topic || 'New post'} loading...\n\nSometimes the best moments are the ones we least expect. This is one of them.\n\nDouble tap if you agree 👇\n\n#${topic?.replace(/\s+/g, '') || 'lifestyle'} #contentcreator #authentic #goodvibes`;
+      return `${topic || 'New post'} loading...\n\nSometimes the best moments are the ones we least expect. This is one of them.\n\nDouble tap if you agree\n\n#${topic?.replace(/\s+/g, '') || 'lifestyle'} #contentcreator #authentic #goodvibes`;
 
     case 'hashtags':
       return `**Hashtags for: ${topic || 'lifestyle'}**\n\n**High Volume:**\n#${topic?.replace(/\s+/g, '') || 'lifestyle'} #instagood #photooftheday #love #beautiful\n\n**Medium Volume:**\n#${topic?.replace(/\s+/g, '') || 'life'}style #dailyinspiration #contentcreator #creativecontent\n\n**Niche:**\n#${topic?.replace(/\s+/g, '') || 'authentic'}moments #reallife #${topic?.replace(/\s+/g, '') || 'genuine'}`;
 
     case 'bio':
-      return `**Option 1 - Professional:**\n${topic || 'Creator'} | Sharing stories & inspiration\n📍 Making magic happen\n🔗 Link below 👇\n\n**Option 2 - Personal:**\n${topic || 'Just'} living my best life ✨\nSharing the journey with you\nDM for collabs 💌\n\n**Option 3 - Minimal:**\n${topic || 'Creator'} 📸\n@${handle}`;
+      return `**Option 1 - Professional:**\n${topic || 'Creator'} | Sharing stories & inspiration\nMaking magic happen\nLink below\n\n**Option 2 - Personal:**\n${topic || 'Just'} living my best life\nSharing the journey with you\nDM for collabs\n\n**Option 3 - Minimal:**\n${topic || 'Creator'}\n@${handle}`;
 
     case 'strategy':
     case 'post-ideas':

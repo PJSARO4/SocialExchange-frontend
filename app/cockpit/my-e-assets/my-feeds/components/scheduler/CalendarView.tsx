@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, ReactNode } from 'react';
 import type { DragEvent } from 'react';
+import { Settings, Search, Upload, BarChart3, PlusCircle, Flame, Sparkles, Calendar, Smartphone } from 'lucide-react';
 import {
   CalendarView as ViewType,
   CalendarDay,
@@ -15,12 +16,12 @@ import { PLATFORMS } from '../../types/feed';
 import { WorkflowEvent } from '../../context/WorkflowEventsContext';
 
 // Workflow event icons
-const WORKFLOW_EVENT_ICONS: Record<WorkflowEvent['type'], string> = {
-  scheduled_run: '⚙️',
-  content_scrape: '🔍',
-  auto_post: '📤',
-  analytics_check: '📊',
-  content_added: '➕',
+const WORKFLOW_EVENT_ICONS: Record<WorkflowEvent['type'], ReactNode> = {
+  scheduled_run: <Settings size={12} />,
+  content_scrape: <Search size={12} />,
+  auto_post: <Upload size={12} />,
+  analytics_check: <BarChart3 size={12} />,
+  content_added: <PlusCircle size={12} />,
 };
 
 // Optimal posting times by day of week (based on typical engagement data)
@@ -282,7 +283,7 @@ function CalendarDayCell({
             className={`calendar-optimal-indicator ${optimalLevel}`}
             title={`Best times: ${optimalTimes.join(', ')}`}
           >
-            {optimalLevel === 'high' ? '🔥' : optimalLevel === 'medium' ? '✨' : ''}
+            {optimalLevel === 'high' ? <Flame size={12} /> : optimalLevel === 'medium' ? <Sparkles size={12} /> : ''}
           </span>
         )}
       </div>
@@ -304,7 +305,7 @@ function CalendarDayCell({
               })}`}
             >
               <span className="calendar-workflow-icon">
-                {WORKFLOW_EVENT_ICONS[event.type] || '⚙️'}
+                {WORKFLOW_EVENT_ICONS[event.type] || <Settings size={12} />}
               </span>
               <span className="calendar-workflow-name">
                 {event.workflowName.slice(0, 8)}
@@ -332,7 +333,7 @@ function CalendarDayCell({
               })} - ${post.caption?.slice(0, 30) || 'No caption'}`}
             >
               <span className="calendar-post-platform">
-                {PLATFORMS[post.platform]?.icon || '📱'}
+                {PLATFORMS[post.platform]?.icon || <Smartphone size={12} />}
               </span>
               <span className="calendar-post-time">
                 {new Date(post.scheduledFor).toLocaleTimeString([], {
@@ -354,7 +355,7 @@ function CalendarDayCell({
       {/* Drag & drop overlay */}
       {isDragOver && (
         <div className="calendar-day-drop-overlay">
-          <span>📅 Drop to schedule</span>
+          <span><Calendar size={14} /> Drop to schedule</span>
         </div>
       )}
     </div>

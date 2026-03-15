@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Lock } from 'lucide-react';
 import '../auth.css';
 
 export default function ForgotPasswordPage() {
@@ -31,7 +32,7 @@ export default function ForgotPasswordPage() {
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">
-            <span className="auth-logo-icon">🔐</span>
+            <span className="auth-logo-icon"><Lock size={24} /></span>
             <span className="auth-logo-text">SOCIAL EXCHANGE</span>
           </div>
           <h1 className="auth-title">Reset Password</h1>

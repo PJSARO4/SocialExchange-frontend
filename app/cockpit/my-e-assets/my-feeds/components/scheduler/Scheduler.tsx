@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import { Radio, Film, FileText } from 'lucide-react';
 import CalendarView from './CalendarView';
 import PostQueue from './PostQueue';
 import SchedulePostModal from './SchedulePostModal';
@@ -244,7 +245,7 @@ export default function Scheduler({ feedId }: SchedulerProps) {
       {feeds.length === 0 && (
         <div className="scheduler-empty-overlay">
           <div className="scheduler-empty">
-            <span className="scheduler-empty-icon">📡</span>
+            <span className="scheduler-empty-icon"><Radio size={20} /></span>
             <span className="scheduler-empty-title">NO ACCOUNTS</span>
             <span className="scheduler-empty-text">
               Connect a social account to start scheduling
@@ -323,7 +324,7 @@ function ContentPickerModal({
                     />
                   ) : (
                     <div className="content-picker-item-fallback">
-                      {item.type === 'video' ? '🎬' : '📝'}
+                      {item.type === 'video' ? <Film size={16} /> : <FileText size={16} />}
                     </div>
                   )}
                   <div className="content-picker-item-title">{item.title}</div>

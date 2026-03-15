@@ -49,10 +49,10 @@ export async function getNetworkInfo(): Promise<NetworkInfo> {
 // Get icon for connection type
 export function getConnectionIcon(connectionType: string): string {
   const icons: Record<string, string> = {
-    wifi: '📶',
-    cellular: '📱',
-    ethernet: '🔌',
-    unknown: '🌐',
+    wifi: 'wifi',
+    cellular: 'smartphone',
+    ethernet: 'plug',
+    unknown: 'globe',
   };
   return icons[connectionType?.toLowerCase()] || icons.unknown;
 }

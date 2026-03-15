@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Rocket, FolderOpen, Link2, Bot, FileText, PartyPopper, Sparkles, RefreshCw, Lightbulb, CheckCircle, AlertTriangle, Upload, BarChart3, Settings, PenTool, Calendar, Pencil, Smile, Pause } from 'lucide-react';
 import { Feed } from '../FeedsContext';
 
 interface AutopilotPanelProps {
@@ -201,13 +202,13 @@ export default function AutopilotPanel({
           {step === 'overview' && (
             <div className="autopilot-step overview-step">
               <div className="step-header">
-                <h3>🚀 Welcome to Autopilot</h3>
+                <h3><Rocket size={18} /> Welcome to Autopilot</h3>
                 <p>Set up automated posting and let your content work for you 24/7</p>
               </div>
 
               <div className="overview-cards">
                 <div className="overview-card" onClick={() => setStep('content')}>
-                  <div className="card-icon">📁</div>
+                  <div className="card-icon"><FolderOpen size={20} /></div>
                   <h4>Content Source</h4>
                   <p>Choose where your posts come from</p>
                   <span className="card-status">
@@ -217,14 +218,14 @@ export default function AutopilotPanel({
                 </div>
 
                 <div className="overview-card" onClick={() => setStep('captions')}>
-                  <div className="card-icon">✍️</div>
+                  <div className="card-icon"><PenTool size={16} /></div>
                   <h4>Caption AI</h4>
                   <p>Configure your caption style</p>
                   <span className="card-status">{config.captionTone} tone</span>
                 </div>
 
                 <div className="overview-card" onClick={() => setStep('schedule')}>
-                  <div className="card-icon">📅</div>
+                  <div className="card-icon"><Calendar size={16} /></div>
                   <h4>Schedule</h4>
                   <p>Set posting frequency & times</p>
                   <span className="card-status">{config.postsPerDay} posts/day</span>
@@ -248,7 +249,7 @@ export default function AutopilotPanel({
 
               <div className="overview-actions">
                 <button className="btn-secondary" onClick={onOpenContentLibrary}>
-                  📁 Open Content Library
+                  <FolderOpen size={16} /> Open Content Library
                 </button>
                 <button className="btn-primary" onClick={() => setStep('content')}>
                   Configure Autopilot →
@@ -261,7 +262,7 @@ export default function AutopilotPanel({
           {step === 'content' && (
             <div className="autopilot-step content-step">
               <div className="step-header">
-                <h3>📁 Content Source</h3>
+                <h3><FolderOpen size={18} /> Content Source</h3>
                 <p>Where should we pull your content from?</p>
               </div>
 
@@ -292,7 +293,7 @@ export default function AutopilotPanel({
                     onChange={() => saveConfig({ ...config, contentSource: 'folder' })}
                   />
                   <div className="option-content">
-                    <div className="option-icon">🔗</div>
+                    <div className="option-icon"><Link2 size={20} /></div>
                     <div className="option-details">
                       <h4>Synced Folder</h4>
                       <p>Connect Google Drive, Dropbox, or local folder</p>
@@ -309,7 +310,7 @@ export default function AutopilotPanel({
                     onChange={() => saveConfig({ ...config, contentSource: 'ai_generated' })}
                   />
                   <div className="option-content">
-                    <div className="option-icon">🤖</div>
+                    <div className="option-icon"><Bot size={20} /></div>
                     <div className="option-details">
                       <h4>AI Generated</h4>
                       <p>Let AI create images based on your brand</p>
@@ -364,7 +365,7 @@ export default function AutopilotPanel({
                   ← Back
                 </button>
                 <button className="btn-outline" onClick={onOpenContentLibrary}>
-                  📁 Manage Content
+                  <FolderOpen size={16} /> Manage Content
                 </button>
                 <button className="btn-primary" onClick={() => setStep('captions')}>
                   Continue →
@@ -377,7 +378,7 @@ export default function AutopilotPanel({
           {step === 'captions' && (
             <div className="autopilot-step captions-step">
               <div className="step-header">
-                <h3>✍️ Caption AI Settings</h3>
+                <h3><PenTool size={16} /> Caption AI Settings</h3>
                 <p>Configure how your captions are generated</p>
               </div>
 
@@ -388,19 +389,19 @@ export default function AutopilotPanel({
                     className={`mode-btn ${config.captionMode === 'ai_generate' ? 'active' : ''}`}
                     onClick={() => saveConfig({ ...config, captionMode: 'ai_generate' })}
                   >
-                    🤖 AI Generate
+                    <Bot size={16} /> AI Generate
                   </button>
                   <button
                     className={`mode-btn ${config.captionMode === 'templates' ? 'active' : ''}`}
                     onClick={() => saveConfig({ ...config, captionMode: 'templates' })}
                   >
-                    📝 Templates
+                    <FileText size={16} /> Templates
                   </button>
                   <button
                     className={`mode-btn ${config.captionMode === 'manual_queue' ? 'active' : ''}`}
                     onClick={() => saveConfig({ ...config, captionMode: 'manual_queue' })}
                   >
-                    ✏️ Manual Queue
+                    <Pencil size={14} /> Manual Queue
                   </button>
                 </div>
               </div>
@@ -417,9 +418,9 @@ export default function AutopilotPanel({
                           onClick={() => saveConfig({ ...config, captionTone: tone as any })}
                         >
                           {tone === 'professional' && '👔'}
-                          {tone === 'casual' && '😊'}
-                          {tone === 'playful' && '🎉'}
-                          {tone === 'inspirational' && '✨'}
+                          {tone === 'casual' && <Smile size={14} />}
+                          {tone === 'playful' && <PartyPopper size={16} />}
+                          {tone === 'inspirational' && <Sparkles size={16} />}
                           {tone === 'educational' && '📚'}
                           <span>{tone.charAt(0).toUpperCase() + tone.slice(1)}</span>
                         </button>
@@ -508,7 +509,7 @@ export default function AutopilotPanel({
                         onClick={generatePreviewCaption}
                         disabled={isGeneratingPreview}
                       >
-                        {isGeneratingPreview ? '⏳ Generating...' : '🔄 Generate Preview'}
+                        {isGeneratingPreview ? 'Generating...' : <><RefreshCw size={14} /> Generate Preview</>}
                       </button>
                     </div>
                     <div className="preview-content">
@@ -523,7 +524,7 @@ export default function AutopilotPanel({
                   ← Back
                 </button>
                 <button className="btn-outline" onClick={onOpenCopilot}>
-                  🤖 Open Copilot
+                  <Bot size={16} /> Open Copilot
                 </button>
                 <button className="btn-primary" onClick={() => setStep('schedule')}>
                   Continue →
@@ -536,7 +537,7 @@ export default function AutopilotPanel({
           {step === 'schedule' && (
             <div className="autopilot-step schedule-step">
               <div className="step-header">
-                <h3>📅 Posting Schedule</h3>
+                <h3><Calendar size={16} /> Posting Schedule</h3>
                 <p>Set when and how often to post</p>
               </div>
 
@@ -586,7 +587,7 @@ export default function AutopilotPanel({
                   ))}
                 </div>
                 <p className="optimal-times-hint">
-                  💡 Based on your audience, optimal times are: 9am, 12pm, 6pm
+                  <Lightbulb size={14} /> Based on your audience, optimal times are: 9am, 12pm, 6pm
                 </p>
               </div>
 
@@ -644,7 +645,7 @@ export default function AutopilotPanel({
                   ← Back
                 </button>
                 <button className="btn-outline" onClick={onOpenScheduler}>
-                  📅 Open Scheduler
+                  <Calendar size={14} /> Open Scheduler
                 </button>
                 <button className="btn-primary" onClick={() => setStep('review')}>
                   Continue →
@@ -657,13 +658,13 @@ export default function AutopilotPanel({
           {step === 'review' && (
             <div className="autopilot-step review-step">
               <div className="step-header">
-                <h3>✅ Review & Activate</h3>
+                <h3><CheckCircle size={18} /> Review & Activate</h3>
                 <p>Review your autopilot configuration before going live</p>
               </div>
 
               <div className="review-summary">
                 <div className="review-section">
-                  <h4>📁 Content</h4>
+                  <h4><FolderOpen size={16} /> Content</h4>
                   <ul>
                     <li>Source: <strong>{config.contentSource === 'library' ? 'Content Library' : config.contentSource}</strong></li>
                     <li>Shuffle: <strong>{config.shuffleContent ? 'Yes' : 'No'}</strong></li>
@@ -672,7 +673,7 @@ export default function AutopilotPanel({
                 </div>
 
                 <div className="review-section">
-                  <h4>✍️ Captions</h4>
+                  <h4><PenTool size={14} /> Captions</h4>
                   <ul>
                     <li>Mode: <strong>{config.captionMode}</strong></li>
                     <li>Tone: <strong>{config.captionTone}</strong></li>
@@ -682,7 +683,7 @@ export default function AutopilotPanel({
                 </div>
 
                 <div className="review-section">
-                  <h4>📅 Schedule</h4>
+                  <h4><Calendar size={14} /> Schedule</h4>
                   <ul>
                     <li>Frequency: <strong>{config.postsPerDay} posts/day</strong></li>
                     <li>Times: <strong>{config.postingTimes.join(', ')}</strong></li>
@@ -693,7 +694,7 @@ export default function AutopilotPanel({
               </div>
 
               <div className="activation-warning">
-                <span className="warning-icon">⚠️</span>
+                <span className="warning-icon"><AlertTriangle size={16} /></span>
                 <p>
                   Once activated, Autopilot will automatically post content based on your schedule.
                   You can pause or modify settings at any time.
@@ -705,7 +706,7 @@ export default function AutopilotPanel({
                   ← Back
                 </button>
                 <button className="btn-activate" onClick={activateAutopilot}>
-                  🚀 Activate Autopilot
+                  <Rocket size={16} /> Activate Autopilot
                 </button>
               </div>
             </div>
@@ -725,7 +726,7 @@ export default function AutopilotPanel({
 
               <div className="active-stats">
                 <div className="stat-card">
-                  <span className="stat-icon">📤</span>
+                  <span className="stat-icon"><Upload size={16} /></span>
                   <span className="stat-value">12</span>
                   <span className="stat-label">Posts This Week</span>
                 </div>
@@ -735,7 +736,7 @@ export default function AutopilotPanel({
                   <span className="stat-label">Until Next Post</span>
                 </div>
                 <div className="stat-card">
-                  <span className="stat-icon">📊</span>
+                  <span className="stat-icon"><BarChart3 size={16} /></span>
                   <span className="stat-value">4.2%</span>
                   <span className="stat-label">Avg Engagement</span>
                 </div>
@@ -770,10 +771,10 @@ export default function AutopilotPanel({
 
               <div className="active-actions">
                 <button className="btn-secondary" onClick={() => setStep('overview')}>
-                  ⚙️ Edit Settings
+                  <Settings size={16} /> Edit Settings
                 </button>
                 <button className="btn-danger" onClick={deactivateAutopilot}>
-                  ⏸️ Pause Autopilot
+                  <Pause size={14} /> Pause Autopilot
                 </button>
               </div>
             </div>
@@ -784,7 +785,7 @@ export default function AutopilotPanel({
         <div className="copilot-presence" onClick={onOpenCopilot}>
           <div className="presence-avatar">
             <div className="avatar-pulse" />
-            🤖
+            <Bot size={18} />
           </div>
           <div className="presence-text">
             <span className="presence-status">Copilot is here to help</span>

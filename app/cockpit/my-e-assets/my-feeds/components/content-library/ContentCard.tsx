@@ -1,5 +1,7 @@
 'use client';
 
+import { ReactNode } from 'react';
+import { Image, Film, Layers, FileText } from 'lucide-react';
 import { ContentItem } from '../../types/content';
 
 interface ContentCardProps {
@@ -15,12 +17,13 @@ export default function ContentCard({
   onSelect,
   onRemove,
 }: ContentCardProps) {
-  const typeIcon = {
-    image: '🖼',
-    video: '🎬',
-    carousel: '📑',
-    text: '📝',
-  }[item.type];
+  const typeIcon: Record<string, ReactNode> = {
+    image: <Image size={14} />,
+    video: <Film size={14} />,
+    carousel: <Layers size={14} />,
+    text: <FileText size={14} />,
+  };
+  const currentIcon = typeIcon[item.type];
 
   const statusClass = {
     draft: 'draft',
@@ -52,12 +55,12 @@ export default function ContentCard({
           />
         ) : (
           <span className="content-card-thumbnail-fallback">
-            {typeIcon}
+            {currentIcon}
           </span>
         )}
 
         {/* Type badge */}
-        <span className="content-card-type-badge">{typeIcon}</span>
+        <span className="content-card-type-badge">{currentIcon}</span>
 
         {/* Multi-media indicator */}
         {item.mediaUrls.length > 1 && (
