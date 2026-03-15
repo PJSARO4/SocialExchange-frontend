@@ -61,15 +61,19 @@ export default function ThemeToggle() {
           align-items: center;
           justify-content: center;
           font-size: 0.65rem;
-          transition: transform 0.3s ease;
+          transition: transform 0.3s ease, background 0.3s ease;
         }
 
         .theme-toggle-thumb.dark {
           transform: translateX(0);
+          background: rgba(0, 255, 200, 0.25);
+          color: #00ffc8;
         }
 
         .theme-toggle-thumb.light {
           transform: translateX(20px);
+          background: rgba(245, 158, 11, 0.25);
+          color: #f59e0b;
         }
 
         .theme-toggle:hover .theme-toggle-track {

@@ -312,17 +312,18 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
         /* Panel */
         .ac-panel {
           position: absolute;
-          left: 56px;
+          left: 48px;
           bottom: 0;
           width: 0;
           opacity: 0;
           overflow: hidden;
           transition: all 0.3s ease;
           pointer-events: none;
+          padding-left: 8px;
         }
 
         .ac-expanded .ac-panel {
-          width: 260px;
+          width: 268px;
           opacity: 1;
           pointer-events: auto;
         }
