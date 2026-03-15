@@ -218,3 +218,74 @@
   border-radius: 50%;
   background: rgba(120,220,255,0.6);
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .system-surface {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(200, 210, 230, 0.35),
+      rgba(248, 250, 252, 0.95) 70%
+    );
+}
+
+[data-theme="light"] .space-layer.far {
+  background-image:
+    radial-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+}
+
+[data-theme="light"] .space-layer.mid {
+  background-image:
+    radial-gradient(rgba(100, 130, 160, 0.25) 1px, transparent 1px);
+}
+
+[data-theme="light"] .space-layer.near {
+  background-image:
+    radial-gradient(rgba(0, 0, 0, 0.2) 1.5px, transparent 1.5px);
+}
+
+[data-theme="light"] .solar-horizon {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(245, 158, 11, 0.2),
+      rgba(245, 158, 11, 0.06),
+      transparent 70%
+    );
+}
+
+[data-theme="light"] .solar-flare {
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(245, 158, 11, 0.25),
+      rgba(245, 158, 11, 0.08),
+      transparent 70%
+    );
+}
+
+[data-theme="light"] .cockpit-frame {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(5, 150, 105, 0.2),
+    transparent
+  );
+}
+
+[data-theme="light"] .reticle {
+  border: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .reticle span {
+  background: rgba(5, 150, 105, 0.4);
+}
+
+[data-theme="light"] .telemetry .tick {
+  background: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .telemetry .dot {
+  background: rgba(5, 150, 105, 0.4);
+}

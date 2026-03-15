@@ -202,6 +202,27 @@ const PullContentConfig: React.FC<{
       </select>
     </div>
 
+    {/* Media Source Pool — which storage systems to search */}
+    <div className="config-field">
+      <label>Search In</label>
+      <select
+        value={(data as any).contentSource || 'all'}
+        onChange={e => onChange('contentSource', e.target.value)}
+      >
+        <option value="all">All Sources (Library + E-Storage)</option>
+        <option value="content-library">Content Library Only</option>
+        <option value="e-storage">E-Storage Only</option>
+      </select>
+      <span style={{
+        display: 'block',
+        fontSize: '0.7rem',
+        color: '#6b7280',
+        marginTop: '0.25rem',
+      }}>
+        Searches across your uploaded media in both systems
+      </span>
+    </div>
+
     {data.source === 'rss' && (
       <div className="config-field">
         <label>RSS URL</label>

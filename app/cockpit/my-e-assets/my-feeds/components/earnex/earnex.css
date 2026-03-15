@@ -1403,3 +1403,184 @@
   font-size: 0.875rem;
   max-width: 400px;
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+/* earnex.css uses CSS custom properties from my-feeds.css which are
+   already overridden. Only hardcoded colors need light mode overrides. */
+
+[data-theme="light"] .earnex-nav-card {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .earnex-nav-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .earnex-recent {
+  background: #ffffff;
+}
+
+[data-theme="light"] .recent-item {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .earnings-card {
+  background: #ffffff;
+}
+
+[data-theme="light"] .earnings-history {
+  background: #ffffff;
+}
+
+[data-theme="light"] .table-header {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .table-row {
+  border-bottom-color: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .campaign-card {
+  background: #ffffff;
+}
+
+[data-theme="light"] .analytics-card {
+  background: #ffffff;
+}
+
+[data-theme="light"] .analytics-value {
+  color: #059669;
+}
+
+[data-theme="light"] .member-card {
+  background: #ffffff;
+}
+
+[data-theme="light"] .apply-info,
+[data-theme="light"] .apply-requirements {
+  background: #ffffff;
+}
+
+[data-theme="light"] .requirement-check.passed {
+  background: rgba(5, 150, 105, 0.06);
+}
+
+[data-theme="light"] .requirement-check.failed {
+  background: rgba(220, 38, 38, 0.06);
+}
+
+[data-theme="light"] .requirement-check.passed .check-icon { color: #059669; }
+[data-theme="light"] .requirement-check.failed .check-icon { color: #dc2626; }
+
+[data-theme="light"] .create-btn {
+  background: #059669;
+  color: #ffffff;
+}
+
+[data-theme="light"] .create-btn:hover {
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .apply-btn {
+  background: #059669;
+  color: #ffffff;
+}
+
+[data-theme="light"] .apply-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .apply-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+}
+
+[data-theme="light"] .cashout-btn {
+  background: #059669;
+  color: #ffffff;
+}
+
+[data-theme="light"] .cashout-btn:hover {
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .quick-action-btn.primary {
+  background: #059669;
+  color: #ffffff;
+}
+
+[data-theme="light"] .quick-action-btn.primary:hover {
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .quick-action-btn.secondary {
+  background: #ffffff;
+}
+
+[data-theme="light"] .publish-btn,
+[data-theme="light"] .submit-btn {
+  background: #059669;
+  color: #ffffff;
+}
+
+[data-theme="light"] .creator-handle {
+  color: #059669;
+}
+
+[data-theme="light"] .empty-state {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .search-box {
+  background: #ffffff;
+}
+
+[data-theme="light"] .search-box input {
+  color: #111827;
+}
+
+[data-theme="light"] .filter-select {
+  background: #ffffff;
+  color: #111827;
+}
+
+[data-theme="light"] .form-group input,
+[data-theme="light"] .form-group textarea,
+[data-theme="light"] .form-group select {
+  background: #ffffff;
+  color: #111827;
+}
+
+[data-theme="light"] .form-group input:focus,
+[data-theme="light"] .form-group textarea:focus,
+[data-theme="light"] .form-group select:focus {
+  border-color: #059669;
+}
+
+[data-theme="light"] .platform-checkbox:has(input:checked) {
+  border-color: #059669;
+  background: rgba(5, 150, 105, 0.04);
+}
+
+[data-theme="light"] .requirement-row select,
+[data-theme="light"] .requirement-row input {
+  background: #ffffff;
+  color: #111827;
+}
+
+[data-theme="light"] .add-req-btn {
+  background: #ffffff;
+  color: #059669;
+}
+
+[data-theme="light"] .edit-btn {
+  background: #ffffff;
+}
+
+[data-theme="light"] .pause-btn {
+  background: #059669;
+  color: #ffffff;
+}

@@ -28,6 +28,21 @@ export interface DirectThread extends Thread {
   participants: DirectParticipant[];
 }
 
+// Reaction on a message
+export interface Reaction {
+  emoji: string;
+  userIds: string[];
+}
+
+// Attachment on a message
+export interface Attachment {
+  id: string;
+  type: 'image' | 'link';
+  url: string;
+  name?: string;
+  previewUrl?: string;
+}
+
 export interface Message {
   id: string;
   threadId: string;
@@ -35,4 +50,12 @@ export interface Message {
   authorName: string;
   content: string;
   timestamp: number;
+  // New fields
+  reactions?: Reaction[];
+  isPinned?: boolean;
+  isEdited?: boolean;
+  isDeleted?: boolean;
+  attachments?: Attachment[];
+  readBy?: string[];
+  mentions?: string[]; // userIds mentioned with @
 }

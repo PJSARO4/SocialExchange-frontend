@@ -184,3 +184,71 @@
   transform: translateY(0);
   opacity: 0.85;
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] .ownership-page {
+  color: #111827;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(219, 234, 254, 0.35),
+    rgba(248, 250, 252, 1) 70%
+  );
+}
+
+[data-theme="light"] .ownership-header p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .feed-ownership-card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(248, 250, 252, 0.95)
+  );
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.02),
+    0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .feed-ownership-card:hover {
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.03),
+    0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .feed-platform {
+  color: #3b82f6;
+}
+
+[data-theme="light"] .feed-status {
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
+}
+
+[data-theme="light"] .feed-handle {
+  color: #111827;
+}
+
+[data-theme="light"] .feed-metric-label {
+  color: #6b7280;
+}
+
+[data-theme="light"] .feed-metric-value {
+  color: #111827;
+}
+
+[data-theme="light"] .feed-ownership-actions button {
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.9),
+    rgba(37, 99, 235, 0.9)
+  );
+  color: #ffffff;
+}
+
+[data-theme="light"] .feed-ownership-actions button:hover {
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}

@@ -131,3 +131,63 @@
   border-color: rgba(255, 0, 110, 0.45);
   box-shadow: 0 0 16px rgba(255, 0, 110, 0.12);
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .status {
+  color: #059669;
+}
+
+[data-theme="light"] .feed-panel {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .feed-panel h3 {
+  color: #6b7280;
+}
+
+[data-theme="light"] .feed-panel p {
+  color: #111827;
+}
+
+[data-theme="light"] .price {
+  color: #059669;
+}
+
+[data-theme="light"] .buy-button {
+  border-color: #059669;
+  color: #059669;
+}
+
+[data-theme="light"] .buy-button:hover {
+  background: rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .back-link {
+  color: #6b7280;
+}
+
+[data-theme="light"] .confirm-btn {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .confirm-btn:hover {
+  background: rgba(5, 150, 105, 0.15);
+  border-color: rgba(5, 150, 105, 0.5);
+  box-shadow: 0 0 16px rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .abort-btn {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.25);
+  color: #dc2626;
+}
+
+[data-theme="light"] .abort-btn:hover {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.4);
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.08);
+}

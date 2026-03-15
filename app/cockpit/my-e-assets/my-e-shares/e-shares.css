@@ -1453,3 +1453,481 @@
     font-size: 1.25rem;
   }
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+/* --- Header --- */
+[data-theme="light"] .e-shares-header {
+  border-bottom-color: rgba(5, 150, 105, 0.12);
+}
+
+[data-theme="light"] .e-shares-title {
+  color: #111827;
+  text-shadow: none;
+}
+
+[data-theme="light"] .e-shares-subtitle {
+  color: #6b7280;
+}
+
+/* --- Tab Navigation --- */
+[data-theme="light"] .e-shares-tabs {
+  border-bottom-color: rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .e-shares-tab {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .e-shares-tab:hover {
+  color: #374151;
+}
+
+[data-theme="light"] .e-shares-tab.active {
+  color: #059669;
+}
+
+[data-theme="light"] .e-shares-tab.active::after {
+  background: #059669;
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.3);
+}
+
+/* --- Market Stats Bar --- */
+[data-theme="light"] .market-stats-bar {
+  background: rgba(5, 150, 105, 0.03);
+  border-color: rgba(5, 150, 105, 0.1);
+  animation: none;
+}
+
+[data-theme="light"] .market-stat-value {
+  color: #059669;
+  text-shadow: none;
+}
+
+[data-theme="light"] .market-stat-label {
+  color: #9ca3af;
+}
+
+/* --- Brand Cards --- */
+[data-theme="light"] .brand-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .brand-card::before {
+  background: linear-gradient(
+    105deg,
+    transparent 20%,
+    rgba(5, 150, 105, 0.03) 35%,
+    rgba(99, 102, 241, 0.02) 50%,
+    rgba(5, 150, 105, 0.02) 65%,
+    transparent 80%
+  );
+}
+
+[data-theme="light"] .brand-card:hover {
+  border-color: rgba(5, 150, 105, 0.25);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 0 20px rgba(5, 150, 105, 0.05);
+}
+
+[data-theme="light"] .brand-avatar {
+  background: linear-gradient(135deg, #059669, #6366f1);
+  box-shadow: 0 0 15px rgba(5, 150, 105, 0.2);
+  color: #ffffff;
+}
+
+[data-theme="light"] .brand-info h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .brand-handle {
+  color: #9ca3af;
+}
+
+/* --- Brand Status Badges --- */
+[data-theme="light"] .brand-status {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .brand-status.public {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .brand-status.trading {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+/* --- Brand Description --- */
+[data-theme="light"] .brand-description {
+  color: #6b7280;
+}
+
+/* --- Brand Metrics --- */
+[data-theme="light"] .brand-metrics {
+  border-top-color: rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .brand-metric-value {
+  color: #111827;
+}
+
+[data-theme="light"] .brand-metric-value.up {
+  color: #059669;
+}
+
+[data-theme="light"] .brand-metric-value.down {
+  color: #dc2626;
+}
+
+[data-theme="light"] .brand-metric-label {
+  color: #9ca3af;
+}
+
+/* --- Brand Price --- */
+[data-theme="light"] .brand-price {
+  color: #111827;
+}
+
+[data-theme="light"] .brand-price-change.up,
+[data-theme="light"] .brand-price-change.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .brand-price-change.down,
+[data-theme="light"] .brand-price-change.negative {
+  color: #dc2626;
+}
+
+/* --- Brand Action Buttons --- */
+[data-theme="light"] .brand-action-btn {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.15);
+  color: #059669;
+}
+
+[data-theme="light"] .brand-action-btn:hover {
+  background: rgba(5, 150, 105, 0.12);
+  box-shadow: 0 0 16px rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .brand-action-btn.buy {
+  color: #059669;
+  border-color: rgba(5, 150, 105, 0.2);
+  background: rgba(5, 150, 105, 0.06);
+}
+
+[data-theme="light"] .brand-action-btn.buy:hover {
+  background: rgba(5, 150, 105, 0.12);
+  box-shadow: 0 0 16px rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .brand-action-btn.sell {
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.2);
+  background: rgba(220, 38, 38, 0.06);
+}
+
+[data-theme="light"] .brand-action-btn.sell:hover {
+  background: rgba(220, 38, 38, 0.12);
+  box-shadow: 0 0 16px rgba(220, 38, 38, 0.15);
+}
+
+/* --- Portfolio View --- */
+[data-theme="light"] .portfolio-stat-card {
+  background: #ffffff;
+  border-color: rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .portfolio-stat-card:hover {
+  border-color: rgba(5, 150, 105, 0.18);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .portfolio-stat-label {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .portfolio-stat-value {
+  color: #111827;
+}
+
+[data-theme="light"] .portfolio-stat-value.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .portfolio-stat-value.negative {
+  color: #dc2626;
+}
+
+[data-theme="light"] .portfolio-stat-change.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .portfolio-stat-change.negative {
+  color: #dc2626;
+}
+
+/* --- Holdings Table --- */
+[data-theme="light"] .holdings-table th {
+  color: #9ca3af;
+  border-bottom-color: rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .holdings-table td {
+  border-bottom-color: rgba(5, 150, 105, 0.06);
+  color: #374151;
+}
+
+[data-theme="light"] .holdings-table tr:hover td {
+  background: rgba(5, 150, 105, 0.03);
+}
+
+[data-theme="light"] .holding-brand-avatar {
+  background: linear-gradient(135deg, #059669, #6366f1);
+  box-shadow: 0 0 10px rgba(5, 150, 105, 0.15);
+  color: #ffffff;
+}
+
+[data-theme="light"] .holding-brand-name {
+  color: #111827;
+}
+
+[data-theme="light"] .holding-shares {
+  color: #6b7280;
+}
+
+[data-theme="light"] .holding-value {
+  color: #059669;
+}
+
+[data-theme="light"] .holding-gain.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .holding-gain.negative {
+  color: #dc2626;
+}
+
+[data-theme="light"] .holding-action-btn.buy {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.2);
+  color: #059669;
+}
+
+[data-theme="light"] .holding-action-btn.buy:hover {
+  background: rgba(5, 150, 105, 0.12);
+  box-shadow: 0 0 12px rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .holding-action-btn.sell {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+}
+
+[data-theme="light"] .holding-action-btn.sell:hover {
+  background: rgba(220, 38, 38, 0.12);
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.1);
+}
+
+/* --- Empty State --- */
+[data-theme="light"] .e-shares-empty {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .e-shares-empty-title {
+  color: #374151;
+}
+
+[data-theme="light"] .e-shares-empty-text {
+  color: #9ca3af;
+}
+
+/* --- Buttons --- */
+[data-theme="light"] .e-shares-btn.primary {
+  background: linear-gradient(135deg, #059669 0%, #6366f1 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .e-shares-btn.primary:hover {
+  box-shadow:
+    0 4px 20px rgba(5, 150, 105, 0.25),
+    0 0 30px rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .e-shares-btn.secondary {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.15);
+  color: #374151;
+}
+
+[data-theme="light"] .e-shares-btn.secondary:hover {
+  background: rgba(5, 150, 105, 0.1);
+  border-color: rgba(5, 150, 105, 0.25);
+  color: #111827;
+}
+
+/* --- Transaction History --- */
+[data-theme="light"] .transaction-item {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .transaction-item:hover {
+  background: rgba(5, 150, 105, 0.03);
+  border-color: rgba(5, 150, 105, 0.12);
+}
+
+[data-theme="light"] .transaction-icon.buy {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.15);
+  color: #059669;
+}
+
+[data-theme="light"] .transaction-icon.sell {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+}
+
+[data-theme="light"] .transaction-details h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .transaction-details p {
+  color: #d1d5db;
+}
+
+[data-theme="light"] .transaction-amount-value.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .transaction-amount-value.negative {
+  color: #dc2626;
+}
+
+[data-theme="light"] .transaction-amount-shares {
+  color: #d1d5db;
+}
+
+/* --- Modal --- */
+[data-theme="light"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .modal-content {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .modal-content h2 {
+  color: #111827;
+  text-shadow: none;
+}
+
+[data-theme="light"] .modal-price-info span:first-child,
+[data-theme="light"] .modal-available span:first-child {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .modal-price-info span:last-child,
+[data-theme="light"] .modal-available span:last-child {
+  color: #059669;
+}
+
+[data-theme="light"] .modal-price-info,
+[data-theme="light"] .modal-available {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .modal-input-group label {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .modal-input-group input {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .modal-input-group input:focus {
+  border-color: rgba(5, 150, 105, 0.5);
+  box-shadow: 0 0 12px rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .modal-input-group input::placeholder {
+  color: #d1d5db;
+}
+
+[data-theme="light"] .max-btn {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.2);
+  color: #059669;
+}
+
+[data-theme="light"] .max-btn:hover {
+  background: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .modal-summary {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .summary-row {
+  color: #6b7280;
+}
+
+[data-theme="light"] .summary-row span:last-child {
+  color: #374151;
+}
+
+[data-theme="light"] .summary-row.total {
+  border-top-color: rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .summary-row.total span:first-child {
+  color: #374151;
+}
+
+[data-theme="light"] .summary-row.total span:last-child {
+  color: #059669;
+  text-shadow: none;
+}
+
+[data-theme="light"] .modal-message.success {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.2);
+  color: #059669;
+}
+
+[data-theme="light"] .modal-message.error {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+}
+
+/* --- Wallet --- */
+[data-theme="light"] .wallet-card {
+  background: #ffffff;
+  border-color: rgba(5, 150, 105, 0.12);
+}
+
+[data-theme="light"] .wallet-balance {
+  color: #059669;
+  text-shadow: none;
+}
+
+[data-theme="light"] .wallet-label {
+  color: #9ca3af;
+}

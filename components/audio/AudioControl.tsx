@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { getAmbientAudio, CHANNEL_INFO, type AmbientChannel } from '@/lib/audio/AmbientAudioEngine';
+import {
+  getAmbientAudio,
+  AMBIENT_TRACKS,
+  type AmbientTrack,
+} from '@/lib/audio/AmbientAudioEngine';
 
 interface AudioControlProps {
   className?: string;
@@ -13,21 +17,44 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [audioLevels, setAudioLevels] = useState([0.3, 0.5, 0.4, 0.6, 0.3]);
-  const [currentChannel, setCurrentChannel] = useState<AmbientChannel>('deep-space');
-  const [showChannelPicker, setShowChannelPicker] = useState(false);
-  const animationRef = useRef<NodeJS.Timeout | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<AmbientTrack>(AMBIENT_TRACKS[0]);
+  const [shuffleEnabled, setShuffleEnabled] = useState(false);
+  const [showTrackList, setShowTrackList] = useState(false);
+  const animationRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     setMounted(true);
     const audio = getAmbientAudio();
     setIsPlaying(audio.getIsPlaying());
     setVolume(audio.getVolume() || 0.3);
-    setCurrentChannel(audio.getChannel());
+    setCurrentTrack(audio.getCurrentTrack());
+    setShuffleEnabled(audio.getShuffleEnabled());
+
+    // Listen for track changes
+    const handleTrackChange = (track: AmbientTrack) => {
+      setCurrentTrack(track);
+    };
+    const handlePlayState = (playing: boolean) => {
+      setIsPlaying(playing);
+    };
+    const handleShuffle = (enabled: boolean) => {
+      setShuffleEnabled(enabled);
+    };
+
+    audio.on('trackChange', handleTrackChange);
+    audio.on('playStateChange', handlePlayState);
+    audio.on('shuffleChange', handleShuffle);
+
+    return () => {
+      audio.off('trackChange', handleTrackChange);
+      audio.off('playStateChange', handlePlayState);
+      audio.off('shuffleChange', handleShuffle);
+    };
   }, []);
 
   // Animate audio levels when playing
   useEffect(() => {
-    if (isPlaying && currentChannel !== 'silence') {
+    if (isPlaying) {
       animationRef.current = setInterval(() => {
         setAudioLevels(prev => prev.map(() => 0.2 + Math.random() * 0.6));
       }, 150);
@@ -40,110 +67,138 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
     return () => {
       if (animationRef.current) clearInterval(animationRef.current);
     };
-  }, [isPlaying, currentChannel]);
+  }, [isPlaying]);
 
   const toggleAudio = useCallback(async () => {
     const audio = getAmbientAudio();
     if (isPlaying) {
       audio.pause();
-      setIsPlaying(false);
     } else {
       await audio.start('cockpit');
-      setIsPlaying(true);
     }
   }, [isPlaying]);
 
   const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
-    const audio = getAmbientAudio();
-    audio.setVolume(newVolume);
+    getAmbientAudio().setVolume(newVolume);
   }, []);
 
-  const handleChannelChange = useCallback(async (channel: AmbientChannel) => {
-    const audio = getAmbientAudio();
-    await audio.setChannel(channel);
-    setCurrentChannel(channel);
-    setShowChannelPicker(false);
+  const handleNext = useCallback(async () => {
+    await getAmbientAudio().nextTrack();
+  }, []);
+
+  const handlePrev = useCallback(async () => {
+    await getAmbientAudio().prevTrack();
+  }, []);
+
+  const handleShuffle = useCallback(() => {
+    getAmbientAudio().toggleShuffle();
+  }, []);
+
+  const handleTrackSelect = useCallback(async (trackId: string) => {
+    await getAmbientAudio().playTrack(trackId);
+    setShowTrackList(false);
   }, []);
 
   if (!mounted) return null;
 
-  const channelInfo = CHANNEL_INFO[currentChannel];
-
   return (
     <div
-      className={`audio-control-widget ${isExpanded ? 'expanded' : ''} ${isPlaying ? 'playing' : ''} ${className}`}
+      className={`ac-widget ${isExpanded ? 'ac-expanded' : ''} ${isPlaying ? 'ac-playing' : ''} ${className}`}
       onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => { setIsExpanded(false); setShowChannelPicker(false); }}
+      onMouseLeave={() => { setIsExpanded(false); setShowTrackList(false); }}
     >
-      {/* Main Control */}
+      {/* Main Button */}
       <button
         onClick={toggleAudio}
-        className="audio-control-button"
-        aria-label={isPlaying ? 'Mute ambient audio' : 'Play ambient audio'}
+        className="ac-btn"
+        aria-label={isPlaying ? 'Pause ambient audio' : 'Play ambient audio'}
       >
-        {/* Sound Bars Visualization */}
-        <div className="audio-bars">
+        <div className="ac-bars">
           {audioLevels.map((level, i) => (
             <div
               key={i}
-              className="audio-bar"
+              className="ac-bar"
               style={{ height: `${level * 100}%` }}
             />
           ))}
         </div>
-
-        {/* Pulse Ring */}
-        {isPlaying && currentChannel !== 'silence' && <div className="pulse-ring" />}
+        {isPlaying && <div className="ac-pulse" />}
       </button>
 
       {/* Expanded Panel */}
-      <div className="audio-panel">
-        <div className="audio-panel-content">
+      <div className="ac-panel">
+        <div className="ac-panel-inner">
           {/* Status */}
-          <div className="audio-status">
-            <span className="status-indicator" />
-            <span className="status-text">
-              {isPlaying ? 'AMBIENT ACTIVE' : 'AUDIO OFF'}
+          <div className="ac-status">
+            <span className="ac-status-dot" />
+            <span className="ac-status-text">
+              {isPlaying ? 'PLAYING' : 'PAUSED'}
             </span>
           </div>
 
-          {/* Current Channel Display */}
+          {/* Current Track Display */}
           <button
-            className="channel-selector"
-            onClick={() => setShowChannelPicker(!showChannelPicker)}
+            className="ac-track-display"
+            onClick={() => setShowTrackList(!showTrackList)}
           >
-            <span className="channel-icon">{channelInfo.icon}</span>
-            <div className="channel-info">
-              <span className="channel-name">{channelInfo.name}</span>
-              <span className="channel-desc">{channelInfo.description}</span>
+            <span className="ac-track-icon">{currentTrack.icon}</span>
+            <div className="ac-track-info">
+              <span className="ac-track-name">{currentTrack.name}</span>
+              <span className="ac-track-desc">{currentTrack.description}</span>
             </div>
-            <span className="channel-arrow">{showChannelPicker ? '▲' : '▼'}</span>
+            <span className="ac-track-arrow">{showTrackList ? '▲' : '▼'}</span>
           </button>
 
-          {/* Channel Picker */}
-          {showChannelPicker && (
-            <div className="channel-picker">
-              {Object.entries(CHANNEL_INFO).map(([key, info]) => (
+          {/* Track List */}
+          {showTrackList && (
+            <div className="ac-tracklist">
+              {AMBIENT_TRACKS.map((track) => (
                 <button
-                  key={key}
-                  className={`channel-option ${currentChannel === key ? 'active' : ''}`}
-                  onClick={() => handleChannelChange(key as AmbientChannel)}
+                  key={track.id}
+                  className={`ac-tracklist-item ${currentTrack.id === track.id ? 'active' : ''}`}
+                  onClick={() => handleTrackSelect(track.id)}
                 >
-                  <span className="option-icon">{info.icon}</span>
-                  <div className="option-info">
-                    <span className="option-name">{info.name}</span>
-                    <span className="option-desc">{info.description}</span>
+                  <span className="ac-tl-icon">{track.icon}</span>
+                  <div className="ac-tl-info">
+                    <span className="ac-tl-name">{track.name}</span>
+                    <span className="ac-tl-desc">{track.description}</span>
                   </div>
+                  {currentTrack.id === track.id && isPlaying && (
+                    <span className="ac-tl-playing">♪</span>
+                  )}
                 </button>
               ))}
             </div>
           )}
 
-          {/* Volume Slider */}
-          <div className="volume-control">
-            <span className="volume-icon">🔈</span>
+          {/* Transport Controls */}
+          <div className="ac-transport">
+            <button
+              className={`ac-transport-btn ac-shuffle ${shuffleEnabled ? 'active' : ''}`}
+              onClick={handleShuffle}
+              title={shuffleEnabled ? 'Shuffle on' : 'Shuffle off'}
+            >
+              ⇄
+            </button>
+            <button className="ac-transport-btn" onClick={handlePrev} title="Previous track">
+              ⏮
+            </button>
+            <button
+              className={`ac-transport-btn ac-play ${isPlaying ? 'active' : ''}`}
+              onClick={toggleAudio}
+            >
+              {isPlaying ? '⏸' : '▶'}
+            </button>
+            <button className="ac-transport-btn" onClick={handleNext} title="Next track">
+              ⏭
+            </button>
+          </div>
+
+          {/* Volume */}
+          <div className="ac-volume">
+            <span className="ac-vol-icon">🔈</span>
             <input
               type="range"
               min="0"
@@ -151,25 +206,15 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
               step="0.05"
               value={volume}
               onChange={handleVolumeChange}
-              className="volume-slider"
+              className="ac-vol-slider"
             />
-            <span className="volume-icon">🔊</span>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="audio-actions">
-            <button
-              onClick={toggleAudio}
-              className={`audio-action-btn ${isPlaying ? 'active' : ''}`}
-            >
-              {isPlaying ? '⏸ Pause' : '▶ Play'}
-            </button>
+            <span className="ac-vol-icon">🔊</span>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        .audio-control-widget {
+        .ac-widget {
           position: fixed;
           bottom: 70px;
           left: 20px;
@@ -179,7 +224,7 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           gap: 0.5rem;
         }
 
-        .audio-control-button {
+        .ac-btn {
           width: 48px;
           height: 48px;
           border-radius: 50%;
@@ -191,26 +236,21 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           justify-content: center;
           position: relative;
           transition: all 0.3s ease;
-          box-shadow:
-            0 0 20px rgba(0, 0, 0, 0.5),
-            inset 0 0 20px rgba(0, 255, 200, 0.05);
+          box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 255, 200, 0.05);
         }
 
-        .audio-control-widget.playing .audio-control-button {
+        .ac-playing .ac-btn {
           border-color: rgba(0, 255, 200, 0.6);
-          box-shadow:
-            0 0 20px rgba(0, 255, 200, 0.2),
-            0 0 40px rgba(0, 255, 200, 0.1),
-            inset 0 0 20px rgba(0, 255, 200, 0.1);
+          box-shadow: 0 0 20px rgba(0, 255, 200, 0.2), 0 0 40px rgba(0, 255, 200, 0.1), inset 0 0 20px rgba(0, 255, 200, 0.1);
         }
 
-        .audio-control-button:hover {
+        .ac-btn:hover {
           transform: scale(1.05);
           border-color: rgba(0, 255, 200, 0.8);
         }
 
         /* Sound Bars */
-        .audio-bars {
+        .ac-bars {
           display: flex;
           align-items: flex-end;
           justify-content: center;
@@ -219,7 +259,7 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           width: 24px;
         }
 
-        .audio-bar {
+        .ac-bar {
           width: 3px;
           background: linear-gradient(to top, #00ffc8, #00a8ff);
           border-radius: 2px;
@@ -227,32 +267,26 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           min-height: 3px;
         }
 
-        .audio-control-widget:not(.playing) .audio-bar {
+        .ac-widget:not(.ac-playing) .ac-bar {
           background: #4a5568;
         }
 
         /* Pulse Ring */
-        .pulse-ring {
+        .ac-pulse {
           position: absolute;
           inset: -4px;
           border-radius: 50%;
           border: 2px solid rgba(0, 255, 200, 0.4);
-          animation: pulse 2s ease-out infinite;
+          animation: ac-pulse-anim 2s ease-out infinite;
         }
 
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          100% {
-            transform: scale(1.3);
-            opacity: 0;
-          }
+        @keyframes ac-pulse-anim {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(1.3); opacity: 0; }
         }
 
-        /* Expanded Panel */
-        .audio-panel {
+        /* Panel */
+        .ac-panel {
           position: absolute;
           left: 56px;
           bottom: 0;
@@ -263,60 +297,60 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           pointer-events: none;
         }
 
-        .audio-control-widget.expanded .audio-panel {
-          width: 240px;
+        .ac-expanded .ac-panel {
+          width: 260px;
           opacity: 1;
           pointer-events: auto;
         }
 
-        .audio-panel-content {
+        .ac-panel-inner {
           background: linear-gradient(135deg, #0a1a2e 0%, #0d2840 100%);
           border: 1px solid rgba(0, 255, 200, 0.3);
           border-radius: 12px;
-          padding: 1rem;
+          padding: 0.85rem;
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 0.6rem;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-          max-height: 400px;
+          max-height: 450px;
           overflow-y: auto;
         }
 
         /* Status */
-        .audio-status {
+        .ac-status {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          font-size: 0.65rem;
-          letter-spacing: 1px;
+          font-size: 0.6rem;
+          letter-spacing: 1.5px;
           color: #9ca3af;
           text-transform: uppercase;
         }
 
-        .status-indicator {
+        .ac-status-dot {
           width: 8px;
           height: 8px;
           border-radius: 50%;
           background: #4a5568;
         }
 
-        .audio-control-widget.playing .status-indicator {
+        .ac-playing .ac-status-dot {
           background: #00ffc8;
           box-shadow: 0 0 8px rgba(0, 255, 200, 0.6);
-          animation: glow 1.5s ease-in-out infinite alternate;
+          animation: ac-glow 1.5s ease-in-out infinite alternate;
         }
 
-        @keyframes glow {
+        @keyframes ac-glow {
           from { box-shadow: 0 0 4px rgba(0, 255, 200, 0.4); }
           to { box-shadow: 0 0 12px rgba(0, 255, 200, 0.8); }
         }
 
-        /* Channel Selector */
-        .channel-selector {
+        /* Track Display */
+        .ac-track-display {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          padding: 0.5rem;
+          padding: 0.45rem;
           background: rgba(0, 0, 0, 0.2);
           border: 1px solid rgba(0, 255, 200, 0.2);
           border-radius: 8px;
@@ -326,54 +360,61 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           text-align: left;
         }
 
-        .channel-selector:hover {
+        .ac-track-display:hover {
           background: rgba(0, 255, 200, 0.1);
           border-color: rgba(0, 255, 200, 0.4);
         }
 
-        .channel-icon {
-          font-size: 1.25rem;
+        .ac-track-icon {
+          font-size: 1.15rem;
         }
 
-        .channel-info {
+        .ac-track-info {
           flex: 1;
           display: flex;
           flex-direction: column;
+          min-width: 0;
         }
 
-        .channel-name {
-          font-size: 0.75rem;
+        .ac-track-name {
+          font-size: 0.72rem;
           color: #e8eaed;
           font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .channel-desc {
-          font-size: 0.6rem;
+        .ac-track-desc {
+          font-size: 0.58rem;
+          color: #6b7280;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .ac-track-arrow {
+          font-size: 0.55rem;
           color: #6b7280;
         }
 
-        .channel-arrow {
-          font-size: 0.6rem;
-          color: #6b7280;
-        }
-
-        /* Channel Picker */
-        .channel-picker {
+        /* Track List */
+        .ac-tracklist {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 2px;
           background: rgba(0, 0, 0, 0.3);
           border-radius: 8px;
-          padding: 0.5rem;
+          padding: 0.35rem;
           max-height: 200px;
           overflow-y: auto;
         }
 
-        .channel-option {
+        .ac-tracklist-item {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem;
+          gap: 0.4rem;
+          padding: 0.4rem;
           background: transparent;
           border: 1px solid transparent;
           border-radius: 6px;
@@ -382,52 +423,116 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           text-align: left;
         }
 
-        .channel-option:hover {
+        .ac-tracklist-item:hover {
           background: rgba(0, 255, 200, 0.1);
           border-color: rgba(0, 255, 200, 0.3);
         }
 
-        .channel-option.active {
+        .ac-tracklist-item.active {
           background: rgba(0, 255, 200, 0.15);
           border-color: rgba(0, 255, 200, 0.5);
         }
 
-        .option-icon {
-          font-size: 1rem;
-        }
+        .ac-tl-icon { font-size: 0.9rem; }
 
-        .option-info {
+        .ac-tl-info {
+          flex: 1;
           display: flex;
           flex-direction: column;
+          min-width: 0;
         }
 
-        .option-name {
-          font-size: 0.7rem;
+        .ac-tl-name {
+          font-size: 0.65rem;
           color: #e8eaed;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .option-desc {
-          font-size: 0.55rem;
-          color: #6b7280;
-        }
-
-        .channel-option.active .option-name {
+        .ac-tracklist-item.active .ac-tl-name {
           color: #00ffc8;
         }
 
-        /* Volume Control */
-        .volume-control {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
+        .ac-tl-desc {
+          font-size: 0.52rem;
+          color: #6b7280;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
-        .volume-icon {
+        .ac-tl-playing {
+          color: #00ffc8;
+          font-size: 0.7rem;
+          animation: ac-note-bounce 0.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes ac-note-bounce {
+          from { transform: translateY(0); }
+          to { transform: translateY(-2px); }
+        }
+
+        /* Transport Controls */
+        .ac-transport {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.35rem;
+        }
+
+        .ac-transport-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          border: 1px solid rgba(0, 255, 200, 0.2);
+          background: transparent;
+          color: #9ca3af;
           font-size: 0.75rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .ac-transport-btn:hover {
+          background: rgba(0, 255, 200, 0.1);
+          border-color: rgba(0, 255, 200, 0.5);
+          color: #00ffc8;
+        }
+
+        .ac-transport-btn.ac-play {
+          width: 36px;
+          height: 36px;
+          font-size: 0.85rem;
+        }
+
+        .ac-transport-btn.active {
+          background: rgba(0, 255, 200, 0.15);
+          border-color: #00ffc8;
+          color: #00ffc8;
+        }
+
+        .ac-shuffle.active {
+          color: #00ffc8;
+          border-color: rgba(0, 255, 200, 0.5);
+          background: rgba(0, 255, 200, 0.1);
+        }
+
+        /* Volume */
+        .ac-volume {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+
+        .ac-vol-icon {
+          font-size: 0.7rem;
           opacity: 0.6;
         }
 
-        .volume-slider {
+        .ac-vol-slider {
           flex: 1;
           height: 4px;
           appearance: none;
@@ -436,7 +541,7 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           cursor: pointer;
         }
 
-        .volume-slider::-webkit-slider-thumb {
+        .ac-vol-slider::-webkit-slider-thumb {
           appearance: none;
           width: 12px;
           height: 12px;
@@ -446,7 +551,7 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           box-shadow: 0 0 8px rgba(0, 255, 200, 0.5);
         }
 
-        .volume-slider::-moz-range-thumb {
+        .ac-vol-slider::-moz-range-thumb {
           width: 12px;
           height: 12px;
           background: #00ffc8;
@@ -455,33 +560,82 @@ export default function AudioControl({ className = '' }: AudioControlProps) {
           cursor: pointer;
         }
 
-        /* Actions */
-        .audio-actions {
-          display: flex;
-          justify-content: center;
+        /* Light mode support */
+        :global([data-theme="light"]) .ac-btn {
+          background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+          border-color: rgba(5, 150, 105, 0.3);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .audio-action-btn {
-          padding: 0.4rem 1rem;
-          border-radius: 6px;
-          border: 1px solid rgba(0, 255, 200, 0.3);
-          background: transparent;
-          color: #9ca3af;
-          font-size: 0.75rem;
-          cursor: pointer;
-          transition: all 0.2s;
+        :global([data-theme="light"]) .ac-playing .ac-btn {
+          border-color: rgba(5, 150, 105, 0.6);
+          box-shadow: 0 2px 15px rgba(5, 150, 105, 0.15);
         }
 
-        .audio-action-btn:hover {
-          background: rgba(0, 255, 200, 0.1);
-          border-color: rgba(0, 255, 200, 0.5);
-          color: #00ffc8;
+        :global([data-theme="light"]) .ac-bar {
+          background: linear-gradient(to top, #059669, #0284c7);
         }
 
-        .audio-action-btn.active {
-          background: rgba(0, 255, 200, 0.15);
-          border-color: #00ffc8;
-          color: #00ffc8;
+        :global([data-theme="light"]) .ac-panel-inner {
+          background: linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%);
+          border-color: rgba(5, 150, 105, 0.2);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        :global([data-theme="light"]) .ac-status-text,
+        :global([data-theme="light"]) .ac-track-desc,
+        :global([data-theme="light"]) .ac-tl-desc {
+          color: #6b7280;
+        }
+
+        :global([data-theme="light"]) .ac-track-name,
+        :global([data-theme="light"]) .ac-tl-name {
+          color: #1f2937;
+        }
+
+        :global([data-theme="light"]) .ac-track-display {
+          background: rgba(0, 0, 0, 0.03);
+          border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        :global([data-theme="light"]) .ac-transport-btn {
+          border-color: rgba(0, 0, 0, 0.1);
+          color: #6b7280;
+        }
+
+        :global([data-theme="light"]) .ac-transport-btn:hover {
+          background: rgba(5, 150, 105, 0.1);
+          border-color: rgba(5, 150, 105, 0.4);
+          color: #059669;
+        }
+
+        :global([data-theme="light"]) .ac-transport-btn.active,
+        :global([data-theme="light"]) .ac-shuffle.active {
+          background: rgba(5, 150, 105, 0.1);
+          border-color: #059669;
+          color: #059669;
+        }
+
+        :global([data-theme="light"]) .ac-pulse {
+          border-color: rgba(5, 150, 105, 0.4);
+        }
+
+        :global([data-theme="light"]) .ac-playing .ac-status-dot {
+          background: #059669;
+          box-shadow: 0 0 8px rgba(5, 150, 105, 0.6);
+        }
+
+        :global([data-theme="light"]) .ac-tracklist-item.active {
+          background: rgba(5, 150, 105, 0.1);
+          border-color: rgba(5, 150, 105, 0.3);
+        }
+
+        :global([data-theme="light"]) .ac-tracklist-item.active .ac-tl-name {
+          color: #059669;
+        }
+
+        :global([data-theme="light"]) .ac-tl-playing {
+          color: #059669;
         }
       `}</style>
     </div>

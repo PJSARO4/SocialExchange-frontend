@@ -775,3 +775,228 @@
     min-height: 44px;
   }
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .trading-post {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+[data-theme="light"] .trading-post-title {
+  color: #111827;
+}
+
+[data-theme="light"] .trading-post-subtitle {
+  color: #6b7280;
+}
+
+[data-theme="light"] .header-stat {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .header-stat-value {
+  color: #059669;
+}
+
+[data-theme="light"] .header-stat-label {
+  color: #6b7280;
+}
+
+[data-theme="light"] .section-title {
+  color: #111827;
+}
+
+[data-theme="light"] .quick-action-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .quick-action-card:hover {
+  background: #ffffff;
+  border-color: rgba(5, 150, 105, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .quick-action-label {
+  color: #111827;
+}
+
+[data-theme="light"] .quick-action-desc {
+  color: #6b7280;
+}
+
+[data-theme="light"] .quick-action-arrow {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .quick-action-card:hover .quick-action-arrow {
+  color: #059669;
+}
+
+[data-theme="light"] .featured-instagram-title {
+  color: #111827;
+}
+
+[data-theme="light"] .featured-instagram-subtitle {
+  color: #6b7280;
+}
+
+[data-theme="light"] .featured-stat-value {
+  color: #111827;
+}
+
+[data-theme="light"] .featured-stat-value.trending-up {
+  color: #059669;
+}
+
+[data-theme="light"] .featured-stat-label {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .featured-instagram-cta {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .featured-instagram-card:hover .featured-instagram-cta {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .category-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .category-card:hover,
+[data-theme="light"] .category-card.hovered {
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .category-trend-badge[data-trend="up"] {
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
+}
+
+[data-theme="light"] .category-trend-badge[data-trend="down"] {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+
+[data-theme="light"] .category-trend-badge[data-trend="stable"] {
+  background: rgba(107, 114, 128, 0.1);
+  color: #9ca3af;
+}
+
+[data-theme="light"] .category-title {
+  color: #111827;
+}
+
+[data-theme="light"] .category-description {
+  color: #6b7280;
+}
+
+[data-theme="light"] .category-stats {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .category-stat-value {
+  color: #111827;
+}
+
+[data-theme="light"] .category-stat-label {
+  color: #6b7280;
+}
+
+[data-theme="light"] .trends-container {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .trends-header {
+  background: #f8fafc;
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+  color: #6b7280;
+}
+
+[data-theme="light"] .trends-row {
+  border-bottom-color: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .trends-row:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .trend-niche {
+  color: #111827;
+}
+
+[data-theme="light"] .trend-price {
+  color: #059669;
+}
+
+[data-theme="light"] .trend-change.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .trend-change.negative {
+  color: #dc2626;
+}
+
+[data-theme="light"] .trend-demand {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .trend-demand.high .demand-dot {
+  background: #059669;
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.5);
+}
+
+[data-theme="light"] .trust-section {
+  background: rgba(5, 150, 105, 0.04);
+  border-color: rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .trust-title {
+  color: #111827;
+}
+
+[data-theme="light"] .trust-description {
+  color: #6b7280;
+}
+
+[data-theme="light"] .cta-banner {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(5, 150, 105, 0.02) 100%);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .cta-title {
+  color: #111827;
+}
+
+[data-theme="light"] .cta-subtitle {
+  color: #6b7280;
+}
+
+[data-theme="light"] .cta-btn.primary {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .cta-btn.primary:hover {
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .cta-btn.secondary {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .cta-btn.secondary:hover {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.15);
+}

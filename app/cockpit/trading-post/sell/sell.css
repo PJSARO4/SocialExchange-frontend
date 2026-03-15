@@ -47,3 +47,31 @@
   opacity: 0.5;
   margin-top: 32px;
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .sell-card {
+  border-color: rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+}
+
+[data-theme="light"] .sell-card h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .sell-card p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .sell-card .price {
+  color: #059669;
+}
+
+[data-theme="light"] .sell-button {
+  border-color: #059669;
+  color: #059669;
+}
+
+[data-theme="light"] .sell-button:hover {
+  background: rgba(5, 150, 105, 0.1);
+}

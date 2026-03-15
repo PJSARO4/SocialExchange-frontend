@@ -16563,3 +16563,147 @@
   transform: scale(0.97);
   transition-duration: 0.1s;
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+/* Override CSS Custom Properties */
+[data-theme="light"] {
+  --tac-bg-void: #f1f5f9;
+  --tac-bg-deep: #f8fafc;
+  --tac-bg-panel: #ffffff;
+  --tac-bg-surface: #f8fafc;
+  --tac-border-critical: rgba(0, 0, 0, 0.1);
+  --tac-border-primary: rgba(0, 0, 0, 0.08);
+  --tac-border-secondary: rgba(0, 0, 0, 0.05);
+  --tac-border-ghost: rgba(0, 0, 0, 0.03);
+  --tac-text-critical: #111827;
+  --tac-text-primary: #1f2937;
+  --tac-text-secondary: #6b7280;
+  --tac-text-tertiary: #9ca3af;
+  --tac-text-ghost: #d1d5db;
+  --tac-status-armed: #059669;
+  --tac-status-armed-glow: rgba(5, 150, 105, 0.2);
+  --tac-status-idle: #9ca3af;
+  --tac-status-offline: #dc2626;
+  --tac-status-offline-glow: rgba(220, 38, 38, 0.2);
+  --tac-accent-system: #059669;
+  --tac-accent-glow: rgba(5, 150, 105, 0.12);
+  --tac-surface-hover: rgba(0, 0, 0, 0.04);
+  --tac-surface-active: rgba(5, 150, 105, 0.08);
+  --tac-shadow-panel: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --tac-shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Background overrides */
+[data-theme="light"] .feeds-deck {
+  background: radial-gradient(ellipse at top, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+}
+
+[data-theme="light"] .feeds-deck::before {
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.005) 50%, transparent 100%),
+    linear-gradient(0deg, transparent 0%, rgba(0, 0, 0, 0.005) 50%, transparent 100%);
+}
+
+[data-theme="light"] .feeds-deck-header {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.02), 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .feeds-deck-header::after {
+  background: linear-gradient(90deg, transparent 0%, #059669 50%, transparent 100%);
+}
+
+[data-theme="light"] .feeds-deck-title {
+  text-shadow: none;
+  color: #111827;
+}
+
+/* Left Panel */
+[data-theme="light"] .feeds-deck-left {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: inset -2px 0 8px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .feeds-deck-left::before {
+  background: linear-gradient(180deg, #059669 0%, transparent 50%, #059669 100%);
+  opacity: 0.1;
+}
+
+/* Account cards with hardcoded backgrounds */
+[data-theme="light"] .feed-system-card,
+[data-theme="light"] .connected-account-card {
+  background: #ffffff;
+}
+
+[data-theme="light"] .feed-system-card:hover,
+[data-theme="light"] .connected-account-card:hover {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .feed-system-card.selected,
+[data-theme="light"] .connected-account-card.selected {
+  background: rgba(5, 150, 105, 0.04);
+  border-color: #059669;
+  box-shadow: 0 0 0 1px #059669, inset 0 0 12px rgba(5, 150, 105, 0.06);
+}
+
+/* Center Panel */
+[data-theme="light"] .feeds-deck-center {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .feeds-center-empty {
+  background: radial-gradient(ellipse at center, #ffffff 0%, #f8fafc 100%);
+}
+
+[data-theme="light"] .feeds-control-header {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .feeds-control-handle {
+  text-shadow: none;
+  color: #111827;
+}
+
+/* Center sections */
+[data-theme="light"] .feeds-center-section {
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .feeds-center-section::before {
+  background: linear-gradient(90deg, transparent 0%, #059669 50%, transparent 100%);
+  opacity: 0.1;
+}
+
+[data-theme="light"] .feeds-center-section-header {
+  background: #f8fafc;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+}
+
+/* Scrollbar overrides */
+[data-theme="light"] .feeds-section-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .feeds-section-body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+[data-theme="light"] .feeds-section-body::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+[data-theme="light"] .feeds-center-sections::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .feeds-center-sections::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+[data-theme="light"] .feeds-center-sections::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

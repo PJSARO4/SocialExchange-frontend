@@ -720,3 +720,207 @@
     flex: 1;
   }
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] .market-title {
+  color: #111827;
+}
+
+[data-theme="light"] .market-sell-btn {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .market-sell-btn:hover {
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
+}
+
+/* --- Stats Bar --- */
+[data-theme="light"] .market-stats-bar {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .market-stat-value {
+  color: #111827;
+}
+
+[data-theme="light"] .market-stat-divider {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* --- Tabs --- */
+[data-theme="light"] .market-tabs {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .market-tab:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #6b7280;
+}
+
+[data-theme="light"] .market-tab.active {
+  background: rgba(5, 150, 105, 0.08);
+  color: #059669;
+}
+
+/* --- Filters --- */
+[data-theme="light"] .market-filter-select {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+[data-theme="light"] .market-filter-select:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .market-filter-select:focus {
+  border-color: #059669;
+}
+
+[data-theme="light"] .market-filter-toggle {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .market-filter-toggle:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #6b7280;
+}
+
+[data-theme="light"] .market-clear-filters {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+}
+
+[data-theme="light"] .market-clear-filters:hover {
+  background: rgba(220, 38, 38, 0.12);
+}
+
+[data-theme="light"] .market-view-toggle {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .market-view-btn:hover {
+  color: #6b7280;
+}
+
+[data-theme="light"] .market-view-btn.active {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+}
+
+[data-theme="light"] .market-filters-extended {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .market-filter-input {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .market-filter-input:focus {
+  border-color: #059669;
+}
+
+[data-theme="light"] .market-filter-checkbox input {
+  accent-color: #059669;
+}
+
+/* --- Listing Cards --- */
+[data-theme="light"] .market-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .market-card:hover {
+  border-color: rgba(5, 150, 105, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .market-card-header {
+  background: rgba(0, 0, 0, 0.01);
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .market-card-avatar {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .market-card-handle {
+  color: #111827;
+}
+
+[data-theme="light"] .market-card-verified {
+  background: #059669;
+  color: #ffffff;
+}
+
+[data-theme="light"] .market-card-metrics {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .market-metric-value {
+  color: #111827;
+}
+
+[data-theme="light"] .market-niche-tag {
+  background: rgba(0, 0, 0, 0.04);
+  color: #6b7280;
+}
+
+[data-theme="light"] .market-card-title {
+  color: #374151;
+}
+
+[data-theme="light"] .market-card-revenue {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .market-card-revenue span:last-child {
+  color: #059669;
+}
+
+[data-theme="light"] .market-card-footer {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .market-price-value {
+  color: #059669;
+}
+
+/* --- Loading & Empty States --- */
+[data-theme="light"] .market-loading-spinner {
+  border-color: rgba(0, 0, 0, 0.1);
+  border-top-color: #059669;
+}
+
+[data-theme="light"] .market-empty h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .market-cta-btn {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .market-cta-btn:hover {
+  box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
+}
+
+/* --- Trust Banner --- */
+[data-theme="light"] .market-trust-banner {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .market-trust-text strong {
+  color: #111827;
+}

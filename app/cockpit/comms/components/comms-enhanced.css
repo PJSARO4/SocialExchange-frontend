@@ -327,3 +327,141 @@
     padding: 0.5rem;
   }
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+/* --- Global Chat Widget --- */
+[data-theme="light"] .global-chat-widget {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(5, 150, 105, 0.25);
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .gcw-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+  background: rgba(5, 150, 105, 0.04);
+}
+
+[data-theme="light"] .gcw-title {
+  color: #059669;
+}
+
+[data-theme="light"] .gcw-online {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .gcw-close:hover {
+  color: #dc2626;
+}
+
+[data-theme="light"] .gcw-message {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .gcw-message.system {
+  background: rgba(5, 150, 105, 0.04);
+  border-left-color: rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .gcw-author {
+  color: #059669;
+}
+
+[data-theme="light"] .gcw-content {
+  color: #374151;
+}
+
+[data-theme="light"] .gcw-input-area {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .gcw-input {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .gcw-input:focus {
+  border-color: rgba(5, 150, 105, 0.4);
+}
+
+[data-theme="light"] .gcw-send {
+  background: rgba(5, 150, 105, 0.1);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .gcw-send:hover {
+  background: rgba(5, 150, 105, 0.18);
+}
+
+/* --- Quick Reply Panel --- */
+[data-theme="light"] .quick-reply-panel {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .qr-title {
+  color: #059669;
+}
+
+[data-theme="light"] .qr-add-btn {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .qr-create-form {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .qr-input,
+[data-theme="light"] .qr-textarea,
+[data-theme="light"] .qr-select {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .qr-submit {
+  background: linear-gradient(135deg, #059669 0%, #0891b2 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .qr-filter-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #6b7280;
+}
+
+[data-theme="light"] .qr-filter-btn.active {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .qr-item {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .qr-item-name {
+  color: #111827;
+}
+
+[data-theme="light"] .qr-item-content {
+  color: #6b7280;
+}
+
+[data-theme="light"] .qr-use-btn {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .qr-delete-btn {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+}

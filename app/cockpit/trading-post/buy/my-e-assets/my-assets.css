@@ -32,3 +32,22 @@
   opacity: 0.5;
   margin-top: 32px;
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .asset-card {
+  border-color: rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+}
+
+[data-theme="light"] .asset-card h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .asset-card p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .asset-card .price {
+  color: #059669;
+}

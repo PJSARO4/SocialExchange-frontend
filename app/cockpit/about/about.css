@@ -540,3 +540,230 @@
     font-size: 1rem;
   }
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .about-hero {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.06) 0%, rgba(248, 250, 252, 0) 50%),
+              radial-gradient(ellipse at center, rgba(220, 230, 245, 0.4), #f8fafc 70%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .hero-title {
+  color: #111827;
+}
+
+[data-theme="light"] .hero-tagline {
+  color: #6b7280;
+}
+
+[data-theme="light"] .stat-value {
+  color: #059669;
+}
+
+[data-theme="light"] .stat-label {
+  color: #6b7280;
+}
+
+[data-theme="light"] .about-nav {
+  background: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .nav-tab {
+  color: #6b7280;
+}
+
+[data-theme="light"] .nav-tab:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #374151;
+}
+
+[data-theme="light"] .nav-tab.active {
+  background: rgba(5, 150, 105, 0.08);
+  color: #059669;
+}
+
+[data-theme="light"] .section-content h2 {
+  color: #111827;
+}
+
+[data-theme="light"] .intro-text p {
+  color: #374151;
+}
+
+[data-theme="light"] .intro-text strong {
+  color: #059669;
+}
+
+[data-theme="light"] .feature-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .feature-card:hover {
+  border-color: rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .feature-card h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .feature-card li {
+  color: #6b7280;
+}
+
+[data-theme="light"] .feature-card li::before {
+  color: #059669;
+}
+
+[data-theme="light"] .highlight-box {
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+[data-theme="light"] .highlight-box p {
+  color: #374151;
+}
+
+[data-theme="light"] .highlight-box strong {
+  color: #111827;
+}
+
+[data-theme="light"] .faq-category h3 {
+  color: #059669;
+  border-bottom: 1px solid rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .faq-item {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .faq-item.expanded {
+  border-color: rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .faq-question {
+  color: #111827;
+}
+
+[data-theme="light"] .faq-question:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .faq-toggle {
+  color: #059669;
+}
+
+[data-theme="light"] .faq-answer {
+  color: #6b7280;
+}
+
+[data-theme="light"] .how-to-section h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .step:not(:last-child)::after {
+  background: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .step-number {
+  background: rgba(5, 150, 105, 0.08);
+  border: 2px solid rgba(5, 150, 105, 0.5);
+  color: #059669;
+}
+
+[data-theme="light"] .step-content h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .step-content p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .tier-item {
+  background: rgba(0, 0, 0, 0.04);
+  color: #374151;
+}
+
+[data-theme="light"] .resource-category {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .resource-category h3 {
+  color: #111827;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .resource-link {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .resource-link:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .resource-title {
+  color: #059669;
+}
+
+[data-theme="light"] .resource-desc {
+  color: #6b7280;
+}
+
+[data-theme="light"] .legal-notice {
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+}
+
+[data-theme="light"] .legal-notice h3 {
+  color: #dc2626;
+}
+
+[data-theme="light"] .legal-notice p {
+  color: #374151;
+}
+
+[data-theme="light"] .legal-notice strong {
+  color: #111827;
+}
+
+[data-theme="light"] .legal-doc {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .legal-doc h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .legal-doc p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .legal-link {
+  color: #059669;
+}
+
+[data-theme="light"] .disclaimer-box {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .disclaimer-box h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .disclaimer-box p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .disclaimer-box li {
+  color: #6b7280;
+}
+
+[data-theme="light"] .disclaimer-box li::before {
+  color: #dc2626;
+}

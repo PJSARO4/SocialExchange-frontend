@@ -1017,3 +1017,202 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   11. LIGHT MODE — Design Token Overrides
+   ═══════════════════════════════════════════════════════════ */
+
+[data-theme="light"] {
+  /* ---- Core Void → Light Surfaces ---- */
+  --void-abyss: #ffffff;
+  --void-deep: #f8fafc;
+  --void-space: #f1f5f9;
+  --void-nebula: #e2e8f0;
+  --void-surface: #ffffff;
+  --void-elevated: #ffffff;
+
+  /* ---- Stellar Accents → Emerald/Teal ---- */
+  --stellar-cyan: #059669;
+  --stellar-cyan-dim: #047857;
+  --stellar-teal: #0d9488;
+  --stellar-blue: #2563eb;
+  --stellar-indigo: #6366f1;
+  --stellar-violet: #8b5cf6;
+
+  /* ---- Nebula Glow ---- */
+  --nebula-pink: #dc2626;
+  --nebula-orange: #ea580c;
+  --nebula-gold: #d97706;
+  --nebula-emerald: #059669;
+
+  /* ---- Glass & Surface ---- */
+  --glass-primary: rgba(5, 150, 105, 0.04);
+  --glass-secondary: rgba(0, 0, 0, 0.02);
+  --glass-elevated: rgba(5, 150, 105, 0.06);
+  --glass-hover: rgba(5, 150, 105, 0.08);
+  --glass-active: rgba(5, 150, 105, 0.12);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-bright: rgba(5, 150, 105, 0.2);
+  --glass-border-dim: rgba(0, 0, 0, 0.04);
+
+  /* ---- Text Hierarchy ---- */
+  --text-stellar: #111827;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-ghost: #d1d5db;
+  --text-cyan: #059669;
+}
+
+/* Glass panels in light mode */
+[data-theme="light"] .glass-panel,
+[data-theme="light"] .glass-stellar {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .glass-stellar::after {
+  background: linear-gradient(105deg, transparent 40%, rgba(5, 150, 105, 0.03) 45%, rgba(99, 102, 241, 0.02) 50%, transparent 55%);
+}
+
+[data-theme="light"] .glass-void {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+/* Buttons in light mode */
+[data-theme="light"] .btn-command {
+  color: #ffffff;
+  background: linear-gradient(135deg, #059669, #0d9488);
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.3), 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .btn-command:hover {
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3), 0 0 20px rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .btn-tactical {
+  color: #1f2937;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .btn-tactical:hover {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.2);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .btn-ghost:hover {
+  color: #059669;
+}
+
+[data-theme="light"] .btn-critical {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  border-color: rgba(220, 38, 38, 0.3);
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.2);
+}
+
+/* Cards in light mode */
+[data-theme="light"] .card-void,
+[data-theme="light"] .card-glass,
+[data-theme="light"] .card-stellar {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .card-void:hover,
+[data-theme="light"] .card-glass:hover,
+[data-theme="light"] .card-stellar:hover {
+  border-color: rgba(5, 150, 105, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .card-stellar::after {
+  background: linear-gradient(105deg, transparent 40%, rgba(5, 150, 105, 0.03) 45%, rgba(99, 102, 241, 0.02) 50%, transparent 55%);
+}
+
+/* Data rows */
+[data-theme="light"] .data-row {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+/* Status badges */
+[data-theme="light"] .status-badge {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .status-badge[data-status="active"],
+[data-theme="light"] .status-badge.status-active {
+  color: #059669;
+  border-color: rgba(5, 150, 105, 0.2);
+  background: rgba(5, 150, 105, 0.06);
+}
+
+[data-theme="light"] .status-badge[data-status="warning"],
+[data-theme="light"] .status-badge.status-warning {
+  color: #d97706;
+  border-color: rgba(217, 119, 6, 0.2);
+  background: rgba(217, 119, 6, 0.06);
+}
+
+[data-theme="light"] .status-badge[data-status="critical"],
+[data-theme="light"] .status-badge.status-critical {
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.2);
+  background: rgba(220, 38, 38, 0.06);
+}
+
+[data-theme="light"] .status-badge[data-status="inactive"],
+[data-theme="light"] .status-badge.status-inactive {
+  color: #9ca3af;
+}
+
+/* Live indicator */
+[data-theme="light"] .live-indicator {
+  color: #059669;
+}
+
+[data-theme="light"] .live-indicator::before {
+  background: #059669;
+  box-shadow: 0 0 6px rgba(5, 150, 105, 0.4);
+}
+
+/* Nebula background */
+[data-theme="light"] .nebula-bg {
+  background: #f8fafc;
+}
+
+/* Starfield hidden in light mode */
+[data-theme="light"] .starfield::before,
+[data-theme="light"] .starfield::after {
+  display: none;
+}
+
+/* Scan overlay subtle in light */
+[data-theme="light"] .scan-overlay::before {
+  background: linear-gradient(90deg, transparent 0%, rgba(5, 150, 105, 0.15) 20%, rgba(5, 150, 105, 0.15) 80%, transparent 100%);
+  opacity: 0.2;
+}
+
+/* Skeleton loading */
+[data-theme="light"] .skeleton-holo {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .skeleton-holo::after {
+  background: linear-gradient(105deg, transparent 30%, rgba(0, 0, 0, 0.04) 40%, rgba(0, 0, 0, 0.06) 50%, rgba(0, 0, 0, 0.04) 60%, transparent 70%);
+}
+
+/* Orbit spinner */
+[data-theme="light"] .orbit-spinner .orbit-ring:nth-child(1) {
+  border-top-color: #059669;
+}
+
+[data-theme="light"] .orbit-spinner::after {
+  background: #059669;
+  box-shadow: 0 0 6px rgba(5, 150, 105, 0.4);
+}

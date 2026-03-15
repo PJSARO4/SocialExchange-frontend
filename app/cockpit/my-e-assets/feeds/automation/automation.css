@@ -492,3 +492,193 @@
     width: 100%;
   }
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] .automation-header {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .automation-title {
+  color: #111827;
+}
+
+[data-theme="light"] .automation-subtitle {
+  color: #6b7280;
+}
+
+[data-theme="light"] .automation-action-button {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+[data-theme="light"] .automation-action-button:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .automation-action-button.primary {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .automation-action-button.primary:hover {
+  background: rgba(5, 150, 105, 0.12);
+}
+
+[data-theme="light"] .automation-status-bar {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .automation-status-badge.status-armed {
+  background: rgba(5, 150, 105, 0.08);
+  color: #059669;
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .automation-status-badge.status-draft {
+  background: rgba(107, 114, 128, 0.08);
+  color: #6b7280;
+  border-color: rgba(107, 114, 128, 0.2);
+}
+
+[data-theme="light"] .automation-status-badge.status-paused {
+  background: rgba(251, 191, 36, 0.08);
+  color: #d97706;
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+[data-theme="light"] .automation-status-value {
+  color: #374151;
+}
+
+[data-theme="light"] .chain-canvas {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .chain-node {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .chain-node:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .chain-node.selected {
+  background: rgba(5, 150, 105, 0.05);
+  border-color: rgba(5, 150, 105, 0.4);
+  box-shadow: 0 0 20px rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .chain-node-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .chain-node-type {
+  color: #059669;
+}
+
+[data-theme="light"] .chain-node-title {
+  color: #111827;
+}
+
+[data-theme="light"] .chain-node-status {
+  color: #6b7280;
+}
+
+[data-theme="light"] .chain-inspector {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .inspector-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .inspector-title {
+  color: #111827;
+}
+
+[data-theme="light"] .inspector-close {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+[data-theme="light"] .inspector-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .inspector-section-value {
+  color: #374151;
+}
+
+[data-theme="light"] .inspector-config-item {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .inspector-config-value {
+  color: #374151;
+}
+
+[data-theme="light"] .inspector-footer {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .inspector-action-button {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+[data-theme="light"] .inspector-action-button:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .inspector-action-button.danger {
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #dc2626;
+}
+
+[data-theme="light"] .inspector-action-button.danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+[data-theme="light"] .node-palette {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .node-palette-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .node-palette-title {
+  color: #111827;
+}
+
+[data-theme="light"] .node-palette-item {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .node-palette-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .node-palette-label {
+  color: #374151;
+}
+
+@media (max-width: 1200px) {
+  [data-theme="light"] .chain-inspector {
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  }
+}

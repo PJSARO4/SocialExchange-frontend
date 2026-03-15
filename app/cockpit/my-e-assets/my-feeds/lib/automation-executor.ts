@@ -2,6 +2,7 @@
 
 import { AutomationChain, ChainNode, NodeConnection } from '../components/automation/chain-builder/types';
 import { addScheduledPost } from './scheduler-store';
+import { getUnifiedMedia, type ContentSourceFilter } from './content-bridge';
 
 /**
  * Automation Chain Executor
@@ -262,37 +263,40 @@ async function executeStartNode(node: ChainNode): Promise<Record<string, any>> {
  */
 async function executePullContentNode(node: ChainNode): Promise<ContentItem | null> {
   const data = node.data as any;
-  const content = loadContent();
 
-  if (content.length === 0) {
-    console.warn('No content available to pull');
-    return null;
+  // Map content source config to content-bridge source filter
+  let sourceFilter: ContentSourceFilter = 'all';
+  if (data.contentSource === 'content-library') sourceFilter = 'content-library';
+  else if (data.contentSource === 'e-storage') sourceFilter = 'e-storage';
+
+  // Use unified content bridge to query from both Content Library and E-Storage
+  const unifiedItems = getUnifiedMedia({
+    source: sourceFilter,
+    contentType: data.contentType || 'any',
+    selectionMethod: data.selectionMethod || 'newest',
+    limit: data.limit || 1,
+  });
+
+  if (unifiedItems.length === 0) {
+    // Fallback: try legacy loadContent() for backwards compatibility
+    const legacyContent = loadContent();
+    if (legacyContent.length === 0) {
+      console.warn('No content available to pull from any source');
+      return null;
+    }
+    return legacyContent[0];
   }
 
-  let selected: ContentItem | null = null;
-
-  if (data.selectionMethod === 'random') {
-    selected = content[Math.floor(Math.random() * content.length)];
-  } else if (data.selectionMethod === 'newest') {
-    selected = content.sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )[0];
-  } else if (data.selectionMethod === 'oldest') {
-    selected = content.sort((a, b) =>
-      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    )[0];
-  } else {
-    // Default to newest
-    selected = content.sort((a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    )[0];
-  }
-
-  if (data.limit && selected) {
-    // Limit could apply to batch operations
-  }
-
-  return selected || null;
+  // Map the unified item back to the ContentItem interface used by the executor
+  const item = unifiedItems[0];
+  return {
+    id: item.id,
+    title: item.title,
+    description: item.caption || '',
+    mediaUrl: item.publicUrl,
+    type: item.type === 'VIDEO' || item.type === 'REELS' ? 'video' : 'image',
+    createdAt: item.createdAt,
+  };
 }
 
 /**

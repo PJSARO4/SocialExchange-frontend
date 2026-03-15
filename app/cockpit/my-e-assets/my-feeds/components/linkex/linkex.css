@@ -1088,3 +1088,439 @@
     padding: 0.75rem 1rem;
   }
 }
+
+/* ═══════════════════════════════════════════════
+   LIGHT MODE
+   ═══════════════════════════════════════════════ */
+
+[data-theme="light"] .linkex-modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .linkex-modal {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+/* Header */
+[data-theme="light"] .linkex-modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+[data-theme="light"] .linkex-header-content h2 {
+  color: #111827;
+}
+
+[data-theme="light"] .linkex-header-content p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .linkex-close-btn {
+  color: #6b7280;
+}
+
+[data-theme="light"] .linkex-close-btn:hover {
+  color: #111827;
+}
+
+/* Navigation */
+[data-theme="light"] .linkex-nav {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(248, 250, 252, 0.8);
+}
+
+[data-theme="light"] .linkex-nav-btn {
+  color: #6b7280;
+}
+
+[data-theme="light"] .linkex-nav-btn:hover {
+  color: #111827;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .linkex-nav-btn.active {
+  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+/* Stat Cards */
+[data-theme="light"] .linkex-stat-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .stat-value {
+  color: #111827;
+}
+
+[data-theme="light"] .stat-label {
+  color: #9ca3af;
+}
+
+/* Page Card */
+[data-theme="light"] .linkex-page-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .page-card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .page-card-header h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .page-url {
+  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.08);
+}
+
+[data-theme="light"] .preview-handle {
+  color: #111827;
+}
+
+[data-theme="light"] .preview-bio {
+  color: #6b7280;
+}
+
+[data-theme="light"] .page-card-actions {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .page-action-btn {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .page-action-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .page-action-btn.primary {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #fff;
+}
+
+[data-theme="light"] .page-action-btn.primary:hover {
+  background: #4338ca;
+}
+
+/* Top Links */
+[data-theme="light"] .linkex-top-links {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .linkex-top-links h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .top-link-rank {
+  color: #4f46e5;
+}
+
+[data-theme="light"] .top-link-title {
+  color: #111827;
+}
+
+[data-theme="light"] .top-link-clicks {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .top-link-bar {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .top-link-fill {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+}
+
+/* Bio Links View */
+[data-theme="light"] .bio-links-header h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .bio-links-header p {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .links-count {
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+}
+
+/* Add Link Form */
+[data-theme="light"] .add-link-form {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .add-link-form h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .add-link-inputs input {
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .add-link-inputs input::placeholder {
+  color: #d1d5db;
+}
+
+[data-theme="light"] .add-link-inputs input:focus {
+  border-color: #4f46e5;
+}
+
+[data-theme="light"] .add-link-btn {
+  background: #4f46e5;
+}
+
+[data-theme="light"] .add-link-btn:hover {
+  background: #4338ca;
+}
+
+/* Links List */
+[data-theme="light"] .bio-link-item {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .bio-link-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .link-drag-handle {
+  color: #d1d5db;
+}
+
+[data-theme="light"] .link-title {
+  color: #111827;
+}
+
+[data-theme="light"] .link-url {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .link-clicks {
+  color: #6b7280;
+}
+
+[data-theme="light"] .link-toggle {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .link-toggle.on {
+  background: #4f46e5;
+}
+
+/* Bio Page Preview Link */
+[data-theme="light"] .bio-page-preview-link {
+  background: rgba(79, 70, 229, 0.06);
+  color: #6b7280;
+}
+
+[data-theme="light"] .bio-page-preview-link a {
+  color: #4f46e5;
+}
+
+/* Affiliate Links View */
+[data-theme="light"] .affiliate-header h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .affiliate-header p {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .summary-value {
+  color: #059669;
+}
+
+[data-theme="light"] .summary-label {
+  color: #9ca3af;
+}
+
+/* Create Affiliate Form */
+[data-theme="light"] .create-affiliate-form {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .create-affiliate-form h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .affiliate-inputs input {
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .affiliate-inputs input::placeholder {
+  color: #d1d5db;
+}
+
+[data-theme="light"] .affiliate-inputs input:focus {
+  border-color: #059669;
+}
+
+[data-theme="light"] .create-affiliate-btn {
+  background: #059669;
+  color: #fff;
+}
+
+[data-theme="light"] .create-affiliate-btn:hover {
+  background: #047857;
+}
+
+/* Affiliate Table */
+[data-theme="light"] .affiliate-links-table {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .affiliate-links-table .table-header {
+  background: rgba(248, 250, 252, 0.8);
+  color: #9ca3af;
+}
+
+[data-theme="light"] .affiliate-links-table .table-row {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  color: #111827;
+}
+
+[data-theme="light"] .affiliate-links-table .table-row:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .link-short-url code {
+  background: rgba(0, 0, 0, 0.04);
+  color: #111827;
+}
+
+[data-theme="light"] .link-earnings {
+  color: #059669;
+}
+
+[data-theme="light"] .link-actions .action-btn.delete:hover {
+  color: #dc2626;
+}
+
+/* Tracking View */
+[data-theme="light"] .tracking-header h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .tracking-header p {
+  color: #9ca3af;
+}
+
+/* Period Selector */
+[data-theme="light"] .period-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #6b7280;
+}
+
+[data-theme="light"] .period-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #111827;
+}
+
+[data-theme="light"] .period-btn.active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #fff;
+}
+
+/* Tracking Stats */
+[data-theme="light"] .tracking-stat-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .tracking-stat-card h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .tracking-stat-card .metric-value {
+  color: #111827;
+}
+
+[data-theme="light"] .tracking-stat-card .metric-label {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .metric-change.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .metric-change.negative {
+  color: #dc2626;
+}
+
+/* Chart */
+[data-theme="light"] .tracking-chart {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .tracking-chart h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .chart-bar-label {
+  color: #9ca3af;
+}
+
+/* Geographic */
+[data-theme="light"] .tracking-geo {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .tracking-geo h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .geo-country {
+  color: #111827;
+}
+
+[data-theme="light"] .geo-percent {
+  color: #4f46e5;
+}
+
+/* Devices */
+[data-theme="light"] .tracking-devices {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .tracking-devices h4 {
+  color: #111827;
+}
+
+[data-theme="light"] .device-name {
+  color: #111827;
+}
+
+[data-theme="light"] .device-bar {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .device-fill {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+}
+
+[data-theme="light"] .device-percent {
+  color: #6b7280;
+}

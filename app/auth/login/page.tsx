@@ -23,7 +23,7 @@ export default function LoginPage() {
     seedAuthIfEmpty();
     repairAuthIfNeeded(); // Ensure auth data is valid
     if (isAuthenticated()) {
-      router.push('/cockpit/dashboard');
+      router.push('/cockpit/home');
     }
   }, [router]);
 
@@ -35,13 +35,13 @@ export default function LoginPage() {
     const result = login({ email: 'demo@example.com', password: 'Demo@2024!User' });
     setIsLoading(false);
     if (result.success) {
-      router.push('/cockpit/dashboard');
+      router.push('/cockpit/home');
     } else {
       // If demo login fails, reset auth data and try again
       forceResetAuth();
       const retry = login({ email: 'demo@example.com', password: 'Demo@2024!User' });
       if (retry.success) {
-        router.push('/cockpit/dashboard');
+        router.push('/cockpit/home');
       } else {
         setGeneralError('Demo login failed. Please try again.');
       }
@@ -114,8 +114,8 @@ export default function LoginPage() {
       return;
     }
 
-    // Success - redirect to cockpit dashboard
-    router.push('/cockpit/dashboard');
+    // Success - redirect to home
+    router.push('/cockpit/home');
   };
 
   return (

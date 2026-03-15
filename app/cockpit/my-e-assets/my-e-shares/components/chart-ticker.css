@@ -139,3 +139,72 @@
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] .share-price-chart {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .chart-current-price {
+  color: #111827;
+}
+
+[data-theme="light"] .chart-price-change.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .chart-price-change.negative {
+  color: #dc2626;
+}
+
+[data-theme="light"] .chart-range-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #6b7280;
+}
+
+[data-theme="light"] .chart-range-btn:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #374151;
+}
+
+[data-theme="light"] .chart-range-btn.active {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+/* --- Upper Ticker --- */
+[data-theme="light"] .upper-ticker {
+  background: rgba(248, 250, 252, 0.95);
+  border-bottom-color: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .ticker-name {
+  color: #6b7280;
+}
+
+[data-theme="light"] .ticker-price {
+  color: #111827;
+}
+
+[data-theme="light"] .ticker-price.up {
+  color: #059669;
+}
+
+[data-theme="light"] .ticker-price.down {
+  color: #dc2626;
+}
+
+[data-theme="light"] .ticker-change.up {
+  color: #059669;
+}
+
+[data-theme="light"] .ticker-change.down {
+  color: #dc2626;
+}
+
+[data-theme="light"] .ticker-separator {
+  color: rgba(0, 0, 0, 0.1);
+}

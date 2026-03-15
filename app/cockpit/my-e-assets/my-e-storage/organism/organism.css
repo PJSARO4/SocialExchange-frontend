@@ -532,3 +532,182 @@
     font-size: 6px;
   }
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .organism-panel-overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .organism-panel {
+  background: #ffffff;
+  border-left-color: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .organism-panel-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .organism-panel-tab {
+  color: #6b7280;
+}
+
+[data-theme="light"] .organism-panel-tab:hover {
+  color: #111827;
+}
+
+[data-theme="light"] .organism-panel-tab.active {
+  color: #059669;
+  border-bottom-color: #059669;
+}
+
+[data-theme="light"] .organism-panel-tabs {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .orgo-chat-message.user {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.2);
+  color: #111827;
+}
+
+[data-theme="light"] .orgo-chat-message.organism {
+  background: rgba(167, 139, 250, 0.06);
+  border-color: rgba(167, 139, 250, 0.15);
+  color: #111827;
+}
+
+[data-theme="light"] .orgo-chat-message.system {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+  color: #6b7280;
+}
+
+[data-theme="light"] .orgo-chat-typing {
+  background: rgba(167, 139, 250, 0.06);
+  border-color: rgba(167, 139, 250, 0.15);
+}
+
+[data-theme="light"] .orgo-chat-action-btn {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.25);
+  color: #059669;
+}
+
+[data-theme="light"] .orgo-chat-action-btn:hover {
+  background: rgba(5, 150, 105, 0.15);
+  border-color: rgba(5, 150, 105, 0.4);
+}
+
+[data-theme="light"] .orgo-chat-input-area {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .orgo-chat-input {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #111827;
+}
+
+[data-theme="light"] .orgo-chat-input:focus {
+  border-color: rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .orgo-chat-send {
+  background: rgba(5, 150, 105, 0.12);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .orgo-chat-send:hover {
+  background: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .orgo-quick-chips {
+  border-top-color: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .orgo-quick-chip {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #6b7280;
+}
+
+[data-theme="light"] .orgo-quick-chip:hover {
+  background: rgba(167, 139, 250, 0.08);
+  border-color: rgba(167, 139, 250, 0.25);
+  color: #7c3aed;
+}
+
+[data-theme="light"] .orgo-task-item {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .orgo-task-item.running {
+  border-color: rgba(5, 150, 105, 0.3);
+  background: rgba(5, 150, 105, 0.04);
+}
+
+[data-theme="light"] .orgo-task-item.failed {
+  border-color: rgba(220, 38, 38, 0.3);
+  background: rgba(220, 38, 38, 0.04);
+}
+
+[data-theme="light"] .orgo-task-progress {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .orgo-task-progress-bar {
+  background: #059669;
+}
+
+[data-theme="light"] .orgo-behavior-item {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .orgo-behavior-toggle {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .orgo-behavior-toggle.on {
+  background: rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .orgo-behavior-toggle::after {
+  background: #9ca3af;
+}
+
+[data-theme="light"] .orgo-behavior-toggle.on::after {
+  background: #059669;
+}
+
+[data-theme="light"] .orgo-training-area {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .orgo-training-textarea {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #374151;
+}
+
+[data-theme="light"] .orgo-training-textarea:focus {
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+[data-theme="light"] .organism-city-label {
+  color: rgba(5, 150, 105, 0.5);
+}
+
+[data-theme="light"] .organism-activity-bubble {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(5, 150, 105, 0.2);
+  color: #374151;
+}
+
+[data-theme="light"] .organism-mini-dot {
+  background: #059669;
+}

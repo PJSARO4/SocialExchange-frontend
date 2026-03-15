@@ -1061,3 +1061,95 @@
   font-size: 0.875rem;
   max-width: 400px;
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] .add-btn {
+  color: #ffffff;
+}
+
+[data-theme="light"] .add-btn:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+[data-theme="light"] .comparison-diff.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .comparison-diff.negative {
+  color: #dc2626;
+}
+
+[data-theme="light"] .insight-card.opportunity {
+  border-left-color: #059669;
+}
+
+[data-theme="light"] .insight-card.threat {
+  border-left-color: #dc2626;
+}
+
+[data-theme="light"] .insight-card.trend {
+  border-left-color: #3b82f6;
+}
+
+[data-theme="light"] .insight-card.tip {
+  border-left-color: #f59e0b;
+}
+
+[data-theme="light"] .platform-option.selected {
+  background: rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .remove-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+[data-theme="light"] .competitor-metrics .metric-value.growth {
+  color: #059669;
+}
+
+[data-theme="light"] .competitor-avatar {
+  color: #ffffff;
+}
+
+[data-theme="light"] .detail-avatar {
+  color: #ffffff;
+}
+
+[data-theme="light"] .action-btn:not(.secondary) {
+  color: #ffffff;
+}
+
+[data-theme="light"] .metric-card.highlight {
+  background: rgba(5, 150, 105, 0.05);
+}
+
+[data-theme="light"] .mix-fill.images {
+  background: #3b82f6;
+}
+
+[data-theme="light"] .mix-fill.videos {
+  background: #dc2626;
+}
+
+[data-theme="light"] .mix-fill.carousels {
+  background: #059669;
+}
+
+[data-theme="light"] .mix-fill.reels {
+  background: #a855f7;
+}
+
+[data-theme="light"] .compare-cell.you {
+  background: rgba(5, 150, 105, 0.05);
+}
+
+[data-theme="light"] .scheduled-post-card.status-scheduled {
+  border-left-color: #3b82f6;
+}
+
+[data-theme="light"] .scheduled-post-card.status-automated {
+  border-left-color: #059669;
+}

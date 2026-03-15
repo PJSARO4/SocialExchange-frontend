@@ -103,3 +103,51 @@
 .arrow.right {
   right: -60px;
 }
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .feed-card {
+  background: radial-gradient(
+    ellipse at top,
+    rgba(5, 150, 105, 0.06),
+    #ffffff
+  );
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .feed-card.active {
+  box-shadow: 0 0 30px rgba(5, 150, 105, 0.2);
+  border-color: rgba(5, 150, 105, 0.5);
+}
+
+[data-theme="light"] .feed-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0.95),
+    rgba(255, 255, 255, 0.3)
+  );
+}
+
+[data-theme="light"] .feed-overlay h2 {
+  color: #111827;
+}
+
+[data-theme="light"] .feed-overlay p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .enter-link {
+  color: #059669;
+}
+
+[data-theme="light"] .enter-link:hover {
+  text-shadow: 0 0 8px rgba(5, 150, 105, 0.4);
+}
+
+[data-theme="light"] .arrow {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .arrow:hover {
+  color: #059669;
+}

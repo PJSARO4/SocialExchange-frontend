@@ -4,7 +4,7 @@
  * COMMS STORE - localStorage persistence for communications
  */
 
-import { Thread, GroupThread, DirectThread, Message } from '../types';
+import { Thread, GroupThread, DirectThread, Message, Reaction } from '../types';
 
 const KEYS = {
   THREADS: 'sx_comms_threads',
@@ -13,6 +13,8 @@ const KEYS = {
   TEMPLATES: 'sx_comms_templates',
   AUTO_RULES: 'sx_comms_auto_rules',
   GLOBAL_UNREAD: 'sx_comms_global_unread',
+  UNREAD_MAP: 'sx_comms_unread_map',
+  TYPING: 'sx_comms_typing',
 };
 
 // ============================================
@@ -73,6 +75,153 @@ export function addMessage(message: Message): void {
 
 export function getMessagesByThread(threadId: string): Message[] {
   return getMessages().filter(m => m.threadId === threadId);
+}
+
+// Edit a message's content
+export function editMessage(messageId: string, newContent: string): void {
+  const messages = getMessages();
+  const idx = messages.findIndex(m => m.id === messageId);
+  if (idx >= 0) {
+    messages[idx].content = newContent;
+    messages[idx].isEdited = true;
+    saveMessages(messages);
+  }
+}
+
+// Soft-delete a message
+export function deleteMessage(messageId: string): void {
+  const messages = getMessages();
+  const idx = messages.findIndex(m => m.id === messageId);
+  if (idx >= 0) {
+    messages[idx].isDeleted = true;
+    messages[idx].content = 'This message was deleted';
+    saveMessages(messages);
+  }
+}
+
+// Toggle pin on a message
+export function togglePinMessage(messageId: string): void {
+  const messages = getMessages();
+  const idx = messages.findIndex(m => m.id === messageId);
+  if (idx >= 0) {
+    messages[idx].isPinned = !messages[idx].isPinned;
+    saveMessages(messages);
+  }
+}
+
+// Add or remove a reaction
+export function toggleReaction(messageId: string, emoji: string, userId: string): void {
+  const messages = getMessages();
+  const idx = messages.findIndex(m => m.id === messageId);
+  if (idx < 0) return;
+
+  const msg = messages[idx];
+  if (!msg.reactions) msg.reactions = [];
+
+  const reactionIdx = msg.reactions.findIndex(r => r.emoji === emoji);
+  if (reactionIdx >= 0) {
+    const reaction = msg.reactions[reactionIdx];
+    const userIdx = reaction.userIds.indexOf(userId);
+    if (userIdx >= 0) {
+      reaction.userIds.splice(userIdx, 1);
+      if (reaction.userIds.length === 0) {
+        msg.reactions.splice(reactionIdx, 1);
+      }
+    } else {
+      reaction.userIds.push(userId);
+    }
+  } else {
+    msg.reactions.push({ emoji, userIds: [userId] });
+  }
+
+  saveMessages(messages);
+}
+
+// Mark a message as read by a user
+export function markMessageRead(messageId: string, userId: string): void {
+  const messages = getMessages();
+  const idx = messages.findIndex(m => m.id === messageId);
+  if (idx >= 0) {
+    if (!messages[idx].readBy) messages[idx].readBy = [];
+    if (!messages[idx].readBy!.includes(userId)) {
+      messages[idx].readBy!.push(userId);
+      saveMessages(messages);
+    }
+  }
+}
+
+// Get pinned messages for a thread
+export function getPinnedMessages(threadId: string): Message[] {
+  return getMessages().filter(m => m.threadId === threadId && m.isPinned);
+}
+
+// Search messages across all threads or within a specific thread
+export function searchMessages(query: string, threadId?: string): Message[] {
+  const q = query.toLowerCase();
+  return getMessages().filter(m => {
+    if (threadId && m.threadId !== threadId) return false;
+    if (m.isDeleted) return false;
+    return m.content.toLowerCase().includes(q) || m.authorName.toLowerCase().includes(q);
+  });
+}
+
+// ============================================
+// UNREAD TRACKING (per-thread)
+// ============================================
+
+export function getUnreadMap(): Record<string, number> {
+  return getStorage(KEYS.UNREAD_MAP, {});
+}
+
+export function setUnreadMap(map: Record<string, number>): void {
+  setStorage(KEYS.UNREAD_MAP, map);
+}
+
+export function incrementUnread(threadId: string): void {
+  const map = getUnreadMap();
+  map[threadId] = (map[threadId] || 0) + 1;
+  setUnreadMap(map);
+}
+
+export function clearUnread(threadId: string): void {
+  const map = getUnreadMap();
+  delete map[threadId];
+  setUnreadMap(map);
+}
+
+export function getUnreadCount(threadId: string): number {
+  return getUnreadMap()[threadId] || 0;
+}
+
+// ============================================
+// TYPING INDICATORS
+// ============================================
+
+interface TypingEntry {
+  userId: string;
+  userName: string;
+  threadId: string;
+  expiresAt: number;
+}
+
+export function getTypingUsers(threadId: string): TypingEntry[] {
+  const all: TypingEntry[] = getStorage(KEYS.TYPING, []);
+  const now = Date.now();
+  return all.filter(t => t.threadId === threadId && t.expiresAt > now);
+}
+
+export function setTyping(userId: string, userName: string, threadId: string): void {
+  const all: TypingEntry[] = getStorage(KEYS.TYPING, []);
+  const now = Date.now();
+  // Remove expired and existing entries for this user+thread
+  const filtered = all.filter(t => t.expiresAt > now && !(t.userId === userId && t.threadId === threadId));
+  filtered.push({ userId, userName, threadId, expiresAt: now + 4000 });
+  setStorage(KEYS.TYPING, filtered);
+}
+
+export function clearTyping(userId: string, threadId: string): void {
+  const all: TypingEntry[] = getStorage(KEYS.TYPING, []);
+  setStorage(KEYS.TYPING, all.filter(t => !(t.userId === userId && t.threadId === threadId)));
 }
 
 // ============================================
@@ -281,8 +430,8 @@ export function seedCommsIfEmpty(): void {
 
   const demoMessages: Message[] = [
     { id: 'msg-seed-1', threadId: 'thread_global', authorId: 'system', authorName: 'System', content: 'Welcome to Social Exchange Global Chat. All operators are connected.', timestamp: Date.now() - 3600000 },
-    { id: 'msg-seed-2', threadId: 'thread_global', authorId: 'demo-founder-1', authorName: 'Marcus Chen', content: 'Hey everyone, Urban Signal just went public. Check out the E-Shares marketplace!', timestamp: Date.now() - 1800000 },
-    { id: 'msg-seed-3', threadId: 'thread_global', authorId: 'demo-investor-1', authorName: 'Alex Thompson', content: 'Just picked up some shares. Looking solid!', timestamp: Date.now() - 900000 },
+    { id: 'msg-seed-2', threadId: 'thread_global', authorId: 'demo-founder-1', authorName: 'Marcus Chen', content: 'Hey everyone, Urban Signal just went public. Check out the E-Shares marketplace!', timestamp: Date.now() - 1800000, reactions: [{ emoji: '🔥', userIds: ['demo-investor-1'] }] },
+    { id: 'msg-seed-3', threadId: 'thread_global', authorId: 'demo-investor-1', authorName: 'Alex Thompson', content: 'Just picked up some shares. Looking solid!', timestamp: Date.now() - 900000, readBy: ['demo-founder-1', 'demo-founder-2'] },
   ];
 
   saveThreads([globalThread]);

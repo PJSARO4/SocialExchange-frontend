@@ -271,3 +271,80 @@
 .status-indicator-value.off {
   color: #6b7280;
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] .workspace-layout {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .workspace-left-panel {
+  background: rgba(0, 0, 0, 0.02);
+  border-right-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .workspace-panel-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .account-selector-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .account-selector-item.active {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.25);
+}
+
+[data-theme="light"] .account-selector-handle {
+  color: #111827;
+}
+
+[data-theme="light"] .workspace-center-panel {
+  background: rgba(0, 0, 0, 0.01);
+}
+
+[data-theme="light"] .command-center-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .command-section {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .command-section-header {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .metric-value {
+  color: #111827;
+}
+
+[data-theme="light"] .activity-item {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .activity-item-content {
+  color: #374151;
+}
+
+[data-theme="light"] .operation-button {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #374151;
+}
+
+[data-theme="light"] .operation-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .workspace-right-panel {
+  background: rgba(0, 0, 0, 0.02);
+  border-left-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .status-indicator-value.on {
+  color: #059669;
+}

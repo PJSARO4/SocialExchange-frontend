@@ -552,3 +552,168 @@
     flex-direction: column;
   }
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] .back-link {
+  color: #6b7280;
+}
+
+[data-theme="light"] .back-link:hover {
+  color: #059669;
+}
+
+[data-theme="light"] .brand-detail-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .brand-detail-avatar {
+  background: linear-gradient(135deg, #059669 0%, #1e3a5f 100%);
+  color: #ffffff;
+}
+
+[data-theme="light"] .brand-detail-name {
+  color: #111827;
+}
+
+[data-theme="light"] .price-large {
+  color: #111827;
+}
+
+[data-theme="light"] .price-direction.up {
+  color: #059669;
+}
+
+[data-theme="light"] .price-direction.down {
+  color: #dc2626;
+}
+
+[data-theme="light"] .brand-detail-description p {
+  color: #374151;
+}
+
+[data-theme="light"] .brand-stat-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .brand-stat-value {
+  color: #111827;
+}
+
+[data-theme="light"] .lock-notice {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+[data-theme="light"] .your-position {
+  background: rgba(5, 150, 105, 0.04);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .your-position h3 {
+  color: #059669;
+}
+
+[data-theme="light"] .position-stat-value {
+  color: #111827;
+}
+
+[data-theme="light"] .position-stat-value.positive {
+  color: #059669;
+}
+
+[data-theme="light"] .position-stat-value.negative {
+  color: #dc2626;
+}
+
+[data-theme="light"] .position-locked {
+  border-top-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .shareholder-item {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .shareholder-avatar {
+  background: rgba(0, 0, 0, 0.06);
+  color: #374151;
+}
+
+[data-theme="light"] .shareholder-name {
+  color: #111827;
+}
+
+[data-theme="light"] .shareholder-percent {
+  color: #059669;
+}
+
+/* --- Modals (brand-detail scoped) --- */
+[data-theme="light"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .modal-content {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .modal-content h2 {
+  color: #111827;
+}
+
+[data-theme="light"] .modal-price-info,
+[data-theme="light"] .modal-available {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .modal-price-info span:last-child,
+[data-theme="light"] .modal-available span:last-child {
+  color: #111827;
+}
+
+[data-theme="light"] .modal-input-group input {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #111827;
+}
+
+[data-theme="light"] .modal-input-group input:focus {
+  border-color: #059669;
+}
+
+[data-theme="light"] .max-btn {
+  background: rgba(5, 150, 105, 0.12);
+  color: #059669;
+}
+
+[data-theme="light"] .max-btn:hover {
+  background: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .modal-summary {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .summary-row span:last-child {
+  color: #374151;
+}
+
+[data-theme="light"] .summary-row.total {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .summary-row.total span:last-child {
+  color: #059669;
+}
+
+[data-theme="light"] .modal-message.success {
+  background: rgba(5, 150, 105, 0.08);
+  color: #059669;
+}
+
+[data-theme="light"] .modal-message.error {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+}

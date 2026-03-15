@@ -92,7 +92,7 @@ export default function Entrance() {
     await startAudio();
 
     if (isAuthenticated()) {
-      navigateWithTransition("/cockpit/dashboard");
+      navigateWithTransition("/cockpit/home");
     } else {
       navigateWithTransition("/auth/login");
     }

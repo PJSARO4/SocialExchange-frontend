@@ -1319,3 +1319,164 @@
     display: none;
   }
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] {
+  --escrow-bg-primary: #f8fafc;
+  --escrow-bg-secondary: #ffffff;
+  --escrow-bg-tertiary: #f1f5f9;
+  --escrow-bg-card: rgba(255, 255, 255, 0.95);
+  --escrow-border: rgba(0, 0, 0, 0.08);
+  --escrow-border-hover: rgba(0, 0, 0, 0.15);
+
+  --escrow-text-primary: #111827;
+  --escrow-text-secondary: #6b7280;
+  --escrow-text-muted: #9ca3af;
+
+  --escrow-cyan: #0891b2;
+  --escrow-cyan-glow: rgba(8, 145, 178, 0.2);
+  --escrow-green: #059669;
+  --escrow-green-glow: rgba(5, 150, 105, 0.2);
+  --escrow-yellow: #d97706;
+  --escrow-yellow-glow: rgba(217, 119, 6, 0.2);
+  --escrow-red: #dc2626;
+  --escrow-red-glow: rgba(220, 38, 38, 0.2);
+  --escrow-orange: #ea580c;
+}
+
+[data-theme="light"] .escrow-status-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .escrow-progress-step.completed .escrow-progress-step-circle {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-progress-step.failed .escrow-progress-step-circle {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-action-btn--primary {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-action-btn--primary:hover {
+  background: #0284c7;
+}
+
+[data-theme="light"] .escrow-action-btn--danger:hover {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-amount-highlight {
+  color: #059669;
+}
+
+[data-theme="light"] .escrow-modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .escrow-modal {
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .escrow-modal-step.active .escrow-modal-step-num {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-modal-step.completed .escrow-modal-step-num {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-platform-btn.active {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-niche-btn.active {
+  background: rgba(8, 145, 178, 0.08);
+}
+
+[data-theme="light"] .escrow-fee-total span:last-child {
+  color: #059669;
+}
+
+[data-theme="light"] .escrow-review-highlight {
+  color: #059669 !important;
+}
+
+[data-theme="light"] .escrow-btn--primary {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-btn--primary:hover:not(:disabled) {
+  background: #0284c7;
+}
+
+[data-theme="light"] .escrow-btn--danger:hover:not(:disabled) {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-listing-avatar-placeholder {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-listing-handle {
+  color: #0891b2;
+}
+
+[data-theme="light"] .escrow-asset-tag {
+  background: rgba(8, 145, 178, 0.08);
+  color: #0891b2;
+}
+
+[data-theme="light"] .escrow-verified-badge {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-pricing-box {
+  border-color: #0891b2;
+}
+
+[data-theme="light"] .escrow-price-value {
+  color: #0891b2;
+}
+
+[data-theme="light"] .escrow-offer-note {
+  background: rgba(217, 119, 6, 0.08);
+}
+
+[data-theme="light"] .escrow-protection-box {
+  background: rgba(5, 150, 105, 0.04);
+  border-color: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .escrow-confirm-highlight {
+  color: #0891b2 !important;
+}
+
+[data-theme="light"] .escrow-verification-timer {
+  background: rgba(217, 119, 6, 0.06);
+  border-color: rgba(217, 119, 6, 0.2);
+}
+
+[data-theme="light"] .escrow-verification-item.checked {
+  background: rgba(5, 150, 105, 0.04);
+}
+
+[data-theme="light"] .escrow-verification-checkbox input:checked + .escrow-verification-checkmark {
+  color: #ffffff;
+}
+
+[data-theme="light"] .escrow-id code {
+  color: #0891b2;
+}
+
+[data-theme="light"] .escrow-dispute-warning {
+  background: rgba(234, 88, 12, 0.06);
+  border-color: rgba(234, 88, 12, 0.2);
+}
+
+[data-theme="light"] .escrow-error {
+  background: rgba(220, 38, 38, 0.06);
+}

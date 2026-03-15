@@ -33,7 +33,7 @@ export default function SignupPage() {
   useEffect(() => {
     seedAuthIfEmpty();
     if (isAuthenticated()) {
-      router.push('/cockpit/dashboard');
+      router.push('/cockpit/home');
     }
   }, [router]);
 
@@ -177,7 +177,7 @@ export default function SignupPage() {
     }
 
     // Success - redirect to cockpit
-    router.push('/cockpit/dashboard');
+    router.push('/cockpit/home');
   };
 
   return (

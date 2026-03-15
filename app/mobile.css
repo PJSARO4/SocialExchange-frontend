@@ -984,3 +984,47 @@
     padding: 0;
   }
 }
+
+
+/* ═══════════════ LIGHT MODE ═══════════════ */
+
+[data-theme="light"] .mobile-menu-toggle {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+[data-theme="light"] .mobile-menu-toggle span {
+  background: #059669;
+}
+
+[data-theme="light"] .mobile-sidebar-overlay {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  [data-theme="light"] .cockpit-sidebar {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+  }
+
+  [data-theme="light"] .comms-sidebar {
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+  }
+
+  [data-theme="light"] .modal-header {
+    background: rgba(255, 255, 255, 0.98);
+  }
+
+  [data-theme="light"] .modal-footer {
+    background: rgba(255, 255, 255, 0.98);
+  }
+}
+
+/* Touch highlight */
+@media (max-width: 768px) {
+  [data-theme="light"] button,
+  [data-theme="light"] a,
+  [data-theme="light"] .clickable,
+  [data-theme="light"] [role="button"] {
+    -webkit-tap-highlight-color: rgba(5, 150, 105, 0.15);
+  }
+}

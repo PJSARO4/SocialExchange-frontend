@@ -64,3 +64,43 @@
   font-size: 11px;
   cursor: pointer;
 }
+
+/* ═══════════════════════════════════════════════
+   LIGHT MODE
+   ═══════════════════════════════════════════════ */
+
+[data-theme="light"] .feed-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .feed-card.selected {
+  border-color: rgba(5, 150, 105, 0.4);
+}
+
+[data-theme="light"] .status-light.armed {
+  color: #059669;
+}
+
+[data-theme="light"] .status-light.idle {
+  color: #f59e0b;
+}
+
+[data-theme="light"] .status-light.offline {
+  color: #dc2626;
+}
+
+[data-theme="light"] .feed-handle {
+  color: #111827;
+}
+
+[data-theme="light"] .feed-platform {
+  color: #6b7280;
+  opacity: 1;
+}
+
+[data-theme="light"] .feed-actions button {
+  background: rgba(0, 0, 0, 0.05);
+  color: #6b7280;
+}

@@ -17,9 +17,11 @@ import WelcomeExperience from '@/components/welcome/WelcomeExperience';
 import { PageTransitionProvider } from '@/components/transitions/PageTransition';
 import { AmbientAudioProvider, useAmbientAudio } from '@/lib/audio/useAmbientAudio';
 import AudioControl from '@/components/audio/AudioControl';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 import MoodBackground from '@/components/audio/MoodBackground';
 import GlobalChatWidget from './comms/components/GlobalChatWidget';
 import { ToastProvider } from './ui/toast/ToastProvider';
+import { ThemeProvider } from '@/app/context/ThemeContext';
 
 // ✅ CORRECT PATH (file lives in app/cockpit/context)
 import { AccountProvider } from './context/AccountContext';
@@ -215,6 +217,15 @@ function CockpitContent({ children }: { children: ReactNode }) {
           <div className="sidebar-title">NAVIGATION</div>
 
           <Link
+            href="/cockpit/home"
+            className={`sidebar-link ${
+              pathname === '/cockpit/home' ? 'active' : ''
+            }`}
+          >
+            Home
+          </Link>
+
+          <Link
             href="/cockpit/dashboard"
             className={`sidebar-link ${
               pathname === '/cockpit/dashboard' ? 'active' : ''
@@ -337,6 +348,7 @@ function CockpitContent({ children }: { children: ReactNode }) {
 
       {/* AUDIO CONTROL - Floating Widget */}
       <AudioControl />
+      <ThemeToggle />
     </div>
   );
 }
@@ -383,14 +395,16 @@ export default function CockpitLayoutClient({
   }
 
   return (
-    <AccountProvider>
-      <ToastProvider>
-        <AmbientAudioProvider autoChangeMood defaultVolume={0.6}>
-          <PageTransitionProvider defaultTransition="fade" defaultDuration={300}>
-            <CockpitContent>{children}</CockpitContent>
-          </PageTransitionProvider>
-        </AmbientAudioProvider>
-      </ToastProvider>
-    </AccountProvider>
+    <ThemeProvider>
+      <AccountProvider>
+        <ToastProvider>
+          <AmbientAudioProvider autoChangeMood defaultVolume={0.6}>
+            <PageTransitionProvider defaultTransition="fade" defaultDuration={300}>
+              <CockpitContent>{children}</CockpitContent>
+            </PageTransitionProvider>
+          </AmbientAudioProvider>
+        </ToastProvider>
+      </AccountProvider>
+    </ThemeProvider>
   );
 }

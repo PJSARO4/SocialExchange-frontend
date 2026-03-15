@@ -330,3 +330,142 @@
     flex: 1;
   }
 }
+
+/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+
+[data-theme="light"] .scheduler-header {
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .scheduler-title {
+  color: #111827;
+}
+
+[data-theme="light"] .scheduler-subtitle {
+  color: #6b7280;
+}
+
+[data-theme="light"] .scheduler-action-button {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+[data-theme="light"] .scheduler-action-button:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .scheduler-action-button.primary {
+  background: rgba(5, 150, 105, 0.08);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .scheduler-action-button.primary:hover {
+  background: rgba(5, 150, 105, 0.12);
+}
+
+[data-theme="light"] .scheduler-nav-button,
+[data-theme="light"] .scheduler-today-button {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #374151;
+}
+
+[data-theme="light"] .scheduler-nav-button:hover,
+[data-theme="light"] .scheduler-today-button:hover {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .scheduler-today-button {
+  background: rgba(5, 150, 105, 0.05);
+  border-color: rgba(5, 150, 105, 0.2);
+  color: #059669;
+}
+
+[data-theme="light"] .scheduler-today-button:hover {
+  background: rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .scheduler-calendar {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .week-header {
+  background: rgba(0, 0, 0, 0.02);
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .week-header-time-column {
+  border-right-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .week-header-day {
+  border-right-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .week-header-day.today {
+  background: rgba(5, 150, 105, 0.05);
+}
+
+[data-theme="light"] .week-header-day-name {
+  color: #6b7280;
+}
+
+[data-theme="light"] .week-header-day.today .week-header-day-name {
+  color: #059669;
+}
+
+[data-theme="light"] .week-header-day-date {
+  color: #374151;
+}
+
+[data-theme="light"] .time-slot-row {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .time-slot-hour {
+  border-right-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .time-slot-cell {
+  border-right-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .time-slot-cell:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .scheduled-post-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .scheduled-post-card:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .scheduled-post-time {
+  color: #374151;
+}
+
+[data-theme="light"] .scheduled-post-media {
+  color: #6b7280;
+}
+
+[data-theme="light"] .scheduled-post-caption {
+  color: #374151;
+}
+
+[data-theme="light"] .scheduled-post-status.status-scheduled {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+[data-theme="light"] .scheduled-post-status.status-automated {
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
+}

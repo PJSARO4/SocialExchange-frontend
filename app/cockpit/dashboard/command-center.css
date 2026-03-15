@@ -1317,3 +1317,148 @@
 .cc-market-change.neutral {
   color: #6b7280;
 }
+
+/* ================================================================
+   LIGHT MODE — Command Center
+   ================================================================ */
+[data-theme="light"] .command-center-v2 {
+  color: #1f2937;
+}
+
+[data-theme="light"] .cc-topbar {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .cc-welcome-greeting {
+  color: #111827;
+}
+
+[data-theme="light"] .cc-welcome-summary {
+  color: #6b7280;
+}
+
+[data-theme="light"] .cc-stat-card {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .cc-stat-value {
+  color: #111827;
+}
+
+[data-theme="light"] .cc-stat-label {
+  color: #6b7280;
+}
+
+[data-theme="light"] .cc-panel {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .cc-panel-title {
+  color: #111827;
+}
+
+[data-theme="light"] .cc-panel-badge {
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
+}
+
+[data-theme="light"] .cc-activity-message {
+  color: #374151;
+}
+
+[data-theme="light"] .cc-activity-time {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .cc-market-name {
+  color: #111827;
+}
+
+[data-theme="light"] .cc-market-meta {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .cc-market-value {
+  color: #059669;
+}
+
+[data-theme="light"] .cc-nav-card {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .cc-nav-card:hover {
+  background: rgba(5, 150, 105, 0.03);
+  border-color: rgba(5, 150, 105, 0.15);
+}
+
+[data-theme="light"] .cc-nav-card-title {
+  color: #111827;
+}
+
+[data-theme="light"] .cc-nav-card-desc {
+  color: #6b7280;
+}
+
+[data-theme="light"] .cc-quick-action {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #374151;
+}
+
+[data-theme="light"] .cc-quick-action:hover {
+  background: rgba(5, 150, 105, 0.06);
+  border-color: rgba(5, 150, 105, 0.25);
+}
+
+[data-theme="light"] .cc-footer {
+  color: #6b7280;
+}
+
+[data-theme="light"] .cc-footer-brand {
+  color: #111827;
+}
+
+[data-theme="light"] .cc-empty-text {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .cc-panel-link {
+  color: #059669;
+}
+
+[data-theme="light"] .cc-time-value {
+  color: #111827;
+}
+
+[data-theme="light"] .cc-time-date {
+  color: #6b7280;
+}
+
+[data-theme="light"] .cc-system-status {
+  color: #059669;
+}
+
+[data-theme="light"] .cc-user-name {
+  color: #111827;
+}
+
+[data-theme="light"] .cc-user-role {
+  color: #6b7280;
+}
+
+[data-theme="light"] .cc-logout-btn {
+  color: #6b7280;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .cc-logout-btn:hover {
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.3);
+}
