@@ -1349,15 +1349,13 @@
 }
 
 .feed-card-avatar {
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  overflow: hidden;
+  overflow: visible;
   background: var(--tac-bg-void);
   border: 1px solid var(--tac-border-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
 
@@ -1365,10 +1363,17 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .feed-card-avatar-fallback {
   font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .feed-card-info {
@@ -15654,17 +15659,23 @@
 
 /* Avatar border glow on hover */
 .feed-card-avatar {
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  overflow: hidden;
+  overflow: visible;
   background: var(--tac-bg-void);
   border: 1px solid var(--tac-border-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
   transition: all 0.3s ease;
+}
+
+.feed-card-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .feed-card:hover .feed-card-avatar {
@@ -16325,7 +16336,9 @@
 
 /* === Mode badge and platform badge SVG icons === */
 .feed-card-mode-badge {
-  position: relative;
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
   display: flex;
   align-items: center;
   justify-content: center;
