@@ -685,7 +685,7 @@
 
 [data-theme="light"] .signal-loading,
 [data-theme="light"] .signal-error {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-loading-spinner {
@@ -730,7 +730,7 @@
 }
 
 [data-theme="light"] .signal-tab {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-tab:hover {
@@ -754,7 +754,7 @@
 }
 
 [data-theme="light"] .signal-card-title {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-ip-value {
@@ -808,7 +808,7 @@
 }
 
 [data-theme="light"] .signal-location-text p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-detail-row {
@@ -816,7 +816,7 @@
 }
 
 [data-theme="light"] .signal-detail-label {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-detail-value {
@@ -834,7 +834,7 @@
 }
 
 [data-theme="light"] .signal-security-text p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-security-checks {
@@ -843,7 +843,7 @@
 }
 
 [data-theme="light"] .signal-security-checks h4 {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-check-item {
@@ -871,7 +871,7 @@
 
 [data-theme="light"] .signal-threats li,
 [data-theme="light"] .signal-recommendations li {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-browser-header {
@@ -884,7 +884,7 @@
 }
 
 [data-theme="light"] .signal-browser-text p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-useragent {
@@ -893,11 +893,11 @@
 }
 
 [data-theme="light"] .signal-useragent h4 {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-useragent code {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .signal-footer {

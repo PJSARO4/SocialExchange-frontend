@@ -432,7 +432,7 @@
 
 [data-theme="light"] .qr-filter-btn {
   border-color: rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .qr-filter-btn.active {
@@ -451,7 +451,7 @@
 }
 
 [data-theme="light"] .qr-item-content {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .qr-use-btn {

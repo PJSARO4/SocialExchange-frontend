@@ -1416,7 +1416,7 @@
 }
 
 [data-theme="light"] .copilot-status {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .copilot-status-dot {
@@ -1427,7 +1427,7 @@
 [data-theme="light"] .copilot-close,
 [data-theme="light"] .copilot-close-btn {
   border-color: rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .copilot-close:hover,
@@ -1443,7 +1443,7 @@
 }
 
 [data-theme="light"] .copilot-tab {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .copilot-tab:hover {
@@ -1518,7 +1518,7 @@
 [data-theme="light"] .copilot-quick-prompt-btn {
   background: #ffffff;
   border-color: rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .copilot-quick-prompt-btn:hover {
@@ -1529,7 +1529,7 @@
 
 [data-theme="light"] .copilot-category-tab {
   border-color: rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .copilot-category-tab:hover {
@@ -1612,11 +1612,11 @@
 }
 
 [data-theme="light"] .generate-type-desc {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .generate-input-group label {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .generate-input-group input {
@@ -1675,7 +1675,7 @@
 
 [data-theme="light"] .regenerate-btn {
   border-color: rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .regenerate-btn:hover {
@@ -1691,7 +1691,7 @@
 
 [data-theme="light"] .actions-intro p,
 [data-theme="light"] .insights-header p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .action-item {
@@ -1709,7 +1709,7 @@
 }
 
 [data-theme="light"] .action-item-desc {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .action-item-arrow {
@@ -1740,7 +1740,7 @@
 }
 
 [data-theme="light"] .insight-suggestion {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .summary-card {
@@ -1779,12 +1779,12 @@
 }
 
 [data-theme="light"] .copilot-confirm-dialog p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .confirm-cancel {
   border-color: rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .confirm-cancel:hover {

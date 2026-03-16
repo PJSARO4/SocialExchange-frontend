@@ -554,7 +554,7 @@
 }
 
 [data-theme="light"] .hero-tagline {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .stat-value {
@@ -571,7 +571,7 @@
 }
 
 [data-theme="light"] .nav-tab {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .nav-tab:hover {
@@ -610,7 +610,7 @@
 }
 
 [data-theme="light"] .feature-card li {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .feature-card li::before {
@@ -657,7 +657,7 @@
 }
 
 [data-theme="light"] .faq-answer {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .how-to-section h3 {
@@ -679,7 +679,7 @@
 }
 
 [data-theme="light"] .step-content p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .tier-item {
@@ -710,7 +710,7 @@
 }
 
 [data-theme="light"] .resource-desc {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .legal-notice {
@@ -740,7 +740,7 @@
 }
 
 [data-theme="light"] .legal-doc p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .legal-link {
@@ -757,11 +757,11 @@
 }
 
 [data-theme="light"] .disclaimer-box p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .disclaimer-box li {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .disclaimer-box li::before {

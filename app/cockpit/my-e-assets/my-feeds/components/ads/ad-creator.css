@@ -1253,7 +1253,7 @@
 }
 
 [data-theme="light"] .action-desc {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .recent-campaigns h3 {
@@ -1280,7 +1280,7 @@
 }
 
 [data-theme="light"] .campaign-info span {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .campaign-metrics {
@@ -1327,7 +1327,7 @@
 }
 
 [data-theme="light"] .template-info p {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .format-badge,
@@ -1383,7 +1383,7 @@
 }
 
 [data-theme="light"] .creator-step-content > p {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .objective-card {
@@ -1405,7 +1405,7 @@
 }
 
 [data-theme="light"] .objective-desc {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .platform-card {
@@ -1427,11 +1427,11 @@
 }
 
 [data-theme="light"] .platform-formats {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .form-group label {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .form-group input,

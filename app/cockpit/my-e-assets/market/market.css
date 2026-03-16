@@ -727,6 +727,10 @@
   color: #111827;
 }
 
+[data-theme="light"] .market-subtitle {
+  color: #374151;
+}
+
 [data-theme="light"] .market-sell-btn {
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: #ffffff;
@@ -757,7 +761,7 @@
 
 [data-theme="light"] .market-tab:hover {
   background: rgba(0, 0, 0, 0.04);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .market-tab.active {
@@ -786,7 +790,7 @@
 
 [data-theme="light"] .market-filter-toggle:hover {
   border-color: rgba(0, 0, 0, 0.2);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .market-clear-filters {
@@ -805,7 +809,7 @@
 }
 
 [data-theme="light"] .market-view-btn:hover {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .market-view-btn.active {
@@ -872,7 +876,7 @@
 
 [data-theme="light"] .market-niche-tag {
   background: rgba(0, 0, 0, 0.04);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .market-card-title {
@@ -904,6 +908,10 @@
 
 [data-theme="light"] .market-empty h3 {
   color: #111827;
+}
+
+[data-theme="light"] .market-empty p {
+  color: #374151;
 }
 
 [data-theme="light"] .market-cta-btn {

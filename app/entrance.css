@@ -841,7 +841,7 @@
 }
 
 [data-theme="light"] .user-greeting {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .user-name {
@@ -867,7 +867,7 @@
 }
 
 [data-theme="light"] .auth-link {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .auth-link::after {
@@ -884,7 +884,7 @@
 }
 
 [data-theme="light"] .typewriter {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .typewriter .cursor {
@@ -938,5 +938,5 @@
 }
 
 [data-theme="light"] .audio-hint-text {
-  color: #6b7280;
+  color: #374151;
 }

@@ -340,6 +340,34 @@
   background: rgba(0, 0, 0, 0.05);
 }
 
+[data-theme="light"] .workspace-panel-title {
+  color: #374151;
+}
+
+[data-theme="light"] .command-section-title {
+  color: #374151;
+}
+
+[data-theme="light"] .metric-label {
+  color: #374151;
+}
+
+[data-theme="light"] .account-selector-platform {
+  color: #374151;
+}
+
+[data-theme="light"] .account-selector-status {
+  color: #374151;
+}
+
+[data-theme="light"] .activity-item-type {
+  color: #374151;
+}
+
+[data-theme="light"] .status-indicator-label {
+  color: #374151;
+}
+
 [data-theme="light"] .workspace-right-panel {
   background: rgba(0, 0, 0, 0.02);
   border-left-color: rgba(0, 0, 0, 0.08);

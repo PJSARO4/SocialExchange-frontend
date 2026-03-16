@@ -533,7 +533,7 @@
 [data-theme="light"] .logs-control-btn {
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .logs-control-btn:hover {
@@ -624,7 +624,7 @@
 }
 
 [data-theme="light"] .log-user {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .log-expand-icon {
@@ -636,7 +636,7 @@
 }
 
 [data-theme="light"] .log-detail-label {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .log-detail-value {
@@ -649,7 +649,7 @@
 
 [data-theme="light"] .log-metadata-content {
   background: rgba(0, 0, 0, 0.03);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .logs-live-indicator {

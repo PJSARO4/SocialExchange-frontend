@@ -1209,12 +1209,12 @@
 
 [data-theme="light"] .comms-channel-desc,
 [data-theme="light"] .comms-header-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .comms-header-btn {
   background: #f0f4f8;
-  color: #6b7280;
+  color: #374151;
   border-color: rgba(0, 0, 0, 0.08);
 }
 
@@ -1249,7 +1249,7 @@
 }
 
 [data-theme="light"] .comms-channel-item .comms-channel-preview {
-  color: #6b7280;
+  color: #4b5563;
 }
 
 [data-theme="light"] .comms-channel-item:hover {
@@ -1290,7 +1290,7 @@
 }
 
 [data-theme="light"] .comms-typing-indicator {
-  color: #6b7280;
+  color: #4b5563;
 }
 
 [data-theme="light"] .comms-message-input,
@@ -1316,7 +1316,7 @@
 }
 
 [data-theme="light"] .comms-list-tab {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .comms-input-form {

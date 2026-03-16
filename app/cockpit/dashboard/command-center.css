@@ -1335,7 +1335,7 @@
 }
 
 [data-theme="light"] .cc-welcome-summary {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .cc-stat-card {
@@ -1403,7 +1403,7 @@
 }
 
 [data-theme="light"] .cc-nav-card-desc {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .cc-quick-action {
@@ -1418,7 +1418,7 @@
 }
 
 [data-theme="light"] .cc-footer {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .cc-footer-brand {
@@ -1450,11 +1450,11 @@
 }
 
 [data-theme="light"] .cc-user-role {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .cc-logout-btn {
-  color: #6b7280;
+  color: #374151;
   border-color: rgba(0, 0, 0, 0.1);
 }
 

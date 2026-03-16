@@ -588,7 +588,23 @@
   color: #dc2626;
 }
 
+[data-theme="light"] .brand-detail-handle {
+  color: #374151;
+}
+
 [data-theme="light"] .brand-detail-description p {
+  color: #374151;
+}
+
+[data-theme="light"] .founder-info {
+  color: #374151;
+}
+
+[data-theme="light"] .founder-info strong {
+  color: #111827;
+}
+
+[data-theme="light"] .brand-stat-label {
   color: #374151;
 }
 
@@ -631,6 +647,26 @@
   border-top-color: rgba(5, 150, 105, 0.2);
 }
 
+[data-theme="light"] .price-label {
+  color: #374151;
+}
+
+[data-theme="light"] .position-stat-label {
+  color: #374151;
+}
+
+[data-theme="light"] .recent-transactions h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .shareholders h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .shareholder-shares {
+  color: #374151;
+}
+
 [data-theme="light"] .shareholder-item {
   background: rgba(0, 0, 0, 0.02);
   border-color: rgba(0, 0, 0, 0.06);
@@ -647,6 +683,19 @@
 
 [data-theme="light"] .shareholder-percent {
   color: #059669;
+}
+
+[data-theme="light"] .modal-price-info span:first-child,
+[data-theme="light"] .modal-available span:first-child {
+  color: #374151;
+}
+
+[data-theme="light"] .modal-input-group label {
+  color: #374151;
+}
+
+[data-theme="light"] .summary-row span:first-child {
+  color: #374151;
 }
 
 /* --- Modals (brand-detail scoped) --- */

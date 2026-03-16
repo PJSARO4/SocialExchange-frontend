@@ -843,7 +843,7 @@
 }
 
 [data-theme="light"] .owner-loading-text {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .owner-access-denied-card {
@@ -856,12 +856,12 @@
 }
 
 [data-theme="light"] .owner-access-denied-text {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .owner-access-btn.secondary {
   border: 1px solid rgba(0, 0, 0, 0.12);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .owner-access-btn.secondary:hover {
@@ -878,7 +878,7 @@
 }
 
 [data-theme="light"] .owner-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .owner-status.online {
@@ -905,7 +905,7 @@
 }
 
 [data-theme="light"] .owner-tab {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .owner-tab:hover {
@@ -970,7 +970,7 @@
 }
 
 [data-theme="light"] .section h3 {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .action-btn {
@@ -1023,7 +1023,7 @@
 }
 
 [data-theme="light"] .alert-message {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .alert-time {
@@ -1037,7 +1037,7 @@
 }
 
 [data-theme="light"] .data-table th {
-  color: #6b7280;
+  color: #374151;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -1098,7 +1098,7 @@
 [data-theme="light"] .action-btn-small {
   background: rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .action-btn-small:hover {
@@ -1121,7 +1121,7 @@
 }
 
 [data-theme="light"] .breakdown-label {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .breakdown-value {
@@ -1146,7 +1146,7 @@
 }
 
 [data-theme="light"] .compliance-desc {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .alert-item-full {
@@ -1171,7 +1171,7 @@
 }
 
 [data-theme="light"] .alert-body {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .status-resolved {
@@ -1204,7 +1204,7 @@
 }
 
 [data-theme="light"] .setting-input span {
-  color: #6b7280;
+  color: #4b5563;
 }
 
 [data-theme="light"] .setting-desc {
@@ -1219,5 +1219,5 @@
 [data-theme="light"] .reset-btn {
   background: transparent;
   border: 1px solid rgba(0, 0, 0, 0.15);
-  color: #6b7280;
+  color: #374151;
 }

@@ -580,7 +580,7 @@
 [data-theme="light"] .orgo-chat-message.system {
   background: rgba(0, 0, 0, 0.02);
   border-color: rgba(0, 0, 0, 0.06);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .orgo-chat-typing {
@@ -630,7 +630,7 @@
 [data-theme="light"] .orgo-quick-chip {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .orgo-quick-chip:hover {

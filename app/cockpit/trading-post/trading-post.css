@@ -787,7 +787,7 @@
 }
 
 [data-theme="light"] .trading-post-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .header-stat {
@@ -823,7 +823,7 @@
 }
 
 [data-theme="light"] .quick-action-desc {
-  color: #6b7280;
+  color: #4b5563;
 }
 
 [data-theme="light"] .quick-action-arrow {
@@ -839,7 +839,7 @@
 }
 
 [data-theme="light"] .featured-instagram-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .featured-stat-value {
@@ -896,7 +896,7 @@
 }
 
 [data-theme="light"] .category-description {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .category-stats {
@@ -919,7 +919,7 @@
 [data-theme="light"] .trends-header {
   background: #f8fafc;
   border-bottom-color: rgba(0, 0, 0, 0.06);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .trends-row {
@@ -965,7 +965,7 @@
 }
 
 [data-theme="light"] .trust-description {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .cta-banner {
@@ -978,7 +978,7 @@
 }
 
 [data-theme="light"] .cta-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .cta-btn.primary {

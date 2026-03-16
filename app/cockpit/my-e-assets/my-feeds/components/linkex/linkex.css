@@ -1114,11 +1114,11 @@
 }
 
 [data-theme="light"] .linkex-header-content p {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .linkex-close-btn {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .linkex-close-btn:hover {
@@ -1132,7 +1132,7 @@
 }
 
 [data-theme="light"] .linkex-nav-btn {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .linkex-nav-btn:hover {
@@ -1184,7 +1184,7 @@
 }
 
 [data-theme="light"] .preview-bio {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .page-card-actions {
@@ -1247,7 +1247,7 @@
 }
 
 [data-theme="light"] .bio-links-header p {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .links-count {
@@ -1324,7 +1324,7 @@
 /* Bio Page Preview Link */
 [data-theme="light"] .bio-page-preview-link {
   background: rgba(79, 70, 229, 0.06);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .bio-page-preview-link a {
@@ -1337,7 +1337,7 @@
 }
 
 [data-theme="light"] .affiliate-header p {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .summary-value {
@@ -1427,7 +1427,7 @@
 [data-theme="light"] .period-btn {
   background: rgba(0, 0, 0, 0.03);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .period-btn:hover {

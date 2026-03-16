@@ -821,7 +821,7 @@
 }
 
 [data-theme="light"] .auth-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .auth-step-number {
@@ -851,7 +851,7 @@
 }
 
 [data-theme="light"] .auth-label {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .auth-input {
@@ -902,7 +902,7 @@
 }
 
 [data-theme="light"] .auth-checkbox-text {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .auth-checkbox-label.terms {
@@ -912,7 +912,7 @@
 
 [data-theme="light"] .auth-back-btn {
   border-color: rgba(0, 0, 0, 0.15);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .auth-back-btn:hover:not(:disabled) {
@@ -998,7 +998,7 @@
 }
 
 [data-theme="light"] .auth-access-text {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .auth-footer {
@@ -1006,7 +1006,7 @@
 }
 
 [data-theme="light"] .auth-footer-link {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .auth-footer-link:hover {

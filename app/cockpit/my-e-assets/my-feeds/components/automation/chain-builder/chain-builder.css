@@ -805,7 +805,7 @@
 [data-theme="light"] .back-btn {
   background: rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .back-btn:hover {
@@ -823,12 +823,12 @@
 }
 
 [data-theme="light"] .chain-feed {
-  color: #6b7280;
+  color: #374151;
   background: rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="light"] .chain-toggle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .test-btn {
@@ -856,7 +856,7 @@
 }
 
 [data-theme="light"] .catalog-header p {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .catalog-category h4 {
@@ -893,7 +893,7 @@
 }
 
 [data-theme="light"] .empty-content p {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .quick-start-btn {
@@ -921,7 +921,7 @@
 }
 
 [data-theme="light"] .zoom-controls button {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .zoom-controls button:hover {
@@ -952,7 +952,7 @@
 }
 
 [data-theme="light"] .node-description {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .node-warning {
@@ -1045,7 +1045,7 @@
 }
 
 [data-theme="light"] .config-title p {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .config-close {
@@ -1059,7 +1059,7 @@
 }
 
 [data-theme="light"] .config-field label {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .config-field input,

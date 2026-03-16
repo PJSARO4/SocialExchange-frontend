@@ -1041,7 +1041,7 @@
 }
 
 [data-theme="light"] .e-storage-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-storage-search {
@@ -1060,7 +1060,7 @@
 
 [data-theme="light"] .e-storage-type-btn {
   border-color: rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-storage-type-btn:hover {
@@ -1090,7 +1090,7 @@
 }
 
 [data-theme="light"] .e-storage-view-toggle button {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-storage-view-toggle button.active {
@@ -1114,7 +1114,7 @@
 [data-theme="light"] .e-storage-bulk-btn {
   background: #ffffff;
   border-color: rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-storage-bulk-btn:hover {
@@ -1139,7 +1139,7 @@
 
 [data-theme="light"] .e-storage-move-item {
   border-bottom-color: rgba(0, 0, 0, 0.06);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-storage-move-item:hover {
@@ -1152,7 +1152,7 @@
 }
 
 [data-theme="light"] .e-storage-folder-item {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-storage-folder-item:hover {
@@ -1186,7 +1186,7 @@
 [data-theme="light"] .e-storage-new-folder-confirm,
 [data-theme="light"] .e-storage-new-folder-cancel {
   border-color: rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-storage-new-folder-confirm:hover {
@@ -1215,7 +1215,7 @@
 [data-theme="light"] .e-storage-tag {
   background: rgba(0, 0, 0, 0.03);
   border-color: rgba(0, 0, 0, 0.08);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-storage-tag:hover {
@@ -1234,7 +1234,7 @@
 }
 
 [data-theme="light"] .e-storage-empty-text {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-detail-overlay {
@@ -1268,7 +1268,7 @@
 
 [data-theme="light"] .e-detail-close-btn {
   border-color: rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-detail-close-btn:hover {
@@ -1294,7 +1294,7 @@
 }
 
 [data-theme="light"] .e-detail-description {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-detail-input {
@@ -1351,7 +1351,7 @@
 }
 
 [data-theme="light"] .e-detail-meta-value {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-detail-actions {
@@ -1360,7 +1360,7 @@
 
 [data-theme="light"] .e-detail-cancel-btn {
   border-color: rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-detail-cancel-btn:hover {
@@ -1387,7 +1387,7 @@
 [data-theme="light"] .e-lightbox-close {
   background: rgba(0, 0, 0, 0.06);
   border-color: rgba(0, 0, 0, 0.1);
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-lightbox-close:hover {
@@ -1412,7 +1412,7 @@
 }
 
 [data-theme="light"] .e-lightbox-loading {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .e-lightbox-title {

@@ -1467,7 +1467,7 @@
 }
 
 [data-theme="light"] .e-shares-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 /* --- Tab Navigation --- */
@@ -1566,7 +1566,7 @@
 
 /* --- Brand Description --- */
 [data-theme="light"] .brand-description {
-  color: #6b7280;
+  color: #374151;
 }
 
 /* --- Brand Metrics --- */
@@ -1700,7 +1700,7 @@
 }
 
 [data-theme="light"] .holding-shares {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .holding-value {
@@ -1885,7 +1885,7 @@
 }
 
 [data-theme="light"] .summary-row {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .summary-row span:last-child {

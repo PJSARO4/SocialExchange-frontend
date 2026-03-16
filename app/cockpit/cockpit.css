@@ -2055,11 +2055,11 @@ body {
 }
 
 [data-theme="light"] .panel-subtitle {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .empty-state {
-  color: #9ca3af;
+  color: #374151;
 }
 
 [data-theme="light"] .market-row {
@@ -2077,7 +2077,7 @@ body {
 }
 
 [data-theme="light"] .asset-description {
-  color: #6b7280;
+  color: #374151;
 }
 
 [data-theme="light"] .asset-price {
