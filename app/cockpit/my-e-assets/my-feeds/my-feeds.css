@@ -223,6 +223,8 @@
   flex-direction: column;
   box-shadow: inset -2px 0 8px rgba(0, 0, 0, 0.3);
   position: relative;
+  overflow: hidden;
+  z-index: 1;
 }
 
 .feeds-deck-left::before {
@@ -1151,6 +1153,8 @@
   flex-direction: column;
   background: var(--tac-bg-deep);
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
 }
 
 /* ======================================================
@@ -13190,12 +13194,14 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  min-width: 0;
 }
 
 .workspace-avatar-container {
   position: relative;
   width: 48px;
   height: 48px;
+  flex-shrink: 0;
 }
 
 .workspace-avatar {
@@ -13204,6 +13210,7 @@
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--tac-border-primary);
+  display: block;
 }
 
 .workspace-platform-badge {
@@ -13218,6 +13225,7 @@
   justify-content: center;
   font-size: 0.65rem;
   border: 2px solid var(--tac-bg-surface);
+  z-index: 1;
 }
 
 .workspace-platform-icon {
@@ -13228,12 +13236,15 @@
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
 .workspace-account-info {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.25rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .workspace-handle {
@@ -13241,11 +13252,19 @@
   font-weight: 600;
   color: var(--tac-text-critical);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .workspace-display-name {
   font-size: 0.8rem;
   color: var(--tac-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 /* Quick Metrics in Header */
@@ -15245,6 +15264,7 @@
   height: 48px;
   border-radius: 50%;
   object-fit: cover;
+  display: block;
   border: 2px solid rgba(63, 255, 220, 0.3);
   transition: all 0.3s ease;
   animation: avatarRingPulse 3s ease-in-out infinite;
