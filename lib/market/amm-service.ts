@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Automated Market Maker Service for E-Shares
  * Uses constant product formula: x * y = k

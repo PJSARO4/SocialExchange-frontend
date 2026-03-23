@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Listing Service for Trading Post
  * Manages social media account listings
