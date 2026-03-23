@@ -1,15 +1,10 @@
 .feed-card {
   border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: clamp(8px, 1.5vw, 12px);
-  border-radius: clamp(6px, 1vw, 8px);
-  margin-bottom: clamp(8px, 1.5vw, 10px);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
   background: rgba(10, 14, 20, 0.6);
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-height: 44px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .feed-card.selected {
@@ -19,16 +14,14 @@
 .feed-card-header {
   display: flex;
   align-items: center;
-  gap: clamp(6px, 1.5vw, 10px);
-  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .status-light {
-  width: clamp(8px, 1vw, 10px);
-  height: clamp(8px, 1vw, 10px);
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  box-shadow: 0 0 clamp(4px, 0.5vw, 6px) currentColor;
-  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
 }
 
 .status-light.armed {
@@ -46,83 +39,30 @@
 .feed-meta {
   display: flex;
   flex-direction: column;
-  gap: clamp(2px, 0.5vw, 4px);
-  min-width: 0;
 }
 
 .feed-handle {
   font-weight: 600;
-  letter-spacing: clamp(0.03em, 0.05vw, 0.04em);
-  font-size: clamp(0.875rem, 1vw, 1rem);
-  word-break: break-word;
-  min-width: 0;
+  letter-spacing: 0.04em;
 }
 
 .feed-platform {
-  font-size: clamp(9px, 0.9vw, 11px);
+  font-size: 11px;
   opacity: 0.6;
-  word-break: break-word;
-  min-width: 0;
 }
 
 .feed-actions {
   display: flex;
-  gap: clamp(4px, 1vw, 8px);
-  margin-top: clamp(6px, 1.5vw, 10px);
-  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
 }
 
 .feed-actions button {
   background: rgba(255, 255, 255, 0.06);
   border: none;
-  padding: clamp(4px, 1vw, 8px) clamp(6px, 1.5vw, 10px);
-  font-size: clamp(9px, 0.9vw, 11px);
+  padding: 6px 10px;
+  font-size: 11px;
   cursor: pointer;
-  min-height: 36px;
-  min-width: 36px;
-  transition: all 0.2s ease;
-  border-radius: clamp(4px, 0.5vw, 6px);
-}
-
-.feed-actions button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-1px);
-}
-
-/* Responsive media queries */
-@media (max-width: 768px) {
-  .feed-card {
-    min-height: 48px;
-    padding: clamp(10px, 2vw, 12px);
-  }
-
-  .feed-actions button {
-    min-height: 40px;
-    min-width: 40px;
-  }
-}
-
-@media (max-width: 480px) {
-  .feed-card {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .feed-card-header {
-    flex: 1;
-    gap: 8px;
-  }
-
-  .feed-actions {
-    margin-top: 0;
-    justify-content: flex-end;
-  }
-
-  .feed-actions button {
-    min-height: 44px;
-    min-width: 44px;
-  }
 }
 
 /* ═══════════════════════════════════════════════
