@@ -17,7 +17,7 @@
 }
 
 .comms-page {
-  min-height: 100vh;
+  width: 100%;
   background: radial-gradient(ellipse at top, var(--comms-bg-panel) 0%, var(--comms-bg-deep) 50%, var(--comms-bg-void) 100%);
   color: var(--comms-text-primary);
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -72,7 +72,7 @@
 .comms-layout {
   display: grid;
   grid-template-columns: 340px 1fr;
-  min-height: calc(100vh - 120px);
+  min-height: auto; /* was: calc(100vh - 120px);
 }
 
 .comms-left-panel {

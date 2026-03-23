@@ -907,13 +907,20 @@ class AmbientAudioEngine {
 
     const track = this.getCurrentTrack();
 
-    if (track.type === 'mp3') {
-      this.audio?.play().then(() => {
+    if (track.type === 'mp3' && track.src) {
+      // Check if audio element has a src set, otherwise fall back to start()
+      if (!this.audio || !this.audio.src) {
+        this.start(this.currentScene);
+        return;
+      }
+      this.audio.play().then(() => {
         this.isPlaying = true;
         this.fadeToVolume(this.targetVolume, 1000);
         this.emit('playStateChange', true);
       }).catch(err => {
         console.warn('[AmbientAudio] Could not resume:', err);
+        // Fall back to start() if play() fails
+        this.start(this.currentScene);
       });
     } else if (track.type === 'synth' && track.synth) {
       this.initWebAudio();
@@ -925,6 +932,9 @@ class AmbientAudioEngine {
       this.fadeToVolume(this.targetVolume, 1000);
       this.scheduleAutoAdvance();
       this.emit('playStateChange', true);
+    } else {
+      // Fallback: if track type is unknown or missing, call start()
+      this.start(this.currentScene);
     }
   }
 
