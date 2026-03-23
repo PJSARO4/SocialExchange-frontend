@@ -976,6 +976,121 @@
 }
 
 /* ======================================================
+   RESPONSIVE UTILITIES — Fluid Typography & Spacing
+====================================================== */
+
+/* Prevent horizontal scrolling */
+.feeds-deck,
+.feeds-deck-body,
+.feeds-deck-header,
+.feeds-deck > * {
+  overflow-x: hidden;
+}
+
+/* Fluid typography */
+.feeds-deck-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  letter-spacing: clamp(2px, 0.3vw, 4px);
+  margin: 0 0 clamp(0.75rem, 1.5vw, 1rem) 0;
+}
+
+.feeds-deck-header {
+  padding: clamp(1rem, 2vw, 2rem) clamp(1rem, 2vw, 2rem) clamp(0.75rem, 1.5vw, 1.5rem);
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+.feeds-deck-tabs {
+  gap: clamp(4px, 1vw, 8px);
+  flex-wrap: wrap;
+}
+
+.feeds-deck-tab {
+  padding: clamp(0.6rem, 1vw, 0.875rem) clamp(1rem, 1.5vw, 1.5rem);
+  font-size: clamp(0.6rem, 0.8vw, 0.75rem);
+  letter-spacing: clamp(1px, 0.1vw, 1.5px);
+  min-height: 44px;
+}
+
+/* Responsive grid for cards */
+.feeds-accounts-grid,
+.feeds-platforms-grid,
+.feeds-services-grid,
+.feed-workspace-grid,
+.control-modes-grid {
+  display: grid;
+  gap: clamp(8px, 2vw, 16px);
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+}
+
+/* Responsive modals */
+.feeds-modal,
+.modal,
+.dialog,
+.window {
+  max-width: clamp(280px, 95vw, 900px);
+  max-height: clamp(200px, 90vh, 800px);
+  margin: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive buttons and controls */
+.feeds-action-btn,
+.btn,
+[role="button"] {
+  min-height: 44px;
+  padding: clamp(8px, 1.5vw, 12px) clamp(12px, 2vw, 20px);
+  font-size: clamp(0.75rem, 0.9vw, 0.875rem);
+  letter-spacing: clamp(0.5px, 0.1vw, 1px);
+}
+
+/* Responsive input fields */
+input,
+textarea,
+select {
+  min-height: 44px;
+  padding: clamp(8px, 1.5vw, 12px);
+  font-size: clamp(0.875rem, 1vw, 1rem);
+}
+
+/* Responsive spacing utilities */
+.feeds-section {
+  padding: clamp(1rem, 2vw, 2rem);
+  margin-bottom: clamp(1rem, 2vw, 2rem);
+}
+
+/* Responsive typography */
+.feeds-section-title {
+  font-size: clamp(0.75rem, 1vw, 0.875rem);
+  letter-spacing: clamp(1px, 0.1vw, 1.5px);
+  margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+/* Responsive spinner */
+.feeds-loading-spinner {
+  width: clamp(30px, 5vw, 40px);
+  height: clamp(30px, 5vw, 40px);
+  border-width: clamp(1.5px, 0.3vw, 2px);
+  margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+/* Responsive calendar grid */
+.feeds-calendar-grid {
+  gap: clamp(2px, 0.5vw, 4px);
+  grid-auto-rows: minmax(clamp(40px, 7vh, 60px), auto);
+}
+
+/* Responsive scrollable containers */
+.scroll-container,
+.modal-body,
+.feeds-content,
+.feeds-list {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: clamp(200px, 80vh, 800px);
+}
+
+/* ======================================================
    RESPONSIVE TACTICAL GRID
 ====================================================== */
 

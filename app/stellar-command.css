@@ -1005,6 +1005,152 @@
 
 
 /* ============================================================================
+   9.5. RESPONSIVE UTILITIES — Fluid Design System
+   All screens - Responsive typography, spacing, and layout
+   ============================================================================ */
+
+/* Global responsive properties */
+:root {
+  /* Responsive spacing */
+  --space-responsive-xs: clamp(4px, 0.75vw, 8px);
+  --space-responsive-sm: clamp(8px, 1.5vw, 12px);
+  --space-responsive-md: clamp(12px, 2vw, 16px);
+  --space-responsive-lg: clamp(16px, 3vw, 24px);
+  --space-responsive-xl: clamp(24px, 4vw, 32px);
+  --space-responsive-2xl: clamp(32px, 5vw, 48px);
+
+  /* Responsive font sizes */
+  --font-size-xs: clamp(0.65rem, 0.8vw, 0.75rem);
+  --font-size-sm: clamp(0.75rem, 0.95vw, 0.875rem);
+  --font-size-base: clamp(0.875rem, 1.1vw, 1rem);
+  --font-size-lg: clamp(1rem, 1.25vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 1.75vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 2.5vw, 1.875rem);
+  --font-size-3xl: clamp(1.875rem, 3.5vw, 2.25rem);
+  --font-size-4xl: clamp(2.25rem, 5vw, 3rem);
+
+  /* Responsive border radius */
+  --radius-xs: clamp(3px, 0.5vw, 4px);
+  --radius-sm: clamp(4px, 0.75vw, 6px);
+  --radius-md: clamp(6px, 1vw, 8px);
+  --radius-lg: clamp(8px, 1.25vw, 10px);
+  --radius-xl: clamp(10px, 1.5vw, 12px);
+
+  /* Responsive touch targets */
+  --touch-target: 44px;
+  --touch-target-sm: 36px;
+  --touch-target-lg: 48px;
+}
+
+/* Prevent horizontal overflow globally */
+*,
+*::before,
+*::after {
+  max-width: 100%;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Responsive container utilities */
+.container,
+.container-fluid,
+.card,
+.modal,
+.panel {
+  overflow-x: hidden;
+}
+
+/* Responsive button base */
+.btn,
+.button,
+button {
+  min-height: var(--touch-target);
+  padding: var(--space-responsive-sm) var(--space-responsive-md);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-md);
+  letter-spacing: clamp(0.3px, 0.1vw, 0.8px);
+  transition: all 0.2s ease;
+}
+
+/* Responsive input fields */
+input,
+textarea,
+select {
+  min-height: var(--touch-target);
+  padding: var(--space-responsive-sm);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-sm);
+}
+
+/* Responsive heading utilities */
+.heading-xs { font-size: var(--font-size-xs); }
+.heading-sm { font-size: var(--font-size-sm); }
+.heading-base { font-size: var(--font-size-base); }
+.heading-lg { font-size: var(--font-size-lg); }
+.heading-xl { font-size: var(--font-size-xl); }
+.heading-2xl { font-size: var(--font-size-2xl); }
+.heading-3xl { font-size: var(--font-size-3xl); }
+
+/* Responsive text utilities */
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+/* Responsive spacing utilities */
+.p-responsive-xs { padding: var(--space-responsive-xs); }
+.p-responsive-sm { padding: var(--space-responsive-sm); }
+.p-responsive-md { padding: var(--space-responsive-md); }
+.p-responsive-lg { padding: var(--space-responsive-lg); }
+
+.m-responsive-xs { margin: var(--space-responsive-xs); }
+.m-responsive-sm { margin: var(--space-responsive-sm); }
+.m-responsive-md { margin: var(--space-responsive-md); }
+.m-responsive-lg { margin: var(--space-responsive-lg); }
+
+.gap-responsive { gap: var(--space-responsive-md); }
+
+/* Responsive border radius utilities */
+.rounded-xs { border-radius: var(--radius-xs); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+
+/* Responsive typography for key screen sizes */
+@media (max-width: 1024px) {
+  :root {
+    --font-size-4xl: clamp(2rem, 6vw, 2.5rem);
+    --font-size-3xl: clamp(1.5rem, 4.5vw, 2rem);
+    --font-size-2xl: clamp(1.25rem, 3vw, 1.75rem);
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --font-size-4xl: clamp(1.75rem, 7vw, 2.25rem);
+    --font-size-3xl: clamp(1.25rem, 5vw, 1.75rem);
+    --touch-target: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-4xl: clamp(1.5rem, 8vw, 2rem);
+    --font-size-3xl: clamp(1.125rem, 5.5vw, 1.5rem);
+    --touch-target: 48px;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* ============================================================================
    10. REDUCED MOTION
    ============================================================================ */
 

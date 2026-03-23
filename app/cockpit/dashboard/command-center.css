@@ -1084,7 +1084,83 @@
   height: 6px;
   border-radius: 50%;
   background: #00ff88;
-  box-shadow: 0 0 6px rgba(0, 255, 136, 0.4);
+  box-shadow: 0 0 clamp(4px, 0.5vw, 6px) rgba(0, 255, 136, 0.4);
+}
+
+/* ---------------------------------------------------
+   RESPONSIVE UTILITIES — Fluid Typography & Layout
+   All screens
+--------------------------------------------------- */
+
+/* Prevent horizontal scrolling */
+.command-center-v2 {
+  overflow-x: hidden;
+}
+
+/* Fluid typography */
+.cc-stat-value {
+  font-size: clamp(1.25rem, 3vw, 1.875rem);
+}
+
+.cc-stat-label {
+  font-size: clamp(0.75rem, 0.9vw, 0.875rem);
+  letter-spacing: clamp(0.5px, 0.1vw, 0.75px);
+}
+
+.cc-heading {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  letter-spacing: clamp(1px, 0.2vw, 2px);
+}
+
+.cc-section-title {
+  font-size: clamp(0.875rem, 1.1vw, 1.125rem);
+  letter-spacing: clamp(0.5px, 0.1vw, 1px);
+}
+
+/* Responsive grids */
+.cc-stats-grid,
+.cc-nav-cards,
+.cc-main-grid {
+  display: grid;
+  gap: clamp(12px, 2vw, 20px);
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+}
+
+/* Responsive buttons */
+.cc-action-button,
+.cc-quick-action,
+button,
+[role="button"] {
+  min-height: 44px;
+  padding: clamp(8px, 1.5vw, 12px) clamp(12px, 2vw, 20px);
+  font-size: clamp(0.75rem, 0.9vw, 0.875rem);
+}
+
+/* Responsive cards */
+.cc-stat-card,
+.cc-card,
+.card {
+  padding: clamp(12px, 2vw, 16px);
+  border-radius: clamp(6px, 1vw, 10px);
+  min-height: clamp(100px, 20vh, 150px);
+}
+
+/* Responsive loading spinner */
+.cc-loading-spinner {
+  width: clamp(36px, 8vw, 48px);
+  height: clamp(36px, 8vw, 48px);
+}
+
+/* Responsive containers */
+.cc-loading,
+.cc-container {
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* Responsive typography in dashboard */
+.cc-loading-text {
+  font-size: clamp(0.875rem, 1vw, 1rem);
+  letter-spacing: clamp(0.15em, 0.2vw, 0.2em);
 }
 
 /* ---------------------------------------------------
