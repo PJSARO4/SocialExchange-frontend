@@ -1,38 +1,65 @@
 /* ======================================================
-   E-SHARES  --  TRADING FLOOR
-   Holographic glass design system for digital brand equity
-   Social Exchange  |  2026
+   INVESTMENT ARENA -- E-SHARES TRADING PLATFORM
+   Space-themed fintech UI for creator brand equity
+   Social Exchange | 2026
 ====================================================== */
 
 /* ============================================
-   KEYFRAME ANIMATIONS
+   0. CSS VARIABLES & THEME
+============================================ */
+:root {
+  --arena-bg-deep: #02040a;
+  --arena-bg-surface: #0a1118;
+  --arena-glass: rgba(10, 17, 24, 0.88);
+  --arena-border: rgba(0, 240, 255, 0.08);
+  --arena-border-hover: rgba(0, 240, 255, 0.16);
+
+  --neon-cyan: #00f0ff;
+  --neon-cyan-glow: rgba(0, 240, 255, 0.3);
+  --neon-green: #00ff88;
+  --neon-red: #ff4444;
+  --neon-gold: #ffa500;
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-muted: rgba(255, 255, 255, 0.4);
+
+  --shadow-glow: 0 0 20px rgba(0, 240, 255, 0.15);
+  --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] {
+  --arena-bg-deep: #f8f9fa;
+  --arena-bg-surface: #ffffff;
+  --arena-glass: rgba(255, 255, 255, 0.92);
+  --arena-border: rgba(200, 200, 200, 0.3);
+  --arena-border-hover: rgba(100, 100, 100, 0.3);
+
+  --neon-cyan: #0066cc;
+  --neon-cyan-glow: rgba(0, 102, 204, 0.15);
+  --neon-green: #00aa00;
+  --neon-red: #dd0000;
+  --neon-gold: #ff8800;
+
+  --text-primary: #000000;
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --text-muted: rgba(0, 0, 0, 0.4);
+
+  --shadow-glow: 0 0 12px rgba(0, 102, 204, 0.1);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   1. KEYFRAME ANIMATIONS
 ============================================ */
 
-@keyframes holo-shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-@keyframes data-pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-@keyframes holo-materialize {
+@keyframes arena-materialize {
   0% {
     opacity: 0;
-    transform: scale(0.92) translateY(12px);
-    filter: blur(6px);
+    transform: scale(0.95) translateY(12px);
+    filter: blur(8px);
   }
-  60% {
+  70% {
     opacity: 1;
     filter: blur(0);
   }
@@ -41,170 +68,467 @@
   }
 }
 
-@keyframes glow-breathe {
+@keyframes glow-pulse {
   0%, 100% {
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.06);
+    box-shadow: 0 0 12px var(--neon-cyan-glow), inset 0 0 12px rgba(0, 240, 255, 0.02);
   }
   50% {
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.12);
+    box-shadow: 0 0 24px var(--neon-cyan-glow), inset 0 0 12px rgba(0, 240, 255, 0.04);
+  }
+}
+
+@keyframes ticker-up {
+  0%, 100% { color: var(--neon-green); }
+  50% { opacity: 0.8; }
+}
+
+@keyframes ticker-down {
+  0%, 100% { color: var(--neon-red); }
+  50% { opacity: 0.8; }
+}
+
+@keyframes data-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
 /* ============================================
-   LAYOUT  --  ROOT CONTAINER
+   2. ROOT CONTAINER
 ============================================ */
 
 .e-shares-root {
   width: 100%;
-  min-height: 100%;
-  padding: 2rem;
-  max-width: 1400px;
+  padding: 1.5rem;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
+.cockpit-main .e-shares-root {
+  padding: 1.5rem 2rem;
+}
+
 /* ============================================
-   HEADER
+   3. HEADER & TYPOGRAPHY
 ============================================ */
 
 .e-shares-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.08);
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--arena-border);
+  animation: slide-in-left 0.6s ease-out;
 }
 
 .e-shares-title {
-  font-family: 'Orbitron', system-ui, sans-serif;
-  font-size: 1.75rem;
+  font-family: 'Orbitron', var(--font-mono), system-ui;
+  font-size: 2rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #ffffff;
+  letter-spacing: 0.12em;
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
-  text-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+  text-shadow: 0 0 30px var(--neon-cyan-glow);
+  text-transform: uppercase;
 }
 
 .e-shares-subtitle {
-  font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 0.02em;
-  line-height: 1.5;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
 }
 
 /* ============================================
-   TAB NAVIGATION
+   4. TAB NAVIGATION
 ============================================ */
 
 .e-shares-tabs {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.06);
-  padding-bottom: 0;
+  padding: 0.5rem;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  flex-wrap: wrap;
 }
 
 .e-shares-tab {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.8125rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
+  flex: 0 1 auto;
   padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
   background: transparent;
-  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  position: relative;
-  transition: color 250ms ease;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .e-shares-tab:hover {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.06);
+  border-color: var(--arena-border-hover);
 }
 
 .e-shares-tab.active {
-  color: #00f0ff;
-}
-
-.e-shares-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #00f0ff;
-  box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
-  border-radius: 1px;
+  color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
 }
 
 /* ============================================
-   MARKET STATS BAR  --  Glass Panel
+   5. PORTFOLIO DASHBOARD
 ============================================ */
 
-.market-stats-bar {
+.portfolio-container {
+  animation: arena-materialize 0.5s ease-out;
+}
+
+/* ── Portfolio Stats Grid ── */
+.portfolio-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 1.25rem 1.5rem;
-  background: rgba(0, 240, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 240, 255, 0.08);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.portfolio-stat-card {
+  padding: 1.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
   border-radius: 12px;
-  animation: glow-breathe 6s ease-in-out infinite;
+  transition: all 0.3s ease;
+  animation: arena-materialize 0.6s ease-out;
 }
 
-.market-stat {
-  text-align: center;
-  padding: 0.5rem;
+.portfolio-stat-card:hover {
+  background: rgba(10, 17, 24, 0.95);
+  border-color: var(--arena-border-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px);
 }
 
-.market-stat-value {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+.portfolio-stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.portfolio-stat-value {
+  font-family: var(--font-mono);
   font-size: 1.75rem;
   font-weight: 700;
-  color: #00f0ff;
-  text-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
-  line-height: 1.2;
-  animation: data-pulse 4s ease-in-out infinite;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
 }
 
-.market-stat-label {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.2em;
+.portfolio-stat-change {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+.portfolio-stat-change.positive {
+  color: var(--neon-green);
+}
+
+.portfolio-stat-change.negative {
+  color: var(--neon-red);
+}
+
+.portfolio-stat-change.neutral {
+  color: var(--text-muted);
+}
+
+/* ── Holdings List ── */
+.holdings-section {
+  margin-bottom: 3rem;
+}
+
+.holdings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--arena-border);
+}
+
+.holdings-title {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
-  margin-top: 0.375rem;
+  color: var(--text-primary);
+}
+
+.holdings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.holding-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.holding-row:hover {
+  background: rgba(10, 17, 24, 0.95);
+  border-color: var(--arena-border-hover);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.holding-brand-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.holding-brand-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.holding-brand-ticker {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.holding-stat {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+.holding-stat.value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.holding-stat.gain {
+  font-weight: 600;
+}
+
+.holding-stat.gain.positive {
+  color: var(--neon-green);
+}
+
+.holding-stat.gain.negative {
+  color: var(--neon-red);
+}
+
+.holding-action {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--arena-border);
+  color: var(--neon-cyan);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.holding-action:hover {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
+}
+
+/* ── Activity Feed ── */
+.activity-feed {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+}
+
+.activity-title {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 2px solid var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.02);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.activity-timestamp {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  font-size: 0.75rem;
 }
 
 /* ============================================
-   BRAND CARDS GRID
+   6. MARKET BROWSER
 ============================================ */
 
-.brands-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+.market-browser {
+  animation: arena-materialize 0.5s ease-out;
 }
 
-/* --- Individual Brand Card: Holographic Glass Tile --- */
+/* ── Search & Filters ── */
+.market-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.market-search-box {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.market-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  transition: all 0.3s ease;
+}
+
+.market-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.market-search-input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  background: rgba(10, 17, 24, 0.95);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
+}
+
+.market-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  opacity: 0.5;
+}
+
+.market-filter-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.market-filter-btn {
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: 1px solid var(--arena-border);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.market-filter-btn:hover,
+.market-filter-btn.active {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
+}
+
+/* ── Brand Grid ── */
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
 
 .brand-card {
   position: relative;
-  overflow: hidden;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 240, 255, 0.04),
-    rgba(99, 102, 241, 0.02),
-    rgba(0, 240, 255, 0.02)
-  );
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 240, 255, 0.08);
-  border-radius: 12px;
   padding: 1.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s ease;
+  animation: arena-materialize 0.6s ease-out;
+  overflow: hidden;
 }
 
 .brand-card::before {
@@ -213,29 +537,17 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 20%,
-    rgba(0, 240, 255, 0.03) 35%,
-    rgba(99, 102, 241, 0.03) 50%,
-    rgba(0, 240, 255, 0.02) 65%,
-    transparent 80%
-  );
-  background-size: 200% 100%;
-  animation: holo-shimmer 8s linear infinite;
+  height: 2px;
+  background: linear-gradient(90deg, var(--neon-cyan), transparent);
   opacity: 0;
-  transition: opacity 400ms ease;
-  pointer-events: none;
-  z-index: 0;
+  transition: opacity 0.3s ease;
 }
 
 .brand-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(0, 240, 255, 0.25);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 0 20px rgba(0, 240, 255, 0.08);
+  background: rgba(10, 17, 24, 0.95);
+  border-color: var(--arena-border-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-4px);
 }
 
 .brand-card:hover::before {
@@ -245,1689 +557,1008 @@
 .brand-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: start;
   margin-bottom: 1rem;
-  position: relative;
-  z-index: 1;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--arena-border);
 }
 
-.brand-identity {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-/* --- Brand Avatar: Gradient Orb --- */
-
-.brand-avatar {
+.brand-card-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #00f0ff, #6366f1);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-gold));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
   font-weight: 700;
-  color: #01020a;
-  flex-shrink: 0;
+  color: var(--arena-bg-deep);
+  font-size: 1.5rem;
 }
 
-.brand-info h3 {
+.brand-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.brand-card-name {
+  font-weight: 600;
   font-size: 1rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 0.125rem;
-  letter-spacing: 0.01em;
+  color: var(--text-primary);
 }
 
-.brand-handle {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+.brand-card-ticker {
+  font-family: var(--font-mono);
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-/* --- Brand Status Badges: Glass Pill --- */
-
-.brand-status {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.625rem;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 0.25rem 0.625rem;
-  border-radius: 999px;
-  font-weight: 600;
-  background: rgba(0, 240, 255, 0.06);
-  border: 1px solid rgba(0, 240, 255, 0.15);
 }
 
-.brand-status.public {
-  color: #00f0ff;
-  background: rgba(0, 240, 255, 0.06);
-  border-color: rgba(0, 240, 255, 0.2);
+.brand-card-price {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--neon-cyan);
 }
 
-.brand-status.locked {
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.06);
-  border-color: rgba(245, 158, 11, 0.2);
-}
-
-.brand-status.trading {
-  color: #00ff88;
-  background: rgba(0, 255, 136, 0.06);
-  border-color: rgba(0, 255, 136, 0.2);
-}
-
-/* --- Brand Description --- */
-
-.brand-description {
-  font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.45);
-  line-height: 1.6;
-  margin-bottom: 1rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  position: relative;
-  z-index: 1;
-}
-
-/* --- Brand Metrics Row --- */
-
-.brand-metrics {
+.brand-card-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(0, 240, 255, 0.06);
-  position: relative;
-  z-index: 1;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(0, 240, 255, 0.02);
+  border-radius: 6px;
 }
 
-.brand-metric {
-  text-align: center;
+.brand-card-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.brand-metric-value {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 1rem;
+.brand-card-stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.brand-card-stat-value {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
-.brand-metric-value.up {
-  color: #00ff88;
-  animation: data-pulse 2s ease-in-out infinite;
+.brand-card-stat-value.positive {
+  color: var(--neon-green);
 }
 
-.brand-metric-value.down {
-  color: #ff006e;
-  animation: data-pulse 2s ease-in-out infinite;
+.brand-card-stat-value.negative {
+  color: var(--neon-red);
 }
 
-.brand-metric-label {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.625rem;
-  color: rgba(255, 255, 255, 0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-top: 0.25rem;
-}
-
-/* ============================================
-   BRAND PRICE SECTION
-============================================ */
-
-.brand-price-section {
-  position: relative;
-  z-index: 1;
-}
-
-.brand-price {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-weight: 700;
-  color: #ffffff;
-  font-size: 1.125rem;
-}
-
-.brand-price-change {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.brand-price-change.up,
-.brand-price-change.positive {
-  color: #00ff88;
-}
-
-.brand-price-change.up::before,
-.brand-price-change.positive::before {
-  content: '\25B2 ';
-  font-size: 0.625rem;
-}
-
-.brand-price-change.down,
-.brand-price-change.negative {
-  color: #ff006e;
-}
-
-.brand-price-change.down::before,
-.brand-price-change.negative::before {
-  content: '\25BC ';
-  font-size: 0.625rem;
-}
-
-/* ============================================
-   BRAND STATS (Detail View)
-============================================ */
-
-.brand-stats {
-  display: flex;
-  gap: 1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.brand-stat-item {
-  text-align: center;
-  flex: 1;
-}
-
-/* ============================================
-   BRAND ACTIONS
-============================================ */
-
-.brand-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-  position: relative;
-  z-index: 1;
-}
-
-.brand-action-btn {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+.brand-card-action {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  background: rgba(0, 240, 255, 0.06);
-  border: 1px solid rgba(0, 240, 255, 0.15);
-  color: #00f0ff;
-  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.brand-action-btn:hover {
-  background: rgba(0, 240, 255, 0.12);
-  box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
+.brand-card-action:hover {
+  background: rgba(0, 240, 255, 0.15);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
   transform: translateY(-1px);
 }
 
-.brand-action-btn.buy {
-  color: #00ff88;
-  border-color: rgba(0, 255, 136, 0.2);
-  background: rgba(0, 255, 136, 0.06);
-}
-
-.brand-action-btn.buy:hover {
-  background: rgba(0, 255, 136, 0.12);
-  box-shadow: 0 0 16px rgba(0, 255, 136, 0.2);
-}
-
-.brand-action-btn.sell {
-  color: #ff006e;
-  border-color: rgba(255, 0, 110, 0.2);
-  background: rgba(255, 0, 110, 0.06);
-}
-
-.brand-action-btn.sell:hover {
-  background: rgba(255, 0, 110, 0.12);
-  box-shadow: 0 0 16px rgba(255, 0, 110, 0.2);
-}
-
 /* ============================================
-   PORTFOLIO VIEW  --  Glass Treatment
+   7. BRAND DETAIL PAGE
 ============================================ */
 
-.portfolio-summary {
+.brand-detail-container {
+  animation: arena-materialize 0.5s ease-out;
+}
+
+.brand-detail-header {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: auto 1fr auto;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+  padding: 2rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  align-items: start;
+}
+
+.brand-detail-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-gold));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.brand-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.brand-detail-name {
+  font-family: 'Orbitron', var(--font-mono), system-ui;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+
+.brand-detail-ticker {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  color: var(--neon-cyan);
+  text-transform: uppercase;
+}
+
+.brand-detail-platform {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.brand-detail-description {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.brand-detail-price-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: rgba(0, 240, 255, 0.05);
+  border: 1px solid var(--neon-cyan);
+  border-radius: 8px;
+  text-align: right;
+  box-shadow: 0 0 20px var(--neon-cyan-glow);
+}
+
+.brand-detail-price-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.brand-detail-price {
+  font-family: var(--font-mono);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.brand-detail-change {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.brand-detail-change.positive {
+  color: var(--neon-green);
+}
+
+.brand-detail-change.negative {
+  color: var(--neon-red);
+}
+
+/* ── Metrics Grid ── */
+.brand-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.portfolio-stat-card {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 240, 255, 0.04),
-    rgba(99, 102, 241, 0.02)
-  );
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 240, 255, 0.08);
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: all 250ms ease;
-}
-
-.portfolio-stat-card:hover {
-  border-color: rgba(0, 240, 255, 0.18);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.portfolio-stat-label {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.625rem;
-  color: rgba(255, 255, 255, 0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  margin-bottom: 0.5rem;
-}
-
-.portfolio-stat-value {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #ffffff;
-  line-height: 1.2;
-}
-
-.portfolio-stat-value.positive {
-  color: #00ff88;
-}
-
-.portfolio-stat-value.negative {
-  color: #ff006e;
-}
-
-.portfolio-stat-change {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.8125rem;
-  margin-top: 0.375rem;
-  font-weight: 500;
-}
-
-.portfolio-stat-change.positive {
-  color: #00ff88;
-}
-
-.portfolio-stat-change.negative {
-  color: #ff006e;
-}
-
-/* ============================================
-   HOLDINGS TABLE
-============================================ */
-
-.holdings-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.holdings-table th {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  text-align: left;
-  padding: 0.75rem 1rem;
-  font-size: 0.625rem;
-  color: rgba(255, 255, 255, 0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.08);
-}
-
-.holdings-table td {
+.brand-metric-card {
   padding: 1rem;
-  font-size: 0.875rem;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.04);
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.holdings-table tr {
-  transition: background 200ms ease;
-}
-
-.holdings-table tr:hover td {
-  background: rgba(0, 240, 255, 0.03);
-}
-
-.holding-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.holding-brand-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #00f0ff, #6366f1);
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #01020a;
-  flex-shrink: 0;
-}
-
-.holding-brand-name {
-  font-weight: 500;
-  color: #ffffff;
-}
-
-.holding-shares {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.holding-value {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  color: #00f0ff;
-}
-
-.holding-gain {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-}
-
-.holding-gain.positive {
-  color: #00ff88;
-}
-
-.holding-gain.negative {
-  color: #ff006e;
-}
-
-.holding-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.holding-action-btn {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.holding-action-btn.buy {
-  background: rgba(0, 255, 136, 0.06);
-  border: 1px solid rgba(0, 255, 136, 0.2);
-  color: #00ff88;
-}
-
-.holding-action-btn.buy:hover {
-  background: rgba(0, 255, 136, 0.14);
-  box-shadow: 0 0 12px rgba(0, 255, 136, 0.15);
-}
-
-.holding-action-btn.sell {
-  background: rgba(255, 0, 110, 0.06);
-  border: 1px solid rgba(255, 0, 110, 0.2);
-  color: #ff006e;
-}
-
-.holding-action-btn.sell:hover {
-  background: rgba(255, 0, 110, 0.14);
-  box-shadow: 0 0 12px rgba(255, 0, 110, 0.15);
-}
-
-.holding-action-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* ============================================
-   EMPTY STATE
-============================================ */
-
-.e-shares-empty {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: rgba(255, 255, 255, 0.35);
-}
-
-.e-shares-empty-icon {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
-  opacity: 0.4;
-}
-
-.e-shares-empty-title {
-  font-family: 'Orbitron', system-ui, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.04em;
-}
-
-.e-shares-empty-text {
-  font-size: 0.875rem;
-  max-width: 400px;
-  margin: 0 auto 1.5rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.35);
-}
-
-/* ============================================
-   BUTTONS  --  Glass Action Style
-============================================ */
-
-.e-shares-btn {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.75rem 1.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
+  text-align: center;
 }
 
-.e-shares-btn.primary {
-  background: linear-gradient(135deg, #00f0ff 0%, #6366f1 100%);
-  border: none;
-  color: #01020a;
-  font-weight: 700;
-}
-
-.e-shares-btn.primary:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 4px 20px rgba(0, 240, 255, 0.3),
-    0 0 30px rgba(0, 240, 255, 0.1);
-}
-
-.e-shares-btn.primary:active {
-  transform: translateY(0);
-}
-
-.e-shares-btn.primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.e-shares-btn.secondary {
-  background: rgba(0, 240, 255, 0.06);
-  border: 1px solid rgba(0, 240, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.e-shares-btn.secondary:hover {
-  background: rgba(0, 240, 255, 0.1);
-  border-color: rgba(0, 240, 255, 0.25);
-  color: #ffffff;
-}
-
-.e-shares-btn.secondary:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-/* ============================================
-   PLATFORM BADGES
-============================================ */
-
-.platform-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.1em;
+.brand-metric-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
   text-transform: uppercase;
-  padding: 0.1875rem 0.5rem;
-  border-radius: 999px;
-}
-
-.platform-badge.instagram {
-  background: rgba(225, 48, 108, 0.08);
-  border: 1px solid rgba(225, 48, 108, 0.2);
-  color: #e1306c;
-}
-
-.platform-badge.twitter {
-  background: rgba(29, 161, 242, 0.08);
-  border: 1px solid rgba(29, 161, 242, 0.2);
-  color: #1da1f2;
-}
-
-.platform-badge.tiktok {
-  background: rgba(255, 0, 80, 0.08);
-  border: 1px solid rgba(255, 0, 80, 0.2);
-  color: #ff0050;
-}
-
-.platform-badge.youtube {
-  background: rgba(255, 0, 0, 0.08);
-  border: 1px solid rgba(255, 0, 0, 0.2);
-  color: #ff0000;
-}
-
-.platform-badge.multi {
-  background: rgba(139, 92, 246, 0.08);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  color: #8b5cf6;
-}
-
-/* ============================================
-   LOCK INDICATOR
-============================================ */
-
-.lock-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.6875rem;
-  color: #f59e0b;
-  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   letter-spacing: 0.05em;
 }
 
-.lock-indicator svg {
-  width: 14px;
-  height: 14px;
-  opacity: 0.8;
+.brand-metric-value {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  word-break: break-word;
 }
 
-/* ============================================
-   TRANSACTION HISTORY  --  Glass Rows
-============================================ */
+/* ── Trading Panel ── */
+.trading-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
 
-.transaction-list {
+.trade-form {
+  padding: 1.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.trade-form-title {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.transaction-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.25rem;
-  background: rgba(0, 240, 255, 0.02);
-  border: 1px solid rgba(0, 240, 255, 0.06);
-  border-radius: 10px;
-  transition: all 200ms ease;
-}
-
-.transaction-item:hover {
-  background: rgba(0, 240, 255, 0.04);
-  border-color: rgba(0, 240, 255, 0.12);
-}
-
-.transaction-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.transaction-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.transaction-icon.buy {
-  background: rgba(0, 255, 136, 0.08);
-  border: 1px solid rgba(0, 255, 136, 0.15);
-  color: #00ff88;
-}
-
-.transaction-icon.sell {
-  background: rgba(255, 0, 110, 0.08);
-  border: 1px solid rgba(255, 0, 110, 0.15);
-  color: #ff006e;
-}
-
-.transaction-details h4 {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+.form-label {
+  font-family: var(--font-mono);
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 0.125rem;
-  letter-spacing: 0.06em;
+  color: var(--text-secondary);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.transaction-details p {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.6875rem;
-  color: rgba(255, 255, 255, 0.3);
-  letter-spacing: 0.02em;
+.form-input,
+.form-select {
+  padding: 0.75rem;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid var(--arena-border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  transition: all 0.3s ease;
 }
 
-.transaction-amount {
-  text-align: right;
+.form-input::placeholder,
+.form-select option {
+  color: var(--text-muted);
 }
 
-.transaction-amount-value {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 1rem;
-  font-weight: 600;
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.05);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
 }
 
-.transaction-amount-value.positive {
-  color: #00ff88;
-}
-
-.transaction-amount-value.negative {
-  color: #ff006e;
-}
-
-.transaction-amount-shares {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.6875rem;
-  color: rgba(255, 255, 255, 0.3);
-  margin-top: 0.125rem;
-}
-
-/* ============================================
-   MODAL / OVERLAY  --  Holographic Projection
-============================================ */
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(1, 2, 10, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: holo-materialize 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.modal-content {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 240, 255, 0.06),
-    rgba(99, 102, 241, 0.03),
-    rgba(0, 240, 255, 0.03)
-  );
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(0, 240, 255, 0.15);
-  border-radius: 16px;
-  padding: 2rem;
-  width: 90%;
-  max-width: 480px;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.5),
-    0 0 40px rgba(0, 240, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  animation: holo-materialize 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.modal-content h2 {
-  font-family: 'Orbitron', system-ui, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 0.06em;
-  margin-bottom: 1.5rem;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
-}
-
-.modal-price-info,
-.modal-available {
+.form-summary {
+  padding: 1rem;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid var(--arena-border);
+  border-radius: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.625rem 0;
-  border-bottom: 1px solid rgba(0, 240, 255, 0.06);
+  font-family: var(--font-mono);
   font-size: 0.875rem;
 }
 
-.modal-price-info span:first-child,
-.modal-available span:first-child {
-  color: rgba(255, 255, 255, 0.4);
+.form-summary-label {
+  color: var(--text-secondary);
 }
 
-.modal-price-info span:last-child,
-.modal-available span:last-child {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+.form-summary-value {
   font-weight: 600;
-  color: #00f0ff;
-}
-
-.modal-input-group {
-  margin-top: 1.25rem;
-  position: relative;
-}
-
-.modal-input-group label {
-  display: block;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
-  margin-bottom: 0.5rem;
-}
-
-.modal-input-group input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: rgba(0, 240, 255, 0.04);
-  border: 1px solid rgba(0, 240, 255, 0.12);
-  border-radius: 8px;
-  color: #ffffff;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--text-primary);
   font-size: 1rem;
+}
+
+.trade-button {
+  padding: 0.875rem;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(0, 240, 255, 0.08));
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   font-weight: 600;
-  transition: border-color 200ms ease;
-  outline: none;
-}
-
-.modal-input-group input:focus {
-  border-color: rgba(0, 240, 255, 0.35);
-  box-shadow: 0 0 12px rgba(0, 240, 255, 0.08);
-}
-
-.modal-input-group input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
-  font-weight: 400;
-}
-
-.max-btn {
-  position: absolute;
-  right: 0.5rem;
-  bottom: 0.5rem;
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 0.375rem 0.625rem;
-  background: rgba(0, 240, 255, 0.08);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 4px;
-  color: #00f0ff;
   cursor: pointer;
-  transition: all 200ms ease;
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
 }
 
-.max-btn:hover {
-  background: rgba(0, 240, 255, 0.15);
+.trade-button:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(0, 240, 255, 0.15));
+  box-shadow: 0 0 20px var(--neon-cyan-glow);
+  transform: translateY(-2px);
 }
 
-.modal-summary {
-  margin-top: 1.25rem;
-  padding: 1rem;
-  background: rgba(0, 240, 255, 0.02);
-  border: 1px solid rgba(0, 240, 255, 0.06);
-  border-radius: 10px;
+.trade-button.sell {
+  border-color: var(--neon-red);
+  color: var(--neon-red);
+  background: linear-gradient(135deg, rgba(255, 68, 68, 0.15), rgba(255, 68, 68, 0.08));
 }
 
-.summary-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.375rem 0;
-  font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.5);
+.trade-button.sell:hover {
+  background: linear-gradient(135deg, rgba(255, 68, 68, 0.25), rgba(255, 68, 68, 0.15));
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
 }
 
-.summary-row span:last-child {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
+/* ── Chart Area ── */
+.brand-chart-container {
+  padding: 1.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  margin-bottom: 2rem;
 }
 
-.summary-row.total {
-  border-top: 1px solid rgba(0, 240, 255, 0.1);
-  margin-top: 0.375rem;
-  padding-top: 0.75rem;
+.brand-chart-title {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
   font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
 }
 
-.summary-row.total span:first-child {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.summary-row.total span:last-child {
-  color: #00f0ff;
-  font-weight: 700;
-  font-size: 0.9375rem;
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-}
-
-.modal-message {
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
+.brand-chart-canvas {
+  width: 100%;
+  height: 300px;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid var(--arena-border);
   border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 500;
-}
-
-.modal-message.success {
-  background: rgba(0, 255, 136, 0.08);
-  border: 1px solid rgba(0, 255, 136, 0.2);
-  color: #00ff88;
-}
-
-.modal-message.error {
-  background: rgba(255, 0, 110, 0.08);
-  border: 1px solid rgba(255, 0, 110, 0.2);
-  color: #ff006e;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-
-.modal-actions .e-shares-btn {
-  flex: 1;
-  text-align: center;
-  justify-content: center;
 }
 
 /* ============================================
-   WALLET SECTION  --  Glass Card
+   8. WALLET SECTION
 ============================================ */
 
-.wallet-card {
-  background: linear-gradient(
-    135deg,
-    rgba(0, 240, 255, 0.04),
-    rgba(99, 102, 241, 0.02)
-  );
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(0, 240, 255, 0.1);
-  border-radius: 12px;
+.wallet-container {
   padding: 1.5rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  animation: arena-materialize 0.6s ease-out;
+}
+
+.wallet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--arena-border);
+}
+
+.wallet-title {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
 }
 
 .wallet-balance {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #00f0ff;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
-  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: right;
 }
 
-.wallet-label {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.2em;
+.wallet-balance-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.05em;
+}
+
+.wallet-balance-value {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  animation: glow-pulse 2s ease-in-out infinite;
 }
 
 .wallet-actions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.wallet-button {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 240, 255, 0.08);
+  border: 1px solid var(--neon-cyan);
+  color: var(--neon-cyan);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.wallet-button:hover {
+  background: rgba(0, 240, 255, 0.15);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
+  transform: translateY(-2px);
+}
+
+.wallet-transactions {
+  border-top: 1px solid var(--arena-border);
+  padding-top: 1rem;
+}
+
+.wallet-transactions-title {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.wallet-transaction-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.wallet-transaction-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid var(--arena-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.transaction-type {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.transaction-time {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.transaction-amount {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--neon-cyan);
 }
 
 /* ============================================
-   RESPONSIVE  --  Tablet
+   9. IPO / GO PUBLIC FLOW
 ============================================ */
+
+.ipo-container {
+  max-width: 800px;
+  margin: 0 auto;
+  animation: arena-materialize 0.5s ease-out;
+}
+
+.ipo-stepper {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+  justify-content: space-between;
+}
+
+.ipo-step {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ipo-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--arena-glass);
+  border: 2px solid var(--arena-border);
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.ipo-step.active .ipo-step-number {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
+}
+
+.ipo-step.completed .ipo-step-number {
+  border-color: var(--neon-green);
+  background: rgba(0, 255, 136, 0.1);
+  color: var(--neon-green);
+}
+
+.ipo-step::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--arena-border);
+  z-index: 1;
+}
+
+.ipo-step:first-child::before {
+  display: none;
+}
+
+.ipo-step.active::before,
+.ipo-step.completed::before {
+  background: var(--neon-green);
+}
+
+.ipo-step-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  max-width: 100px;
+}
+
+.ipo-step.active .ipo-step-label {
+  color: var(--neon-cyan);
+}
+
+.ipo-step.completed .ipo-step-label {
+  color: var(--neon-green);
+}
+
+/* ── Form Content ── */
+.ipo-form-container {
+  padding: 2rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.ipo-form-title {
+  font-family: 'Orbitron', var(--font-mono), system-ui;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.ipo-form-description {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.ipo-form-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.ipo-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ipo-form-label {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ipo-form-input {
+  padding: 0.75rem;
+  background: rgba(0, 240, 255, 0.02);
+  border: 1px solid var(--arena-border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  transition: all 0.3s ease;
+}
+
+.ipo-form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.ipo-form-input:focus {
+  outline: none;
+  border-color: var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.05);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
+}
+
+/* ── Navigation Buttons ── */
+.ipo-form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: space-between;
+}
+
+.ipo-button {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--arena-border);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.ipo-button:hover {
+  background: rgba(0, 240, 255, 0.06);
+  border-color: var(--arena-border-hover);
+  color: var(--text-primary);
+}
+
+.ipo-button.primary {
+  background: rgba(0, 240, 255, 0.1);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+.ipo-button.primary:hover {
+  background: rgba(0, 240, 255, 0.15);
+  box-shadow: 0 0 20px var(--neon-cyan-glow);
+  transform: translateY(-2px);
+}
+
+.ipo-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   10. EMPTY STATE & LOADING
+============================================ */
+
+.arena-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 1rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.arena-empty-icon {
+  width: 64px;
+  height: 64px;
+  opacity: 0.3;
+}
+
+.arena-empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.arena-empty-description {
+  max-width: 400px;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.arena-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 1rem;
+}
+
+.arena-spinner {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--arena-border);
+  border-top-color: var(--neon-cyan);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   11. MODAL & OVERLAY
+============================================ */
+
+.arena-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.arena-modal {
+  position: relative;
+  padding: 2rem;
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: arena-materialize 0.3s ease-out;
+  box-shadow: var(--shadow-elevated);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.arena-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--arena-border);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arena-modal-close:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 12px var(--neon-cyan-glow);
+}
+
+/* ============================================
+   12. RESPONSIVE DESIGN
+============================================ */
+
+@media (max-width: 1024px) {
+  .brand-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+
+  .trading-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-detail-header {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .holding-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .portfolio-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
 
 @media (max-width: 768px) {
   .e-shares-root {
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .e-shares-title {
-    font-size: 1.375rem;
+    font-size: 1.5rem;
   }
 
   .e-shares-tabs {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .e-shares-tabs::-webkit-scrollbar {
-    display: none;
+    gap: 0.25rem;
   }
 
   .e-shares-tab {
-    font-size: 0.75rem;
     padding: 0.625rem 1rem;
-    white-space: nowrap;
-  }
-
-  .market-stats-bar {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 1rem;
-  }
-
-  .market-stat-value {
-    font-size: 1.375rem;
-  }
-
-  .brands-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .portfolio-summary {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .holdings-table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .brand-actions {
-    flex-direction: column;
-  }
-
-  .modal-content {
-    width: 95%;
-    padding: 1.5rem;
-    margin: 1rem;
-  }
-
-  .brand-metrics {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-  }
-
-  .brand-metric-value {
-    font-size: 0.875rem;
-  }
-}
-
-/* ============================================
-   RESPONSIVE  --  Mobile
-============================================ */
-
-@media (max-width: 480px) {
-  .e-shares-root {
-    padding: 0.75rem;
-  }
-
-  .e-shares-title {
-    font-size: 1.125rem;
-    letter-spacing: 0.06em;
-  }
-
-  .e-shares-subtitle {
     font-size: 0.75rem;
-  }
-
-  .e-shares-tab {
-    font-size: 0.6875rem;
-    padding: 0.5rem 0.75rem;
-    letter-spacing: 0.06em;
-  }
-
-  .market-stats-bar {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    padding: 0.75rem;
-  }
-
-  .market-stat-value {
-    font-size: 1.125rem;
-  }
-
-  .market-stat-label {
-    font-size: 0.5625rem;
-  }
-
-  .brands-grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .brand-card {
-    padding: 1.125rem;
-  }
-
-  .brand-avatar {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-
-  .brand-info h3 {
-    font-size: 0.875rem;
-  }
-
-  .brand-handle {
-    font-size: 0.75rem;
-  }
-
-  .brand-metric-value {
-    font-size: 0.8125rem;
-  }
-
-  .brand-metric-label {
-    font-size: 0.5625rem;
-  }
-
-  .portfolio-summary {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-  }
-
-  .portfolio-stat-card {
-    padding: 1rem;
-  }
-
-  .portfolio-stat-value {
-    font-size: 1.25rem;
-  }
-
-  .portfolio-stat-label {
-    font-size: 0.5625rem;
-  }
-
-  .holding-action-btn {
-    font-size: 0.625rem;
-    padding: 0.25rem 0.5rem;
-  }
-
-  .transaction-item {
-    padding: 0.75rem;
-  }
-
-  .transaction-amount-value {
-    font-size: 0.875rem;
-  }
-
-  .modal-content {
-    padding: 1.25rem;
-    border-radius: 12px;
-  }
-
-  .modal-content h2 {
-    font-size: 1.0625rem;
-  }
-
-  .e-shares-btn {
-    font-size: 0.75rem;
-    padding: 0.625rem 1rem;
-  }
-
-  .wallet-balance {
-    font-size: 1.5rem;
-  }
-}
-
-/* --- Extra-small screens (< 480px) --- */
-@media (max-width: 480px) {
-  .e-shares-header {
-    padding: 0.75rem;
-  }
-
-  .e-shares-title {
-    font-size: 1.1rem;
-    letter-spacing: 0.08em;
-  }
-
-  .market-stats-bar {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-    padding: 0.75rem;
   }
 
   .brand-grid {
     grid-template-columns: 1fr;
-    gap: 0.75rem;
   }
 
-  .brand-card {
-    padding: 0.875rem;
+  .portfolio-stats-grid {
+    grid-template-columns: 1fr;
   }
 
-  .portfolio-stats {
+  .market-controls {
+    flex-direction: column;
+  }
+
+  .market-search-box {
+    min-width: auto;
+  }
+
+  .brand-metrics-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .holding-row {
+    grid-template-columns: 1fr;
     gap: 0.5rem;
   }
 
-  .holdings-table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .ipo-form-fields {
+    grid-template-columns: 1fr;
   }
 
-  .holdings-table th,
-  .holdings-table td {
-    white-space: nowrap;
-    min-width: 80px;
-  }
-
-  .e-shares-tabs {
-    gap: 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .e-shares-tab {
-    font-size: 0.65rem;
-    padding: 0.5rem 0.625rem;
-    white-space: nowrap;
-  }
-
-  .modal-content {
-    padding: 1rem;
-    margin: 0.5rem;
-    max-height: 90vh;
-  }
-
-  .wallet-section {
-    padding: 0.75rem;
-  }
-
-  .wallet-balance {
-    font-size: 1.25rem;
+  .brand-detail-price-box {
+    text-align: left;
   }
 }
 
-/* ═══════════════════════════════════════════ LIGHT MODE ═══════════════════════════════════════════ */
+/* ============================================
+   13. UTILITY CLASSES
+============================================ */
 
-/* --- Header --- */
-[data-theme="light"] .e-shares-header {
-  border-bottom-color: rgba(5, 150, 105, 0.12);
+.text-positive {
+  color: var(--neon-green);
 }
 
-[data-theme="light"] .e-shares-title {
-  color: #111827;
-  text-shadow: none;
+.text-negative {
+  color: var(--neon-red);
 }
 
-[data-theme="light"] .e-shares-subtitle {
-  color: #374151;
+.text-neutral {
+  color: var(--text-secondary);
 }
 
-/* --- Tab Navigation --- */
-[data-theme="light"] .e-shares-tabs {
-  border-bottom-color: rgba(5, 150, 105, 0.08);
+.text-primary {
+  color: var(--text-primary);
 }
 
-[data-theme="light"] .e-shares-tab {
-  color: #9ca3af;
+.bg-glass {
+  background: var(--arena-glass);
+  border: 1px solid var(--arena-border);
 }
 
-[data-theme="light"] .e-shares-tab:hover {
-  color: #374151;
+.cursor-pointer {
+  cursor: pointer;
 }
 
-[data-theme="light"] .e-shares-tab.active {
-  color: #059669;
+.transition-all {
+  transition: all 0.3s ease;
 }
 
-[data-theme="light"] .e-shares-tab.active::after {
-  background: #059669;
-  box-shadow: 0 0 8px rgba(5, 150, 105, 0.3);
+.opacity-disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
-/* --- Market Stats Bar --- */
-[data-theme="light"] .market-stats-bar {
-  background: rgba(5, 150, 105, 0.03);
-  border-color: rgba(5, 150, 105, 0.1);
-  animation: none;
+.overflow-auto {
+  overflow: auto;
 }
 
-[data-theme="light"] .market-stat-value {
-  color: #059669;
-  text-shadow: none;
-}
-
-[data-theme="light"] .market-stat-label {
-  color: #9ca3af;
-}
-
-/* --- Brand Cards --- */
-[data-theme="light"] .brand-card {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.08);
-}
-
-[data-theme="light"] .brand-card::before {
-  background: linear-gradient(
-    105deg,
-    transparent 20%,
-    rgba(5, 150, 105, 0.03) 35%,
-    rgba(99, 102, 241, 0.02) 50%,
-    rgba(5, 150, 105, 0.02) 65%,
-    transparent 80%
-  );
-}
-
-[data-theme="light"] .brand-card:hover {
-  border-color: rgba(5, 150, 105, 0.25);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    0 0 20px rgba(5, 150, 105, 0.05);
-}
-
-[data-theme="light"] .brand-avatar {
-  background: linear-gradient(135deg, #059669, #6366f1);
-  box-shadow: 0 0 15px rgba(5, 150, 105, 0.2);
-  color: #ffffff;
-}
-
-[data-theme="light"] .brand-info h3 {
-  color: #111827;
-}
-
-[data-theme="light"] .brand-handle {
-  color: #9ca3af;
-}
-
-/* --- Brand Status Badges --- */
-[data-theme="light"] .brand-status {
-  background: rgba(5, 150, 105, 0.06);
-  border-color: rgba(5, 150, 105, 0.15);
-}
-
-[data-theme="light"] .brand-status.public {
-  color: #059669;
-  background: rgba(5, 150, 105, 0.06);
-  border-color: rgba(5, 150, 105, 0.2);
-}
-
-[data-theme="light"] .brand-status.trading {
-  color: #059669;
-  background: rgba(5, 150, 105, 0.06);
-  border-color: rgba(5, 150, 105, 0.2);
-}
-
-/* --- Brand Description --- */
-[data-theme="light"] .brand-description {
-  color: #374151;
-}
-
-/* --- Brand Metrics --- */
-[data-theme="light"] .brand-metrics {
-  border-top-color: rgba(5, 150, 105, 0.08);
-}
-
-[data-theme="light"] .brand-metric-value {
-  color: #111827;
-}
-
-[data-theme="light"] .brand-metric-value.up {
-  color: #059669;
-}
-
-[data-theme="light"] .brand-metric-value.down {
-  color: #dc2626;
-}
-
-[data-theme="light"] .brand-metric-label {
-  color: #9ca3af;
-}
-
-/* --- Brand Price --- */
-[data-theme="light"] .brand-price {
-  color: #111827;
-}
-
-[data-theme="light"] .brand-price-change.up,
-[data-theme="light"] .brand-price-change.positive {
-  color: #059669;
-}
-
-[data-theme="light"] .brand-price-change.down,
-[data-theme="light"] .brand-price-change.negative {
-  color: #dc2626;
-}
-
-/* --- Brand Action Buttons --- */
-[data-theme="light"] .brand-action-btn {
-  background: rgba(5, 150, 105, 0.06);
-  border-color: rgba(5, 150, 105, 0.15);
-  color: #059669;
-}
-
-[data-theme="light"] .brand-action-btn:hover {
-  background: rgba(5, 150, 105, 0.12);
-  box-shadow: 0 0 16px rgba(5, 150, 105, 0.1);
-}
-
-[data-theme="light"] .brand-action-btn.buy {
-  color: #059669;
-  border-color: rgba(5, 150, 105, 0.2);
-  background: rgba(5, 150, 105, 0.06);
-}
-
-[data-theme="light"] .brand-action-btn.buy:hover {
-  background: rgba(5, 150, 105, 0.12);
-  box-shadow: 0 0 16px rgba(5, 150, 105, 0.15);
-}
-
-[data-theme="light"] .brand-action-btn.sell {
-  color: #dc2626;
-  border-color: rgba(220, 38, 38, 0.2);
-  background: rgba(220, 38, 38, 0.06);
-}
-
-[data-theme="light"] .brand-action-btn.sell:hover {
-  background: rgba(220, 38, 38, 0.12);
-  box-shadow: 0 0 16px rgba(220, 38, 38, 0.15);
-}
-
-/* --- Portfolio View --- */
-[data-theme="light"] .portfolio-stat-card {
-  background: #ffffff;
-  border-color: rgba(5, 150, 105, 0.1);
-}
-
-[data-theme="light"] .portfolio-stat-card:hover {
-  border-color: rgba(5, 150, 105, 0.18);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-}
-
-[data-theme="light"] .portfolio-stat-label {
-  color: #9ca3af;
-}
-
-[data-theme="light"] .portfolio-stat-value {
-  color: #111827;
-}
-
-[data-theme="light"] .portfolio-stat-value.positive {
-  color: #059669;
-}
-
-[data-theme="light"] .portfolio-stat-value.negative {
-  color: #dc2626;
-}
-
-[data-theme="light"] .portfolio-stat-change.positive {
-  color: #059669;
-}
-
-[data-theme="light"] .portfolio-stat-change.negative {
-  color: #dc2626;
-}
-
-/* --- Holdings Table --- */
-[data-theme="light"] .holdings-table th {
-  color: #9ca3af;
-  border-bottom-color: rgba(5, 150, 105, 0.1);
-}
-
-[data-theme="light"] .holdings-table td {
-  border-bottom-color: rgba(5, 150, 105, 0.06);
-  color: #374151;
-}
-
-[data-theme="light"] .holdings-table tr:hover td {
-  background: rgba(5, 150, 105, 0.03);
-}
-
-[data-theme="light"] .holding-brand-avatar {
-  background: linear-gradient(135deg, #059669, #6366f1);
-  box-shadow: 0 0 10px rgba(5, 150, 105, 0.15);
-  color: #ffffff;
-}
-
-[data-theme="light"] .holding-brand-name {
-  color: #111827;
-}
-
-[data-theme="light"] .holding-shares {
-  color: #374151;
-}
-
-[data-theme="light"] .holding-value {
-  color: #059669;
-}
-
-[data-theme="light"] .holding-gain.positive {
-  color: #059669;
-}
-
-[data-theme="light"] .holding-gain.negative {
-  color: #dc2626;
-}
-
-[data-theme="light"] .holding-action-btn.buy {
-  background: rgba(5, 150, 105, 0.06);
-  border-color: rgba(5, 150, 105, 0.2);
-  color: #059669;
-}
-
-[data-theme="light"] .holding-action-btn.buy:hover {
-  background: rgba(5, 150, 105, 0.12);
-  box-shadow: 0 0 12px rgba(5, 150, 105, 0.1);
-}
-
-[data-theme="light"] .holding-action-btn.sell {
-  background: rgba(220, 38, 38, 0.06);
-  border-color: rgba(220, 38, 38, 0.2);
-  color: #dc2626;
-}
-
-[data-theme="light"] .holding-action-btn.sell:hover {
-  background: rgba(220, 38, 38, 0.12);
-  box-shadow: 0 0 12px rgba(220, 38, 38, 0.1);
-}
-
-/* --- Empty State --- */
-[data-theme="light"] .e-shares-empty {
-  color: #9ca3af;
-}
-
-[data-theme="light"] .e-shares-empty-title {
-  color: #374151;
-}
-
-[data-theme="light"] .e-shares-empty-text {
-  color: #9ca3af;
-}
-
-/* --- Buttons --- */
-[data-theme="light"] .e-shares-btn.primary {
-  background: linear-gradient(135deg, #059669 0%, #6366f1 100%);
-  color: #ffffff;
-}
-
-[data-theme="light"] .e-shares-btn.primary:hover {
-  box-shadow:
-    0 4px 20px rgba(5, 150, 105, 0.25),
-    0 0 30px rgba(5, 150, 105, 0.08);
-}
-
-[data-theme="light"] .e-shares-btn.secondary {
-  background: rgba(5, 150, 105, 0.06);
-  border-color: rgba(5, 150, 105, 0.15);
-  color: #374151;
-}
-
-[data-theme="light"] .e-shares-btn.secondary:hover {
-  background: rgba(5, 150, 105, 0.1);
-  border-color: rgba(5, 150, 105, 0.25);
-  color: #111827;
-}
-
-/* --- Transaction History --- */
-[data-theme="light"] .transaction-item {
-  background: rgba(0, 0, 0, 0.01);
-  border-color: rgba(0, 0, 0, 0.06);
-}
-
-[data-theme="light"] .transaction-item:hover {
-  background: rgba(5, 150, 105, 0.03);
-  border-color: rgba(5, 150, 105, 0.12);
-}
-
-[data-theme="light"] .transaction-icon.buy {
-  background: rgba(5, 150, 105, 0.08);
-  border-color: rgba(5, 150, 105, 0.15);
-  color: #059669;
-}
-
-[data-theme="light"] .transaction-icon.sell {
-  background: rgba(220, 38, 38, 0.08);
-  border-color: rgba(220, 38, 38, 0.15);
-  color: #dc2626;
-}
-
-[data-theme="light"] .transaction-details h4 {
-  color: #111827;
-}
-
-[data-theme="light"] .transaction-details p {
-  color: #d1d5db;
-}
-
-[data-theme="light"] .transaction-amount-value.positive {
-  color: #059669;
-}
-
-[data-theme="light"] .transaction-amount-value.negative {
-  color: #dc2626;
-}
-
-[data-theme="light"] .transaction-amount-shares {
-  color: #d1d5db;
-}
-
-/* --- Modal --- */
-[data-theme="light"] .modal-overlay {
-  background: rgba(0, 0, 0, 0.4);
-}
-
-[data-theme="light"] .modal-content {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="light"] .modal-content h2 {
-  color: #111827;
-  text-shadow: none;
-}
-
-[data-theme="light"] .modal-price-info span:first-child,
-[data-theme="light"] .modal-available span:first-child {
-  color: #9ca3af;
-}
-
-[data-theme="light"] .modal-price-info span:last-child,
-[data-theme="light"] .modal-available span:last-child {
-  color: #059669;
-}
-
-[data-theme="light"] .modal-price-info,
-[data-theme="light"] .modal-available {
-  border-bottom-color: rgba(0, 0, 0, 0.06);
-}
-
-[data-theme="light"] .modal-input-group label {
-  color: #9ca3af;
-}
-
-[data-theme="light"] .modal-input-group input {
-  background: rgba(0, 0, 0, 0.02);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #111827;
-}
-
-[data-theme="light"] .modal-input-group input:focus {
-  border-color: rgba(5, 150, 105, 0.5);
-  box-shadow: 0 0 12px rgba(5, 150, 105, 0.08);
-}
-
-[data-theme="light"] .modal-input-group input::placeholder {
-  color: #d1d5db;
-}
-
-[data-theme="light"] .max-btn {
-  background: rgba(5, 150, 105, 0.08);
-  border-color: rgba(5, 150, 105, 0.2);
-  color: #059669;
-}
-
-[data-theme="light"] .max-btn:hover {
-  background: rgba(5, 150, 105, 0.15);
-}
-
-[data-theme="light"] .modal-summary {
-  background: rgba(0, 0, 0, 0.02);
-  border-color: rgba(0, 0, 0, 0.06);
-}
-
-[data-theme="light"] .summary-row {
-  color: #374151;
-}
-
-[data-theme="light"] .summary-row span:last-child {
-  color: #374151;
-}
-
-[data-theme="light"] .summary-row.total {
-  border-top-color: rgba(5, 150, 105, 0.1);
-}
-
-[data-theme="light"] .summary-row.total span:first-child {
-  color: #374151;
-}
-
-[data-theme="light"] .summary-row.total span:last-child {
-  color: #059669;
-  text-shadow: none;
-}
-
-[data-theme="light"] .modal-message.success {
-  background: rgba(5, 150, 105, 0.08);
-  border-color: rgba(5, 150, 105, 0.2);
-  color: #059669;
-}
+/* ============================================
+   14. SCROLLBAR STYLING
+============================================ */
 
-[data-theme="light"] .modal-message.error {
-  background: rgba(220, 38, 38, 0.08);
-  border-color: rgba(220, 38, 38, 0.2);
-  color: #dc2626;
+.holdings-list::-webkit-scrollbar,
+.activity-list::-webkit-scrollbar,
+.wallet-transaction-list::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* --- Wallet --- */
-[data-theme="light"] .wallet-card {
-  background: #ffffff;
-  border-color: rgba(5, 150, 105, 0.12);
+.holdings-list::-webkit-scrollbar-track,
+.activity-list::-webkit-scrollbar-track,
+.wallet-transaction-list::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-[data-theme="light"] .wallet-balance {
-  color: #059669;
-  text-shadow: none;
+.holdings-list::-webkit-scrollbar-thumb,
+.activity-list::-webkit-scrollbar-thumb,
+.wallet-transaction-list::-webkit-scrollbar-thumb {
+  background: var(--arena-border);
+  border-radius: 3px;
 }
 
-[data-theme="light"] .wallet-label {
-  color: #9ca3af;
+.holdings-list::-webkit-scrollbar-thumb:hover,
+.activity-list::-webkit-scrollbar-thumb:hover,
+.wallet-transaction-list::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-cyan);
 }

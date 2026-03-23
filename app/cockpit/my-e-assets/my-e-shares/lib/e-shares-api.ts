@@ -773,6 +773,35 @@ export async function smartSignTransparencyAgreement(params: {
   return localSignAgreement(params);
 }
 
+// ── Price History ───────────────────────────────────────
+
+export function getPriceHistory(brandId: string): Array<{ timestamp: number; price: number }> {
+  try {
+    const key = `e-shares-price-history-${brandId}`;
+    const stored = localStorage.getItem(key);
+    if (!stored) return [];
+    const data = JSON.parse(stored);
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+export function recordPricePoint(brandId: string, price: number): void {
+  try {
+    const key = `e-shares-price-history-${brandId}`;
+    const history = getPriceHistory(brandId);
+    history.push({ timestamp: Date.now(), price });
+    // Keep only last 500 points to avoid bloating localStorage
+    if (history.length > 500) {
+      history.shift();
+    }
+    localStorage.setItem(key, JSON.stringify(history));
+  } catch {
+    // Silent fail on storage quota exceeded
+  }
+}
+
 // ── Seed Data Wrapper ───────────────────────────────────────
 
 export async function smartSeedMarketIfEmpty(): Promise<void> {
