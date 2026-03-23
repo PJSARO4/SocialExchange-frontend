@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { X, Play, Volume2, VolumeX, Radio } from 'lucide-react';
+import { useAmbientAudio } from '@/lib/audio/useAmbientAudio';
 
 const WELCOME_VIDEO_SEEN_KEY = 'se-welcome-video-seen';
 const VIDEO_SRC = '/videos/welcome.mp4';
@@ -26,6 +27,8 @@ export default function WelcomeVideoModal() {
   const [hasVideo, setHasVideo] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const ambientAudio = useAmbientAudio();
+  const wasPlayingRef = useRef(false);
 
   // Check if video file exists and if user hasn't seen it
   useEffect(() => {
@@ -36,13 +39,18 @@ export default function WelcomeVideoModal() {
         if (res.ok) {
           setHasVideo(true);
           setTimeout(() => {
+            // Remember if ambient audio was playing, then pause it
+            wasPlayingRef.current = ambientAudio.isPlaying;
+            if (ambientAudio.isPlaying) {
+              ambientAudio.pause();
+            }
             setIsOpen(true);
             requestAnimationFrame(() => setFadeIn(true));
           }, 1500);
         }
       })
       .catch(() => {});
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleClose = useCallback(() => {
     setFadeIn(false);
@@ -50,8 +58,13 @@ export default function WelcomeVideoModal() {
       setIsOpen(false);
       markWelcomeVideoSeen();
       if (videoRef.current) videoRef.current.pause();
+      // Resume ambient audio if it was playing before the transmission
+      if (wasPlayingRef.current) {
+        ambientAudio.play();
+        wasPlayingRef.current = false;
+      }
     }, 300);
-  }, []);
+  }, [ambientAudio]);
 
   const handleAccept = useCallback(() => {
     setPhase('video');
