@@ -392,14 +392,14 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
       setFeeds(prev =>
         prev.map(f => {
           if (f.id === id) {
-            updatedFeed = { ...f, ...payload, updatedAt: new Date().toISOString() };
+            updatedFeed = { ...f, ...payload, updatedAt: new Date().toISOString() } as Feed;
             return updatedFeed;
           }
           return f;
         })
       );
       if (!updatedFeed) throw new Error('Feed not found');
-      return updatedFeed;
+      return updatedFeed as Feed;
     } catch (err) {
       setFeedsError(err instanceof Error ? err.message : 'Failed to update feed');
       throw err;
@@ -596,8 +596,6 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
             originalFilename: file.name,
             fileSize: file.size,
             mimeType: file.type,
-            contentId: uploaded.id,
-            storageUrl: uploaded.storageUrl,
           },
         });
 

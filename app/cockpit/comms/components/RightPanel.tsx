@@ -66,9 +66,9 @@ export default function RightPanel() {
     // Extract @mentions from message
     const mentionRegex = /@(\w+)/g;
     const mentions: string[] = [];
-    let match;
+    let match: RegExpExecArray | null;
     while ((match = mentionRegex.exec(inputValue)) !== null) {
-      const contact = contacts.find(c => c.username === match[1] || c.name === match[1]);
+      const contact = contacts.find(c => c.username === match![1] || c.name === match![1]);
       if (contact) mentions.push(contact.userId);
     }
 

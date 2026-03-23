@@ -723,7 +723,7 @@ export const CompetitorsTab: React.FC<CompetitorsTabProps> = ({ feed, feeds = []
             </div>
             <div className="compare-row">
               <div className="compare-cell label">Growth Rate</div>
-              {feed && <div className="compare-cell you">{(feed.metrics?.recentGrowth || 0).toFixed(1)}%</div>}
+              {feed && <div className="compare-cell you">{(feed.metrics?.engagement || 0).toFixed(1)}%</div>}
               {competitors.map(c => (
                 <div key={c.id} className="compare-cell">+{c.metrics.followerGrowth.toFixed(1)}%</div>
               ))}

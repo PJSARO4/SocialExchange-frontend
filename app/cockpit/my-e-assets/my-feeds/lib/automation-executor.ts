@@ -570,8 +570,8 @@ async function executeChain(
           contextData = await executeAIEnhanceNode(node, contextData);
         } else if (node.type === 'filter') {
           const result = await executeFilterNode(node, contextData);
-          // Route to pass or fail handle
-          const nextHandle = result.pass ? 'pass' : 'fail';
+          // Route to yes or no handle based on filter result
+          const nextHandle = result.pass ? 'yes' : 'no';
           const nextNodeIds = chain.connections
             .filter(c => c.sourceNodeId === nodeId && (c.sourceHandle === nextHandle || c.sourceHandle === 'output'))
             .map(c => c.targetNodeId);

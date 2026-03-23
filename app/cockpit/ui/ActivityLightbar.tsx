@@ -105,7 +105,7 @@ export default function ActivityLightbar() {
 
   // Detect page changes → brief "navigating" burst
   useEffect(() => {
-    if (pathname !== lastPathRef.current) {
+    if (pathname && pathname !== lastPathRef.current) {
       lastPathRef.current = pathname;
       setMode("navigating");
       // After burst, settle into the page's mode
@@ -113,7 +113,7 @@ export default function ActivityLightbar() {
         setMode(getActivityMode(pathname));
       }, 800);
       return () => clearTimeout(timer);
-    } else {
+    } else if (pathname) {
       setMode(getActivityMode(pathname));
     }
   }, [pathname]);

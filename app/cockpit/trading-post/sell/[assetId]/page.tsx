@@ -13,11 +13,14 @@ type Asset = {
 
 export default function SellConfirmPage() {
   const router = useRouter();
-  const { assetId } = useParams<{ assetId: string }>();
+  const params = useParams<{ assetId: string }>();
+  const assetId = Array.isArray(params?.assetId) ? params.assetId[0] : params?.assetId;
 
   const [asset, setAsset] = useState<Asset | null>(null);
 
   useEffect(() => {
+    if (!assetId) return;
+
     const ownedRaw = localStorage.getItem('owned-assets');
     if (!ownedRaw) return;
 
@@ -34,7 +37,7 @@ export default function SellConfirmPage() {
     // 1. Remove from owned-assets
     const owned: Asset[] = JSON.parse(
       localStorage.getItem('owned-assets') || '[]'
-    ).filter((a) => a.id !== asset.id);
+    ).filter((a: Asset) => a.id !== asset.id);
 
     localStorage.setItem('owned-assets', JSON.stringify(owned));
 

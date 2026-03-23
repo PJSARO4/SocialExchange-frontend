@@ -17,7 +17,7 @@ export default function SystemsRail() {
   return (
     <nav className="h-full px-4 py-6 font-mono text-sm space-y-3">
       {SYSTEMS.map((sys) => {
-        const active = pathname.startsWith(sys.path);
+        const active = pathname?.startsWith(sys.path) ?? false;
         return (
           <button
             key={sys.label}

@@ -30,13 +30,13 @@ export default function MyEAssetsPage() {
     const myBrands = getMyBrands(currentUserId);
     const marketStats = getMarketStats();
 
-    const portfolioValue = holdings.reduce((sum, h) => sum + h.currentValue, 0);
+    const portfolioValue = holdings.reduce((sum, h) => sum + (h.currentValue || 0), 0);
 
     setStats({
       portfolioValue,
       holdingsCount: holdings.length,
       brandsListed: myBrands.length,
-      totalMarketCap: marketStats.totalMarketCap,
+      totalMarketCap: marketStats?.totalMarketCap || 0,
     });
   }, []);
 

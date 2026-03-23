@@ -20,6 +20,14 @@ import {
   ArrowDown,
   ChevronDown,
   ChevronRight,
+  Lock,
+  Zap,
+  ShoppingCart,
+  FileText,
+  Settings,
+  Shield,
+  CreditCard,
+  MoreVertical,
 } from 'lucide-react';
 import './logs-panel.css';
 
@@ -99,7 +107,7 @@ export default function LogsPanel() {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(log =>
         log.message.toLowerCase().includes(term) ||
-        log.action.toLowerCase().includes(term) ||
+        log.action?.toLowerCase().includes(term) ||
         log.userName?.toLowerCase().includes(term)
       );
     }
@@ -122,8 +130,8 @@ export default function LogsPanel() {
     setAutoScroll(isAtBottom);
   };
 
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp);
+  const formatTime = (timestamp: string | Date) => {
+    const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
     return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
@@ -132,12 +140,29 @@ export default function LogsPanel() {
     });
   };
 
-  const formatDate = (timestamp: string) => {
-    const date = new Date(timestamp);
+  const formatDate = (timestamp: string | Date) => {
+    const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
     });
+  };
+
+  const getIconForCategory = (categoryName: string) => {
+    const iconMap: Record<string, any> = {
+      Lock,
+      User,
+      ShoppingCart,
+      FileText,
+      Zap,
+      ClipboardList,
+      Settings,
+      Shield,
+      CreditCard,
+      MoreVertical,
+    };
+    const IconComponent = iconMap[categoryName] || ChevronDown;
+    return <IconComponent size={14} />;
   };
 
   return (
@@ -237,9 +262,9 @@ export default function LogsPanel() {
                 <div className="log-content">
                   <div className="log-header">
                     <span className="log-category-badge">
-                      {colors.icon} {log.category.toUpperCase()}
+                      {colors.iconName && getIconForCategory(colors.iconName)} {log.category.toUpperCase()}
                     </span>
-                    <span className="log-action">{log.action}</span>
+                    <span className="log-action">{log.action || 'N/A'}</span>
                     <span className="log-time">
                       {formatDate(log.timestamp)} {formatTime(log.timestamp)}
                     </span>

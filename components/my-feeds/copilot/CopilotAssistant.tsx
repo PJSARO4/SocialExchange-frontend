@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AlertTriangle, BarChart3, Sparkles, Lightbulb, TrendingUp, Bot, Trash2 } from 'lucide-react';
-import { Feed } from '../FeedsContext';
+import { Feed } from '../../../app/cockpit/my-e-assets/my-feeds/types/feed';
 
 interface Message {
   id: string;
@@ -146,8 +146,8 @@ export default function CopilotAssistant({
             feedId: feed.id,
             handle: feed.handle,
             platform: feed.platform,
-            followers: feed.followers,
-            engagement: feed.engagement,
+            followers: feed.metrics?.followers,
+            engagement: feed.metrics?.engagement,
             currentPage: context?.currentPage,
             ...context,
           },

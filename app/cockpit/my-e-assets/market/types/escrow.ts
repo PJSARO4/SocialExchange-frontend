@@ -5,6 +5,9 @@
 
 import { Platform, AccountNiche, AccountMetrics } from './market';
 
+// Re-export for convenience
+export type { Platform, AccountNiche, AccountMetrics };
+
 // ============================================
 // ESCROW STATUS DEFINITIONS
 // ============================================

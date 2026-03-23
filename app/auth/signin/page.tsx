@@ -6,8 +6,8 @@ import Link from 'next/link';
 
 function SignInContent() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/cockpit/my-e-assets/my-feeds';
-  const error = searchParams.get('error');
+  const callbackUrl = searchParams?.get('callbackUrl') || '/cockpit/my-e-assets/my-feeds';
+  const error = searchParams?.get('error');
 
   return (
     <div style={{

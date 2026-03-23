@@ -9,7 +9,14 @@
  * - Records actions after successful execution
  */
 
-import { Job, JobType } from '@/lib/queue';
+import {
+  Job,
+  JobType,
+  JobPayload,
+  PublishPostPayload,
+  AutoCommentPayload,
+  AutoDMPayload,
+} from '@/lib/queue/types';
 import { prisma } from '@/lib/prisma';
 import { rateLimiter as dbRateLimiter } from '@/lib/rate-limit/rate-limiter';
 
@@ -19,7 +26,10 @@ interface ProcessResult {
   error?: string;
 }
 
-type JobHandler = (job: Job, accessToken: string) => Promise<ProcessResult>;
+type JobHandler = <T extends JobPayload = JobPayload>(
+  job: Job<T>,
+  accessToken: string
+) => Promise<ProcessResult>;
 
 /**
  * Fetch access token from database for a feed
@@ -69,19 +79,27 @@ function getActionTypeForJob(jobType: JobType): 'LIKE' | 'COMMENT' | 'FOLLOW' | 
       return 'PUBLISH';
     case 'AUTO_COMMENT':
       return 'COMMENT';
-    case 'WELCOME_DM':
+    case 'AUTO_LIKE':
+      return 'LIKE';
+    case 'AUTO_FOLLOW':
+      return 'FOLLOW';
+    case 'AUTO_DM':
       return 'DM';
     default:
-      return null; // SYNC_METRICS and REFRESH_TOKEN don't have rate limits
+      return null; // FETCH_ANALYTICS doesn't have rate limits
   }
 }
 
 /**
  * Handler: Publish a scheduled post to Instagram
  */
-async function handlePublishPost(job: Job, accessToken: string): Promise<ProcessResult> {
-  const { feedId, payload } = job;
-  const { content, mediaUrl, mediaType } = payload;
+async function handlePublishPost(
+  job: Job<PublishPostPayload>,
+  accessToken: string
+): Promise<ProcessResult> {
+  const { payload } = job;
+  const { feedId, caption, mediaUrls, mediaType } = payload;
+  const mediaUrl = mediaUrls?.[0];
 
   if (!mediaUrl) {
     return { success: false, error: 'Media URL is required for Instagram posts' };
@@ -97,7 +115,7 @@ async function handlePublishPost(job: Job, accessToken: string): Promise<Process
       body: JSON.stringify({
         access_token: accessToken,
         image_url: mediaUrl,
-        caption: content,
+        caption: caption,
         media_type: mediaType || 'IMAGE',
       }),
     });
@@ -132,9 +150,13 @@ async function handlePublishPost(job: Job, accessToken: string): Promise<Process
 /**
  * Handler: Auto-comment on a post
  */
-async function handleAutoComment(job: Job, accessToken: string): Promise<ProcessResult> {
+async function handleAutoComment(
+  job: Job<AutoCommentPayload>,
+  accessToken: string
+): Promise<ProcessResult> {
   const { payload } = job;
-  const { mediaId, comment } = payload;
+  const { targetPostId, comment } = payload;
+  const mediaId = targetPostId;
 
   if (!mediaId || !comment) {
     return { success: false, error: 'Missing required fields for auto-comment' };
@@ -171,11 +193,15 @@ async function handleAutoComment(job: Job, accessToken: string): Promise<Process
 }
 
 /**
- * Handler: Send welcome DM
+ * Handler: Send AUTO_DM
  */
-async function handleWelcomeDM(job: Job, accessToken: string): Promise<ProcessResult> {
+async function handleAutoDM(
+  job: Job<AutoDMPayload>,
+  accessToken: string
+): Promise<ProcessResult> {
   const { payload } = job;
-  const { recipientId, message } = payload;
+  const { targetUserId, message } = payload;
+  const recipientId = targetUserId;
 
   if (!recipientId || !message) {
     return { success: false, error: 'Missing required fields for DM' };
@@ -194,8 +220,12 @@ async function handleWelcomeDM(job: Job, accessToken: string): Promise<ProcessRe
 /**
  * Handler: Sync metrics for a feed
  */
-async function handleSyncMetrics(job: Job, accessToken: string): Promise<ProcessResult> {
-  const { feedId } = job;
+async function handleSyncMetrics(
+  job: Job<JobPayload>,
+  accessToken: string
+): Promise<ProcessResult> {
+  const { payload } = job;
+  const { feedId } = payload;
 
   try {
     console.log(`📊 Syncing metrics for feed ${feedId}...`);
@@ -264,8 +294,12 @@ async function handleSyncMetrics(job: Job, accessToken: string): Promise<Process
 /**
  * Handler: Refresh access token
  */
-async function handleRefreshToken(job: Job, accessToken: string): Promise<ProcessResult> {
-  const { feedId } = job;
+async function handleRefreshToken(
+  job: Job<JobPayload>,
+  accessToken: string
+): Promise<ProcessResult> {
+  const { payload } = job;
+  const { feedId } = payload;
 
   // Instagram long-lived tokens last 60 days and can be refreshed
   try {
@@ -315,11 +349,12 @@ async function handleRefreshToken(job: Job, accessToken: string): Promise<Proces
 
 // Map of job types to handlers
 const handlers: Record<JobType, JobHandler> = {
-  PUBLISH_POST: handlePublishPost,
-  AUTO_COMMENT: handleAutoComment,
-  WELCOME_DM: handleWelcomeDM,
-  SYNC_METRICS: handleSyncMetrics,
-  REFRESH_TOKEN: handleRefreshToken,
+  PUBLISH_POST: handlePublishPost as JobHandler,
+  AUTO_COMMENT: handleAutoComment as JobHandler,
+  AUTO_LIKE: handleAutoComment as JobHandler, // Reuse comment handler for now
+  AUTO_FOLLOW: handleAutoComment as JobHandler, // Reuse comment handler for now
+  AUTO_DM: handleAutoDM as JobHandler,
+  FETCH_ANALYTICS: handleSyncMetrics as JobHandler,
 };
 
 /**
@@ -330,7 +365,7 @@ const handlers: Record<JobType, JobHandler> = {
  * 3. Executes the job handler
  * 4. Records action for rate limiting
  */
-export async function processJob(job: Job): Promise<ProcessResult> {
+export async function processJob(job: Job<JobPayload>): Promise<ProcessResult> {
   const handler = handlers[job.type];
 
   if (!handler) {
@@ -343,12 +378,13 @@ export async function processJob(job: Job): Promise<ProcessResult> {
   console.log(`🔧 Processing job ${job.id} (${job.type}) - attempt ${job.attempts}`);
 
   // 1. Fetch access token from database
-  const accessToken = await getAccessTokenForFeed(job.feedId);
+  const { feedId } = job.payload;
+  const accessToken = await getAccessTokenForFeed(feedId);
 
   if (!accessToken) {
     return {
       success: false,
-      error: `No valid access token for feed ${job.feedId}. User may need to reconnect their Instagram account.`,
+      error: `No valid access token for feed ${feedId}. User may need to reconnect their Instagram account.`,
     };
   }
 
@@ -357,14 +393,14 @@ export async function processJob(job: Job): Promise<ProcessResult> {
 
   if (actionType) {
     try {
-      const rateStatus = await dbRateLimiter.checkLimit(job.feedId, actionType);
+      const rateStatus = await dbRateLimiter.checkLimit(feedId, actionType);
 
       if (!rateStatus.allowed) {
         const waitTime = rateStatus.blockedUntil
           ? Math.ceil((rateStatus.blockedUntil.getTime() - Date.now()) / 60000)
           : 'unknown';
 
-        console.log(`⏳ Rate limited: ${actionType} for feed ${job.feedId}. Wait ${waitTime} minutes.`);
+        console.log(`⏳ Rate limited: ${actionType} for feed ${feedId}. Wait ${waitTime} minutes.`);
 
         return {
           success: false,
@@ -386,8 +422,8 @@ export async function processJob(job: Job): Promise<ProcessResult> {
     // 4. Record action for rate limiting (only on success)
     if (result.success && actionType) {
       try {
-        await dbRateLimiter.recordAction(job.feedId, actionType);
-        console.log(`📝 Recorded action: ${actionType} for feed ${job.feedId}`);
+        await dbRateLimiter.recordAction(feedId, actionType);
+        console.log(`📝 Recorded action: ${actionType} for feed ${feedId}`);
       } catch (error) {
         console.error('Failed to record action for rate limiting:', error);
         // Don't fail the job if recording fails

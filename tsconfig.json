@@ -28,6 +28,14 @@
     "node_modules",
     "_deprecated_routes",
     "_comms_staging",
-    "app_backup_before_comms"
+    "app_backup_before_comms",
+    "lib/audio 2",
+    "lib/market 2",
+    "lib/network 2",
+    "lib/logging 2",
+    "components/audio/AudioControl 2.tsx",
+    "components/audio/MoodBackground 2.tsx",
+    ".next/types/*.d 2.ts",
+    ".next/types/validator 2.ts"
   ]
 }

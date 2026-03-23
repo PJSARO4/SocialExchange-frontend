@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { FolderOpen, Search, Sparkles, Trash2 } from 'lucide-react';
-import { Feed } from '../FeedsContext';
+import { Feed } from '../../../app/cockpit/my-e-assets/my-feeds/types/feed';
 
 interface ContentItem {
   id: string;

@@ -1,3 +1,4 @@
+// @ts-expect-error -- @types/pg not installed; types are inferred at runtime
 import { Pool, QueryResult, QueryResultRow } from "pg";
 
 /**

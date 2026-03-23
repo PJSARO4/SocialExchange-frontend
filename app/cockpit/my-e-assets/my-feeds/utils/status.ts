@@ -1,6 +1,6 @@
 // app/cockpit/my-e-assets/my-feeds/utils/status.ts
 
-import type { FeedStatus } from '../types';
+export type FeedStatus = 'error' | 'syncing' | 'connected';
 
 /**
  * Derive operational UI status for a feed.

@@ -2,7 +2,17 @@
 
 import { MarketInstrumentCard } from "@/components/market/MarketInstrumentCard"
 
-const MARKET_DATA = [
+const MARKET_DATA: Array<{
+  symbol: string
+  name: string
+  issuer: string
+  price: number
+  supply: { total: number; circulating: number; locked: number }
+  trustTier: "UNVERIFIED" | "VERIFIED" | "ESTABLISHED"
+  escrowStatus: "LOCKED" | "PARTIAL" | "RELEASING"
+  volume24h: number
+  change24h: number
+}> = [
   {
     symbol: "$PIE",
     name: "Pie Army Media",

@@ -1,8 +1,8 @@
 // app/accounts/page.tsx
 
-import { AccountAssetCard } from "@/components/accounts/AccountAssetCard"
+import { AccountAssetCard, type AccountAsset } from "@/components/accounts/AccountAssetCard"
 
-const ACCOUNT_ASSETS = [
+const ACCOUNT_ASSETS: AccountAsset[] = [
   {
     id: "gigglelizards",
     handle: "gigglelizards",

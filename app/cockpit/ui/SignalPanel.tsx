@@ -69,7 +69,7 @@ export default function SignalPanel() {
     if (!networkInfo) return;
     setRefreshing(true);
     const connection = await measureConnectionQuality();
-    setNetworkInfo(prev => prev ? { ...prev, connection } : null);
+    setNetworkInfo((prev) => prev ? { ...prev, connection } : null);
     setRefreshing(false);
   };
 
@@ -354,7 +354,7 @@ export default function SignalPanel() {
               <div className="signal-threats">
                 <h4><AlertTriangle size={16} /> Flags</h4>
                 <ul>
-                  {security.threats.map((threat, i) => (
+                  {security.threats.map((threat: string, i: number) => (
                     <li key={i}>{threat}</li>
                   ))}
                 </ul>
@@ -365,7 +365,7 @@ export default function SignalPanel() {
               <div className="signal-recommendations">
                 <h4><Lightbulb size={16} /> Notes</h4>
                 <ul>
-                  {security.recommendations.map((rec, i) => (
+                  {security.recommendations.map((rec: string, i: number) => (
                     <li key={i}>{rec}</li>
                   ))}
                 </ul>

@@ -628,7 +628,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
                   </div>
                   <textarea
                     className="caption-textarea"
-                    placeholder="Write your caption here... Use hashtags and emojis to boost engagement! \u{1F680}"
+                    placeholder="Write your caption here... Use hashtags and emojis to boost engagement! 🚀"
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
                     disabled={status === 'publishing' || status === 'uploading'}

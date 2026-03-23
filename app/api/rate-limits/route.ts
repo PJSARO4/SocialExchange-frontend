@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { rateLimiter } from '@/lib/rate-limit';
+import { rateLimiter } from '@/lib/rate-limit/rate-limiter';
 
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';

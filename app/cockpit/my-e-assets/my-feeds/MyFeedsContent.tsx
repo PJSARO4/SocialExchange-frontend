@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import { useFeeds } from './context/FeedsContext';
 import { FeedsList } from './components/feeds-panel';
 import { ContentLibrary } from './components/content-library';
@@ -66,7 +66,7 @@ export default function MyFeedsContent() {
 
   // Handle OAuth callback - save the connected account or upgrade existing manual feed
   useEffect(() => {
-    const connectedPlatform = searchParams.get('connected') as Platform | null;
+    const connectedPlatform = searchParams?.get('connected') as Platform | null;
 
     if (connectedPlatform && session?.user && !oauthProcessed) {
       const user = session.user as any;
@@ -518,13 +518,15 @@ export default function MyFeedsContent() {
                     <p className="no-account-hint">
                       No accounts connected yet. Connect your Instagram to get started.
                     </p>
-                    <a
-                      href="/api/auth/signin/instagram"
+                    <button
                       className="connect-instagram-btn"
+                      onClick={() => signIn('instagram-direct', {
+                        callbackUrl: '/cockpit/my-e-assets/my-feeds?connected=instagram',
+                      })}
                     >
                       <span className="connect-instagram-icon"><CameraIcon style={{ width: 20, height: 20 }} /></span>
                       <span>Connect Instagram</span>
-                    </a>
+                    </button>
                     <p className="connect-requirement">
                       Requires an Instagram Business or Creator account
                     </p>

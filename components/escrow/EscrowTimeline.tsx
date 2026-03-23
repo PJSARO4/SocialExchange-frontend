@@ -3,12 +3,12 @@
 import { EscrowStage } from "@/types/escrow"
 
 const STAGES: EscrowStage[] = [
-  "LISTED",
-  "FUNDS_LOCKED",
-  "CREDENTIALS_TRANSFERRED",
-  "CONTROL_VERIFIED",
-  "LOCK_PERIOD",
-  "FUNDS_RELEASED",
+  EscrowStage.INITIATED,
+  EscrowStage.PENDING,
+  EscrowStage.FUNDED,
+  EscrowStage.IN_PROGRESS,
+  EscrowStage.CREDENTIALS_TRANSFERRED,
+  EscrowStage.COMPLETED,
 ]
 
 export function EscrowTimeline({ current }: { current: EscrowStage }) {

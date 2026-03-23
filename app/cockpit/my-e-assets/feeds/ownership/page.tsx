@@ -1,7 +1,17 @@
 "use client";
 
-import FeedOwnershipCard from "./components/FeedOwnershipCard";
+import FeedOwnershipCard, { type FeedOwnership } from "./components/FeedOwnershipCard";
 import "./ownership.css";
+
+const mockFeed: FeedOwnership = {
+  id: "feed-1",
+  platform: "Instagram",
+  handle: "example_account",
+  equityOwned: 100,
+  valuation: 50000,
+  monthlyRevenue: 2500,
+  status: "ACTIVE",
+};
 
 export default function FeedOwnershipPage() {
   return (
@@ -14,7 +24,7 @@ export default function FeedOwnershipPage() {
       </div>
 
       <div className="ownership-grid">
-        <FeedOwnershipCard />
+        <FeedOwnershipCard feed={mockFeed} />
       </div>
     </div>
   );

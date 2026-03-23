@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Rocket, FolderOpen, Link2, Bot, FileText, PartyPopper, Sparkles, RefreshCw, Lightbulb, CheckCircle, AlertTriangle, Upload, BarChart3, Settings, PenTool, Calendar, Pencil, Smile, Pause } from 'lucide-react';
-import { Feed } from '../FeedsContext';
+import { Feed } from '../../../app/cockpit/my-e-assets/my-feeds/types/feed';
 
 interface AutopilotPanelProps {
   feed: Feed;

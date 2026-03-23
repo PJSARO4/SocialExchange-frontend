@@ -557,7 +557,7 @@ export default function FeedsCopilot({
       followers: activeFeed.metrics?.followers,
       following: activeFeed.metrics?.following,
       totalPosts: activeFeed.metrics?.totalPosts,
-      engagement: activeFeed.metrics?.engagementRate,
+      engagement: activeFeed.metrics?.engagement,
     } : undefined;
 
     try {

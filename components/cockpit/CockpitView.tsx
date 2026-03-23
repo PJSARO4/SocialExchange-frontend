@@ -25,7 +25,7 @@ export default function CockpitView() {
         </header>
 
         <section className="cockpit-content">
-          {pathname.includes("/dashboard") && (
+          {pathname?.includes("/dashboard") && (
             <>
               <h1>Dashboard</h1>
               <p>System Status</p>

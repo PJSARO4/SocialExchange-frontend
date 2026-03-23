@@ -235,7 +235,7 @@ interface GlobalCopilotProps {
 
 export default function GlobalCopilot({ isOpen, onClose }: GlobalCopilotProps) {
   const pathname = usePathname();
-  const context = getContextFromPath(pathname);
+  const context = getContextFromPath(pathname || '');
   const quickPrompts = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.default;
 
   const [messages, setMessages] = useState<Message[]>([

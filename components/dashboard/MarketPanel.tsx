@@ -1,8 +1,8 @@
 // components/dashboard/MarketPanel.tsx
 
-import { MarketInstrumentCard } from "@/components/market/MarketInstrumentCard"
+import { MarketInstrumentCard, type MarketInstrument } from "@/components/market/MarketInstrumentCard"
 
-const MOCK_INSTRUMENTS = [
+const MOCK_INSTRUMENTS: MarketInstrument[] = [
   {
     symbol: "$PIE",
     name: "Pie Army Media",

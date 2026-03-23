@@ -10,7 +10,7 @@ const USERS = [
 
 export default function DirectCreationPanel({ onClose }: { onClose: () => void }) {
   const account = useAccount();
-  const { createDirect } = useComms();
+  const { createDirectThread } = useComms();
 
   return (
     <div className="overlay-panel">
@@ -20,10 +20,7 @@ export default function DirectCreationPanel({ onClose }: { onClose: () => void }
         <button
           key={u.accountId}
           onClick={() => {
-            createDirect(
-              { accountId: account.id, name: account.name },
-              u
-            );
+            createDirectThread(u.name);
             onClose();
           }}
         >

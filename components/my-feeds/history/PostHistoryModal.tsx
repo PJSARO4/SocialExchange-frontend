@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Search, MessageSquare, Film, Bot, RefreshCw, Calendar, Mailbox, Heart, Play, Pencil, Camera, Eye } from 'lucide-react';
-import { Feed } from '../FeedsContext';
+import { Feed } from '../../../app/cockpit/my-e-assets/my-feeds/types/feed';
 
 interface HistoricalPost {
   id: string;
@@ -91,7 +91,7 @@ export default function PostHistoryModal({
                 engagementRate: calculateEngagement(
                   post.like_count || 0,
                   post.comments_count || 0,
-                  feed.followers
+                  feed.metrics?.followers || 0
                 ),
               },
             }));
@@ -112,7 +112,7 @@ export default function PostHistoryModal({
     };
 
     fetchPosts();
-  }, [feed.id, feed.followers, isOpen]);
+  }, [feed.id, feed.metrics?.followers, isOpen]);
 
   // Filter and sort posts
   const filteredPosts = posts

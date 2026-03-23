@@ -7,7 +7,7 @@ import { AlertTriangle } from 'lucide-react';
 
 function ErrorContent() {
   const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const error = searchParams?.get('error');
 
   const errorMessages: Record<string, { title: string; description: string; action: string }> = {
     OAuthCallback: {

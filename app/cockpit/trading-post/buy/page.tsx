@@ -33,17 +33,18 @@ export default function BuyPage() {
   ----------------------------------------- */
   useEffect(() => {
     const interval = setInterval(() => {
-      setListings((prev) => {
+      setListings((prev: LiveListing[]) => {
         if (prev.length === 0) return prev;
 
-        return prev.map((asset) => {
+        const updated = prev.map((asset) => {
           const { value, direction } = applyMicroFluctuation(asset.price);
           return {
             ...asset,
             price: value,
             direction,
-          };
+          } as LiveListing;
         });
+        return updated;
       });
     }, 4000); // calm, predictable cadence
 

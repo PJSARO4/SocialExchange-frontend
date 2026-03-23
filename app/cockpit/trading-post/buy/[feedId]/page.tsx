@@ -23,7 +23,8 @@ type OwnedAsset = MarketListing & {
 
 export default function BuyConfirmPage() {
   const router = useRouter();
-  const { feedId } = useParams<{ feedId: string }>();
+  const params = useParams<{ feedId: string }>();
+  const feedId = params?.feedId;
 
   const [asset, setAsset] = useState<MarketListing | null>(null);
   const [purchasing, setPurchasing] = useState(false);

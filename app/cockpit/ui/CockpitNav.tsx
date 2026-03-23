@@ -19,7 +19,7 @@ export default function CockpitNav() {
       <div className="nav-section-title">Navigation</div>
 
       {NAV_ITEMS.map(item => {
-        const isActive = pathname.startsWith(item.href);
+        const isActive = pathname?.startsWith(item.href) ?? false;
 
         return (
           <Link

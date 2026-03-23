@@ -20,7 +20,7 @@ export default function Sidebar() {
 
       <nav className="space-y-2">
         {items.map((item) => {
-          const active = pathname.startsWith(item.href);
+          const active = pathname?.startsWith(item.href) ?? false;
           return (
             <Link
               key={item.href}

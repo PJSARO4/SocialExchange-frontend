@@ -24,7 +24,7 @@ interface AutomationChain {
 export default function AutomationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const postId = searchParams.get('post');
+  const postId = searchParams?.get('post');
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 

@@ -1,8 +1,8 @@
 // components/dashboard/AccountsPanel.tsx
 
-import { AccountAssetCard } from "@/components/accounts/AccountAssetCard"
+import { AccountAssetCard, type AccountAsset } from "@/components/accounts/AccountAssetCard"
 
-const PREVIEW_ASSETS = [
+const PREVIEW_ASSETS: AccountAsset[] = [
   {
     id: "1",
     handle: "gigglelizards",

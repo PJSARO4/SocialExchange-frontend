@@ -283,7 +283,7 @@ export function ownerLogin(
   twoFactorCode: string
 ): AuthResponse {
   // First, verify the access code
-  if (!AUTH_CONFIG.OWNER_ACCESS_CODES.includes(accessCode)) {
+  if (!AUTH_CONFIG.OWNER_ACCESS_CODES.includes(accessCode as "SXCHANGE-OWNER-2024" | "SXCHANGE-DEV-2024")) {
     return {
       success: false,
       message: 'Invalid access code',

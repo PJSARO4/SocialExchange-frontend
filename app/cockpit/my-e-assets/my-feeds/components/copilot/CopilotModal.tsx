@@ -300,26 +300,6 @@ function generateInsights(feeds: Feed[]): PerformanceInsight[] {
     }
   }
 
-  // Growth insights
-  feeds.forEach(feed => {
-    if (feed.metrics.recentGrowth !== undefined) {
-      if (feed.metrics.recentGrowth > 5) {
-        insights.push({
-          type: 'positive',
-          metric: 'Growth',
-          message: `@${feed.handle} is growing at ${feed.metrics.recentGrowth}% - keep it up!`,
-        });
-      } else if (feed.metrics.recentGrowth < -2) {
-        insights.push({
-          type: 'negative',
-          metric: 'Growth',
-          message: `@${feed.handle} has declined ${Math.abs(feed.metrics.recentGrowth)}% recently.`,
-          suggestion: 'Review recent content and engagement patterns.'
-        });
-      }
-    }
-  });
-
   return insights;
 }
 

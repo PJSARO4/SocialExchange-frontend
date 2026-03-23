@@ -2,6 +2,7 @@ export type TransactionLogEntry = {
   id: string;
   type: string;
   assetId?: string;
+  actorId?: string;
   timestamp: number;
 };
 

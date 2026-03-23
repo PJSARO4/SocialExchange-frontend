@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       usedPercent = 0,
       recentActivity = '',
       userTraining = '',
-    } = context || {};
+    } = (context as Record<string, any>) || {};
 
     // Try Qwen API if configured
     if (isQwenConfigured()) {
@@ -127,8 +127,8 @@ export async function POST(req: Request) {
 
     // Fallback: local pattern-matching
     const fallback = getLocalFallbackResponse(message, {
-      totalItems,
-      usedPercent,
+      totalItems: totalItems as number,
+      usedPercent: usedPercent as number,
     });
 
     return NextResponse.json({

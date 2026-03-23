@@ -60,15 +60,15 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     category: 'Publishing',
     difficulty: 'beginner',
     nodes: [
-      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, config: { name: 'When triggered', trigger: 'schedule' } },
-      { id: 'pull-1', type: 'pull-content', position: { x: 350, y: 200 }, config: { source: 'library', filter: 'approved', limit: 1 } },
-      { id: 'schedule-1', type: 'schedule', position: { x: 600, y: 200 }, config: { timing: 'optimal', timezone: 'auto' } },
-      { id: 'end-1', type: 'end', position: { x: 850, y: 200 }, config: {} },
+      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, data: { label: 'When triggered', triggerType: 'schedule', isConfigured: false } },
+      { id: 'pull-1', type: 'pull-content', position: { x: 350, y: 200 }, data: { label: 'Pull Content', source: 'library', contentType: 'any', limit: 1, isConfigured: false } },
+      { id: 'schedule-1', type: 'schedule', position: { x: 600, y: 200 }, data: { label: 'Schedule', scheduleType: 'best-time', isConfigured: false } },
+      { id: 'end-1', type: 'end', position: { x: 850, y: 200 }, data: { label: 'End', isConfigured: false } },
     ],
     connections: [
-      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'pull-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c2', sourceNodeId: 'pull-1', targetNodeId: 'schedule-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c3', sourceNodeId: 'schedule-1', targetNodeId: 'end-1', sourceHandle: 'default', targetHandle: 'input' },
+      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'pull-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c2', sourceNodeId: 'pull-1', targetNodeId: 'schedule-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c3', sourceNodeId: 'schedule-1', targetNodeId: 'end-1', sourceHandle: 'output', targetHandle: 'input' },
     ],
   },
   {
@@ -79,15 +79,15 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     category: 'AI Enhancement',
     difficulty: 'beginner',
     nodes: [
-      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, config: { name: 'Content Added', trigger: 'content_added' } },
-      { id: 'ai-1', type: 'ai-enhance', position: { x: 350, y: 200 }, config: { action: 'generate_caption', tone: 'engaging', includeHashtags: true } },
-      { id: 'approval-1', type: 'approval', position: { x: 600, y: 200 }, config: { required: true, timeout: 24 } },
-      { id: 'end-1', type: 'end', position: { x: 850, y: 200 }, config: {} },
+      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, data: { label: 'Content Added', triggerType: 'new-content', isConfigured: false } },
+      { id: 'ai-1', type: 'ai-enhance', position: { x: 350, y: 200 }, data: { label: 'AI Enhance', enhanceType: 'caption', tone: 'casual', isConfigured: false } },
+      { id: 'approval-1', type: 'approval', position: { x: 600, y: 200 }, data: { label: 'Approval', approvalType: 'auto-after-delay', autoApproveAfter: 24, isConfigured: false } },
+      { id: 'end-1', type: 'end', position: { x: 850, y: 200 }, data: { label: 'End', isConfigured: false } },
     ],
     connections: [
-      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'ai-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c2', sourceNodeId: 'ai-1', targetNodeId: 'approval-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c3', sourceNodeId: 'approval-1', targetNodeId: 'end-1', sourceHandle: 'approved', targetHandle: 'input' },
+      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'ai-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c2', sourceNodeId: 'ai-1', targetNodeId: 'approval-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c3', sourceNodeId: 'approval-1', targetNodeId: 'end-1', sourceHandle: 'yes', targetHandle: 'input' },
     ],
   },
   {
@@ -98,20 +98,20 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     category: 'Multi-Platform',
     difficulty: 'intermediate',
     nodes: [
-      { id: 'start-1', type: 'start', position: { x: 100, y: 250 }, config: { name: 'New Content', trigger: 'content_added' } },
-      { id: 'filter-1', type: 'filter', position: { x: 350, y: 250 }, config: { conditions: [{ field: 'type', operator: 'equals', value: 'image' }] } },
-      { id: 'multi-1', type: 'multi-platform', position: { x: 600, y: 150 }, config: { platforms: ['instagram', 'facebook'], adaptCaptions: true } },
-      { id: 'multi-2', type: 'multi-platform', position: { x: 600, y: 350 }, config: { platforms: ['twitter'], adaptCaptions: true, shortenLinks: true } },
-      { id: 'schedule-1', type: 'schedule', position: { x: 850, y: 250 }, config: { timing: 'stagger', staggerMinutes: 30 } },
-      { id: 'end-1', type: 'end', position: { x: 1100, y: 250 }, config: {} },
+      { id: 'start-1', type: 'start', position: { x: 100, y: 250 }, data: { label: 'New Content', triggerType: 'new-content', isConfigured: false } },
+      { id: 'filter-1', type: 'filter', position: { x: 350, y: 250 }, data: { label: 'Filter', conditionType: 'content-type', operator: 'equals', value: 'image', isConfigured: false } },
+      { id: 'multi-1', type: 'multi-platform', position: { x: 600, y: 150 }, data: { label: 'Multi-Platform', platforms: ['instagram', 'facebook'], adaptContent: true, isConfigured: false } },
+      { id: 'multi-2', type: 'multi-platform', position: { x: 600, y: 350 }, data: { label: 'Multi-Platform', platforms: ['twitter'], adaptContent: true, isConfigured: false } },
+      { id: 'schedule-1', type: 'schedule', position: { x: 850, y: 250 }, data: { label: 'Schedule', scheduleType: 'custom', isConfigured: false } },
+      { id: 'end-1', type: 'end', position: { x: 1100, y: 250 }, data: { label: 'End', isConfigured: false } },
     ],
     connections: [
-      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'filter-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c2', sourceNodeId: 'filter-1', targetNodeId: 'multi-1', sourceHandle: 'pass', targetHandle: 'input' },
-      { id: 'c3', sourceNodeId: 'filter-1', targetNodeId: 'multi-2', sourceHandle: 'pass', targetHandle: 'input' },
-      { id: 'c4', sourceNodeId: 'multi-1', targetNodeId: 'schedule-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c5', sourceNodeId: 'multi-2', targetNodeId: 'schedule-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c6', sourceNodeId: 'schedule-1', targetNodeId: 'end-1', sourceHandle: 'default', targetHandle: 'input' },
+      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'filter-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c2', sourceNodeId: 'filter-1', targetNodeId: 'multi-1', sourceHandle: 'yes', targetHandle: 'input' },
+      { id: 'c3', sourceNodeId: 'filter-1', targetNodeId: 'multi-2', sourceHandle: 'yes', targetHandle: 'input' },
+      { id: 'c4', sourceNodeId: 'multi-1', targetNodeId: 'schedule-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c5', sourceNodeId: 'multi-2', targetNodeId: 'schedule-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c6', sourceNodeId: 'schedule-1', targetNodeId: 'end-1', sourceHandle: 'output', targetHandle: 'input' },
     ],
   },
   {
@@ -122,17 +122,17 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     category: 'Research',
     difficulty: 'intermediate',
     nodes: [
-      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, config: { name: 'Daily Check', trigger: 'schedule', schedule: '0 9 * * *' } },
-      { id: 'scrape-1', type: 'scrape', position: { x: 350, y: 200 }, config: { source: 'competitor', accounts: [], postsPerAccount: 5 } },
-      { id: 'filter-1', type: 'filter', position: { x: 600, y: 200 }, config: { conditions: [{ field: 'engagement', operator: 'greater_than', value: 1000 }] } },
-      { id: 'analytics-1', type: 'analytics', position: { x: 850, y: 200 }, config: { action: 'track', metrics: ['engagement', 'reach'] } },
-      { id: 'end-1', type: 'end', position: { x: 1100, y: 200 }, config: {} },
+      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, data: { label: 'Daily Check', triggerType: 'schedule', scheduleInterval: 'daily', isConfigured: false } },
+      { id: 'scrape-1', type: 'scrape', position: { x: 350, y: 200 }, data: { label: 'Scrape Content', scrapeSource: 'instagram', targetType: 'hashtag', targetValue: '', scrapeLimit: 5, filterNSFW: true, isConfigured: false } },
+      { id: 'filter-1', type: 'filter', position: { x: 600, y: 200 }, data: { label: 'Filter', conditionType: 'engagement', operator: 'greater-than', value: 1000, isConfigured: false } },
+      { id: 'analytics-1', type: 'analytics', position: { x: 850, y: 200 }, data: { label: 'Analytics', checkType: 'recent-performance', action: 'proceed', isConfigured: false } },
+      { id: 'end-1', type: 'end', position: { x: 1100, y: 200 }, data: { label: 'End', isConfigured: false } },
     ],
     connections: [
-      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'scrape-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c2', sourceNodeId: 'scrape-1', targetNodeId: 'filter-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c3', sourceNodeId: 'filter-1', targetNodeId: 'analytics-1', sourceHandle: 'pass', targetHandle: 'input' },
-      { id: 'c4', sourceNodeId: 'analytics-1', targetNodeId: 'end-1', sourceHandle: 'default', targetHandle: 'input' },
+      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'scrape-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c2', sourceNodeId: 'scrape-1', targetNodeId: 'filter-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c3', sourceNodeId: 'filter-1', targetNodeId: 'analytics-1', sourceHandle: 'yes', targetHandle: 'input' },
+      { id: 'c4', sourceNodeId: 'analytics-1', targetNodeId: 'end-1', sourceHandle: 'output', targetHandle: 'input' },
     ],
   },
   {
@@ -143,19 +143,19 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     category: 'Scheduling',
     difficulty: 'advanced',
     nodes: [
-      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, config: { name: 'Queue Check', trigger: 'schedule', schedule: '0 */6 * * *' } },
-      { id: 'pull-1', type: 'pull-content', position: { x: 350, y: 200 }, config: { source: 'queue', status: 'pending', limit: 10 } },
-      { id: 'analytics-1', type: 'analytics', position: { x: 600, y: 200 }, config: { action: 'analyze_timing', lookbackDays: 30 } },
-      { id: 'ai-1', type: 'ai-enhance', position: { x: 850, y: 200 }, config: { action: 'optimize_timing', useAnalytics: true } },
-      { id: 'schedule-1', type: 'schedule', position: { x: 1100, y: 200 }, config: { timing: 'ai_optimized', maxPerDay: 3 } },
-      { id: 'end-1', type: 'end', position: { x: 1350, y: 200 }, config: {} },
+      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, data: { label: 'Queue Check', triggerType: 'schedule', scheduleInterval: 'every 6 hours', isConfigured: false } },
+      { id: 'pull-1', type: 'pull-content', position: { x: 350, y: 200 }, data: { label: 'Pull Content', source: 'library', selectionMethod: 'newest', limit: 10, isConfigured: false } },
+      { id: 'analytics-1', type: 'analytics', position: { x: 600, y: 200 }, data: { label: 'Analytics', checkType: 'best-time', action: 'proceed', isConfigured: false } },
+      { id: 'ai-1', type: 'ai-enhance', position: { x: 850, y: 200 }, data: { label: 'AI Enhance', enhanceType: 'caption', style: 'professional', isConfigured: false } },
+      { id: 'schedule-1', type: 'schedule', position: { x: 1100, y: 200 }, data: { label: 'Schedule', scheduleType: 'best-time', isConfigured: false } },
+      { id: 'end-1', type: 'end', position: { x: 1350, y: 200 }, data: { label: 'End', isConfigured: false } },
     ],
     connections: [
-      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'pull-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c2', sourceNodeId: 'pull-1', targetNodeId: 'analytics-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c3', sourceNodeId: 'analytics-1', targetNodeId: 'ai-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c4', sourceNodeId: 'ai-1', targetNodeId: 'schedule-1', sourceHandle: 'default', targetHandle: 'input' },
-      { id: 'c5', sourceNodeId: 'schedule-1', targetNodeId: 'end-1', sourceHandle: 'default', targetHandle: 'input' },
+      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'pull-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c2', sourceNodeId: 'pull-1', targetNodeId: 'analytics-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c3', sourceNodeId: 'analytics-1', targetNodeId: 'ai-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c4', sourceNodeId: 'ai-1', targetNodeId: 'schedule-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c5', sourceNodeId: 'schedule-1', targetNodeId: 'end-1', sourceHandle: 'output', targetHandle: 'input' },
     ],
   },
 ];
@@ -292,13 +292,14 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
 
     // Find the start node to get schedule config
     const startNode = chain.nodes.find(n => n.type === 'start');
-    const trigger = startNode?.data?.trigger || startNode?.data?.triggerType || 'manual';
-    const cronExpression = startNode?.data?.schedule;
+    const startData = startNode?.data as any;
+    const triggerType = startData?.triggerType || 'manual';
+    const scheduleInterval = startData?.scheduleInterval;
 
-    if (chain.enabled && trigger === 'schedule' && cronExpression) {
+    if (chain.enabled && triggerType === 'schedule' && scheduleInterval) {
       workflowEventsContext.syncWorkflowEvents(chain.id, chain.name, {
         trigger: 'schedule',
-        cronExpression,
+        cronExpression: scheduleInterval,
         startDate: new Date().toISOString(),
       });
     } else {
@@ -370,7 +371,7 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
   // Calculate stats
   const totalChains = chains.length;
   const activeChains = chains.filter(c => c.enabled).length;
-  const totalRuns = chains.reduce((sum, c) => sum + (c.stats?.totalRuns || 0), 0);
+  const totalRuns = chains.reduce((sum, c) => sum + (chainStats[c.id]?.totalRuns || 0), 0);
 
   // Create new chain from template
   const handleCreateFromTemplate = (template: WorkflowTemplate) => {
@@ -388,10 +389,10 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
       type: n.type,
       position: n.position,
       data: {
-        label: n.config?.name || n.type.charAt(0).toUpperCase() + n.type.slice(1).replace(/-/g, ' '),
-        description: '',
+        label: (n.data as any)?.label || n.type.charAt(0).toUpperCase() + n.type.slice(1).replace(/-/g, ' '),
+        description: (n.data as any)?.description || '',
         isConfigured: false,
-        ...n.config, // Spread config into data
+        ...(n.data as any), // Spread data into data
       },
     }));
 
@@ -400,8 +401,8 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
       id: `${c.id}-${timestamp}`,
       sourceNodeId: nodeIdMap[c.sourceNodeId] || c.sourceNodeId,
       targetNodeId: nodeIdMap[c.targetNodeId] || c.targetNodeId,
-      sourceHandle: c.sourceHandle || 'output',
-      targetHandle: c.targetHandle || 'input',
+      sourceHandle: (c.sourceHandle as any) || 'output',
+      targetHandle: 'input',
     }));
 
     const newChain: AutomationChain = {
@@ -861,9 +862,11 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
             {/* Chain Builder */}
             <div className="builder-canvas-container">
               <ChainBuilder
-                chain={editingChain}
-                onChainChange={setEditingChain}
+                chain={editingChain || undefined}
                 feedId={feedId || ''}
+                feedHandle=""
+                onSave={handleSaveChain}
+                onClose={handleBackFromBuilder}
               />
             </div>
           </div>
