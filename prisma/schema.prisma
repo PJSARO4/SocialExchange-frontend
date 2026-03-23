@@ -22,14 +22,15 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  accounts      Account[]
-  sessions      Session[]
-  socialFeeds   SocialFeed[]
-  content       Content[]
-  scheduledPosts ScheduledPost[]
+  accounts            Account[]
+  sessions            Session[]
+  socialFeeds         SocialFeed[]
+  instagramAccounts   InstagramAccount[]
+  content             Content[]
+  scheduledPosts      ScheduledPost[]
 
   // Market system
-  wallet        Wallet?
+  wallet              Wallet?
 
   // New relations (Sprint 1+)
   kycSubmission   KycSubmission?
@@ -38,6 +39,10 @@ model User {
   escrowsAsSeller EscrowTransaction[] @relation("SellerEscrows")
   channelMembers  ChannelMember[]
   messages        Message[]
+
+  // Trading Post
+  listings        Listing[] @relation("SellerListings")
+  disputes        Dispute[] @relation("UserDisputes")
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -1060,9 +1065,13 @@ model EscrowTransaction {
   verifiedAt      DateTime?          @map("verified_at")
 
   // Disputes
+  disputes        Dispute[]           @relation("EscrowDisputes")
   disputeReason   String?            @map("dispute_reason") @db.Text
   disputeResolvedBy String?          @map("dispute_resolved_by")
   disputeResolution String?          @map("dispute_resolution") @db.Text
+
+  // Listings
+  listings        Listing[]           @relation("ListingEscrow")
 
   // Timeouts
   paymentDeadline DateTime?          @map("payment_deadline")
@@ -1323,4 +1332,182 @@ model Competitor {
   @@unique([userId, handle, platform])
   @@index([userId])
   @@map("competitors")
+}
+
+// ============================================
+// Instagram OAuth Account Management
+// ============================================
+
+model InstagramAccount {
+  id                      String    @id @default(cuid())
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Instagram user identifiers
+  instagramUserId         String    // The actual Instagram user ID from OAuth
+  handle                  String    // @username
+  displayName             String?
+  accountType             String?   // BUSINESS, CREATOR, PERSONAL
+  profilePictureUrl       String?
+  biography               String?
+
+  // OAuth tokens (should be encrypted in production)
+  accessToken             String    @db.Text
+  accessTokenExpires      DateTime?
+  refreshToken            String?   @db.Text
+  refreshTokenExpires     DateTime?
+
+  // Token metadata
+  scopes                  String[]  // Permissions granted
+  tokenType               String    @default("bearer")
+
+  // Connection state
+  isConnected             Boolean   @default(true)
+  lastSyncAt              DateTime?
+  lastTokenRefreshAt      DateTime?
+  lastTokenRefreshError   String?
+
+  // Cached metrics (synced periodically)
+  cachedFollowers         Int       @default(0)
+  cachedFollowing         Int       @default(0)
+  cachedMediaCount        Int       @default(0)
+  cachedEngagementRate    Float     @default(0)
+  lastMetricsSyncAt       DateTime?
+
+  // Account flags
+  isPrimary               Boolean   @default(false)  // Main account for user
+  isTestAccount           Boolean   @default(false)  // Meta test account
+  autoRefreshEnabled      Boolean   @default(true)
+
+  // Metadata
+  metadata                Json?     // Additional platform-specific data
+  connectionError         String?   // Last error message if connection fails
+
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  @@unique([userId, instagramUserId])
+  @@index([userId])
+  @@index([handle])
+  @@index([instagramUserId])
+}
+
+// ============================================
+// TRADING POST (Marketplace Listings)
+// ============================================
+
+model Listing {
+  id              String              @id @default(cuid())
+  sellerId        String              @map("seller_id")
+  seller          User                @relation("SellerListings", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  // Listing details
+  title           String
+  description     String?             @db.Text
+  platform        Platform            @map("platform")
+  handle          String?             // @username or account handle
+  profileUrl      String?             @map("profile_url")  // Link to the profile
+
+  // Metrics (at time of listing)
+  followers       Int
+  following       Int?
+  postsCount      Int?                @map("posts_count")
+  engagementRate  Decimal?            @db.Decimal(5, 2) @map("engagement_rate")  // Percentage
+  avgLikesPerPost Int?                @map("avg_likes_per_post")
+  avgCommentsPerPost Int?             @map("avg_comments_per_post")
+
+  // Niche & content category
+  niche           String?             // e.g., "fashion", "fitness", "tech"
+  contentCategory String?             @map("content_category")
+
+  // Pricing
+  price           Decimal             @db.Decimal(18, 2)  // USD
+  currency        String              @default("USD")
+
+  // Proof/verification
+  proofUrls       String[]            @map("proof_urls")  // Screenshots, analytics exports
+  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+
+  // Status
+  status          ListingStatus       @default(ACTIVE)
+  saleStatus      SaleStatus          @default(AVAILABLE) @map("sale_status")
+
+  // Related escrow (once purchased)
+  escrowId        String?             @map("escrow_id")
+  escrow          EscrowTransaction?  @relation("ListingEscrow", fields: [escrowId], references: [id], onDelete: SetNull)
+
+  // Metrics
+  views           Int                 @default(0)
+  saves           Int                 @default(0)
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  expiresAt       DateTime?           @map("expires_at")
+  soldAt          DateTime?           @map("sold_at")
+
+  @@index([sellerId, status])
+  @@index([platform, status])
+  @@index([niche])
+  @@index([createdAt])
+  @@map("listings")
+}
+
+model Dispute {
+  id              String              @id @default(cuid())
+  escrowId        String              @map("escrow_id")
+  escrow          EscrowTransaction   @relation("EscrowDisputes", fields: [escrowId], references: [id], onDelete: Cascade)
+
+  // Dispute opener
+  openerId        String              @map("opener_id")
+  opener          User                @relation("UserDisputes", fields: [openerId], references: [id], onDelete: Cascade)
+
+  // Dispute details
+  reason          String              @db.Text
+  evidence        String?             @db.Text // Description of evidence
+  evidenceUrls    String[]            @map("evidence_urls")
+
+  // Resolution
+  status          DisputeStatus       @default(OPEN)
+  resolvedBy      String?             @map("resolved_by")
+  resolution      String?             @db.Text // How it was resolved
+  refundAmount    Decimal?            @db.Decimal(18, 2) @map("refund_amount")
+
+  // Timestamps
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+  closedAt        DateTime?           @map("closed_at")
+
+  @@index([escrowId])
+  @@index([openerId])
+  @@index([status])
+  @@map("disputes")
+}
+
+enum ListingStatus {
+  ACTIVE
+  PAUSED
+  EXPIRED
+  DELISTED
+}
+
+enum SaleStatus {
+  AVAILABLE
+  PENDING
+  SOLD
+  CANCELLED
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  FAILED
+}
+
+enum DisputeStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  CLOSED
 }

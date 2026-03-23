@@ -111,6 +111,34 @@ export default function MyFeedsContent() {
           } catch (error) {
             console.error('Failed to fetch Instagram profile:', error);
           }
+
+          // Store the OAuth token in the database for persistence
+          try {
+            const dbResponse = await fetch('/api/instagram/accounts/connect', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                instagramUserId: profileData?.id || user.id,
+                handle: `@${profileData?.username || user.name || user.id}`,
+                displayName: profileData?.name || profileData?.username || user.name,
+                accountType: profileData?.accountType || 'BUSINESS',
+                profilePictureUrl: profileData?.profilePictureUrl,
+                biography: profileData?.biography,
+                accessToken: user.accessToken,
+                accessTokenExpires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
+                scopes: ['instagram_business_basic', 'instagram_business_content_publish', 'instagram_business_manage_insights'],
+              }),
+            });
+
+            if (dbResponse.ok) {
+              console.log('💾 OAuth token stored in database');
+            } else {
+              console.warn('Failed to store OAuth token in database');
+            }
+          } catch (error) {
+            console.warn('Database storage error:', error);
+            // Continue anyway - we still have the token in session
+          }
         }
 
         if (existingFeed) {
