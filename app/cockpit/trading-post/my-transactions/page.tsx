@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import '../../trading-post.css';
+import '../trading-post.css';
 
 const MOCK_TRANSACTIONS = [
   {
