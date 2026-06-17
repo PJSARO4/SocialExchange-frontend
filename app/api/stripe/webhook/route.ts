@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStripe, usdToCoins } from '@/lib/stripe/stripe-client';
+import { getStripe } from '@/lib/stripe/stripe-client';
+import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
+import { Decimal } from '@prisma/client/runtime/library';
 
 /**
  * POST /api/stripe/webhook
@@ -9,7 +11,8 @@ import Stripe from 'stripe';
  * - checkout.session.completed: Credit SExCOINS to user's wallet
  * - payment_intent.payment_failed: Log failure
  *
- * IMPORTANT: This route must receive the raw body for signature verification.
+ * IMPORTANT: Stripe requires the raw body for signature verification.
+ * Next.js App Router passes raw bytes to request.text(), so this works correctly.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -63,7 +66,6 @@ export async function POST(request: NextRequest) {
       }
 
       default:
-        // Unhandled event type
         console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
     }
 
@@ -78,13 +80,12 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Handle successful checkout - credit SExCOINS to user wallet.
+ * Handle successful checkout — credit SExCOINS to user's wallet atomically.
  *
- * In production, this will:
- * 1. Look up the user by metadata.userId
- * 2. Credit metadata.coinsToReceive to their Wallet
- * 3. Create a WalletTransaction record
- * 4. Send a notification
+ * Expects session.metadata:
+ *   userId        — the platform user ID
+ *   coinsToReceive — SExCOINS to credit (stringified number)
+ *   amountUsd      — USD paid (stringified number)
  */
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const userId = session.metadata?.userId;
@@ -100,16 +101,65 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   console.log(
-    `[Stripe Webhook] Checkout completed: userId=${userId}, coins=${coinsToReceive}, usd=${amountUsd}`
+    `[Stripe Webhook] Crediting ${coinsToReceive} SExCOINS to user ${userId} ($${amountUsd})`
   );
 
-  // TODO: When database is connected, implement:
-  // 1. prisma.wallet.upsert({ where: { userId }, update: { balance: { increment: coinsToReceive } }, create: { userId, balance: coinsToReceive } })
-  // 2. prisma.walletTransaction.create({ data: { walletId, type: 'DEPOSIT', amount: coinsToReceive, usdAmount: amountUsd, ... } })
-  // 3. prisma.notification.create({ data: { userId, type: 'WALLET_DEPOSIT', title: 'Deposit Successful', message: `${coinsToReceive} SExCOINS deposited` } })
+  // Run as a DB transaction so wallet + ledger stay in sync
+  await prisma.$transaction(async (tx) => {
+    // 1. Upsert wallet (create if first deposit)
+    const walletBefore = await tx.wallet.findUnique({ where: { userId } });
+    const balanceBefore = walletBefore ? Number(walletBefore.balance) : 0;
 
-  // For now, log the successful deposit
+    const wallet = await tx.wallet.upsert({
+      where: { userId },
+      update: {
+        balance:        { increment: new Decimal(coinsToReceive) },
+        totalDeposited: { increment: new Decimal(coinsToReceive) },
+      },
+      create: {
+        userId,
+        balance:        new Decimal(coinsToReceive),
+        totalDeposited: new Decimal(coinsToReceive),
+      },
+    });
+
+    const balanceAfter = balanceBefore + coinsToReceive;
+
+    // 2. Record wallet transaction ledger entry
+    await tx.walletTransaction.create({
+      data: {
+        walletId:        wallet.id,
+        type:            'DEPOSIT',
+        amount:          new Decimal(coinsToReceive),
+        balanceBefore:   new Decimal(balanceBefore),
+        balanceAfter:    new Decimal(balanceAfter),
+        usdAmount:       new Decimal(amountUsd),
+        exchangeRate:    new Decimal(0.10),          // $0.10 per coin
+        paymentProvider: 'stripe',
+        paymentId:       session.id,
+        paymentStatus:   'completed',
+        description:     `Deposit $${amountUsd.toFixed(2)} → ${coinsToReceive} SExCOINS`,
+        metadata:        {
+          stripeSessionId:  session.id,
+          stripeCustomerId: typeof session.customer === 'string' ? session.customer : null,
+        },
+      },
+    });
+
+    // 3. Push in-app notification
+    await tx.notification.create({
+      data: {
+        userId,
+        type:      'WALLET_DEPOSIT',
+        title:     'Deposit Successful',
+        message:   `${coinsToReceive.toLocaleString()} SExCOINS have been added to your wallet.`,
+        entityType: 'wallet',
+        entityId:   wallet.id,
+      },
+    });
+  });
+
   console.log(
-    `[Stripe Webhook] Would credit ${coinsToReceive} SExCOINS to user ${userId} for $${amountUsd}`
+    `[Stripe Webhook] ✓ Wallet credited — user=${userId} coins=${coinsToReceive} usd=${amountUsd}`
   );
 }

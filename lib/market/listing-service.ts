@@ -87,11 +87,18 @@ export async function listListings(filters: ListingFilter = {}) {
     status, saleStatus,
     platform: platform ? { equals: platform } : undefined,
     niche: niche ? { equals: niche } : undefined,
-    followers: { gte: minFollowers, lte: maxFollowers },
-    price: { gte: minPrice ? new Prisma.Decimal(minPrice) : undefined, lte: maxPrice ? new Prisma.Decimal(maxPrice) : undefined },
+    followers: (minFollowers != null || maxFollowers != null)
+      ? { gte: minFollowers, lte: maxFollowers }
+      : undefined,
+    price: (minPrice != null || maxPrice != null)
+      ? { gte: minPrice != null ? new Prisma.Decimal(minPrice) : undefined, lte: maxPrice != null ? new Prisma.Decimal(maxPrice) : undefined }
+      : undefined,
   };
 
-  Object.keys(where).forEach((key) => where[key as keyof typeof where] === undefined && delete where[key as keyof typeof where]);
+  // Remove top-level undefined keys
+  (Object.keys(where) as (keyof typeof where)[]).forEach(
+    (key) => where[key] === undefined && delete where[key]
+  );
 
   const [listings, total] = await Promise.all([
     prisma.listing.findMany({

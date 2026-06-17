@@ -1,12 +1,31 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import * as listingService from '@/lib/market/listing-service';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
+    const mine = searchParams.get('mine') === 'true';
+
+    // ?mine=true → return only the current user's listings
+    if (mine) {
+      const session = await getServerSession(authOptions);
+      if (!session?.user?.email) {
+        return NextResponse.json({ listings: [], total: 0 });
+      }
+      const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+      if (!user) return NextResponse.json({ listings: [], total: 0 });
+
+      const listings = await prisma.listing.findMany({
+        where: { sellerId: user.id },
+        orderBy: { createdAt: 'desc' },
+        include: { seller: { select: { id: true, name: true, email: true } } },
+      });
+      return NextResponse.json({ listings, total: listings.length });
+    }
 
     const filters = {
       status: searchParams.get('status') || 'ACTIVE',
@@ -34,7 +53,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -1,34 +1,28 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { Decimal } from '@prisma/client/runtime/library';
 import * as ammService from '@/lib/market/amm-service';
 
 /**
- * GET /api/eshares/trade?userId=...
- * Get user's trades
+ * GET /api/eshares/trade?brandId=...&limit=...
+ * Returns recent trades, optionally filtered by brand.
  */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const brandId = searchParams.get('brandId');
-    const limit = parseInt(searchParams.get('limit') || '20');
-
-    const where: any = {};
-    if (brandId) where.brandId = brandId;
+    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
 
     const trades = await prisma.trade.findMany({
-      where,
+      where: brandId ? { brandId } : undefined,
       include: {
         brand: {
-          select: {
-            id: true,
-            ticker: true,
-            name: true,
-          },
+          select: { id: true, ticker: true, name: true },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { executedAt: 'desc' },
       take: limit,
     });
 
@@ -41,11 +35,18 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST /api/eshares/trade
- * Execute a buy or sell trade
+ * Execute a BUY or SELL market order.
+ *
+ * Body:
+ *   brandId   — Brand to trade
+ *   side      — 'BUY' | 'SELL'
+ *   quantity  — number of shares
+ *   maxPrice  — (BUY only) slippage ceiling, defaults to no limit
+ *   minPrice  — (SELL only) slippage floor, defaults to 0
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -64,22 +65,33 @@ export async function POST(request: NextRequest) {
     const { brandId, side, quantity, maxPrice, minPrice } = body;
 
     if (!brandId || !side || !quantity) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields: brandId, side, quantity' }, { status: 400 });
     }
 
-    // Create market order
+    if (side !== 'BUY' && side !== 'SELL') {
+      return NextResponse.json({ error: 'side must be BUY or SELL' }, { status: 400 });
+    }
+
+    if (quantity <= 0) {
+      return NextResponse.json({ error: 'quantity must be positive' }, { status: 400 });
+    }
+
+    // Create a pending market order
     const order = await prisma.marketOrder.create({
       data: {
-        walletId: user.wallet.id,
+        walletId:  user.wallet.id,
         brandId,
         side,
         orderType: 'MARKET',
-        quantity: quantity,
+        quantity:  new Decimal(quantity),
       },
     });
 
     try {
-      let result;
+      let result: Awaited<ReturnType<typeof ammService.executeBuyTrade>> |
+                  Awaited<ReturnType<typeof ammService.executeSellTrade>>;
+
+      const walletBalance = Number(user.wallet.balance);
 
       if (side === 'BUY') {
         result = await ammService.executeBuyTrade(
@@ -87,116 +99,122 @@ export async function POST(request: NextRequest) {
           brandId,
           order.id,
           quantity,
-          maxPrice || 999999
+          maxPrice ?? 999_999_999
         );
 
-        // Update order
-        await prisma.marketOrder.update({
-          where: { id: order.id },
-          data: {
-            status: 'FILLED',
-            filledQuantity: quantity,
-            averagePrice: result.newPrice,
-            totalValue: result.costs.subtotal,
-            tradingFee: result.costs.tradingFee,
-            creatorRoyalty: result.costs.creatorRoyalty,
-            filledAt: new Date(),
-          },
-        });
+        const buyResult = result as Awaited<ReturnType<typeof ammService.executeBuyTrade>>;
+        const totalCost = buyResult.costs.total;
 
-        // Update wallet
-        const totalCost = result.costs.total;
-        if (Number(user.wallet.balance) < totalCost) {
-          throw new Error('Insufficient balance');
+        if (walletBalance < totalCost) {
+          throw new Error(
+            `Insufficient balance: need ${totalCost.toFixed(2)} coins, have ${walletBalance.toFixed(2)}`
+          );
         }
 
+        // Debit wallet
         await prisma.wallet.update({
           where: { id: user.wallet.id },
           data: {
-            balance: {
-              decrement: totalCost,
-            },
+            balance:            { decrement: new Decimal(totalCost) },
+            totalTradingVolume: { increment: new Decimal(buyResult.costs.subtotal) },
           },
         });
 
-        // Record transaction
+        // Ledger entry
         await prisma.walletTransaction.create({
           data: {
-            walletId: user.wallet.id,
-            type: 'BUY_SHARES',
-            amount: quantity,
-            balanceBefore: user.wallet.balance,
-            balanceAfter: {
-              decrement: totalCost,
-            },
+            walletId:     user.wallet.id,
+            type:         'BUY_SHARES',
+            amount:       new Decimal(totalCost),
+            balanceBefore: new Decimal(walletBalance),
+            balanceAfter:  new Decimal(walletBalance - totalCost),
             brandId,
-            description: `Buy ${quantity} shares of ${result.shareholding.brandId}`,
+            orderId:       order.id,
+            description:   `Buy ${quantity} shares @ ${buyResult.newPrice.toFixed(4)} coins`,
           },
         });
+
+        // Mark order filled
+        await prisma.marketOrder.update({
+          where: { id: order.id },
+          data: {
+            status:         'FILLED',
+            filledQuantity: new Decimal(quantity),
+            averagePrice:   new Decimal(buyResult.newPrice),
+            totalValue:     new Decimal(buyResult.costs.subtotal),
+            tradingFee:     new Decimal(buyResult.costs.tradingFee),
+            creatorRoyalty: new Decimal(buyResult.costs.creatorRoyalty),
+            filledAt:       new Date(),
+          },
+        });
+
+        return NextResponse.json(buyResult, { status: 201 });
+
       } else {
+        // SELL path
         result = await ammService.executeSellTrade(
           user.id,
           brandId,
           order.id,
           quantity,
-          minPrice || 0
+          minPrice ?? 0
         );
 
-        // Update order
-        await prisma.marketOrder.update({
-          where: { id: order.id },
-          data: {
-            status: 'FILLED',
-            filledQuantity: quantity,
-            averagePrice: result.newPrice,
-            totalValue: result.proceeds.subtotal,
-            tradingFee: result.proceeds.tradingFee,
-            creatorRoyalty: result.proceeds.creatorRoyalty,
-            filledAt: new Date(),
-          },
-        });
+        const sellResult = result as Awaited<ReturnType<typeof ammService.executeSellTrade>>;
+        const netProceeds = sellResult.proceeds.net;
 
-        // Update wallet
+        // Credit wallet
         await prisma.wallet.update({
           where: { id: user.wallet.id },
           data: {
-            balance: {
-              increment: result.proceeds.net,
-            },
+            balance:            { increment: new Decimal(netProceeds) },
+            totalTradingVolume: { increment: new Decimal(sellResult.proceeds.subtotal) },
           },
         });
 
-        // Record transaction
+        // Ledger entry
         await prisma.walletTransaction.create({
           data: {
-            walletId: user.wallet.id,
-            type: 'SELL_SHARES',
-            amount: quantity,
-            balanceBefore: user.wallet.balance,
-            balanceAfter: {
-              increment: result.proceeds.net,
-            },
+            walletId:     user.wallet.id,
+            type:         'SELL_SHARES',
+            amount:       new Decimal(netProceeds),
+            balanceBefore: new Decimal(walletBalance),
+            balanceAfter:  new Decimal(walletBalance + netProceeds),
             brandId,
-            description: `Sell ${quantity} shares of ${result.shareholding.brandId}`,
+            orderId:       order.id,
+            description:   `Sell ${quantity} shares @ ${sellResult.newPrice.toFixed(4)} coins`,
           },
         });
+
+        // Mark order filled
+        await prisma.marketOrder.update({
+          where: { id: order.id },
+          data: {
+            status:         'FILLED',
+            filledQuantity: new Decimal(quantity),
+            averagePrice:   new Decimal(sellResult.newPrice),
+            totalValue:     new Decimal(sellResult.proceeds.subtotal),
+            tradingFee:     new Decimal(sellResult.proceeds.tradingFee),
+            creatorRoyalty: new Decimal(sellResult.proceeds.creatorRoyalty),
+            filledAt:       new Date(),
+          },
+        });
+
+        return NextResponse.json(sellResult, { status: 201 });
       }
 
-      return NextResponse.json(result, { status: 201 });
-    } catch (tradeError: any) {
-      // Cancel order on error
+    } catch (tradeError: unknown) {
+      // Roll back the order on any failure
       await prisma.marketOrder.update({
         where: { id: order.id },
-        data: { status: 'CANCELLED' },
+        data: { status: 'CANCELLED', cancelReason: String(tradeError) },
       });
-
       throw tradeError;
     }
-  } catch (error: any) {
+
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to execute trade';
     console.error('[Trade POST]', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to execute trade' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

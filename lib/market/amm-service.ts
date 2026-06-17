@@ -130,15 +130,29 @@ export async function executeBuyTrade(
     },
   });
 
-  await prisma.priceHistory.create({
-    data: {
+  const now = new Date();
+  const periodStart = new Date(Math.floor(now.getTime() / 60_000) * 60_000);
+  const periodEnd   = new Date(periodStart.getTime() + 60_000);
+
+  await prisma.priceHistory.upsert({
+    where: { brandId_interval_periodStart: { brandId, interval: 'MINUTE_1', periodStart } },
+    create: {
       brandId,
-      interval: 'MINUTE_1',
-      open: brand.currentPrice,
-      high: new Decimal(newPrice),
-      low: brand.currentPrice,
-      close: new Decimal(newPrice),
-      volume: new Decimal(quantity),
+      interval:    'MINUTE_1',
+      periodStart,
+      periodEnd,
+      openPrice:   brand.currentPrice,
+      highPrice:   new Decimal(newPrice),
+      lowPrice:    brand.currentPrice,
+      closePrice:  new Decimal(newPrice),
+      volume:      new Decimal(quantity),
+      volumeCoins: new Decimal(costs.subtotal),
+    },
+    update: {
+      highPrice:   { set: new Decimal(Math.max(newPrice, Number(brand.currentPrice))) },
+      closePrice:  new Decimal(newPrice),
+      volume:      { increment: new Decimal(quantity) },
+      volumeCoins: { increment: new Decimal(costs.subtotal) },
     },
   });
 
@@ -222,15 +236,29 @@ export async function executeSellTrade(
     },
   });
 
-  await prisma.priceHistory.create({
-    data: {
+  const now2 = new Date();
+  const periodStart2 = new Date(Math.floor(now2.getTime() / 60_000) * 60_000);
+  const periodEnd2   = new Date(periodStart2.getTime() + 60_000);
+
+  await prisma.priceHistory.upsert({
+    where: { brandId_interval_periodStart: { brandId, interval: 'MINUTE_1', periodStart: periodStart2 } },
+    create: {
       brandId,
-      interval: 'MINUTE_1',
-      open: brand.currentPrice,
-      high: brand.currentPrice,
-      low: new Decimal(newPrice),
-      close: new Decimal(newPrice),
-      volume: new Decimal(quantity),
+      interval:    'MINUTE_1',
+      periodStart: periodStart2,
+      periodEnd:   periodEnd2,
+      openPrice:   brand.currentPrice,
+      highPrice:   brand.currentPrice,
+      lowPrice:    new Decimal(newPrice),
+      closePrice:  new Decimal(newPrice),
+      volume:      new Decimal(quantity),
+      volumeCoins: new Decimal(proceeds.subtotal),
+    },
+    update: {
+      lowPrice:    { set: new Decimal(Math.min(newPrice, Number(brand.currentPrice))) },
+      closePrice:  new Decimal(newPrice),
+      volume:      { increment: new Decimal(quantity) },
+      volumeCoins: { increment: new Decimal(proceeds.subtotal) },
     },
   });
 
