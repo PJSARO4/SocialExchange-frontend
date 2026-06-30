@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { getCurrentUser, isAuthenticated, seedAuthIfEmpty, repairAuthIfNeeded } from "@/app/lib/auth/auth-store";
+import { useSession } from "next-auth/react";
 import { getAmbientAudio } from "@/lib/audio/AmbientAudioEngine";
 import "./entrance.css";
 
@@ -30,10 +30,9 @@ type ShootingStar = {
 
 export default function Entrance() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [typed, setTyped] = useState("");
-  const [user, setUser] = useState<ReturnType<typeof getCurrentUser>>(null);
-  const [authChecked, setAuthChecked] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [exitTarget, setExitTarget] = useState<string | null>(null);
   const [audioStarted, setAudioStarted] = useState(false);
@@ -42,14 +41,8 @@ export default function Entrance() {
     QUOTES[Math.floor(Math.random() * QUOTES.length)]
   );
 
-  // Check authentication on mount
-  useEffect(() => {
-    seedAuthIfEmpty();
-    repairAuthIfNeeded(); // Ensure auth data is valid
-    const currentUser = getCurrentUser();
-    setUser(currentUser);
-    setAuthChecked(true);
-  }, []);
+  const isAuthenticated = status === "authenticated";
+  const authChecked = status !== "loading";
 
   // Start ambient audio on user interaction
   const startAudio = useCallback(async () => {
@@ -88,13 +81,11 @@ export default function Entrance() {
 
   // Handle enter button click
   const handleEnter = async () => {
-    // Start audio on click (required by browser autoplay policies)
     await startAudio();
-
-    if (isAuthenticated()) {
+    if (isAuthenticated) {
       navigateWithTransition("/cockpit/home");
     } else {
-      navigateWithTransition("/auth/login");
+      navigateWithTransition("/auth/signin");
     }
   };
 
@@ -271,10 +262,10 @@ export default function Entrance() {
       <main className="entrance-main">
         <h1 className="entrance-title">SOCIAL • EXCHANGE</h1>
 
-        {user ? (
+        {isAuthenticated ? (
           <>
             <div className="user-greeting">
-              Welcome back, <span className="user-name">{user.displayName}</span>
+              Welcome back, <span className="user-name">{session?.user?.name || session?.user?.email}</span>
             </div>
             <button
               className="command-button"
@@ -284,6 +275,9 @@ export default function Entrance() {
               <span className="btn-text">ENTER MISSION CONTROL</span>
               <span className="btn-glow" />
             </button>
+            <div className="auth-links">
+              <span onClick={() => navigateWithTransition("/auth/signin")} className="auth-link">Switch Account</span>
+            </div>
           </>
         ) : (
           <>
@@ -296,7 +290,7 @@ export default function Entrance() {
               <span className="btn-glow" />
             </button>
             <div className="auth-links">
-              <span onClick={() => navigateWithTransition("/auth/login")} className="auth-link">Sign In</span>
+              <span onClick={() => navigateWithTransition("/auth/signin")} className="auth-link">Sign In</span>
               <span className="auth-separator">•</span>
               <span onClick={() => navigateWithTransition("/auth/signup")} className="auth-link">Create Account</span>
             </div>
@@ -306,7 +300,7 @@ export default function Entrance() {
         <p className="typewriter">{typed}<span className="cursor">|</span></p>
 
         <div className="system-online">
-          {user ? `OPERATOR: ${user.username.toUpperCase()}` : "SYSTEM STANDBY"}
+          {isAuthenticated ? `OPERATOR: ${(session?.user?.name || session?.user?.email || '').toUpperCase()}` : "SYSTEM STANDBY"}
         </div>
       </main>
 

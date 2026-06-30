@@ -458,80 +458,80 @@ function ResourcesSection() {
         <div className="resource-category">
           <h3><BookOpen size={18} /> Guides</h3>
           <div className="resource-list">
-            <a href="#" className="resource-link">
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Getting Started as a Supporter</span>
               <span className="resource-desc">Complete guide to supporting creators</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Creator Onboarding Guide</span>
               <span className="resource-desc">Step-by-step community setup</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Tier Benefits Best Practices</span>
               <span className="resource-desc">How to structure compelling benefits</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Community Engagement Playbook</span>
               <span className="resource-desc">Keep your community active and engaged</span>
-            </a>
+            </span>
           </div>
         </div>
 
         <div className="resource-category">
           <h3><Video size={18} /> Video Tutorials</h3>
           <div className="resource-list">
-            <a href="#" className="resource-link">
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Platform Tour (5 min)</span>
               <span className="resource-desc">Quick overview of Social Exchange</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Buying Your First Credits</span>
               <span className="resource-desc">Step-by-step walkthrough</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Setting Up Your Community</span>
               <span className="resource-desc">Complete creator setup tutorial</span>
-            </a>
+            </span>
           </div>
         </div>
 
         <div className="resource-category">
           <h3><MessageSquare size={18} /> Support</h3>
           <div className="resource-list">
-            <a href="#" className="resource-link">
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Help Center</span>
               <span className="resource-desc">Search our knowledge base</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Contact Support</span>
               <span className="resource-desc">Get help from our team</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Community Discord</span>
               <span className="resource-desc">Chat with other users</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Report an Issue</span>
               <span className="resource-desc">Report bugs or problems</span>
-            </a>
+            </span>
           </div>
         </div>
 
         <div className="resource-category">
           <h3><BarChart3 size={18} /> Tools</h3>
           <div className="resource-list">
-            <a href="#" className="resource-link">
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Credit Calculator</span>
               <span className="resource-desc">Plan your support amount</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Tier Comparison Tool</span>
               <span className="resource-desc">Compare benefits across tiers</span>
-            </a>
-            <a href="#" className="resource-link">
+            </span>
+            <span className="resource-link" style={{opacity:0.5,cursor:"default"}}>
               <span className="resource-title">Creator Analytics</span>
               <span className="resource-desc">Track your community growth</span>
-            </a>
+            </span>
           </div>
         </div>
       </div>
@@ -566,7 +566,7 @@ function LegalSection() {
             By using Social Exchange, you agree to our terms governing platform use,
             community conduct, and credit transactions.
           </p>
-          <a href="#" className="legal-link">Read Full Terms →</a>
+          <span className="legal-link" style={{opacity:0.5,cursor:"default"}}>Read Full Terms →</span>
         </div>
 
         <div className="legal-doc">
@@ -574,7 +574,7 @@ function LegalSection() {
           <p>
             Learn how we collect, use, and protect your personal information on our platform.
           </p>
-          <a href="#" className="legal-link">Read Privacy Policy →</a>
+          <span className="legal-link" style={{opacity:0.5,cursor:"default"}}>Read Privacy Policy →</span>
         </div>
 
         <div className="legal-doc">
@@ -583,7 +583,7 @@ function LegalSection() {
             The agreement supporters acknowledge when purchasing credits, including the
             understanding that credits are for community support, not investment.
           </p>
-          <a href="#" className="legal-link">Read Agreement →</a>
+          <span className="legal-link" style={{opacity:0.5,cursor:"default"}}>Read Agreement →</span>
         </div>
 
         <div className="legal-doc">
@@ -592,7 +592,7 @@ function LegalSection() {
             The agreement creators sign when establishing a community, including commitment
             period obligations and benefit delivery requirements.
           </p>
-          <a href="#" className="legal-link">Read Agreement →</a>
+          <span className="legal-link" style={{opacity:0.5,cursor:"default"}}>Read Agreement →</span>
         </div>
 
         <div className="legal-doc">
@@ -601,7 +601,7 @@ function LegalSection() {
             Information about our refund policies, including circumstances where refunds
             may be issued for abandoned communities.
           </p>
-          <a href="#" className="legal-link">Read Refund Policy →</a>
+          <span className="legal-link" style={{opacity:0.5,cursor:"default"}}>Read Refund Policy →</span>
         </div>
 
         <div className="legal-doc">
@@ -610,7 +610,7 @@ function LegalSection() {
             Our policies regarding intellectual property, copyright claims, and DMCA
             takedown procedures.
           </p>
-          <a href="#" className="legal-link">Read Copyright Policy →</a>
+          <span className="legal-link" style={{opacity:0.5,cursor:"default"}}>Read Copyright Policy →</span>
         </div>
       </div>
 

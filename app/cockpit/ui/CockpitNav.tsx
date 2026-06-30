@@ -6,7 +6,7 @@ import Link from 'next/link';
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/cockpit/dashboard' },
   { label: 'Assets', href: '/cockpit/assets' },
-  { label: 'Market', href: '/cockpit/market' },
+  { label: 'Market', href: '/cockpit/trading-post' },
   { label: 'Comms', href: '/cockpit/comms' },
   { label: 'Systems', href: '/cockpit/systems' },
 ];

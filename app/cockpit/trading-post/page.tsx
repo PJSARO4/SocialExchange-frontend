@@ -67,7 +67,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     title: 'Instagram Accounts',
     description: 'Buy and sell verified Instagram accounts with real followers',
     icon: <Camera size={24} />,
-    href: '/cockpit/my-e-assets/market?platform=instagram',
+    href: '/cockpit/trading-post/browse?platform=Instagram',
     stats: {
       listings: 1247,
       avgPrice: '$2,450',
@@ -81,7 +81,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     title: 'TikTok Accounts',
     description: 'Monetizable TikTok accounts with established audiences',
     icon: <Music size={24} />,
-    href: '/cockpit/my-e-assets/market?platform=tiktok',
+    href: '/cockpit/trading-post/browse?platform=TikTok',
     stats: {
       listings: 856,
       avgPrice: '$1,890',
@@ -94,7 +94,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     title: 'Twitter/X Accounts',
     description: 'Verified and established Twitter accounts',
     icon: '𝕏',
-    href: '/cockpit/my-e-assets/market?platform=twitter',
+    href: '/cockpit/trading-post/browse?platform=Twitter',
     stats: {
       listings: 623,
       avgPrice: '$1,250',
@@ -107,7 +107,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     title: 'YouTube Channels',
     description: 'Monetized YouTube channels with active subscribers',
     icon: '▶',
-    href: '/cockpit/my-e-assets/market?platform=youtube',
+    href: '/cockpit/trading-post/browse?platform=YouTube',
     stats: {
       listings: 412,
       avgPrice: '$5,670',
@@ -120,7 +120,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     title: 'Content Packs',
     description: 'Premium content bundles, templates, and presets',
     icon: <Package size={24} />,
-    href: '/cockpit/my-e-assets/market?type=content',
+    href: '/cockpit/trading-post/browse',
     stats: {
       listings: 2341,
       avgPrice: '$47',
@@ -133,7 +133,7 @@ const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     title: 'Growth Services',
     description: 'Professional social media management and growth services',
     icon: <Rocket size={24} />,
-    href: '/cockpit/my-e-assets/market?type=services',
+    href: '/cockpit/trading-post/browse',
     stats: {
       listings: 534,
       avgPrice: '$299/mo',
@@ -149,7 +149,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: 'Sell My Account',
     icon: <DollarSign size={20} />,
     description: 'List your social media account for sale',
-    href: '/cockpit/my-e-assets/market?action=create',
+    href: '/cockpit/trading-post/sell',
     color: '#3fffdc',
   },
   {
@@ -157,7 +157,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: 'Browse Marketplace',
     icon: <ShoppingCart size={20} />,
     description: 'Explore all available listings',
-    href: '/cockpit/my-e-assets/market',
+    href: '/cockpit/trading-post/browse',
     color: '#8B5CF6',
   },
   {
@@ -165,7 +165,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: 'My Listings',
     icon: <ClipboardList size={20} />,
     description: 'Manage your active listings',
-    href: '/cockpit/my-e-assets/market?tab=selling',
+    href: '/cockpit/trading-post/my-listings',
     color: '#F59E0B',
   },
   {
@@ -173,7 +173,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: 'Saved Items',
     icon: <Heart size={20} />,
     description: 'View your saved listings',
-    href: '/cockpit/my-e-assets/market?tab=saved',
+    href: '/cockpit/trading-post/saved',
     color: '#EF4444',
   },
 ];
@@ -253,7 +253,7 @@ export default function TradingPostPage() {
       <section className="trading-post-section featured-section">
         <div className="featured-badge"><Flame size={16} /> Most Popular</div>
         <Link
-          href="/cockpit/my-e-assets/market?platform=instagram"
+          href="/cockpit/trading-post/browse?platform=Instagram"
           className="featured-instagram-card"
         >
           <div className="featured-instagram-bg" />
@@ -404,11 +404,11 @@ export default function TradingPostPage() {
             </p>
           </div>
           <div className="cta-buttons">
-            <Link href="/cockpit/my-e-assets/market?action=create" className="cta-btn primary">
+            <Link href="/cockpit/trading-post/sell" className="cta-btn primary">
               <span><DollarSign size={18} /></span>
               Sell Your Account
             </Link>
-            <Link href="/cockpit/my-e-assets/market" className="cta-btn secondary">
+            <Link href="/cockpit/trading-post/browse" className="cta-btn secondary">
               <span><ShoppingCart size={18} /></span>
               Browse Marketplace
             </Link>

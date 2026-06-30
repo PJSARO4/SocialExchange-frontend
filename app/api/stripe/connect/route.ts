@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getStripe, isStripeConfigured, coinsToUsd, WITHDRAWAL_FEE_PERCENT } from '@/lib/stripe/stripe-client';
+import { getStripe, isStripeConfigured, WITHDRAWAL_FEE_PERCENT } from '@/lib/stripe/stripe-client';
 
 /**
  * POST /api/stripe/connect
  *
- * Handles Stripe Connect operations for creator payouts.
+ * Handles Stripe Connect operations for seller payouts.
  *
  * Actions:
- * - action: 'create-account' - Creates a Stripe Connect Express account for a creator
- * - action: 'create-payout'  - Initiates a withdrawal (SExCOINS -> USD -> bank)
+ * - action: 'create-account' - Creates a Stripe Connect Express account for a seller
+ * - action: 'create-payout'  - Initiates a USD withdrawal from wallet to bank
  * - action: 'account-link'   - Gets onboarding URL for Connect account setup
  */
 export async function POST(request: NextRequest) {
@@ -59,14 +59,14 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Create a Stripe Connect Express account for a creator.
- * This allows them to receive payouts.
+ * Create a Stripe Connect Express account for a seller.
+ * This allows them to receive payouts from escrow completions.
  */
 async function handleCreateAccount(userId: string, body: { email?: string; country?: string }) {
   const account = await getStripe().accounts.create({
     type: 'express',
     email: body.email,
-    country: body.country || 'GB', // Default to UK (international platform)
+    country: body.country || 'US',
     capabilities: {
       transfers: { requested: true },
     },
@@ -104,22 +104,23 @@ async function handleAccountLink(body: { stripeAccountId: string }) {
 }
 
 /**
- * Create a payout (withdrawal) from SExCOINS to USD via Stripe Connect.
+ * Create a USD payout from wallet balance to bank via Stripe Connect.
  *
  * Flow:
- * 1. Deduct SExCOINS from user's wallet (with 10% fee)
- * 2. Transfer USD to their Stripe Connect account
- * 3. Stripe handles the actual bank payout
+ * 1. Verify user has sufficient USD wallet balance
+ * 2. Deduct amount + fee from wallet
+ * 3. Transfer net USD to their Stripe Connect account
+ * 4. Stripe handles the actual bank payout
  */
 async function handleCreatePayout(
   userId: string,
-  body: { coinAmount: number; stripeAccountId: string }
+  body: { usdAmount: number; stripeAccountId: string }
 ) {
-  const { coinAmount, stripeAccountId } = body;
+  const { usdAmount, stripeAccountId } = body;
 
-  if (!coinAmount || coinAmount <= 0) {
+  if (!usdAmount || usdAmount <= 0) {
     return NextResponse.json(
-      { error: 'coinAmount must be positive' },
+      { error: 'usdAmount must be positive' },
       { status: 400 }
     );
   }
@@ -131,45 +132,39 @@ async function handleCreatePayout(
     );
   }
 
-  // Calculate payout
-  const grossUsd = coinsToUsd(coinAmount);
-  const feeUsd = grossUsd * (WITHDRAWAL_FEE_PERCENT / 100);
-  const netUsd = grossUsd - feeUsd;
+  const feeUsd = usdAmount * (WITHDRAWAL_FEE_PERCENT / 100);
+  const netUsd = usdAmount - feeUsd;
   const netCents = Math.round(netUsd * 100);
 
   if (netCents < 100) {
-    // Stripe minimum transfer is $1
     return NextResponse.json(
       { error: 'Withdrawal amount too small. Minimum payout after fees is $1.00.' },
       { status: 400 }
     );
   }
 
-  // TODO: When database connected:
-  // 1. Check user's wallet balance >= coinAmount
+  // TODO: Deduct from wallet balance before transferring
+  // 1. Check user's wallet balance >= usdAmount
   // 2. Check KYC status is APPROVED
-  // 3. Deduct coins from wallet in a transaction
+  // 3. Deduct usdAmount from wallet in a transaction
   // 4. Create WalletTransaction(type: WITHDRAWAL)
 
-  // Create Stripe transfer to connected account
   const transfer = await getStripe().transfers.create({
     amount: netCents,
     currency: 'usd',
     destination: stripeAccountId,
     metadata: {
       userId,
-      coinAmount: coinAmount.toString(),
-      grossUsd: grossUsd.toFixed(2),
+      usdAmount: usdAmount.toFixed(2),
       feeUsd: feeUsd.toFixed(2),
       netUsd: netUsd.toFixed(2),
-      type: 'sexcoins_withdrawal',
+      type: 'wallet_withdrawal',
     },
   });
 
   return NextResponse.json({
     transferId: transfer.id,
-    coinAmount,
-    grossUsd,
+    usdAmount,
     feeUsd,
     netUsd,
     feePercent: WITHDRAWAL_FEE_PERCENT,

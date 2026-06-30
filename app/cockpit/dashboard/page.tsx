@@ -452,7 +452,7 @@ export default function CommandCenter() {
             <span className="cc-qa-icon"><Gem size={20} /></span>
             <span className="cc-qa-label">View Credits</span>
           </Link>
-          <Link href="/cockpit/my-e-assets/market" className="cc-quick-action">
+          <Link href="/cockpit/trading-post" className="cc-quick-action">
             <span className="cc-qa-icon"><Store size={20} /></span>
             <span className="cc-qa-label">Marketplace</span>
           </Link>
@@ -504,7 +504,7 @@ export default function CommandCenter() {
               </div>
             ))}
           </div>
-          <button className="cc-panel-link">View All Activity →</button>
+          <Link href="/cockpit/dashboard" className="cc-panel-link">View All Activity →</Link>
         </section>
 
         {/* Upcoming Posts */}
@@ -549,7 +549,7 @@ export default function CommandCenter() {
         <section className="cc-panel cc-market">
           <div className="cc-panel-header">
             <h2 className="cc-panel-title">Market Trending</h2>
-            <Link href="/cockpit/my-e-assets/market" className="cc-panel-action">
+            <Link href="/cockpit/trading-post" className="cc-panel-action">
               Browse
             </Link>
           </div>
@@ -574,7 +574,7 @@ export default function CommandCenter() {
               </div>
             ))}
           </div>
-          <Link href="/cockpit/my-e-assets/market" className="cc-panel-link">
+          <Link href="/cockpit/trading-post" className="cc-panel-link">
             View Marketplace →
           </Link>
         </section>
@@ -649,7 +649,7 @@ export default function CommandCenter() {
           <span className="cc-nav-card-arrow">→</span>
         </Link>
 
-        <Link href="/cockpit/my-e-assets/market" className="cc-nav-card market">
+        <Link href="/cockpit/trading-post" className="cc-nav-card market">
           <div className="cc-nav-card-icon"><Store size={24} /></div>
           <div className="cc-nav-card-content">
             <h3 className="cc-nav-card-title">Market</h3>

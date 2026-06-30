@@ -1,0 +1,68 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import * as escrowService from '@/lib/market/escrow-service';
+
+/**
+ * POST /api/marketplace/transfer-prep
+ * Seller confirms they've completed the security handoff checklist:
+ *   - Removed 2FA
+ *   - Changed recovery email to platform escrow address
+ *   - Removed linked phone
+ *   - Unlinked FB/Google
+ * Advances escrow: FUNDS_HELD → TRANSFER_PREP
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const body = await request.json();
+    const { escrowId } = body;
+
+    if (!escrowId) {
+      return NextResponse.json({ error: 'escrowId is required' }, { status: 400 });
+    }
+
+    const escrow = await prisma.escrowTransaction.findUnique({
+      where: { id: escrowId },
+    });
+
+    if (!escrow) {
+      return NextResponse.json({ error: 'Escrow not found' }, { status: 404 });
+    }
+
+    if (escrow.sellerId !== user.id) {
+      return NextResponse.json({ error: 'Only the seller can complete transfer prep' }, { status: 403 });
+    }
+
+    if (escrow.status !== 'FUNDS_HELD') {
+      return NextResponse.json(
+        { error: `Cannot complete transfer prep: escrow is ${escrow.status}` },
+        { status: 400 }
+      );
+    }
+
+    const updated = await escrowService.completeTransferPrep(escrowId);
+
+    return NextResponse.json(updated);
+  } catch (error: any) {
+    console.error('[TransferPrep POST]', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to complete transfer preparation' },
+      { status: 400 }
+    );
+  }
+}

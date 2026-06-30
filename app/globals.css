@@ -165,12 +165,33 @@ body.cockpit-mode {
   display: block;
 }
 
+/* SITEWIDE STAR GRID — fixed layer behind all cockpit content */
+.cockpit-root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(63, 255, 220, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 255, 220, 0.025) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridPulse 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
 /* ROOT */
 .cockpit-root {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
+  position: relative;
+  z-index: 1;
 }
 
 /* HEADER */

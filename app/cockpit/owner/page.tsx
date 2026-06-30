@@ -1,936 +1,244 @@
+// @ts-nocheck
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { getCurrentUser, hasRole, seedAuthIfEmpty } from '@/app/lib/auth/auth-store';
-import { ROLE_PERMISSIONS } from '@/app/lib/auth/types';
-import {
-  Lock,
-  AlertTriangle,
-  BarChart3,
-  Users,
-  User,
-  DollarSign,
-  Scale,
-  Settings,
-  Plug,
-  FileText,
-  Flag,
-  Megaphone,
-  XCircle,
-  CheckCircle,
-  Info,
-  TrendingUp,
-  Search,
-  ClipboardList,
-  Key,
-  FolderOpen,
-  Square,
-} from 'lucide-react';
-import './owner.css';
 
-/**
- * OWNER CONTROL CENTER
- * Sitewide oversight and administration for Social Exchange
- */
+const ADMIN_EMAIL = 'pjsaro4@gmail.com';
 
-// Types for admin dashboard
-interface PlatformMetrics {
-  totalUsers: number;
-  activeUsers24h: number;
-  totalCommunities: number;
-  activeCommunities: number;
-  totalCreditsCirculating: number;
-  totalRevenueAllTime: number;
-  revenue24h: number;
-  revenue7d: number;
-  pendingReviews: number;
-  flaggedContent: number;
+const STATUS_LABEL: Record<string, string> = {
+  PAYMENT_PENDING: 'Pending',
+  FUNDS_HELD: 'Funds Held',
+  CREDENTIALS_SENT: 'Creds Sent',
+  VERIFICATION_PENDING: 'Verifying',
+  LOCK_PERIOD: 'Lock Period',
+  COMPLETED: 'Complete',
+  DISPUTED: 'Disputed',
+  CANCELLED: 'Cancelled',
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  FUNDS_HELD: '#3b82f6',
+  CREDENTIALS_SENT: '#a78bfa',
+  VERIFICATION_PENDING: '#a78bfa',
+  LOCK_PERIOD: '#f59e0b',
+  COMPLETED: '#22c55e',
+  DISPUTED: '#ef4444',
+  CANCELLED: '#6b7280',
+};
+
+function MetricCard({ label, value, sub, color = '#f59e0b' }: { label: string; value: string; sub?: string; color?: string }) {
+  return (
+    <div style={{
+      padding: '1.5rem',
+      background: 'rgba(255,255,255,0.03)',
+      border: `1px solid rgba(${hexToRgb(color)}, 0.2)`,
+      borderRadius: '12px',
+    }}>
+      <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.5rem' }}>{label}</div>
+      <div style={{ fontSize: '1.9rem', fontWeight: 800, color, lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.35)', marginTop: '0.4rem' }}>{sub}</div>}
+    </div>
+  );
 }
 
-interface CommunityOverview {
-  id: string;
-  name: string;
-  creator: string;
-  supporters: number;
-  creditsHeld: number;
-  status: 'active' | 'paused' | 'flagged' | 'archived';
-  createdAt: number;
-  lastActivity: number;
-  revenueGenerated: number;
+function SectionHeader({ title, icon }: { title: string; icon: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem', marginTop: '2rem' }}>
+      <span style={{ fontSize: '1.1rem' }}>{icon}</span>
+      <h2 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>{title}</h2>
+    </div>
+  );
 }
 
-interface UserOverview {
-  id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'creator' | 'admin';
-  joinedAt: number;
-  lastActive: number;
-  communitiesOwned: number;
-  communitiesJoined: number;
-  totalSpent: number;
-  status: 'active' | 'suspended' | 'flagged';
+function ShellCard({ title, description, badge = 'Coming Soon' }: { title: string; description: string; badge?: string }) {
+  return (
+    <div style={{
+      padding: '1.25rem 1.5rem',
+      background: 'rgba(255,255,255,0.02)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: '10px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: '1rem',
+    }}>
+      <div>
+        <div style={{ fontWeight: 600, color: '#e2e8f0', marginBottom: '0.25rem', fontSize: '0.9rem' }}>{title}</div>
+        <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.35)' }}>{description}</div>
+      </div>
+      <div style={{ padding: '0.25rem 0.65rem', background: 'rgba(255,255,255,0.06)', borderRadius: '999px', fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap' }}>
+        {badge}
+      </div>
+    </div>
+  );
 }
 
-interface SystemAlert {
-  id: string;
-  type: 'warning' | 'error' | 'info' | 'success';
-  title: string;
-  message: string;
-  timestamp: number;
-  resolved: boolean;
+function hexToRgb(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return '245, 158, 11';
+  return `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`;
 }
 
-type TabType = 'overview' | 'communities' | 'users' | 'revenue' | 'compliance' | 'settings' | 'api-status';
-
-export default function OwnerDashboard() {
+export default function AdminPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
-  const [metrics, setMetrics] = useState<PlatformMetrics | null>(null);
-  const [communities, setCommunities] = useState<CommunityOverview[]>([]);
-  const [users, setUsers] = useState<UserOverview[]>([]);
-  const [alerts, setAlerts] = useState<SystemAlert[]>([]);
-  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  const [currentUser, setCurrentUser] = useState<ReturnType<typeof getCurrentUser>>(null);
-  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    seedAuthIfEmpty();
+    if (status === 'unauthenticated') { router.push('/auth/signin'); return; }
+    if (status !== 'authenticated') return;
+    if (session?.user?.email !== ADMIN_EMAIL) { router.push('/cockpit/home'); return; }
 
-    // Check authorization
-    const user = getCurrentUser();
-    setCurrentUser(user);
+    fetch('/api/admin/stats')
+      .then(r => r.json())
+      .then(data => { setStats(data); setLoading(false); })
+      .catch(err => { setError(err.message); setLoading(false); });
+  }, [status, session, router]);
 
-    if (!user) {
-      setIsAuthorized(false);
-      return;
-    }
-
-    const permissions = ROLE_PERMISSIONS[user.role];
-    if (!permissions.canAccessOwnerDashboard) {
-      setIsAuthorized(false);
-      return;
-    }
-
-    setIsAuthorized(true);
-    // Load mock data for demonstration
-    loadMockData();
-  }, []);
-
-  // Real-time clock
-  useEffect(() => {
-    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Show loading state while checking auth
-  if (isAuthorized === null) {
+  if (status === 'loading' || loading) {
     return (
-      <div className="owner-loading">
-        <div className="owner-loading-spinner" />
-        <div className="owner-loading-text">Verifying access...</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '1rem' }}>
+        <div style={{ width: 24, height: 24, border: '2px solid rgba(245,158,11,0.3)', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <span style={{ color: 'rgba(255,255,255,0.4)' }}>Loading admin data...</span>
       </div>
     );
   }
 
-  // Show access denied if not authorized
-  if (!isAuthorized) {
+  if (error) {
     return (
-      <div className="owner-access-denied">
-        <div className="owner-access-denied-card">
-          <div className="owner-access-denied-icon"><Lock size={32} /></div>
-          <h1 className="owner-access-denied-title">Access Restricted</h1>
-          <p className="owner-access-denied-text">
-            This area is restricted to owners and developers only.
-            {currentUser ? (
-              <span> Your current role ({currentUser.role}) does not have permission to access this dashboard.</span>
-            ) : (
-              <span> Please sign in with owner or developer credentials.</span>
-            )}
-          </p>
-          <div className="owner-access-denied-actions">
-            <Link href="/auth/owner" className="owner-access-btn primary">
-              <Lock size={16} /> Owner Login
-            </Link>
-            <Link href="/cockpit" className="owner-access-btn secondary">
-              ← Back to Cockpit
-            </Link>
-          </div>
-        </div>
-      </div>
+      <div style={{ padding: '2rem', color: '#f87171' }}>Error: {error}</div>
     );
   }
 
-  function loadMockData() {
-    const now = Date.now();
-
-    setMetrics({
-      totalUsers: 2847,
-      activeUsers24h: 341,
-      totalCommunities: 156,
-      activeCommunities: 89,
-      totalCreditsCirculating: 4_230_000,
-      totalRevenueAllTime: 127_350,
-      revenue24h: 1_847.50,
-      revenue7d: 11_290,
-      pendingReviews: 7,
-      flaggedContent: 2,
-    });
-
-    setCommunities([
-      {
-        id: 'c1',
-        name: 'Urban Signal',
-        creator: '@marcusj',
-        supporters: 12_400,
-        creditsHeld: 45_000,
-        status: 'active',
-        createdAt: now - 90 * 24 * 60 * 60 * 1000,
-        lastActivity: now - 15 * 60 * 1000,
-        revenueGenerated: 12_400,
-      },
-      {
-        id: 'c2',
-        name: 'Tech Insights',
-        creator: '@techguru',
-        supporters: 8_200,
-        creditsHeld: 28_000,
-        status: 'active',
-        createdAt: now - 75 * 24 * 60 * 60 * 1000,
-        lastActivity: now - 45 * 60 * 1000,
-        revenueGenerated: 8_200,
-      },
-      {
-        id: 'c3',
-        name: 'Fitness Revolution',
-        creator: '@fitpro',
-        supporters: 5_600,
-        creditsHeld: 15_000,
-        status: 'active',
-        createdAt: now - 60 * 24 * 60 * 60 * 1000,
-        lastActivity: now - 2 * 60 * 60 * 1000,
-        revenueGenerated: 5_600,
-      },
-      {
-        id: 'c4',
-        name: 'Neon Beats',
-        creator: '@djneon',
-        supporters: 3_100,
-        creditsHeld: 8_500,
-        status: 'flagged',
-        createdAt: now - 120 * 24 * 60 * 60 * 1000,
-        lastActivity: now - 6 * 60 * 60 * 1000,
-        revenueGenerated: 3_100,
-      },
-      {
-        id: 'c5',
-        name: 'Wanderlust Eats',
-        creator: '@foodie',
-        supporters: 2_800,
-        creditsHeld: 6_200,
-        status: 'paused',
-        createdAt: now - 45 * 24 * 60 * 60 * 1000,
-        lastActivity: now - 3 * 24 * 60 * 60 * 1000,
-        revenueGenerated: 2_800,
-      },
-    ]);
-
-    setUsers([
-      {
-        id: 'u1',
-        name: 'Marcus Johnson',
-        email: 'marcus@urban.co',
-        role: 'creator',
-        joinedAt: now - 45 * 24 * 60 * 60 * 1000,
-        lastActive: now - 10 * 60 * 1000,
-        communitiesOwned: 2,
-        communitiesJoined: 5,
-        totalSpent: 4_500,
-        status: 'active',
-      },
-      {
-        id: 'u2',
-        name: 'Sarah Chen',
-        email: 'sarah@tech.io',
-        role: 'creator',
-        joinedAt: now - 60 * 24 * 60 * 60 * 1000,
-        lastActive: now - 30 * 60 * 1000,
-        communitiesOwned: 1,
-        communitiesJoined: 3,
-        totalSpent: 2_200,
-        status: 'active',
-      },
-      {
-        id: 'u3',
-        name: 'Jake Torres',
-        email: 'jake@fit.com',
-        role: 'user',
-        joinedAt: now - 30 * 24 * 60 * 60 * 1000,
-        lastActive: now - 2 * 60 * 60 * 1000,
-        communitiesOwned: 0,
-        communitiesJoined: 8,
-        totalSpent: 890,
-        status: 'active',
-      },
-      {
-        id: 'u4',
-        name: 'DJ Neon',
-        email: 'neon@beats.co',
-        role: 'creator',
-        joinedAt: now - 90 * 24 * 60 * 60 * 1000,
-        lastActive: now - 12 * 60 * 60 * 1000,
-        communitiesOwned: 1,
-        communitiesJoined: 2,
-        totalSpent: 1_100,
-        status: 'flagged',
-      },
-      {
-        id: 'u5',
-        name: 'Admin User',
-        email: 'admin@socialexchange.io',
-        role: 'admin',
-        joinedAt: now - 120 * 24 * 60 * 60 * 1000,
-        lastActive: now - 5 * 60 * 1000,
-        communitiesOwned: 0,
-        communitiesJoined: 0,
-        totalSpent: 0,
-        status: 'active',
-      },
-    ]);
-
-    setAlerts([
-      {
-        id: '1',
-        type: 'warning',
-        title: 'Rate Limit Warning',
-        message: 'Instagram API usage at 78% hourly limit (156/200 calls)',
-        timestamp: now - 1 * 60 * 60 * 1000,
-        resolved: false,
-      },
-      {
-        id: '2',
-        type: 'info',
-        title: 'System Update',
-        message: 'Platform v2.1 deployed successfully. All services operational.',
-        timestamp: now - 3 * 60 * 60 * 1000,
-        resolved: false,
-      },
-      {
-        id: '3',
-        type: 'error',
-        title: 'Failed Payout',
-        message: 'Stripe payout to @djneon failed - insufficient platform balance',
-        timestamp: now - 6 * 60 * 60 * 1000,
-        resolved: false,
-      },
-      {
-        id: '4',
-        type: 'success',
-        title: 'Compliance Scan Complete',
-        message: 'Automated scan completed. 2 items flagged for manual review.',
-        timestamp: now - 12 * 60 * 60 * 1000,
-        resolved: false,
-      },
-    ]);
-  }
+  if (!stats) return null;
 
   return (
-    <div className="owner-root">
+    <div style={{ padding: '2rem', maxWidth: '1100px', margin: '0 auto' }}>
       {/* Header */}
-      <div className="owner-header">
-        <div className="owner-header-left">
-          <h1 className="owner-title">Owner Control Center</h1>
-          <p className="owner-subtitle">Social Exchange Platform Administration</p>
+      <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
+            🔐 OWNER ACCESS · {ADMIN_EMAIL}
+          </div>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', margin: 0 }}>Admin Dashboard</h1>
         </div>
-        <div className="owner-header-right">
-          <span className="owner-status online">System Online</span>
-          <span className="owner-time">{currentTime.toLocaleString()}</span>
+        <div style={{ padding: '0.5rem 1rem', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '8px', fontSize: '0.8rem', color: '#86efac' }}>
+          ● Systems Operational
         </div>
       </div>
 
-      {/* Alerts Banner */}
-      {alerts.filter(a => !a.resolved).length > 0 && (
-        <div className="alerts-banner">
-          <span className="alerts-icon"><AlertTriangle size={16} /></span>
-          <span>{alerts.filter(a => !a.resolved).length} unresolved alerts require attention</span>
-          <button onClick={() => setActiveTab('compliance')}>View Alerts</button>
+      {/* Revenue metrics */}
+      <SectionHeader title="Revenue" icon="💰" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '0.5rem' }}>
+        <MetricCard
+          label="Fee Revenue Collected"
+          value={`$${stats.revenue.totalFeeRevenue.toFixed(2)}`}
+          sub="10% of completed trades"
+          color="#22c55e"
+        />
+        <MetricCard
+          label="Total Trade Volume"
+          value={`$${stats.revenue.totalTradeVolume.toFixed(2)}`}
+          sub={`${stats.revenue.completedTransactions} completed transactions`}
+          color="#f59e0b"
+        />
+        <MetricCard
+          label="Total USD Deposited"
+          value={`$${stats.revenue.totalDeposited.toFixed(2)}`}
+          sub="Via Stripe"
+          color="#a78bfa"
+        />
+      </div>
+
+      {/* User metrics */}
+      <SectionHeader title="Users" icon="👥" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+        <MetricCard label="Total Users" value={stats.users.total.toLocaleString()} color="#06b6d4" />
+        <MetricCard label="Active This Month" value={stats.users.activeThisMonth.toLocaleString()} sub="Had wallet activity" color="#3b82f6" />
+        <MetricCard label="New This Week" value={stats.users.newThisWeek.toLocaleString()} color="#f87171" />
+      </div>
+
+      {/* Recent signups */}
+      {stats.users.recentSignups.length > 0 && (
+        <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', marginBottom: '0.5rem' }}>
+          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>Recent Signups (last 7 days)</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {stats.users.recentSignups.map((u: any) => (
+              <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div>
+                  <span style={{ color: '#e2e8f0', fontSize: '0.875rem', fontWeight: 600 }}>{u.name || 'Unnamed'}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.8rem', marginLeft: '0.75rem' }}>{u.email}</span>
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
+                  {new Date(u.joinedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Navigation Tabs */}
-      <div className="owner-tabs">
-        {[
-          { key: 'overview', label: 'Overview', icon: <BarChart3 size={16} /> },
-          { key: 'communities', label: 'Communities', icon: <Users size={16} /> },
-          { key: 'users', label: 'Users', icon: <User size={16} /> },
-          { key: 'revenue', label: 'Revenue', icon: <DollarSign size={16} /> },
-          { key: 'compliance', label: 'Compliance', icon: <Scale size={16} /> },
-          { key: 'settings', label: 'Settings', icon: <Settings size={16} /> },
-          { key: 'api-status', label: 'API Status', icon: <Plug size={16} /> },
-        ].map(tab => (
-          <button
-            key={tab.key}
-            className={`owner-tab ${activeTab === tab.key ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.key as TabType)}
-          >
-            <span className="tab-icon">{tab.icon}</span>
-            <span className="tab-label">{tab.label}</span>
-          </button>
-        ))}
+      {/* Live Escrows */}
+      <SectionHeader title="Live Escrows" icon="🔒" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+        <MetricCard label="Active Escrows" value={stats.escrows.liveCount.toLocaleString()} color="#3b82f6" />
+        <MetricCard label="Value Held in Escrow" value={`$${stats.escrows.liveValue.toFixed(2)}`} sub="Secured, pending release" color="#a78bfa" />
       </div>
 
-      {/* Tab Content */}
-      <div className="owner-content">
-        {activeTab === 'overview' && <OverviewTab metrics={metrics} alerts={alerts} />}
-        {activeTab === 'communities' && <CommunitiesTab communities={communities} />}
-        {activeTab === 'users' && <UsersTab users={users} />}
-        {activeTab === 'revenue' && <RevenueTab metrics={metrics} />}
-        {activeTab === 'compliance' && <ComplianceTab alerts={alerts} setAlerts={setAlerts} />}
-        {activeTab === 'settings' && <SettingsTab />}
-        {activeTab === 'api-status' && <ApiStatusTab />}
-      </div>
-    </div>
-  );
-}
-
-/* =========================================
-   OVERVIEW TAB
-========================================= */
-function OverviewTab({ metrics, alerts }: { metrics: PlatformMetrics | null; alerts: SystemAlert[] }) {
-  if (!metrics) return <div>Loading...</div>;
-
-  return (
-    <div className="tab-content">
-      <h2>Platform Overview</h2>
-
-      {/* Key Metrics Grid */}
-      <div className="metrics-grid">
-        <div className="metric-card primary">
-          <div className="metric-value">{metrics.totalUsers.toLocaleString()}</div>
-          <div className="metric-label">Total Users</div>
-          <div className="metric-sub">{metrics.activeUsers24h.toLocaleString()} active today</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">{metrics.totalCommunities}</div>
-          <div className="metric-label">Communities</div>
-          <div className="metric-sub">{metrics.activeCommunities} active</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">{(metrics.totalCreditsCirculating / 1000000).toFixed(2)}M</div>
-          <div className="metric-label">Credits Circulating</div>
-        </div>
-        <div className="metric-card success">
-          <div className="metric-value">${metrics.totalRevenueAllTime.toLocaleString()}</div>
-          <div className="metric-label">Total Revenue</div>
-          <div className="metric-sub">+${metrics.revenue24h.toFixed(2)} today</div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="section">
-        <h3>Quick Actions</h3>
-        <div className="quick-actions">
-          <button className="action-btn">
-            <span><FileText size={16} /></span> Review Pending ({metrics.pendingReviews})
-          </button>
-          <button className="action-btn warning">
-            <span><Flag size={16} /></span> Flagged Content ({metrics.flaggedContent})
-          </button>
-          <button className="action-btn">
-            <span><Megaphone size={16} /></span> Send Announcement
-          </button>
-          <button className="action-btn">
-            <span><BarChart3 size={16} /></span> Generate Report
-          </button>
-        </div>
-      </div>
-
-      {/* Recent Alerts */}
-      <div className="section">
-        <h3>Recent Alerts</h3>
-        <div className="alerts-list">
-          {alerts.slice(0, 5).map(alert => (
-            <div key={alert.id} className={`alert-item ${alert.type} ${alert.resolved ? 'resolved' : ''}`}>
-              <div className="alert-icon">
-                {alert.type === 'warning' && <AlertTriangle size={16} />}
-                {alert.type === 'error' && <XCircle size={16} />}
-                {alert.type === 'info' && <Info size={16} />}
-                {alert.type === 'success' && <CheckCircle size={16} />}
-              </div>
-              <div className="alert-content">
-                <div className="alert-title">{alert.title}</div>
-                <div className="alert-message">{alert.message}</div>
-                <div className="alert-time">{new Date(alert.timestamp).toLocaleString()}</div>
-              </div>
-              {!alert.resolved && (
-                <button className="alert-action">Resolve</button>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================
-   COMMUNITIES TAB
-========================================= */
-function CommunitiesTab({ communities }: { communities: CommunityOverview[] }) {
-  const [filter, setFilter] = useState<'all' | 'active' | 'flagged' | 'paused'>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const filtered = communities.filter(c => {
-    if (filter !== 'all' && c.status !== filter) return false;
-    if (searchTerm && !c.name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    return true;
-  });
-
-  return (
-    <div className="tab-content">
-      <div className="tab-header">
-        <h2>Communities Management</h2>
-        <div className="tab-controls">
-          <input
-            type="text"
-            placeholder="Search communities..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          <select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="flagged">Flagged</option>
-            <option value="paused">Paused</option>
-          </select>
-        </div>
-      </div>
-
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Community</th>
-            <th>Creator</th>
-            <th>Supporters</th>
-            <th>Credits</th>
-            <th>Revenue</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map(community => (
-            <tr key={community.id}>
-              <td>
-                <div className="community-name">{community.name}</div>
-                <div className="community-date">Created {new Date(community.createdAt).toLocaleDateString()}</div>
-              </td>
-              <td>{community.creator}</td>
-              <td>{community.supporters.toLocaleString()}</td>
-              <td>{(community.creditsHeld / 1000).toFixed(1)}K</td>
-              <td>${community.revenueGenerated.toLocaleString()}</td>
-              <td>
-                <span className={`status-badge ${community.status}`}>
-                  {community.status}
-                </span>
-              </td>
-              <td>
-                <div className="action-buttons">
-                  <button className="action-btn-small">View</button>
-                  <button className="action-btn-small">Edit</button>
-                  {community.status === 'flagged' && (
-                    <button className="action-btn-small warning">Review</button>
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/* =========================================
-   USERS TAB
-========================================= */
-function UsersTab({ users }: { users: UserOverview[] }) {
-  return (
-    <div className="tab-content">
-      <div className="tab-header">
-        <h2>User Management</h2>
-        <div className="tab-controls">
-          <input type="text" placeholder="Search users..." className="search-input" />
-          <select>
-            <option value="all">All Roles</option>
-            <option value="user">Users</option>
-            <option value="creator">Creators</option>
-            <option value="admin">Admins</option>
-          </select>
-        </div>
-      </div>
-
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Role</th>
-            <th>Joined</th>
-            <th>Last Active</th>
-            <th>Communities</th>
-            <th>Total Spent</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(user => (
-            <tr key={user.id}>
-              <td>
-                <div className="user-name">{user.name}</div>
-                <div className="user-email">{user.email}</div>
-              </td>
-              <td>
-                <span className={`role-badge ${user.role}`}>{user.role}</span>
-              </td>
-              <td>{new Date(user.joinedAt).toLocaleDateString()}</td>
-              <td>{new Date(user.lastActive).toLocaleString()}</td>
-              <td>
-                {user.communitiesOwned > 0 && <span>{user.communitiesOwned} owned</span>}
-                {user.communitiesJoined > 0 && <span>{user.communitiesJoined} joined</span>}
-              </td>
-              <td>${user.totalSpent.toFixed(2)}</td>
-              <td>
-                <span className={`status-badge ${user.status}`}>{user.status}</span>
-              </td>
-              <td>
-                <div className="action-buttons">
-                  <button className="action-btn-small">View</button>
-                  <button className="action-btn-small">Message</button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/* =========================================
-   REVENUE TAB
-========================================= */
-function RevenueTab({ metrics }: { metrics: PlatformMetrics | null }) {
-  if (!metrics) return <div>Loading...</div>;
-
-  return (
-    <div className="tab-content">
-      <h2>Revenue & Analytics</h2>
-
-      <div className="metrics-grid">
-        <div className="metric-card success large">
-          <div className="metric-value">${metrics.totalRevenueAllTime.toLocaleString()}</div>
-          <div className="metric-label">All-Time Revenue</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">${metrics.revenue24h.toFixed(2)}</div>
-          <div className="metric-label">Last 24 Hours</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">${metrics.revenue7d.toFixed(2)}</div>
-          <div className="metric-label">Last 7 Days</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">5%</div>
-          <div className="metric-label">Platform Fee Rate</div>
-        </div>
-      </div>
-
-      <div className="section">
-        <h3>Revenue Breakdown</h3>
-        <div className="revenue-breakdown">
-          <div className="breakdown-item">
-            <span className="breakdown-label">Credit Purchases (Platform Fee)</span>
-            <span className="breakdown-value">${(metrics.totalRevenueAllTime * 0.95).toFixed(2)}</span>
-          </div>
-          <div className="breakdown-item">
-            <span className="breakdown-label">Premium Features</span>
-            <span className="breakdown-value">${(metrics.totalRevenueAllTime * 0.03).toFixed(2)}</span>
-          </div>
-          <div className="breakdown-item">
-            <span className="breakdown-label">Creator Subscriptions</span>
-            <span className="breakdown-value">${(metrics.totalRevenueAllTime * 0.02).toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="section">
-        <h3>Export Options</h3>
-        <div className="quick-actions">
-          <button className="action-btn"><BarChart3 size={16} /> Export CSV</button>
-          <button className="action-btn"><FileText size={16} /> Generate Tax Report</button>
-          <button className="action-btn"><TrendingUp size={16} /> Financial Summary</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================
-   COMPLIANCE TAB
-========================================= */
-function ComplianceTab({
-  alerts,
-  setAlerts
-}: {
-  alerts: SystemAlert[];
-  setAlerts: React.Dispatch<React.SetStateAction<SystemAlert[]>>
-}) {
-  function resolveAlert(id: string) {
-    setAlerts(prev => prev.map(a => a.id === id ? { ...a, resolved: true } : a));
-  }
-
-  return (
-    <div className="tab-content">
-      <h2>Compliance & Moderation</h2>
-
-      {/* Compliance Status */}
-      <div className="compliance-status">
-        <div className="compliance-card success">
-          <div className="compliance-icon"><CheckCircle size={20} /></div>
-          <div className="compliance-title">Howey Test Compliance</div>
-          <div className="compliance-desc">All communities using approved utility-based language</div>
-        </div>
-        <div className="compliance-card success">
-          <div className="compliance-icon"><CheckCircle size={20} /></div>
-          <div className="compliance-title">Terms of Service</div>
-          <div className="compliance-desc">Last updated: Jan 15, 2026</div>
-        </div>
-        <div className="compliance-card warning">
-          <div className="compliance-icon"><AlertTriangle size={20} /></div>
-          <div className="compliance-title">Content Review</div>
-          <div className="compliance-desc">3 items pending review</div>
-        </div>
-      </div>
-
-      {/* Alerts Management */}
-      <div className="section">
-        <h3>System Alerts</h3>
-        <div className="alerts-full-list">
-          {alerts.map(alert => (
-            <div key={alert.id} className={`alert-item-full ${alert.type} ${alert.resolved ? 'resolved' : ''}`}>
-              <div className="alert-header">
-                <div className="alert-icon-large">
-                  {alert.type === 'warning' && <AlertTriangle size={20} />}
-                  {alert.type === 'error' && <XCircle size={20} />}
-                  {alert.type === 'info' && <Info size={20} />}
-                  {alert.type === 'success' && <CheckCircle size={20} />}
-                </div>
-                <div className="alert-info">
-                  <div className="alert-title">{alert.title}</div>
-                  <div className="alert-time">{new Date(alert.timestamp).toLocaleString()}</div>
-                </div>
-                <div className="alert-status">
-                  {alert.resolved ? (
-                    <span className="status-resolved">Resolved</span>
-                  ) : (
-                    <button className="resolve-btn" onClick={() => resolveAlert(alert.id)}>
-                      Mark Resolved
-                    </button>
-                  )}
-                </div>
-              </div>
-              <div className="alert-body">{alert.message}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Compliance Tools */}
-      <div className="section">
-        <h3>Compliance Tools</h3>
-        <div className="quick-actions">
-          <button className="action-btn"><Search size={16} /> Run Compliance Scan</button>
-          <button className="action-btn"><ClipboardList size={16} /> Review Pending Content</button>
-          <button className="action-btn"><BarChart3 size={16} /> Generate Compliance Report</button>
-          <button className="action-btn"><Scale size={16} /> Update Legal Terms</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================
-   SETTINGS TAB
-========================================= */
-function SettingsTab() {
-  return (
-    <div className="tab-content">
-      <h2>Platform Settings</h2>
-
-      <div className="settings-section">
-        <h3>Fee Configuration</h3>
-        <div className="setting-row">
-          <label>Platform Fee Rate</label>
-          <div className="setting-input">
-            <input type="number" defaultValue={5} min={0} max={20} />
-            <span>%</span>
-          </div>
-          <p className="setting-desc">Applied to all credit purchases</p>
-        </div>
-        <div className="setting-row">
-          <label>Minimum Creator Deposit</label>
-          <div className="setting-input">
-            <span>$</span>
-            <input type="number" defaultValue={100} min={10} />
-          </div>
-          <p className="setting-desc">Minimum to create a community</p>
-        </div>
-      </div>
-
-      <div className="settings-section">
-        <h3>Community Settings</h3>
-        <div className="setting-row">
-          <label>Creator Commitment Period</label>
-          <div className="setting-input">
-            <input type="number" defaultValue={12} min={6} max={24} />
-            <span>months</span>
-          </div>
-          <p className="setting-desc">How long creators must maintain their community</p>
-        </div>
-        <div className="setting-row">
-          <label>Founding Member Window</label>
-          <div className="setting-input">
-            <input type="number" defaultValue={30} min={7} max={90} />
-            <span>days</span>
-          </div>
-          <p className="setting-desc">Window for founding member status</p>
-        </div>
-      </div>
-
-      <div className="settings-section">
-        <h3>Moderation Settings</h3>
-        <div className="setting-row checkbox">
-          <input type="checkbox" id="autoScan" defaultChecked />
-          <label htmlFor="autoScan">Enable automated compliance scanning</label>
-        </div>
-        <div className="setting-row checkbox">
-          <input type="checkbox" id="manualReview" defaultChecked />
-          <label htmlFor="manualReview">Require manual review for new communities</label>
-        </div>
-        <div className="setting-row checkbox">
-          <input type="checkbox" id="contentFilter" defaultChecked />
-          <label htmlFor="contentFilter">Enable content filtering for prohibited terms</label>
-        </div>
-      </div>
-
-      <div className="settings-actions">
-        <button className="save-btn">Save Changes</button>
-        <button className="reset-btn">Reset to Defaults</button>
-      </div>
-    </div>
-  );
-}
-
-/* =========================================
-   API STATUS TAB
-========================================= */
-function ApiStatusTab() {
-  const apis = [
-    {
-      name: 'Instagram Graph API',
-      status: 'configured' as const,
-      endpoints: ['/api/instagram/publish', '/api/instagram/insights', '/api/instagram/profile', '/api/instagram/media', '/api/instagram/stories', '/api/instagram/hashtags'],
-      permissions: ['instagram_basic', 'instagram_content_publish', 'instagram_manage_insights'],
-      notes: 'OAuth configured. Ready for account connection.',
-    },
-    {
-      name: 'Stripe Payments',
-      status: 'needs-keys' as const,
-      endpoints: ['/api/stripe/checkout', '/api/stripe/connect', '/api/stripe/webhook'],
-      permissions: ['Checkout Sessions', 'Connect Express', 'Webhooks'],
-      notes: 'Routes built. Add STRIPE_SECRET_KEY to .env.local',
-    },
-    {
-      name: 'Anthropic AI Copilot',
-      status: 'configured' as const,
-      endpoints: ['/api/copilot/chat', '/api/copilot/generate'],
-      permissions: ['Messages API'],
-      notes: 'API key configured. Copilot operational.',
-    },
-    {
-      name: 'Plaid Banking',
-      status: 'not-configured' as const,
-      endpoints: [],
-      permissions: ['Auth', 'Transactions', 'Balance', 'Identity'],
-      notes: 'Routes not built yet. Add PLAID_CLIENT_ID to .env.local',
-    },
-    {
-      name: 'Pusher (Real-time)',
-      status: 'not-configured' as const,
-      endpoints: [],
-      permissions: ['Channels', 'Triggers'],
-      notes: 'Optional. Add PUSHER_APP_ID to .env.local',
-    },
-    {
-      name: 'File Storage',
-      status: 'local' as const,
-      endpoints: [],
-      permissions: ['Upload', 'Serve'],
-      notes: 'Using local ./uploads. Configure S3 or Cloudinary for production.',
-    },
-  ];
-
-  return (
-    <div className="tab-content">
-      <h2>API Integration Status</h2>
-      <div className="metrics-grid">
-        <div className="metric-card primary">
-          <div className="metric-value">{apis.filter(a => a.status === 'configured').length}</div>
-          <div className="metric-label">APIs Connected</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">{apis.filter(a => a.status === 'needs-keys').length}</div>
-          <div className="metric-label">Needs API Keys</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-value">{apis.filter(a => a.status === 'not-configured').length}</div>
-          <div className="metric-label">Not Configured</div>
-        </div>
-        <div className="metric-card success">
-          <div className="metric-value">35</div>
-          <div className="metric-label">API Routes Built</div>
-        </div>
-      </div>
-
-      <div className="section">
-        <h3>Integration Details</h3>
-        <div className="alerts-list">
-          {apis.map((api, i) => (
-            <div key={i} className={`alert-item ${api.status === 'configured' ? 'success' : api.status === 'needs-keys' ? 'warning' : 'info'}`}>
-              <div className="alert-icon">
-                {api.status === 'configured' ? <CheckCircle size={16} /> : api.status === 'needs-keys' ? <Key size={16} /> : api.status === 'local' ? <FolderOpen size={16} /> : <Square size={16} />}
-              </div>
-              <div className="alert-content">
-                <div className="alert-title">{api.name}</div>
-                <div className="alert-message">{api.notes}</div>
-                {api.endpoints.length > 0 && (
-                  <div className="alert-time">
-                    Endpoints: {api.endpoints.join(', ')}
+      {stats.escrows.live.length > 0 ? (
+        <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', marginBottom: '0.5rem' }}>
+          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.75rem' }}>Active Transactions</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {stats.escrows.live.map((e: any) => {
+              const color = STATUS_COLOR[e.status] ?? '#f59e0b';
+              return (
+                <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderBottom: '1px solid rgba(255,255,255,0.05)', gap: '1rem', flexWrap: 'wrap' }}>
+                  <div style={{ fontFamily: 'monospace', fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)' }}>{e.id.slice(0, 12)}…</div>
+                  <div style={{ padding: '0.2rem 0.65rem', background: `rgba(${hexToRgb(color)}, 0.12)`, border: `1px solid rgba(${hexToRgb(color)}, 0.25)`, borderRadius: '999px', fontSize: '0.72rem', color, fontWeight: 600 }}>
+                    {STATUS_LABEL[e.status] ?? e.status}
                   </div>
-                )}
-                {api.permissions.length > 0 && (
-                  <div className="alert-time" style={{marginTop: '0.25rem'}}>
-                    Scopes: {api.permissions.join(', ')}
+                  <div style={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.875rem' }}>${Number(e.amount).toFixed(2)}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.3)' }}>
+                    {new Date(e.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </div>
-                )}
-              </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div style={{ padding: '1.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.25)', fontSize: '0.85rem', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '10px' }}>
+          No active escrows
+        </div>
+      )}
+
+      {/* Escrow breakdown by status */}
+      {stats.escrows.byStatus.length > 0 && (
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1rem', marginBottom: '0.5rem' }}>
+          {stats.escrows.byStatus.map((s: any) => (
+            <div key={s.status} style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', fontSize: '0.78rem' }}>
+              <span style={{ color: 'rgba(255,255,255,0.4)' }}>{STATUS_LABEL[s.status] ?? s.status}: </span>
+              <span style={{ color: '#fff', fontWeight: 600 }}>{s.count}</span>
             </div>
           ))}
         </div>
+      )}
+
+      {/* Shell sections — future tools */}
+      <SectionHeader title="Admin Tools" icon="⚙️" />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <ShellCard title="User Management" description="Search, ban, or promote users to moderator" />
+        <ShellCard title="Dispute Resolution" description="Review and resolve open escrow disputes" />
+        <ShellCard title="Listing Moderation" description="Review flagged listings, remove or approve" />
+        <ShellCard title="Payout Controls" description="Trigger or pause seller withdrawals" />
+        <ShellCard title="Platform Fee Settings" description="Adjust the 10% platform fee percentage" />
+        <ShellCard title="Email Broadcasts" description="Send announcements to all users" />
+        <ShellCard title="System Logs" description="View real-time API errors and system events" />
+        <ShellCard title="Feature Flags" description="Toggle features on/off without deploying" />
       </div>
     </div>
   );

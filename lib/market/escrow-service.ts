@@ -77,6 +77,32 @@ export async function confirmPayment(escrowId: string) {
 }
 
 /**
+ * Seller completes the transfer preparation checklist (FUNDS_HELD → TRANSFER_PREP)
+ * Records that the seller has removed 2FA, changed recovery email, etc.
+ */
+export async function completeTransferPrep(escrowId: string) {
+  const escrow = await prisma.escrowTransaction.findUnique({
+    where: { id: escrowId },
+  });
+
+  if (!escrow) throw new Error('Escrow not found');
+  if (escrow.status !== 'FUNDS_HELD') {
+    throw new Error(`Cannot complete transfer prep: escrow status is ${escrow.status}`);
+  }
+
+  const escrowEmail = `escrow-${escrowId.slice(0, 12)}@socialexchange.com`;
+
+  return prisma.escrowTransaction.update({
+    where: { id: escrowId },
+    data: {
+      status: 'TRANSFER_PREP',
+      transferPrepAt: new Date(),
+      escrowEmail,
+    },
+  });
+}
+
+/**
  * Seller sends credentials to buyer
  */
 export async function sendCredentials(escrowId: string, credentialsDescription?: string) {
@@ -85,7 +111,8 @@ export async function sendCredentials(escrowId: string, credentialsDescription?:
   });
 
   if (!escrow) throw new Error('Escrow not found');
-  if (escrow.status !== 'FUNDS_HELD') {
+  // Accept both FUNDS_HELD (skip prep) and TRANSFER_PREP (normal flow)
+  if (!['FUNDS_HELD', 'TRANSFER_PREP'].includes(escrow.status)) {
     throw new Error(`Cannot send credentials: escrow status is ${escrow.status}`);
   }
 
@@ -205,7 +232,8 @@ export async function getEscrowState(escrowId: string): Promise<EscrowStateFlow>
     OFFER_PENDING: ['OFFER_ACCEPTED', 'CANCELLED'],
     OFFER_ACCEPTED: ['PAYMENT_PENDING', 'CANCELLED'],
     PAYMENT_PENDING: ['FUNDS_HELD', 'REFUNDED'],
-    FUNDS_HELD: ['CREDENTIALS_SENT', 'DISPUTED', 'REFUNDED'],
+    FUNDS_HELD: ['TRANSFER_PREP', 'CREDENTIALS_SENT', 'DISPUTED', 'REFUNDED'],
+    TRANSFER_PREP: ['CREDENTIALS_SENT', 'DISPUTED', 'REFUNDED'],
     CREDENTIALS_SENT: ['VERIFICATION_PENDING', 'DISPUTED', 'REFUNDED'],
     VERIFICATION_PENDING: ['COMPLETED', 'DISPUTED'],
     COMPLETED: [],

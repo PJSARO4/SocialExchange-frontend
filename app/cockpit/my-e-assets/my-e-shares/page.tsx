@@ -175,11 +175,22 @@ export default function MyESharesPage() {
     router.push('/cockpit/my-e-assets/my-e-shares/ipo');
   };
 
-  const handleAddFunds = () => {
-    const amount = prompt('Enter amount to deposit (USD):', '100');
-    if (amount && !isNaN(parseFloat(amount))) {
-      deposit(currentUserId, parseFloat(amount));
-      loadData();
+  const handleAddFunds = async () => {
+    const amountStr = prompt('Enter amount to deposit (USD):', '100');
+    if (!amountStr || isNaN(parseFloat(amountStr))) return;
+    const amountUsd = parseFloat(amountStr);
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amountUsd }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create checkout session');
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (err: any) {
+      alert(`Deposit error: ${err.message}`);
     }
   };
 

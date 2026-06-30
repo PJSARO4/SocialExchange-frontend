@@ -31,7 +31,7 @@ export default function NewListingsPanel({ listings }: Props) {
         ))}
       </div>
       <button
-        onClick={() => router.push('/cockpit/market')}
+        onClick={() => router.push('/cockpit/trading-post')}
         className="panel-action-button"
       >
         Browse Market

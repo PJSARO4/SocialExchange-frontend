@@ -40,6 +40,9 @@ const InstagramDirectProvider = {
     url: 'https://api.instagram.com/oauth/access_token',
     async request({ client, params, checks, provider }: any) {
       const redirectUri = `${process.env.NEXTAUTH_URL}/api/auth/callback/instagram-direct`;
+      console.log('[IG Token] clientId:', provider.clientId);
+      console.log('[IG Token] redirectUri:', redirectUri);
+      console.log('[IG Token] code present:', !!params.code);
       const response = await fetch('https://api.instagram.com/oauth/access_token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -52,6 +55,7 @@ const InstagramDirectProvider = {
         }),
       });
       const tokens = await response.json();
+      console.log('[IG Token] response:', JSON.stringify(tokens));
       if (tokens.error_type || tokens.error_message) {
         throw new Error(tokens.error_message || 'Failed to get Instagram token');
       }

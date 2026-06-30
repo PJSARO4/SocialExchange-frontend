@@ -42,21 +42,19 @@ export default function AddFeedModal({
     setIsConnecting(true);
 
     try {
-      // Map platform to NextAuth provider ID
-      let provider: string;
       if (platform === 'instagram') {
-        // Use Instagram Direct Login (goes through instagram.com, not facebook.com)
-        // No Facebook Page required!
-        provider = 'instagram-direct';
+        // Use our custom OAuth flow — bypasses NextAuth provider to avoid redirect_uri issues
+        window.location.href = '/api/instagram/oauth/start';
+        return;
       } else if (platform === 'facebook') {
-        provider = 'facebook';
+        await signIn('facebook', {
+          callbackUrl: `/cockpit/my-e-assets/my-feeds?connected=${platform}`,
+        });
       } else {
-        provider = platform;
+        await signIn(platform, {
+          callbackUrl: `/cockpit/my-e-assets/my-feeds?connected=${platform}`,
+        });
       }
-
-      await signIn(provider, {
-        callbackUrl: `/cockpit/my-e-assets/my-feeds?connected=${platform}`,
-      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'OAuth connection failed');
       setIsConnecting(false);

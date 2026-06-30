@@ -3,10 +3,9 @@
 import Link from 'next/link';
 import { ReactNode, useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react';
 import './cockpit.css';
 
-import { getWallet } from './my-e-assets/my-e-shares/lib/wallet-store';
-import { getCurrentUser } from '@/app/lib/auth/auth-store';
 
 import ActivityLightbar from './ui/ActivityLightbar';
 import LivePulse from './ui/LivePulse';
@@ -64,20 +63,6 @@ const useMobileMenu = () => {
   return { isOpen, toggle, close };
 };
 
-// Get user name from auth (mock for now)
-const getUserName = () => {
-  if (typeof window === 'undefined') return 'Operator';
-  try {
-    const authData = localStorage.getItem('social-exchange-auth');
-    if (authData) {
-      const parsed = JSON.parse(authData);
-      return parsed.user?.displayName || 'Operator';
-    }
-  } catch {
-    // Ignore errors
-  }
-  return 'Operator';
-};
 
 // Check if this is a fresh session (should show welcome)
 const shouldShowWelcome = () => {
@@ -98,24 +83,27 @@ function WalletBadge() {
   const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    function fetchBalance() {
-      const user = getCurrentUser();
-      if (!user) {
+    async function fetchBalance() {
+      try {
+        const res = await fetch('/api/wallet/balance');
+        if (!res.ok) { setBalance(null); return; }
+        const data = await res.json();
+        setBalance(data.wallet?.balance ?? null);
+      } catch {
         setBalance(null);
-        return;
       }
-      const wallet = getWallet(user.id);
-      setBalance(wallet.balance);
     }
 
     fetchBalance();
-    const interval = setInterval(fetchBalance, 5000);
+    const interval = setInterval(fetchBalance, 10000);
     return () => clearInterval(interval);
   }, []);
 
   if (balance === null) return null;
 
   const formatted = balance.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -141,13 +129,13 @@ function WalletBadge() {
         whiteSpace: 'nowrap',
       }}
     >
-      <span>{formatted} SExC</span>
+      <span>{formatted}</span>
     </Link>
   );
 }
 
 // Inner component that uses audio context
-function CockpitContent({ children }: { children: ReactNode }) {
+function CockpitContent({ children, userName }: { children: ReactNode; userName: string }) {
   const pathname = usePathname();
   const { setMoodForPath } = useAmbientAudio();
   const { isOpen: mobileMenuOpen, toggle: toggleMobileMenu, close: closeMobileMenu } = useMobileMenu();
@@ -204,10 +192,24 @@ function CockpitContent({ children }: { children: ReactNode }) {
         <div className="topbar-center">
           <LivePulse />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <WalletBadge />
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.4rem',
+            padding: '0.25rem 0.65rem', borderRadius: '999px',
+            background: 'rgba(0,255,200,0.07)', border: '1px solid rgba(0,255,200,0.2)',
+            fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.08em',
+            color: '#3fffdc', textTransform: 'uppercase',
+          }}>
+            <span style={{ opacity: 0.5 }}>▸</span> {userName}
+          </div>
           <div className="exit-cockpit">
-            <Link href="/">Exit Cockpit</Link>
+            <button
+              onClick={() => signOut({ callbackUrl: '/' })}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit', padding: 0 }}
+            >
+              Exit Cockpit
+            </button>
           </div>
         </div>
       </header>
@@ -238,9 +240,8 @@ function CockpitContent({ children }: { children: ReactNode }) {
           <Link
             href="/cockpit/my-e-assets"
             className={`sidebar-link ${
-              (pathname === '/cockpit/my-e-assets' ||
-              pathname?.startsWith('/cockpit/my-e-assets/')) &&
-              !pathname?.startsWith('/cockpit/my-e-assets/market')
+              pathname === '/cockpit/my-e-assets' ||
+              pathname?.startsWith('/cockpit/my-e-assets/')
                 ? 'active'
                 : ''
             }`}
@@ -261,19 +262,6 @@ function CockpitContent({ children }: { children: ReactNode }) {
           </Link>
 
           <Link
-            href="/cockpit/market"
-            className={`sidebar-link ${
-              pathname === '/cockpit/market' ||
-              pathname?.startsWith('/cockpit/market/') ||
-              pathname?.startsWith('/cockpit/my-e-assets/market')
-                ? 'active'
-                : ''
-            }`}
-          >
-            Market
-          </Link>
-
-          <Link
             href="/cockpit/comms"
             className={`sidebar-link ${
               pathname === '/cockpit/comms' ? 'active' : ''
@@ -281,6 +269,16 @@ function CockpitContent({ children }: { children: ReactNode }) {
           >
             Comms
           </Link>
+
+          {session?.user?.email === 'pjsaro4@gmail.com' && (
+            <Link
+              href="/cockpit/owner"
+              className={`sidebar-link ${pathname === '/cockpit/owner' ? 'active' : ''}`}
+              style={{ color: '#f59e0b', marginTop: '0.5rem' }}
+            >
+              ⚙ Admin
+            </Link>
+          )}
 
           <div className="sidebar-footer">
             System Status <span className="status-ok">STABLE</span>
@@ -359,13 +357,14 @@ export default function CockpitLayoutClient({
 }: {
   children: ReactNode;
 }) {
+  const { data: session } = useSession();
   const [showWelcome, setShowWelcome] = useState(false);
-  const [userName, setUserName] = useState('Operator');
   const [isReady, setIsReady] = useState(false);
+
+  const userName = session?.user?.name?.split(' ')[0] || session?.user?.email?.split('@')[0] || 'Operator';
 
   // Initialize on mount
   useEffect(() => {
-    setUserName(getUserName());
     setShowWelcome(shouldShowWelcome());
     setIsReady(true);
   }, []);
@@ -401,7 +400,7 @@ export default function CockpitLayoutClient({
         <ToastProvider>
           <AmbientAudioProvider autoChangeMood defaultVolume={0.6}>
             <PageTransitionProvider defaultTransition="fade" defaultDuration={300}>
-              <CockpitContent>{children}</CockpitContent>
+              <CockpitContent userName={userName}>{children}</CockpitContent>
             </PageTransitionProvider>
           </AmbientAudioProvider>
         </ToastProvider>

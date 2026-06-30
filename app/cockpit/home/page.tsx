@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getCurrentUser, seedAuthIfEmpty } from '@/app/lib/auth/auth-store';
+import { useSession } from 'next-auth/react';
 import {
   Rocket,
   Link2,
@@ -86,7 +86,7 @@ const FEATURES = [
     title: 'Marketplace',
     icon: <Store size={28} strokeWidth={1.5} />,
     description: 'Buy, sell, and trade digital social assets securely. Browse trending listings, make offers, and build your digital portfolio.',
-    href: '/cockpit/market',
+    href: '/cockpit/trading-post',
     color: '#f59e0b',
   },
   {
@@ -117,20 +117,17 @@ const FEATURES = [
 
 export default function HomePage() {
   const router = useRouter();
-  const [user, setUser] = useState<ReturnType<typeof getCurrentUser>>(null);
+  const { data: session, status } = useSession();
   const [greeting, setGreeting] = useState('');
   const [onboardingSteps, setOnboardingSteps] = useState<OnboardingStep[]>([]);
   const [animateIn, setAnimateIn] = useState(false);
 
   useEffect(() => {
-    seedAuthIfEmpty();
-    const currentUser = getCurrentUser();
-    setUser(currentUser);
-
-    if (!currentUser) {
-      router.push('/auth/login');
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
       return;
     }
+    if (status !== 'authenticated') return;
 
     // Set greeting
     const hour = new Date().getHours();
@@ -163,7 +160,7 @@ export default function HomePage() {
         description: 'Check out what social assets are available',
         icon: <Search size={20} strokeWidth={1.5} />,
         completed: progress['browse-market'] || false,
-        href: '/cockpit/market',
+        href: '/cockpit/trading-post',
       },
       {
         id: 'join-community',
@@ -198,7 +195,7 @@ export default function HomePage() {
   const totalSteps = onboardingSteps.length;
   const progressPct = totalSteps > 0 ? (completedCount / totalSteps) * 100 : 0;
 
-  if (!user) {
+  if (status === 'loading' || status === 'unauthenticated') {
     return (
       <div className="home-loading">
         <div className="home-loading-spinner" />
@@ -207,7 +204,8 @@ export default function HomePage() {
     );
   }
 
-  const firstName = user.displayName?.split(' ')[0] || 'Operator';
+  const firstName = session?.user?.name?.split(' ')[0] || session?.user?.email?.split('@')[0] || 'Operator';
+
 
   return (
     <>

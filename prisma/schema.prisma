@@ -21,6 +21,7 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  password      String?
 
   accounts            Account[]
   sessions            Session[]
@@ -41,8 +42,9 @@ model User {
   messages        Message[]
 
   // Trading Post
-  listings        Listing[] @relation("SellerListings")
-  disputes        Dispute[] @relation("UserDisputes")
+  listings        Listing[]      @relation("SellerListings")
+  savedListings   SavedListing[]
+  disputes        Dispute[]      @relation("UserDisputes")
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -1056,6 +1058,10 @@ model EscrowTransaction {
   // Status
   status          EscrowStatus        @default(LISTED)
 
+  // Transfer preparation (security checklist)
+  transferPrepAt  DateTime?           @map("transfer_prep_at")
+  escrowEmail     String?             @map("escrow_email")   // Platform-controlled recovery email
+
   // Credentials transfer
   credentialsSent Boolean             @default(false) @map("credentials_sent")
   credentialsSentAt DateTime?         @map("credentials_sent_at")
@@ -1095,6 +1101,7 @@ enum EscrowStatus {
   OFFER_ACCEPTED
   PAYMENT_PENDING
   FUNDS_HELD
+  TRANSFER_PREP       // Seller completing security handoff checklist
   CREDENTIALS_SENT
   VERIFICATION_PENDING
   COMPLETED
@@ -1440,6 +1447,9 @@ model Listing {
   views           Int                 @default(0)
   saves           Int                 @default(0)
 
+  // Saved by users
+  savedBy         SavedListing[]
+
   // Timestamps
   createdAt       DateTime            @default(now()) @map("created_at")
   updatedAt       DateTime            @updatedAt @map("updated_at")
@@ -1451,6 +1461,20 @@ model Listing {
   @@index([niche])
   @@index([createdAt])
   @@map("listings")
+}
+
+model SavedListing {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  listingId   String   @map("listing_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  savedAt     DateTime @default(now()) @map("saved_at")
+
+  @@unique([userId, listingId])
+  @@index([userId])
+  @@index([listingId])
+  @@map("saved_listings")
 }
 
 model Dispute {
