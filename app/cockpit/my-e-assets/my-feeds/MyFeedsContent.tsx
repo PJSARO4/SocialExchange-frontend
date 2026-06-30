@@ -548,9 +548,7 @@ export default function MyFeedsContent() {
                     </p>
                     <button
                       className="connect-instagram-btn"
-                      onClick={() => signIn('instagram-direct', {
-                        callbackUrl: '/cockpit/my-e-assets/my-feeds?connected=instagram',
-                      })}
+                      onClick={() => { window.location.href = '/api/instagram/oauth/start'; }}
                     >
                       <span className="connect-instagram-icon"><CameraIcon style={{ width: 20, height: 20 }} /></span>
                       <span>Connect Instagram</span>
