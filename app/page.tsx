@@ -74,17 +74,6 @@ export default function Entrance() {
 
   // Handle navigation with exit animation
   const navigateWithTransition = useCallback((path: string) => {
-    // Start audio if not already started (user clicked something)
-    startAudio();
-
-    // Play transition sound
-    try {
-      const audio = getAmbientAudio();
-      audio.playTransitionSound();
-    } catch (e) {
-      // Ignore audio errors
-    }
-
     setIsExiting(true);
     setExitTarget(path);
 
@@ -96,7 +85,6 @@ export default function Entrance() {
 
   // Handle enter button click
   const handleEnter = async () => {
-    await startAudio();
     if (isAuthenticated) {
       navigateWithTransition("/cockpit/home");
     } else {
@@ -166,9 +154,9 @@ export default function Entrance() {
 
     // Three depth layers: far (slow, faint, small) -> near (fast, bright, big)
     const LAYERS = [
-      { count: 90, depth: 0.15, speed: 0.05, size: 0.9, alpha: 0.4 },
-      { count: 70, depth: 0.4, speed: 0.13, size: 1.3, alpha: 0.6 },
-      { count: 40, depth: 0.85, speed: 0.26, size: 1.9, alpha: 0.85 },
+      { count: 45, depth: 0.15, speed: 0.05, size: 0.9, alpha: 0.4 },
+      { count: 34, depth: 0.4, speed: 0.13, size: 1.3, alpha: 0.6 },
+      { count: 20, depth: 0.85, speed: 0.26, size: 1.9, alpha: 0.85 },
     ];
 
     const stars = LAYERS.flatMap((layer) =>
@@ -206,6 +194,7 @@ export default function Entrance() {
 
     const draw = () => {
       if (!running) return;
+      if (document.hidden) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, w, h);
 
       /* ---------- AMBIENT COLOR FIELD ---------- */
@@ -437,13 +426,6 @@ export default function Entrance() {
         <div className="footer-line" />
       </div>
 
-      {/* Audio hint - only show if audio not started */}
-      {!audioStarted && (
-        <div className="audio-hint" onClick={startAudio}>
-          <span className="audio-hint-icon">🔊</span>
-          <span className="audio-hint-text">Click for ambient audio</span>
-        </div>
-      )}
     </div>
   );
 }

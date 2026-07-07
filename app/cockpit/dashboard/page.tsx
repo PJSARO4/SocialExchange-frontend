@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { getCurrentUser, seedAuthIfEmpty, logout } from '@/app/lib/auth/auth-store';
 import { ROLE_PERMISSIONS } from '@/app/lib/auth/types';
 
@@ -108,6 +109,7 @@ function timeAgo(timestamp: number): string {
 
 export default function CommandCenter() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [user, setUser] = useState<ReturnType<typeof getCurrentUser>>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
@@ -343,16 +345,18 @@ export default function CommandCenter() {
     }
   }, []);
 
+  // Gate on the real NextAuth session (not localStorage), and derive a display name
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (status === 'unauthenticated') { router.push('/auth/signin'); return; }
+    if (!getCurrentUser() && session?.user) {
+      setUser({ displayName: session.user.name || session.user.email || 'Operator', role: 'user' } as any);
+    }
+  }, [status, session, router]);
+
   useEffect(() => {
     seedAuthIfEmpty();
-    const currentUser = getCurrentUser();
-    setUser(currentUser);
-
-    // If not logged in, redirect to login
-    if (!currentUser) {
-      router.push('/auth/signin');
-      return;
-    }
+    setUser(getCurrentUser());
 
     // Set greeting based on time
     const hour = new Date().getHours();

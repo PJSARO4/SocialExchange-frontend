@@ -160,22 +160,14 @@
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  /* subtle parallax counter-move to the pointer */
-  transform: translate3d(
-    calc(var(--mx, 0) * -14px),
-    calc(var(--my, 0) * -14px),
-    0
-  );
-  transition: transform 0.4s var(--ease-out-expo);
 }
 
+/* Static, GPU-cheap nebula: no blend-mode, no per-frame scale, lighter blur */
 .nebula-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.5;
-  mix-blend-mode: screen;
-  will-change: transform;
+  filter: blur(60px);
+  opacity: 0.4;
 }
 
 .nebula-violet {
@@ -507,10 +499,8 @@
   gap: 8px;
   padding: 7px 14px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(12, 20, 28, 0.55);
   border: 1px solid rgba(0, 240, 255, 0.14);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.06em;
