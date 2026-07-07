@@ -6,17 +6,18 @@ import * as listingService from '@/lib/market/listing-service';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const listing = await listingService.getListing(params.id);
+    const { id } = await params;
+    const listing = await listingService.getListing(id);
 
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
 
     // Record view
-    await listingService.recordListingView(params.id);
+    await listingService.recordListingView(id);
 
     return NextResponse.json(listing);
   } catch (error) {
@@ -27,9 +28,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
@@ -45,7 +47,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const updated = await listingService.updateListing(params.id, user.id, body);
+    const updated = await listingService.updateListing(id, user.id, body);
 
     return NextResponse.json(updated);
   } catch (error: any) {
@@ -59,9 +61,10 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.email) {
@@ -76,7 +79,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    await listingService.deleteListing(params.id, user.id);
+    await listingService.deleteListing(id, user.id);
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

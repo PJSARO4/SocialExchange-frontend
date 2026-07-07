@@ -1,0 +1,275 @@
+/* ==========================================================================
+   SOCIAL EXCHANGE — EPIC SPACE DESIGN SYSTEM
+   Codified from the redesigned landing hero (app/entrance.css).
+   ADDITIVE ONLY. Not imported anywhere by default — import where needed.
+   All tokens are prefixed `--se-`. All utilities are prefixed `.se-`.
+   ==========================================================================
+
+   Font note: this file does NOT import fonts. The hero (entrance.css) already
+   loads Orbitron / Exo 2 / JetBrains Mono from Google Fonts. If you use this
+   system on a page that does not load them, add:
+     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+   ========================================================================== */
+
+:root {
+  /* ---- Deep-space base ------------------------------------------------ */
+  --se-void: #02040a;              /* primary deep-space base */
+  --se-void-deep: #01020a;         /* alt deep void (matches hero/cockpit) */
+  --se-panel: #0a1118;             /* panel base (raised) */
+  --se-panel-deep: #050a0f;        /* panel base (recessed) */
+
+  /* ---- Accents -------------------------------------------------------- */
+  --se-cyan: #3FFFDC;              /* primary cyan accent */
+  --se-cyan-alt: #00f0ff;          /* alt cyan (hero glow / holographic) */
+  --se-violet: #7A5CFF;            /* nebula violet */
+  --se-magenta: #C64BFF;           /* nebula magenta */
+  --se-gold: #FFCB57;              /* E-Share gold */
+  --se-green: #00ff88;             /* trust green */
+  --se-green-alt: #3AFF6F;         /* trust green alt */
+  --se-red: #FF5F5F;               /* alert red */
+
+  /* ---- Accent tints / ghosts (rgba helpers) --------------------------- */
+  --se-cyan-rgb: 63, 255, 220;
+  --se-cyan-alt-rgb: 0, 240, 255;
+  --se-violet-rgb: 122, 92, 255;
+  --se-magenta-rgb: 198, 75, 255;
+  --se-gold-rgb: 255, 203, 87;
+  --se-green-rgb: 0, 255, 136;
+
+  --se-cyan-dim: rgba(0, 240, 255, 0.25);
+  --se-cyan-ghost: rgba(0, 240, 255, 0.08);
+  --se-cyan-line: rgba(0, 240, 255, 0.14);
+
+  /* ---- Text ----------------------------------------------------------- */
+  --se-text-hi: #E6E6E6;           /* high-emphasis text */
+  --se-text-lo: #9FB6D4;           /* low-emphasis / muted text */
+  --se-text-cyan: #dafcff;         /* cyan-tinted text on emblems */
+  --se-text-mute: rgba(220, 235, 245, 0.62);
+
+  /* ---- Glass surfaces ------------------------------------------------- */
+  --se-glass-bg: rgba(255, 255, 255, 0.03);
+  --se-glass-bg-strong: rgba(255, 255, 255, 0.05);
+  --se-glass-bg-faint: rgba(255, 255, 255, 0.02);
+  --se-glass-border: rgba(0, 240, 255, 0.14);
+  --se-glass-border-strong: rgba(0, 240, 255, 0.30);
+  --se-glass-blur: 10px;
+  --se-glass-blur-strong: 16px;
+
+  /* ---- Radii ---------------------------------------------------------- */
+  --se-radius-xs: 4px;
+  --se-radius-sm: 6px;
+  --se-radius-md: 8px;
+  --se-radius-lg: 12px;
+  --se-radius-xl: 20px;
+  --se-radius-pill: 999px;
+  --se-radius-circle: 50%;
+
+  /* ---- Spacing scale (4px base) --------------------------------------- */
+  --se-space-1: 4px;
+  --se-space-2: 8px;
+  --se-space-3: 12px;
+  --se-space-4: 16px;
+  --se-space-5: 20px;
+  --se-space-6: 24px;
+  --se-space-8: 32px;
+  --se-space-10: 40px;
+  --se-space-12: 48px;
+  --se-space-16: 64px;
+
+  /* ---- Glow / elevation shadows --------------------------------------- */
+  --se-glow: 0 0 20px rgba(0, 240, 255, 0.20),
+             0 0 60px rgba(0, 240, 255, 0.08);
+  --se-glow-strong: 0 0 24px rgba(0, 240, 255, 0.40),
+                    0 0 48px rgba(0, 240, 255, 0.20),
+                    inset 0 0 30px rgba(0, 240, 255, 0.06);
+  --se-glow-violet: 0 0 24px rgba(122, 92, 255, 0.35);
+  --se-glow-gold: 0 0 10px rgba(255, 203, 87, 0.50);
+  --se-glow-green: 0 0 8px rgba(0, 255, 136, 0.50);
+  --se-elev-1: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --se-elev-2: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 2px rgba(0, 240, 255, 0.08);
+
+  /* ---- Radial nebula background --------------------------------------- */
+  --se-nebula: radial-gradient(ellipse 80% 60% at 15% 85%, rgba(122, 92, 255, 0.28), transparent 60%),
+               radial-gradient(ellipse 70% 50% at 85% 15%, rgba(0, 240, 255, 0.12), transparent 55%),
+               radial-gradient(ellipse 50% 50% at 50% 50%, rgba(198, 75, 255, 0.14), transparent 50%),
+               var(--se-void);
+
+  /* ---- Motion --------------------------------------------------------- */
+  --se-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --se-transition: 0.3s var(--se-ease-out-expo);
+
+  /* ---- Fonts ---------------------------------------------------------- */
+  --se-font-display: 'Orbitron', 'Space Grotesk', 'Exo 2', system-ui, sans-serif;
+  --se-font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --se-font-body: var(--se-font-mono);
+}
+
+
+/* ==========================================================================
+   UTILITY CLASSES
+   ========================================================================== */
+
+/* ---- Glass surfaces ---------------------------------------------------- */
+.se-glass {
+  background: var(--se-glass-bg);
+  border: 1px solid var(--se-glass-border);
+  border-radius: var(--se-radius-md);
+  backdrop-filter: blur(var(--se-glass-blur));
+  -webkit-backdrop-filter: blur(var(--se-glass-blur));
+}
+
+.se-glass-strong {
+  background: var(--se-glass-bg-strong);
+  border: 1px solid var(--se-glass-border-strong);
+  border-radius: var(--se-radius-md);
+  backdrop-filter: blur(var(--se-glass-blur-strong));
+  -webkit-backdrop-filter: blur(var(--se-glass-blur-strong));
+  box-shadow: var(--se-elev-2);
+}
+
+/* ---- Glow modifiers ---------------------------------------------------- */
+.se-glow {
+  box-shadow: var(--se-glow);
+}
+
+.se-glow-strong {
+  box-shadow: var(--se-glow-strong);
+}
+
+/* ---- Chip (pill tag) --------------------------------------------------- */
+.se-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--se-space-2);
+  padding: 7px 14px;
+  border-radius: var(--se-radius-xl);
+  background: var(--se-glass-bg);
+  border: 1px solid var(--se-glass-border);
+  backdrop-filter: blur(var(--se-glass-blur));
+  -webkit-backdrop-filter: blur(var(--se-glass-blur));
+  font-family: var(--se-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--se-text-lo);
+}
+
+/* ---- Buttons ----------------------------------------------------------- */
+.se-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--se-space-2);
+  padding: 14px 32px;
+  border-radius: var(--se-radius-md);
+  background: transparent;
+  border: 1px solid var(--se-glass-border);
+  color: var(--se-text-hi);
+  font-family: var(--se-font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background var(--se-transition),
+              border-color var(--se-transition),
+              box-shadow 0.5s ease,
+              transform var(--se-transition);
+}
+
+.se-btn:hover:not(:disabled) {
+  border-color: var(--se-glass-border-strong);
+  transform: translateY(-1px);
+}
+
+.se-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.se-btn-primary {
+  background: var(--se-cyan-ghost);
+  border: 1px solid var(--se-cyan-dim);
+  color: var(--se-cyan-alt);
+  letter-spacing: 0.2em;
+}
+
+.se-btn-primary:hover:not(:disabled) {
+  background: rgba(0, 240, 255, 0.12);
+  border-color: rgba(0, 240, 255, 0.50);
+  box-shadow: var(--se-glow-strong);
+  transform: scale(1.03);
+}
+
+.se-btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* ---- Headline (Orbitron gradient text) --------------------------------- */
+.se-headline {
+  font-family: var(--se-font-display);
+  font-size: clamp(30px, 5.4vw, 62px);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  margin: 0;
+  background: linear-gradient(100deg, #ffffff 0%, #8fefff 45%, #b7a5ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 24px rgba(0, 240, 255, 0.18));
+}
+
+/* ---- Eyebrow (mono spaced label) --------------------------------------- */
+.se-eyebrow {
+  font-family: var(--se-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5em;
+  padding-left: 0.5em;
+  text-transform: uppercase;
+  color: var(--se-text-lo);
+}
+
+/* ---- Nebula background ------------------------------------------------- */
+.se-nebula-bg {
+  background: var(--se-nebula);
+}
+
+/* ---- Divider (glowing hairline) ---------------------------------------- */
+.se-divider {
+  width: 100%;
+  height: 1px;
+  border: none;
+  background: linear-gradient(to right,
+    transparent,
+    rgba(0, 240, 255, 0.35),
+    transparent);
+}
+
+
+/* ==========================================================================
+   REDUCED MOTION
+   Neutralize transitions/animations introduced by this file only.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .se-glass,
+  .se-glass-strong,
+  .se-glow,
+  .se-glow-strong,
+  .se-chip,
+  .se-btn,
+  .se-btn-primary,
+  .se-headline,
+  .se-eyebrow,
+  .se-divider {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .se-btn:hover:not(:disabled),
+  .se-btn-primary:hover:not(:disabled),
+  .se-btn-primary:active:not(:disabled) {
+    transform: none !important;
+  }
+}

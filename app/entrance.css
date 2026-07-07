@@ -28,6 +28,8 @@
   --nebula-indigo: #4b0082;
   --nebula-violet: #7b2fbe;
   --nebula-emerald: #00ff88;
+  --nebula-red: #ff5f5f;
+  --eshare-gold: #ffcb57;
   --glass-white: rgba(255, 255, 255, 0.85);
   --glass-white-dim: rgba(255, 255, 255, 0.45);
   --glass-white-faint: rgba(255, 255, 255, 0.25);
@@ -136,15 +138,438 @@
 .entrance-main {
   position: relative;
   z-index: 1;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0 24px;
+  padding: 48px 24px 96px;
+  perspective: 1000px;
   transition: all 0.5s var(--ease-out-expo);
 }
+
+
+/* ======================================================
+   NEBULA FIELD (animated depth glow)
+====================================================== */
+
+.nebula-field {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  /* subtle parallax counter-move to the pointer */
+  transform: translate3d(
+    calc(var(--mx, 0) * -14px),
+    calc(var(--my, 0) * -14px),
+    0
+  );
+  transition: transform 0.4s var(--ease-out-expo);
+}
+
+.nebula-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+.nebula-violet {
+  width: 46vw;
+  height: 46vw;
+  left: -8vw;
+  top: 8vh;
+  background: radial-gradient(circle at 50% 50%, rgba(122, 92, 255, 0.55), transparent 68%);
+  animation: nebula-drift-a 26s ease-in-out infinite;
+}
+
+.nebula-magenta {
+  width: 40vw;
+  height: 40vw;
+  right: -6vw;
+  top: -6vh;
+  background: radial-gradient(circle at 50% 50%, rgba(198, 75, 255, 0.4), transparent 68%);
+  animation: nebula-drift-b 32s ease-in-out infinite;
+}
+
+.nebula-cyan {
+  width: 52vw;
+  height: 52vw;
+  left: 30vw;
+  bottom: -22vh;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.28), transparent 66%);
+  animation: nebula-drift-c 30s ease-in-out infinite;
+}
+
+@keyframes nebula-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(6vw, 4vh) scale(1.12); }
+}
+@keyframes nebula-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1.05); }
+  50% { transform: translate(-5vw, 6vh) scale(0.92); }
+}
+@keyframes nebula-drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-4vw, -5vh) scale(1.1); }
+}
+
+
+/* ======================================================
+   E-SHARE EMBLEM (focal object)
+====================================================== */
+
+.coin-stage {
+  position: relative;
+  width: clamp(128px, 17vw, 184px);
+  height: clamp(128px, 17vw, 184px);
+  margin-bottom: 30px;
+  transform-style: preserve-3d;
+  /* pointer tilt */
+  transform:
+    rotateX(calc(var(--my, 0) * -9deg))
+    rotateY(calc(var(--mx, 0) * 12deg));
+  transition: transform 0.25s var(--ease-out-expo);
+  animation: coin-enter 1.1s var(--ease-out-expo) forwards;
+  opacity: 0;
+}
+
+@keyframes coin-enter {
+  0% { opacity: 0; transform: translateY(-18px) scale(0.82); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* faint dashed orbit */
+.coin-orbit {
+  position: absolute;
+  inset: -18%;
+  border-radius: 50%;
+  border: 1px dashed rgba(0, 240, 255, 0.18);
+  animation: orbit-spin 34s linear infinite;
+}
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+.eshare-coin {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* rotating conic rings — read as a spinning coin edge */
+.coin-ring {
+  position: absolute;
+  inset: 4%;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(0, 240, 255, 0.0) 0deg,
+      rgba(0, 240, 255, 0.85) 60deg,
+      rgba(255, 255, 255, 0.95) 90deg,
+      rgba(122, 92, 255, 0.7) 140deg,
+      rgba(0, 240, 255, 0.0) 210deg,
+      rgba(0, 240, 255, 0.0) 360deg
+    );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+  animation: coin-spin 6s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.5));
+}
+
+.coin-ring-2 {
+  inset: 15%;
+  opacity: 0.7;
+  animation: coin-spin 9s linear infinite reverse;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+}
+
+@keyframes coin-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* metallic medallion */
+.coin-medallion {
+  position: relative;
+  width: 62%;
+  height: 62%;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.35), transparent 45%),
+    linear-gradient(145deg, #0d2530 0%, #06121a 45%, #0a1c26 100%);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  box-shadow:
+    inset 0 0 18px rgba(0, 240, 255, 0.18),
+    inset 0 2px 6px rgba(255, 255, 255, 0.12),
+    0 0 22px rgba(0, 240, 255, 0.25);
+}
+
+.coin-mark {
+  width: clamp(40px, 6vw, 56px);
+  height: auto;
+  display: block;
+  color: #dafcff;
+  filter: drop-shadow(0 0 9px rgba(0, 240, 255, 0.75))
+          drop-shadow(0 0 18px rgba(0, 240, 255, 0.25));
+}
+
+.entrance-main.charged .coin-mark {
+  color: #ffffff;
+  filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.9))
+          drop-shadow(0 0 26px rgba(0, 240, 255, 0.4));
+}
+
+.coin-legend {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.32em;
+  padding-left: 0.32em;
+  margin-top: 5px;
+  color: rgba(180, 245, 255, 0.7);
+}
+
+/* soft bloom behind coin */
+.coin-glow {
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.35), transparent 62%);
+  filter: blur(14px);
+  z-index: -1;
+  opacity: 0.75;
+  animation: coin-glow-breathe 4.5s ease-in-out infinite;
+}
+@keyframes coin-glow-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.08); }
+}
+
+/* pulse ring — fires when CTA is charged */
+.coin-pulse {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 240, 255, 0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- CHARGED (CTA intent) state ---- */
+.entrance-main.charged .coin-ring { animation-duration: 1.4s; }
+.entrance-main.charged .coin-ring-2 { animation-duration: 2s; }
+.entrance-main.charged .coin-glow { opacity: 1; filter: blur(18px); }
+.entrance-main.charged .coin-medallion {
+  border-color: rgba(0, 240, 255, 0.7);
+  box-shadow:
+    inset 0 0 26px rgba(0, 240, 255, 0.3),
+    inset 0 2px 6px rgba(255, 255, 255, 0.16),
+    0 0 40px rgba(0, 240, 255, 0.5);
+}
+.entrance-main.charged .coin-pulse {
+  animation: coin-pulse-out 1.1s var(--ease-out-expo) infinite;
+}
+@keyframes coin-pulse-out {
+  0% { opacity: 0.7; transform: scale(0.9); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+
+/* ======================================================
+   WORDMARK + KINETIC HEADLINE
+====================================================== */
+
+.hero-wordmark {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5em;
+  padding-left: 0.5em;
+  color: rgba(180, 245, 255, 0.7);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 300ms forwards;
+  opacity: 0;
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.4vw, 62px);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  max-width: 16ch;
+  margin: 0 0 22px;
+  text-transform: none;
+}
+
+.hl-word {
+  display: inline-block;
+  background: linear-gradient(
+    100deg,
+    #ffffff 0%,
+    #8fefff 45%,
+    #b7a5ff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 24px rgba(0, 240, 255, 0.18));
+  opacity: 0;
+  transform: translateY(24px);
+  animation: hl-reveal 0.85s var(--ease-out-expo) forwards;
+  animation-delay: calc(var(--i) * 90ms + 850ms);
+}
+
+@keyframes hl-reveal {
+  0% { opacity: 0; transform: translateY(24px); filter: blur(8px) drop-shadow(0 0 24px rgba(0, 240, 255, 0.18)); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0) drop-shadow(0 0 24px rgba(0, 240, 255, 0.18)); }
+}
+
+.hero-sub {
+  font-family: var(--font-mono);
+  font-size: clamp(13px, 1.4vw, 15px);
+  font-weight: 300;
+  line-height: 1.65;
+  letter-spacing: 0.02em;
+  color: rgba(220, 235, 245, 0.62);
+  max-width: 52ch;
+  margin: 0 0 34px;
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 1250ms forwards;
+  opacity: 0;
+}
+
+
+/* ======================================================
+   CTA CLUSTER + GHOST BUTTON
+====================================================== */
+
+.cta-cluster {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 1400ms forwards;
+  opacity: 0;
+}
+
+.ghost-button {
+  background: transparent;
+  border: none;
+  color: rgba(220, 235, 245, 0.7);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 8px 4px;
+  transition: color 0.3s ease, transform 0.3s var(--ease-out-expo);
+}
+.ghost-button:hover:not(:disabled) {
+  color: var(--nebula-cyan);
+  transform: translateX(2px);
+}
+.ghost-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.ghost-arrow { transition: transform 0.3s var(--ease-out-expo); display: inline-block; }
+.ghost-button:hover:not(:disabled) .ghost-arrow { transform: translateX(4px); }
+
+
+/* ======================================================
+   TRUST CHIPS
+====================================================== */
+
+.trust-chips {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 26px;
+  animation: warpgate-fade-in-up 0.9s var(--ease-out-expo) 1600ms forwards;
+  opacity: 0;
+}
+
+.trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(0, 240, 255, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgba(220, 235, 245, 0.75);
+}
+.chip-ico { font-size: 12px; }
+.chip-gold { color: var(--eshare-gold); text-shadow: 0 0 10px rgba(255, 203, 87, 0.5); }
+.chip-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--nebula-emerald);
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.7);
+  animation: system-dot-pulse 2s ease-in-out infinite;
+}
+
+
+/* ======================================================
+   MARKET TICKER HUD
+====================================================== */
+
+.market-ticker {
+  position: fixed;
+  left: 0;
+  bottom: 58px;
+  width: 100%;
+  z-index: 1;
+  overflow: hidden;
+  padding: 8px 0;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  animation: warpgate-fade-in-up 1s var(--ease-out-expo) 1800ms forwards;
+  opacity: 0;
+}
+
+.ticker-track {
+  display: inline-flex;
+  gap: 40px;
+  white-space: nowrap;
+  animation: ticker-scroll 42s linear infinite;
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.ticker-handle { color: rgba(220, 235, 245, 0.8); }
+.ticker-metric { color: rgba(180, 245, 255, 0.55); }
+.ticker-metric::before { content: '◦ '; color: rgba(180, 245, 255, 0.3); }
+.ticker-price { color: var(--eshare-gold); display: inline-flex; align-items: center; gap: 4px; }
+.ticker-price.up .ticker-arrow { color: var(--nebula-emerald); }
+.ticker-price.down .ticker-arrow { color: var(--nebula-red, #ff5f5f); }
 
 
 /* ======================================================
@@ -810,6 +1235,67 @@
   .exit-center-glow {
     transition: opacity 0.3s ease !important;
   }
+
+  /* ---- New elements: freeze motion, keep the visuals ---- */
+  .coin-stage,
+  .hero-wordmark,
+  .hero-headline,
+  .hl-word,
+  .hero-sub,
+  .cta-cluster,
+  .trust-chips,
+  .market-ticker {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .hl-word {
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.15)) !important;
+  }
+  .coin-ring,
+  .coin-ring-2,
+  .coin-orbit,
+  .coin-glow,
+  .coin-pulse,
+  .chip-dot { animation: none !important; }
+  .nebula-blob { animation: none !important; }
+  .nebula-field { transition: none !important; transform: none !important; }
+  .ticker-track { animation: none !important; }
+  .entrance-main.charged .coin-pulse { animation: none !important; opacity: 0 !important; }
+}
+
+
+/* ======================================================
+   MOBILE FALLBACK (drop heavy effects, keep the story)
+====================================================== */
+
+@media (max-width: 768px) {
+  .entrance-main {
+    padding: 40px 20px 88px;
+  }
+
+  /* soften the GPU-heavy nebula blur on phones */
+  .nebula-blob { filter: blur(60px); opacity: 0.4; }
+  .nebula-field { transform: none; }
+
+  .coin-stage {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 24px;
+    transform: none !important; /* no pointer tilt on touch */
+  }
+  /* keep one ring + medallion, drop the second ring's cost */
+  .coin-ring-2 { display: none; }
+
+  .hero-headline { font-size: clamp(28px, 8vw, 40px); max-width: 14ch; }
+  .hero-sub { font-size: 13px; max-width: 40ch; }
+
+  .cta-cluster { flex-direction: column; gap: 14px; }
+
+  /* the ticker eats too much room on small screens */
+  .market-ticker { display: none; }
 }
 
 
@@ -940,3 +1426,54 @@
 [data-theme="light"] .audio-hint-text {
   color: #374151;
 }
+
+/* ---- New elements in light mode ---- */
+[data-theme="light"] .nebula-field { display: none; }
+
+[data-theme="light"] .hero-wordmark { color: #6b7280; }
+
+[data-theme="light"] .hl-word {
+  background: linear-gradient(100deg, #111827 0%, #059669 55%, #4338ca 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: none;
+}
+
+[data-theme="light"] .hero-sub { color: #4b5563; }
+
+[data-theme="light"] .coin-medallion {
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.8), transparent 45%),
+    linear-gradient(145deg, #e6faf4 0%, #d1fae5 45%, #ecfdf5 100%);
+  border-color: rgba(5, 150, 105, 0.35);
+  box-shadow: inset 0 0 18px rgba(5, 150, 105, 0.12), 0 0 22px rgba(5, 150, 105, 0.18);
+}
+[data-theme="light"] .coin-mark { color: #059669; filter: drop-shadow(0 0 6px rgba(5,150,105,0.35)); }
+[data-theme="light"] .coin-legend { color: #047857; }
+[data-theme="light"] .coin-glow {
+  background: radial-gradient(circle at 50% 50%, rgba(5, 150, 105, 0.25), transparent 62%);
+}
+[data-theme="light"] .coin-ring {
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(5,150,105,0.7) 60deg, #059669 90deg, rgba(99,102,241,0.6) 140deg, transparent 210deg, transparent 360deg);
+  filter: drop-shadow(0 0 6px rgba(5, 150, 105, 0.35));
+}
+[data-theme="light"] .coin-orbit { border-color: rgba(5, 150, 105, 0.2); }
+[data-theme="light"] .coin-pulse { border-color: rgba(5, 150, 105, 0.5); }
+
+[data-theme="light"] .ghost-button { color: #4b5563; }
+[data-theme="light"] .ghost-button:hover:not(:disabled) { color: #059669; }
+
+[data-theme="light"] .trust-chip {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(5, 150, 105, 0.18);
+  color: #374151;
+}
+[data-theme="light"] .chip-gold { color: #b45309; text-shadow: none; }
+[data-theme="light"] .chip-dot { background: #059669; box-shadow: 0 0 6px rgba(5,150,105,0.5); }
+
+[data-theme="light"] .ticker-handle { color: #374151; }
+[data-theme="light"] .ticker-metric { color: #6b7280; }
+[data-theme="light"] .ticker-price { color: #b45309; }
+[data-theme="light"] .ticker-price.up .ticker-arrow { color: #059669; }
+[data-theme="light"] .ticker-price.down .ticker-arrow { color: #dc2626; }

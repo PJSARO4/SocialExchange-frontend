@@ -3,11 +3,12 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const brand = await prisma.brand.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         shareholdings: {
           select: {
@@ -28,7 +29,7 @@ export async function GET(
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const priceHistory = await prisma.priceHistory.findMany({
       where: {
-        brandId: params.id,
+        brandId: id,
         interval: 'MINUTE_1',
         createdAt: { gte: oneDayAgo },
       },

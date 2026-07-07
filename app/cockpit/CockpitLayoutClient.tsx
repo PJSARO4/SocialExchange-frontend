@@ -137,6 +137,7 @@ function WalletBadge() {
 // Inner component that uses audio context
 function CockpitContent({ children, userName }: { children: ReactNode; userName: string }) {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const { setMoodForPath } = useAmbientAudio();
   const { isOpen: mobileMenuOpen, toggle: toggleMobileMenu, close: closeMobileMenu } = useMobileMenu();
 

@@ -20,6 +20,18 @@ const QUOTES = [
   "Stability is engineered, not assumed.",
 ];
 
+/* ===============================
+   MARKET TICKER (sample listings)
+================================ */
+const TICKER = [
+  { handle: "@nova.aesthetic", metric: "412K", price: "18,400", dir: "up" },
+  { handle: "@deepfield.fm", metric: "88K", price: "3,950", dir: "up" },
+  { handle: "@orbit.daily", metric: "1.2M", price: "64,200", dir: "down" },
+  { handle: "@synthwave.co", metric: "230K", price: "11,700", dir: "up" },
+  { handle: "@quiet.markets", metric: "57K", price: "2,480", dir: "down" },
+  { handle: "@apex.reels", metric: "905K", price: "51,300", dir: "up" },
+];
+
 type ShootingStar = {
   x: number;
   y: number;
@@ -32,10 +44,13 @@ export default function Entrance() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const pageRef = useRef<HTMLDivElement | null>(null);
+  const pointerRef = useRef({ x: 0, y: 0 }); // -1..1 parallax offset
   const [typed, setTyped] = useState("");
   const [isExiting, setIsExiting] = useState(false);
   const [exitTarget, setExitTarget] = useState<string | null>(null);
   const [audioStarted, setAudioStarted] = useState(false);
+  const [charged, setCharged] = useState(false); // coin spin-up on CTA intent
 
   const quoteRef = useRef(
     QUOTES[Math.floor(Math.random() * QUOTES.length)]
@@ -104,7 +119,39 @@ export default function Entrance() {
   }, []);
 
   /* ===============================
-     STARFIELD + CONTINUOUS SHOOTING STARS
+     POINTER PARALLAX
+     Writes normalized offset to CSS vars + a ref the canvas reads.
+  ================================ */
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+
+    let raf = 0;
+    const onMove = (e: MouseEvent) => {
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = (e.clientY / window.innerHeight) * 2 - 1;
+      pointerRef.current.x = nx;
+      pointerRef.current.y = ny;
+      if (!raf) {
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          const el = pageRef.current;
+          if (el) {
+            el.style.setProperty("--mx", nx.toFixed(3));
+            el.style.setProperty("--my", ny.toFixed(3));
+          }
+        });
+      }
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ===============================
+     STARFIELD (depth layers) + SHOOTING STARS
   ================================ */
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -112,101 +159,81 @@ export default function Entrance() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     let w = (canvas.width = window.innerWidth);
     let h = (canvas.height = window.innerHeight);
 
-    const stars = Array.from({ length: 180 }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: Math.random() * 1.4,
-      s: Math.random() * 0.25 + 0.1,
-    }));
+    // Three depth layers: far (slow, faint, small) -> near (fast, bright, big)
+    const LAYERS = [
+      { count: 90, depth: 0.15, speed: 0.05, size: 0.9, alpha: 0.4 },
+      { count: 70, depth: 0.4, speed: 0.13, size: 1.3, alpha: 0.6 },
+      { count: 40, depth: 0.85, speed: 0.26, size: 1.9, alpha: 0.85 },
+    ];
+
+    const stars = LAYERS.flatMap((layer) =>
+      Array.from({ length: layer.count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * layer.size + 0.3,
+        s: Math.random() * layer.speed + layer.speed * 0.4,
+        depth: layer.depth,
+        alpha: layer.alpha * (Math.random() * 0.5 + 0.5),
+      }))
+    );
 
     let shootingStars: ShootingStar[] = [];
 
     const spawnShootingStar = () => {
       if (shootingStars.length >= 2) return;
-
       const edge = Math.floor(Math.random() * 4);
       const speed = 14;
-
-      let x = 0,
-        y = 0,
-        vx = 0,
-        vy = 0;
-
+      let x = 0, y = 0, vx = 0, vy = 0;
       switch (edge) {
-        case 0: // top
-          x = Math.random() * w;
-          y = -30;
-          vx = speed;
-          vy = speed;
-          break;
-        case 1: // left
-          x = -30;
-          y = Math.random() * h;
-          vx = speed;
-          vy = -speed;
-          break;
-        case 2: // right
-          x = w + 30;
-          y = Math.random() * h;
-          vx = -speed;
-          vy = speed;
-          break;
-        case 3: // bottom
-          x = Math.random() * w;
-          y = h + 30;
-          vx = -speed;
-          vy = -speed;
-          break;
+        case 0: x = Math.random() * w; y = -30; vx = speed; vy = speed; break;
+        case 1: x = -30; y = Math.random() * h; vx = speed; vy = -speed; break;
+        case 2: x = w + 30; y = Math.random() * h; vx = -speed; vy = speed; break;
+        case 3: x = Math.random() * w; y = h + 30; vx = -speed; vy = -speed; break;
       }
-
       shootingStars.push({ x, y, vx, vy, life: 0 });
     };
 
-    // spawn immediately, then continuously
     spawnShootingStar();
     const spawnInterval = setInterval(spawnShootingStar, 3500);
 
     let hue = 210;
+    let running = true;
 
     const draw = () => {
+      if (!running) return;
       ctx.clearRect(0, 0, w, h);
 
       /* ---------- AMBIENT COLOR FIELD ---------- */
       hue = (hue + 0.015) % 360;
-      const ambient = ctx.createRadialGradient(
-        w / 2,
-        h / 2,
-        0,
-        w / 2,
-        h / 2,
-        w
-      );
-      ambient.addColorStop(
-        0,
-        `hsla(${hue}, 60%, 45%, 0.04)`
-      );
-      ambient.addColorStop(
-        1,
-        `hsla(${(hue + 50) % 360}, 60%, 20%, 0)`
-      );
+      const ambient = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w);
+      ambient.addColorStop(0, `hsla(${hue}, 60%, 45%, 0.04)`);
+      ambient.addColorStop(1, `hsla(${(hue + 50) % 360}, 60%, 20%, 0)`);
       ctx.fillStyle = ambient;
       ctx.fillRect(0, 0, w, h);
 
-      /* ---------- STARS ---------- */
-      ctx.fillStyle = "#ffffff";
+      /* ---------- STARS (parallax by depth) ---------- */
+      const px = pointerRef.current.x;
+      const py = pointerRef.current.y;
       stars.forEach((s) => {
         s.y += s.s;
         if (s.y > h) s.y = 0;
-        ctx.globalAlpha = 0.6;
+        const ox = -px * s.depth * 26;
+        const oy = -py * s.depth * 26;
+        ctx.globalAlpha = s.alpha;
+        // faint cyan tint on the nearest layer
+        ctx.fillStyle = s.depth > 0.7 ? "rgba(180,245,255,0.95)" : "#ffffff";
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.arc(s.x + ox, s.y + oy, s.r, 0, Math.PI * 2);
         ctx.fill();
       });
 
       /* ---------- SHOOTING STARS ---------- */
+      ctx.globalAlpha = 1;
       shootingStars.forEach((s) => {
         if (s.life < 70) {
           ctx.strokeStyle = "rgba(255,255,255,0.9)";
@@ -220,31 +247,55 @@ export default function Entrance() {
           s.life++;
         }
       });
-
       shootingStars = shootingStars.filter((s) => s.life < 70);
 
       requestAnimationFrame(draw);
     };
 
-    draw();
+    // In reduced-motion, paint one static frame and stop.
+    if (reduce) {
+      const px = 0, py = 0;
+      ctx.clearRect(0, 0, w, h);
+      stars.forEach((s) => {
+        ctx.globalAlpha = s.alpha;
+        ctx.fillStyle = s.depth > 0.7 ? "rgba(180,245,255,0.95)" : "#ffffff";
+        ctx.beginPath();
+        ctx.arc(s.x + px, s.y + py, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    } else {
+      draw();
+    }
 
-    window.addEventListener("resize", () => {
+    const onResize = () => {
       w = canvas.width = window.innerWidth;
       h = canvas.height = window.innerHeight;
-    });
+    };
+    window.addEventListener("resize", onResize);
 
-    return () => clearInterval(spawnInterval);
+    return () => {
+      running = false;
+      clearInterval(spawnInterval);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   /* ===============================
      UI
   ================================ */
+  const chargeOn = () => setCharged(true);
+  const chargeOff = () => setCharged(false);
+
   return (
-    <div className={`entrance-page ${isExiting ? 'exiting' : ''}`}>
-      <canvas
-        ref={canvasRef}
-        className="entrance-canvas"
-      />
+    <div ref={pageRef} className={`entrance-page ${isExiting ? 'exiting' : ''}`}>
+      <canvas ref={canvasRef} className="entrance-canvas" />
+
+      {/* Animated nebula field */}
+      <div className="nebula-field" aria-hidden="true">
+        <span className="nebula-blob nebula-violet" />
+        <span className="nebula-blob nebula-magenta" />
+        <span className="nebula-blob nebula-cyan" />
+      </div>
 
       {/* Exit transition overlay */}
       <div className={`entrance-exit-overlay ${isExiting ? 'active' : ''}`}>
@@ -259,36 +310,93 @@ export default function Entrance() {
         </div>
       </div>
 
-      <main className="entrance-main">
-        <h1 className="entrance-title">SOCIAL • EXCHANGE</h1>
+      <main className={`entrance-main ${charged ? 'charged' : ''}`}>
+        {/* ===== E-SHARE EMBLEM (the focal "wow") ===== */}
+        <div className="coin-stage" aria-hidden="true">
+          <div className="coin-orbit" />
+          <div className="eshare-coin">
+            <span className="coin-ring" />
+            <span className="coin-ring coin-ring-2" />
+            <span className="coin-medallion">
+              <svg className="coin-mark" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+                <g stroke="currentColor" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 42 L44 20 L76 42 L58 54" />
+                  <path d="M88 58 L56 80 L24 58 L42 46" />
+                </g>
+              </svg>
+              <span className="coin-legend">E-SHARE</span>
+            </span>
+            <span className="coin-glow" />
+            <span className="coin-pulse" />
+          </div>
+        </div>
 
+        <span className="hero-wordmark">SOCIAL&nbsp;•&nbsp;EXCHANGE</span>
+
+        <h1 className="hero-headline">
+          {"Trade the feeds that move the world.".split(" ").map((word, i) => (
+            <span
+              key={i}
+              className="hl-word"
+              style={{ '--i': i } as React.CSSProperties}
+            >
+              {word}&nbsp;
+            </span>
+          ))}
+        </h1>
+
+        <p className="hero-sub">
+          A secure marketplace for social media assets. Every deal held in escrow.
+          Every credit accounted for.
+        </p>
+
+        {/* ===== CTA CLUSTER ===== */}
         {isAuthenticated ? (
           <>
             <div className="user-greeting">
               Welcome back, <span className="user-name">{session?.user?.name || session?.user?.email}</span>
             </div>
-            <button
-              className="command-button"
-              onClick={handleEnter}
-              disabled={isExiting}
-            >
-              <span className="btn-text">ENTER MISSION CONTROL</span>
-              <span className="btn-glow" />
-            </button>
+            <div className="cta-cluster">
+              <button
+                className="command-button"
+                onClick={handleEnter}
+                onMouseEnter={chargeOn}
+                onMouseLeave={chargeOff}
+                onFocus={chargeOn}
+                onBlur={chargeOff}
+                disabled={isExiting}
+              >
+                <span className="btn-text">ENTER MISSION CONTROL</span>
+                <span className="btn-glow" />
+              </button>
+            </div>
             <div className="auth-links">
               <span onClick={() => navigateWithTransition("/auth/signin")} className="auth-link">Switch Account</span>
             </div>
           </>
         ) : (
           <>
-            <button
-              className="command-button"
-              onClick={handleEnter}
-              disabled={isExiting}
-            >
-              <span className="btn-text">{authChecked ? "AUTHENTICATE" : "INITIALIZING..."}</span>
-              <span className="btn-glow" />
-            </button>
+            <div className="cta-cluster">
+              <button
+                className="command-button"
+                onClick={handleEnter}
+                onMouseEnter={chargeOn}
+                onMouseLeave={chargeOff}
+                onFocus={chargeOn}
+                onBlur={chargeOff}
+                disabled={isExiting}
+              >
+                <span className="btn-text">{authChecked ? "ENTER THE EXCHANGE" : "INITIALIZING..."}</span>
+                <span className="btn-glow" />
+              </button>
+              <button
+                className="ghost-button"
+                onClick={() => navigateWithTransition("/cockpit/trading-post")}
+                disabled={isExiting}
+              >
+                Explore the Market <span className="ghost-arrow">→</span>
+              </button>
+            </div>
             <div className="auth-links">
               <span onClick={() => navigateWithTransition("/auth/signin")} className="auth-link">Sign In</span>
               <span className="auth-separator">•</span>
@@ -297,12 +405,30 @@ export default function Entrance() {
           </>
         )}
 
-        <p className="typewriter">{typed}<span className="cursor">|</span></p>
-
-        <div className="system-online">
-          {isAuthenticated ? `OPERATOR: ${(session?.user?.name || session?.user?.email || '').toUpperCase()}` : "SYSTEM STANDBY"}
+        {/* ===== TRUST CHIPS ===== */}
+        <div className="trust-chips">
+          <span className="trust-chip"><span className="chip-ico">🛡</span> Escrow-protected</span>
+          <span className="trust-chip"><span className="chip-ico chip-gold">◈</span> Priced in E-Shares</span>
+          <span className="trust-chip"><span className="chip-dot" /> System online</span>
         </div>
+
+        <p className="typewriter">{typed}<span className="cursor">|</span></p>
       </main>
+
+      {/* ===== MARKET TICKER HUD ===== */}
+      <div className="market-ticker" aria-hidden="true">
+        <div className="ticker-track">
+          {[...TICKER, ...TICKER].map((t, i) => (
+            <span className="ticker-item" key={i}>
+              <span className="ticker-handle">{t.handle}</span>
+              <span className="ticker-metric">{t.metric}</span>
+              <span className={`ticker-price ${t.dir}`}>
+                ◈ {t.price} <span className="ticker-arrow">{t.dir === "up" ? "▲" : "▼"}</span>
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* Bottom decoration */}
       <div className="entrance-footer">

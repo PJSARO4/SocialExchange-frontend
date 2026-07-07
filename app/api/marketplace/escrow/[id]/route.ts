@@ -1,15 +1,15 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import * as escrowService from '@/lib/market/escrow-service';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const escrow = await prisma.escrowTransaction.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         disputes: true,
         listings: true,
@@ -20,7 +20,7 @@ export async function GET(
       return NextResponse.json({ error: 'Escrow not found' }, { status: 404 });
     }
 
-    const stateFlow = await escrowService.getEscrowState(params.id);
+    const stateFlow = await escrowService.getEscrowState(id);
 
     return NextResponse.json({
       ...escrow,
