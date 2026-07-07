@@ -350,7 +350,7 @@ export default function CommandCenter() {
 
     // If not logged in, redirect to login
     if (!currentUser) {
-      router.push('/auth/login');
+      router.push('/auth/signin');
       return;
     }
 

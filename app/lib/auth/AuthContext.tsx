@@ -135,7 +135,7 @@ export function ProtectedRoute({
   requiredRole,
   requiredPermission,
   fallback,
-  redirectTo = '/auth/login',
+  redirectTo = '/auth/signin',
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, hasRole, hasPermission } = useAuth();
 

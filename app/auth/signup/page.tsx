@@ -1,395 +1,98 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Zap, AlertTriangle } from 'lucide-react';
+import { useState, Suspense, type FormEvent } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import {
-  signup,
-  seedAuthIfEmpty,
-  isAuthenticated,
-} from '@/app/lib/auth/auth-store';
-import { validatePassword, validateEmail, validateUsername } from '@/app/lib/auth/types';
-import '../auth.css';
 
-export default function SignupPage() {
+function SignUpContent() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    email: '',
-    username: '',
-    displayName: '',
-    password: '',
-    confirmPassword: '',
-    acceptTerms: false,
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [generalError, setGeneralError] = useState('');
-  const [passwordStrength, setPasswordStrength] = useState<{
-    score: number;
-    label: string;
-    color: string;
-  }>({ score: 0, label: '', color: '' });
+  const callbackUrl = searchParams?.get('callbackUrl') || '/cockpit/my-e-assets/my-feeds';
 
-  useEffect(() => {
-    seedAuthIfEmpty();
-    if (isAuthenticated()) {
-      router.push('/cockpit/home');
-    }
-  }, [router]);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const calculatePasswordStrength = (password: string) => {
-    if (!password) {
-      setPasswordStrength({ score: 0, label: '', color: '' });
-      return;
-    }
-
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[0-9]/.test(password)) score++;
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) score++;
-
-    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong', 'Excellent'];
-    const colors = ['', '#ef4444', '#f59e0b', '#eab308', '#22c55e', '#10b981', '#3fffdc'];
-
-    setPasswordStrength({
-      score,
-      label: labels[Math.min(score, 6)],
-      color: colors[Math.min(score, 6)],
-    });
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value;
-
-    setFormData(prev => ({
-      ...prev,
-      [name]: newValue,
-    }));
-
-    // Calculate password strength
-    if (name === 'password') {
-      calculatePasswordStrength(value);
-    }
-
-    // Clear error for this field
-    if (errors[name]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
-      });
-    }
-    setGeneralError('');
-  };
-
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    // Real-time validation on blur
-    if (name === 'email' && value) {
-      const validation = validateEmail(value);
-      if (!validation.isValid) {
-        setErrors(prev => ({ ...prev, email: validation.errors[0] }));
-      }
-    }
-
-    if (name === 'username' && value) {
-      const validation = validateUsername(value);
-      if (!validation.isValid) {
-        setErrors(prev => ({ ...prev, username: validation.errors[0] }));
-      }
-    }
-
-    if (name === 'password' && value) {
-      const validation = validatePassword(value);
-      if (!validation.isValid) {
-        setErrors(prev => ({ ...prev, password: validation.errors[0] }));
-      }
-    }
-
-    if (name === 'confirmPassword' && value && formData.password !== value) {
-      setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match' }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setIsLoading(true);
-    setGeneralError('');
+    setError('');
 
-    // Validate all fields
-    const newErrors: Record<string, string> = {};
-
-    const emailValidation = validateEmail(formData.email);
-    if (!emailValidation.isValid) {
-      newErrors.email = emailValidation.errors[0];
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
     }
-
-    const usernameValidation = validateUsername(formData.username);
-    if (!usernameValidation.isValid) {
-      newErrors.username = usernameValidation.errors[0];
-    }
-
-    if (!formData.displayName.trim()) {
-      newErrors.displayName = 'Display name is required';
-    }
-
-    const passwordValidation = validatePassword(formData.password);
-    if (!passwordValidation.isValid) {
-      newErrors.password = passwordValidation.errors[0];
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    if (!formData.acceptTerms) {
-      newErrors.acceptTerms = 'You must accept the terms';
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      setIsLoading(false);
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
 
-    // Simulate network delay and captcha verification
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    const result = signup({
-      ...formData,
-      captchaToken: 'demo-captcha-token', // Would be real captcha in production
+    setLoading(true);
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
     });
+    const data = await res.json();
 
-    setIsLoading(false);
-
-    if (!result.success) {
-      if (result.errors) {
-        setErrors(result.errors);
-      } else {
-        setGeneralError(result.message);
-      }
+    if (!res.ok) {
+      setLoading(false);
+      setError(data.error || 'Failed to create account.');
       return;
     }
 
-    // Success - redirect to cockpit
-    router.push('/cockpit/home');
-  };
+    const result = await signIn('credentials', { email, password, redirect: false, callbackUrl });
+    setLoading(false);
+    if (result && result.error) {
+      setError('Account created, but sign in failed. Please sign in manually.');
+      router.push('/auth/signin');
+      return;
+    }
+    router.push(callbackUrl);
+  }
 
   return (
-    <div className="auth-container">
-      <div className="auth-background">
-        <div className="auth-grid" />
-      </div>
-
-      <div className="auth-card signup">
-        <div className="auth-header">
-          <div className="auth-logo">
-            <span className="auth-logo-icon"><Zap size={24} /></span>
-            <span className="auth-logo-text">SOCIAL EXCHANGE</span>
-          </div>
-          <h1 className="auth-title">Create Account</h1>
-          <p className="auth-subtitle">Join the future of social media management</p>
-        </div>
-
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {generalError && (
-            <div className="auth-error-banner">
-              <span className="auth-error-icon"><AlertTriangle size={16} /></span>
-              <span>{generalError}</span>
-            </div>
-          )}
-
-          <div className="auth-field">
-            <label htmlFor="email" className="auth-label">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className={`auth-input ${errors.email ? 'error' : ''}`}
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              autoComplete="email"
-              disabled={isLoading}
-            />
-            {errors.email && <span className="auth-field-error">{errors.email}</span>}
-          </div>
-
-          <div className="auth-row">
-            <div className="auth-field">
-              <label htmlFor="username" className="auth-label">Username</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                className={`auth-input ${errors.username ? 'error' : ''}`}
-                placeholder="yourname"
-                value={formData.username}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                autoComplete="username"
-                disabled={isLoading}
-              />
-              {errors.username && <span className="auth-field-error">{errors.username}</span>}
-            </div>
-
-            <div className="auth-field">
-              <label htmlFor="displayName" className="auth-label">Display Name</label>
-              <input
-                type="text"
-                id="displayName"
-                name="displayName"
-                className={`auth-input ${errors.displayName ? 'error' : ''}`}
-                placeholder="Your Name"
-                value={formData.displayName}
-                onChange={handleChange}
-                autoComplete="name"
-                disabled={isLoading}
-              />
-              {errors.displayName && <span className="auth-field-error">{errors.displayName}</span>}
-            </div>
-          </div>
-
-          <div className="auth-field">
-            <label htmlFor="password" className="auth-label">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className={`auth-input ${errors.password ? 'error' : ''}`}
-              placeholder="••••••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              autoComplete="new-password"
-              disabled={isLoading}
-            />
-            {passwordStrength.score > 0 && (
-              <div className="auth-password-strength">
-                <div className="auth-password-strength-bar">
-                  <div
-                    className="auth-password-strength-fill"
-                    style={{
-                      width: `${(passwordStrength.score / 6) * 100}%`,
-                      backgroundColor: passwordStrength.color,
-                    }}
-                  />
-                </div>
-                <span
-                  className="auth-password-strength-label"
-                  style={{ color: passwordStrength.color }}
-                >
-                  {passwordStrength.label}
-                </span>
-              </div>
-            )}
-            {errors.password && <span className="auth-field-error">{errors.password}</span>}
-            <div className="auth-password-requirements">
-              <span className="auth-requirement-label">Requirements:</span>
-              <ul className="auth-requirements-list">
-                <li className={formData.password.length >= 12 ? 'met' : ''}>
-                  At least 12 characters
-                </li>
-                <li className={/[A-Z]/.test(formData.password) ? 'met' : ''}>
-                  One uppercase letter
-                </li>
-                <li className={/[a-z]/.test(formData.password) ? 'met' : ''}>
-                  One lowercase letter
-                </li>
-                <li className={/[0-9]/.test(formData.password) ? 'met' : ''}>
-                  One number
-                </li>
-                <li className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(formData.password) ? 'met' : ''}>
-                  One special character
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="auth-field">
-            <label htmlFor="confirmPassword" className="auth-label">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              className={`auth-input ${errors.confirmPassword ? 'error' : ''}`}
-              placeholder="••••••••••••"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              autoComplete="new-password"
-              disabled={isLoading}
-            />
-            {errors.confirmPassword && (
-              <span className="auth-field-error">{errors.confirmPassword}</span>
-            )}
-          </div>
-
-          <div className="auth-field">
-            <label className={`auth-checkbox-label terms ${errors.acceptTerms ? 'error' : ''}`}>
-              <input
-                type="checkbox"
-                name="acceptTerms"
-                checked={formData.acceptTerms}
-                onChange={handleChange}
-                className="auth-checkbox"
-                disabled={isLoading}
-              />
-              <span className="auth-checkbox-text">
-                I agree to the{' '}
-                <Link href="/cockpit/about" className="auth-inline-link">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link href="/cockpit/about" className="auth-inline-link">
-                  Privacy Policy
-                </Link>
-              </span>
-            </label>
-            {errors.acceptTerms && <span className="auth-field-error">{errors.acceptTerms}</span>}
-          </div>
-
-          <button
-            type="submit"
-            className="auth-submit-btn"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="auth-loading">
-                <span className="auth-loading-spinner" />
-                Creating Account...
-              </span>
-            ) : (
-              'Create Account'
-            )}
-          </button>
+    <div className="auth-page">
+      <style>{`
+        .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0a0a0a; padding: 20px; }
+        .auth-card { max-width: 400px; width: 100%; background: #1a1a1a; border-radius: 12px; padding: 40px; border: 1px solid #333; }
+        .auth-title { color: #fff; font-size: 24px; margin-bottom: 8px; font-weight: 600; text-align: center; }
+        .auth-sub { color: #888; font-size: 14px; margin-bottom: 32px; text-align: center; }
+        .auth-error { background: rgba(255,77,77,0.1); border: 1px solid rgba(255,77,77,0.3); border-radius: 8px; padding: 12px; margin-bottom: 24px; color: #ff4d4d; font-size: 13px; }
+        .auth-label { color: #aaa; font-size: 13px; display: block; margin-bottom: 6px; }
+        .auth-input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid #333; background: #111; color: #fff; margin-bottom: 16px; box-sizing: border-box; }
+        .auth-btn { width: 100%; background: #E1306C; color: #fff; padding: 12px; border-radius: 8px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; }
+        .auth-footer { color: #666; font-size: 13px; margin-top: 24px; text-align: center; }
+        .auth-footer a { color: #E1306C; text-decoration: none; }
+      `}</style>
+      <div className="auth-card">
+        <h1 className="auth-title">Create Account</h1>
+        <p className="auth-sub">Join Social Exchange</p>
+        {error && <div className="auth-error">{error}</div>}
+        <form onSubmit={handleSubmit}>
+          <label className="auth-label">Name</label>
+          <input className="auth-input" type="text" value={name} onChange={(e) => setName(e.target.value)} />
+          <label className="auth-label">Email</label>
+          <input className="auth-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label className="auth-label">Password</label>
+          <input className="auth-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <label className="auth-label">Confirm Password</label>
+          <input className="auth-input" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+          <button className="auth-btn" type="submit" disabled={loading}>{loading ? 'Creating account...' : 'Sign Up'}</button>
         </form>
-
-        <div className="auth-divider">
-          <span>or</span>
-        </div>
-
-        <div className="auth-alternate-actions">
-          <Link href="/auth/login" className="auth-alternate-btn">
-            Sign In to Existing Account
-          </Link>
-        </div>
-      </div>
-
-      <div className="auth-footer">
-        <span>© 2024 Social Exchange</span>
-        <span className="auth-footer-separator">•</span>
-        <Link href="/cockpit/about" className="auth-footer-link">About</Link>
-        <span className="auth-footer-separator">•</span>
-        <Link href="/cockpit/about" className="auth-footer-link">Terms</Link>
+        <p className="auth-footer">Already have an account? <Link href="/auth/signin">Sign in</Link></p>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div className="auth-page" />}>
+      <SignUpContent />
+    </Suspense>
   );
 }

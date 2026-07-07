@@ -1,4 +1,6 @@
 import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { verifyPassword } from '@/lib/password';
 
 // ============================================
 // Dual-mode adapter: PrismaAdapter when DATABASE_URL is set, JWT-only otherwise
@@ -20,7 +22,33 @@ if (HAS_DATABASE) {
   }
 }
 
-const USE_DATABASE_SESSIONS = !!adapter;
+// Credentials provider requires JWT sessions (NextAuth does not support
+// database sessions for credentials-based sign in), so we force JWT mode
+// even when an adapter is present. The adapter is still used to persist
+// OAuth provider accounts/users.
+const USE_DATABASE_SESSIONS = false;
+
+// ============================================
+// Email + Password Login
+// ============================================
+const CredentialsAuthProvider = CredentialsProvider({
+  id: 'credentials',
+  name: 'Email and Password',
+  credentials: {
+    email: { label: 'Email', type: 'email' },
+    password: { label: 'Password', type: 'password' },
+  },
+  async authorize(credentials) {
+    if (!credentials?.email || !credentials?.password) return null;
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { prisma } = require('@/lib/prisma');
+    const user = await prisma.user.findUnique({ where: { email: credentials.email } });
+    if (!user || !user.password) return null;
+    const valid = verifyPassword(credentials.password, user.password);
+    if (!valid) return null;
+    return { id: user.id, name: user.name, email: user.email, image: user.image };
+  },
+});
 
 // ============================================
 // Instagram Direct Login (Instagram Platform API)
@@ -40,9 +68,6 @@ const InstagramDirectProvider = {
     url: 'https://api.instagram.com/oauth/access_token',
     async request({ client, params, checks, provider }: any) {
       const redirectUri = `${process.env.NEXTAUTH_URL}/api/auth/callback/instagram-direct`;
-      console.log('[IG Token] clientId:', provider.clientId);
-      console.log('[IG Token] redirectUri:', redirectUri);
-      console.log('[IG Token] code present:', !!params.code);
       const response = await fetch('https://api.instagram.com/oauth/access_token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -55,7 +80,6 @@ const InstagramDirectProvider = {
         }),
       });
       const tokens = await response.json();
-      console.log('[IG Token] response:', JSON.stringify(tokens));
       if (tokens.error_type || tokens.error_message) {
         throw new Error(tokens.error_message || 'Failed to get Instagram token');
       }
@@ -130,7 +154,7 @@ const isUsingTunnel = process.env.NEXTAUTH_URL?.includes('.loca.lt') ||
 
 export const authOptions: NextAuthOptions = {
   ...(adapter ? { adapter } : {}),
-  providers: [InstagramDirectProvider, InstagramBusinessProvider, FacebookBusinessProvider],
+  providers: [CredentialsAuthProvider, InstagramDirectProvider, InstagramBusinessProvider, FacebookBusinessProvider],
   callbacks: {
     async signIn({ user, account }) {
       if (account && user) {
