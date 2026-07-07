@@ -357,7 +357,7 @@ class AmbientAudioEngine {
   // MP3 playback
   private audio: HTMLAudioElement | null = null;
 
-  // Web Audio synthesis
+  // Web Audio synthesis (musical space-ambient pad engine)
   private audioContext: AudioContext | null = null;
   private masterGain: GainNode | null = null;
   private oscillators: OscillatorNode[] = [];
@@ -367,6 +367,25 @@ class AmbientAudioEngine {
   private tremolo: GainNode | null = null;
   private tremoloLfo: OscillatorNode | null = null;
   private secondaryOscillators: OscillatorNode[] = [];
+
+  // Pad engine nodes
+  private padOscillators: OscillatorNode[] = [];
+  private padGains: GainNode[] = [];
+  private padBus: GainNode | null = null;        // dry pad sum (pre-filter)
+  private padFilter: BiquadFilterNode | null = null;
+  private filterLfo: OscillatorNode | null = null;
+  private filterLfoGain: GainNode | null = null;
+  private swellGain: GainNode | null = null;      // slow amplitude swell
+  private swellLfo: OscillatorNode | null = null;
+  private swellLfoGain: GainNode | null = null;
+  private reverbNode: ConvolverNode | null = null;
+  private wetGain: GainNode | null = null;
+  private dryGain: GainNode | null = null;
+  private chordTimer: ReturnType<typeof setTimeout> | null = null;
+  private bellTimer: ReturnType<typeof setTimeout> | null = null;
+  private currentChordIndex: number = 0;
+  private padRootFreq: number = 55;
+  private padScaleName: 'major7' | 'minor7' = 'major7';
 
   // State
   private currentScene: Scene = 'default';
@@ -414,9 +433,18 @@ class AmbientAudioEngine {
   }
 
   // ---- PLAYLIST MANAGEMENT ----
+  // Default play order — lead with a generated musical pad so the ambient
+  // bed on cockpit entry is the warm evolving space pad (not the MP3).
+  private defaultOrder(): string[] {
+    const ids = AMBIENT_TRACKS.map(t => t.id);
+    const firstSynth = AMBIENT_TRACKS.find(t => t.type === 'synth');
+    if (!firstSynth) return ids;
+    return [firstSynth.id, ...ids.filter(id => id !== firstSynth.id)];
+  }
+
   private loadPlaylist(): PlaylistState {
     if (typeof window === 'undefined') {
-      return { shuffleEnabled: false, currentIndex: 0, order: AMBIENT_TRACKS.map(t => t.id) };
+      return { shuffleEnabled: false, currentIndex: 0, order: this.defaultOrder() };
     }
     try {
       const stored = localStorage.getItem(PLAYLIST_STORAGE_KEY);
@@ -428,7 +456,7 @@ class AmbientAudioEngine {
         }
       }
     } catch {}
-    return { shuffleEnabled: false, currentIndex: 0, order: AMBIENT_TRACKS.map(t => t.id) };
+    return { shuffleEnabled: false, currentIndex: 0, order: this.defaultOrder() };
   }
 
   private savePlaylist(): void {
@@ -602,164 +630,262 @@ class AmbientAudioEngine {
     }
   }
 
-  private createNoiseBuffer(): AudioBuffer | null {
+  // ---- REVERB (generated impulse response) ----
+  private createReverbImpulse(seconds: number, decay: number): AudioBuffer | null {
     if (!this.audioContext) return null;
-
-    const bufferSize = this.audioContext.sampleRate * 2;
-    const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
-    const output = buffer.getChannelData(0);
-
-    // Brown noise
-    let lastOut = 0;
-    for (let i = 0; i < bufferSize; i++) {
-      const white = Math.random() * 2 - 1;
-      output[i] = (lastOut + (0.02 * white)) / 1.02;
-      lastOut = output[i];
-      output[i] *= 3.5;
+    const rate = this.audioContext.sampleRate;
+    const length = Math.max(1, Math.floor(rate * seconds));
+    const impulse = this.audioContext.createBuffer(2, length, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = impulse.getChannelData(ch);
+      for (let i = 0; i < length; i++) {
+        // Smooth exponential-decay noise tail = lush, diffuse space reverb
+        const t = i / length;
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, decay);
+      }
     }
-
-    return buffer;
+    return impulse;
   }
 
-  // ---- SYNTHESIS ENGINE ----
+  // ---- SYNTHESIS ENGINE (musical space-ambient pad) ----
+  // We reinterpret each legacy "track" as a musical pad: its params seed a
+  // root note, scale color, filter tone and motion so tracks stay distinct,
+  // but every one is a warm, evolving cinematic pad rather than a drone/hum.
+
+  private static readonly PENTATONIC = [0, 2, 4, 7, 9]; // semitone offsets
+
+  // Fold an arbitrary base frequency into a pleasant low pad-root region.
+  private padRootFromFreq(freq: number): number {
+    let f = freq;
+    while (f > 110) f /= 2;   // keep root low (~A1..A2)
+    while (f < 41) f *= 2;
+    return f;
+  }
+
+  private semitone(freq: number, semitones: number): number {
+    return freq * Math.pow(2, semitones / 12);
+  }
+
   private startSynthesis(params: SynthParams): void {
     if (!this.audioContext || !this.masterGain) return;
 
     this.stopSynthesis();
+    const ctx = this.audioContext;
 
-    // Create filter
-    this.filter = this.audioContext.createBiquadFilter();
-    this.filter.type = 'lowpass';
-    this.filter.frequency.value = params.filterFreq;
-    this.filter.Q.value = params.filterQ;
+    // Derive musical character from legacy params
+    this.padRootFreq = this.padRootFromFreq(params.baseFreq);
+    // More harmonics / higher pulse -> brighter major color; sparse/slow -> warm minor
+    this.padScaleName = (params.harmonics.length >= 5 || params.pulseRate >= 1) ? 'major7' : 'minor7';
+    this.currentChordIndex = 0;
 
-    // Tremolo (amplitude modulation) if specified
-    if (params.tremoloSpeed && params.tremoloDepth) {
-      this.tremolo = this.audioContext.createGain();
-      this.tremolo.gain.value = 1.0;
-      this.filter.connect(this.tremolo);
-      this.tremolo.connect(this.masterGain);
+    // --- Signal chain: pad voices -> padBus -> lowpass -> [dry + reverb wet] -> swell -> master ---
+    this.dryGain = ctx.createGain();
+    this.dryGain.gain.value = 0.7;
+    this.wetGain = ctx.createGain();
+    this.wetGain.gain.value = 0.6; // generous reverb = spacious
 
-      this.tremoloLfo = this.audioContext.createOscillator();
-      this.tremoloLfo.frequency.value = params.tremoloSpeed;
-      const tremoloGain = this.audioContext.createGain();
-      tremoloGain.gain.value = params.tremoloDepth;
-      this.tremoloLfo.connect(tremoloGain);
-      tremoloGain.connect(this.tremolo.gain);
-      this.tremoloLfo.start();
-    } else {
-      this.filter.connect(this.masterGain);
-    }
+    this.swellGain = ctx.createGain();
+    this.swellGain.gain.value = 0.85;
+    this.swellGain.connect(this.masterGain);
+    this.dryGain.connect(this.swellGain);
+    this.wetGain.connect(this.swellGain);
 
-    // Create LFO for filter modulation
-    this.lfo = this.audioContext.createOscillator();
-    this.lfo.frequency.value = params.lfoSpeed;
-    const lfoGain = this.audioContext.createGain();
-    lfoGain.gain.value = params.lfoDepth;
-    this.lfo.connect(lfoGain);
-    lfoGain.connect(this.filter.frequency);
-    this.lfo.start();
+    // Reverb (generated impulse response)
+    this.reverbNode = ctx.createConvolver();
+    const impulse = this.createReverbImpulse(6.0, 3.0);
+    if (impulse) this.reverbNode.buffer = impulse;
+    this.reverbNode.connect(this.wetGain);
 
-    // Create oscillators for harmonics
-    this.oscillators = [];
-    params.harmonics.forEach((harmonic, i) => {
-      if (!this.audioContext || !this.filter) return;
+    // Gentle lowpass on the whole pad, softly modulated by a slow LFO
+    this.padFilter = ctx.createBiquadFilter();
+    this.padFilter.type = 'lowpass';
+    const baseCutoff = Math.min(2600, Math.max(500, params.filterFreq * 0.9 + 400));
+    this.padFilter.frequency.value = baseCutoff;
+    this.padFilter.Q.value = 0.6;
+    this.padFilter.connect(this.dryGain);
+    this.padFilter.connect(this.reverbNode);
 
-      const osc = this.audioContext.createOscillator();
-      const gain = this.audioContext.createGain();
+    this.filterLfo = ctx.createOscillator();
+    this.filterLfo.type = 'sine';
+    this.filterLfo.frequency.value = 0.04 + (params.lfoSpeed || 0.03) * 0.3; // very slow
+    this.filterLfoGain = ctx.createGain();
+    this.filterLfoGain.gain.value = Math.min(700, baseCutoff * 0.35); // sweep depth
+    this.filterLfo.connect(this.filterLfoGain);
+    this.filterLfoGain.connect(this.padFilter.frequency);
+    this.filterLfo.start();
 
-      osc.frequency.value = params.baseFreq * harmonic;
+    // padBus = summing node for the currently-sounding chord voices
+    this.padBus = ctx.createGain();
+    this.padBus.gain.value = 1.0;
+    this.padBus.connect(this.padFilter);
 
-      // Use specified waveform or default pattern
-      if (params.waveforms && params.waveforms[i]) {
-        osc.type = params.waveforms[i];
-      } else {
-        osc.type = i % 2 === 0 ? 'sine' : 'triangle';
-      }
+    // Very slow amplitude swell (breathing) across the whole bed
+    this.swellLfo = ctx.createOscillator();
+    this.swellLfo.type = 'sine';
+    this.swellLfo.frequency.value = 0.045; // ~22s breathing cycle
+    this.swellLfoGain = ctx.createGain();
+    this.swellLfoGain.gain.value = 0.12;
+    this.swellLfo.connect(this.swellLfoGain);
+    this.swellLfoGain.connect(this.swellGain.gain);
+    this.swellLfo.start();
 
-      // Apply detune for richer sound
-      if (params.detuneRange) {
-        osc.detune.value = (Math.random() * 2 - 1) * params.detuneRange;
-      }
-
-      // Decrease volume for higher harmonics
-      gain.gain.value = 0.15 / (i + 1);
-
-      osc.connect(gain);
-      gain.connect(this.filter);
-      osc.start();
-
-      this.oscillators.push(osc);
-    });
-
-    // Secondary oscillator for bass layer
-    if (params.secondaryFreq) {
-      const secOsc = this.audioContext.createOscillator();
-      const secGain = this.audioContext.createGain();
-      secOsc.frequency.value = params.secondaryFreq;
-      secOsc.type = 'sine';
-      secGain.gain.value = 0.08;
-      secOsc.connect(secGain);
-      secGain.connect(this.filter);
-      secOsc.start();
-      this.secondaryOscillators.push(secOsc);
-    }
-
-    // Add noise
-    if (params.noiseAmount > 0) {
-      const noiseBuffer = this.createNoiseBuffer();
-      if (noiseBuffer) {
-        this.noiseSource = this.audioContext.createBufferSource();
-        this.noiseSource.buffer = noiseBuffer;
-        this.noiseSource.loop = true;
-
-        const noiseGain = this.audioContext.createGain();
-        noiseGain.gain.value = params.noiseAmount * 0.1;
-
-        this.noiseSource.connect(noiseGain);
-        noiseGain.connect(this.filter);
-        this.noiseSource.start();
-      }
-    }
+    // Build the first chord and schedule slow evolution + sparse bells
+    this.voiceChord(this.currentChordIndex, 4.0);
+    this.scheduleChordEvolution();
+    this.scheduleBell();
 
     this.usingSynth = true;
   }
 
+  // Chord degrees (scale-tone offsets in semitones) that gently evolve over time.
+  private static readonly CHORD_PROGRESSION = [0, -5, 3, -2, 5, 0, -7, 2];
+
+  // Voice a soft pad chord = root + fifth + octave + a color 7th tone, each
+  // rendered by 2 slightly-detuned oscillators through soft attack envelopes.
+  private voiceChord(progressionIndex: number, fadeIn: number): void {
+    if (!this.audioContext || !this.padBus) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    // Fade & retire any currently-sounding voices
+    const oldOscs = this.padOscillators;
+    const oldGains = this.padGains;
+    oldGains.forEach(g => {
+      try {
+        g.gain.cancelScheduledValues(now);
+        g.gain.setValueAtTime(g.gain.value, now);
+        g.gain.linearRampToValueAtTime(0.0001, now + Math.max(2, fadeIn));
+      } catch {}
+    });
+    oldOscs.forEach(osc => {
+      try { osc.stop(now + Math.max(2, fadeIn) + 0.5); } catch {}
+    });
+
+    this.padOscillators = [];
+    this.padGains = [];
+
+    const rootShift = AmbientAudioEngine.CHORD_PROGRESSION[
+      progressionIndex % AmbientAudioEngine.CHORD_PROGRESSION.length
+    ];
+    const chordRoot = this.semitone(this.padRootFreq, rootShift);
+    const seventh = this.padScaleName === 'major7' ? 11 : 10;
+
+    // Intervals: root, octave, fifth (up an octave), major/minor-7th color
+    const voices: { semis: number; level: number; wave: OscillatorType }[] = [
+      { semis: 0,       level: 0.16, wave: 'sine' },
+      { semis: 12,      level: 0.11, wave: 'sine' },
+      { semis: 7 + 12,  level: 0.09, wave: 'triangle' },
+      { semis: seventh + 12, level: 0.06, wave: 'sine' },
+    ];
+
+    voices.forEach(v => {
+      const freq = this.semitone(chordRoot, v.semis);
+      // 2 slightly-detuned oscillators per voice for a warm, wide pad
+      [-1, 1].forEach(dir => {
+        const osc = ctx.createOscillator();
+        osc.type = v.wave;
+        osc.frequency.value = freq;
+        osc.detune.value = dir * (5 + Math.random() * 4); // gentle chorus
+        const g = ctx.createGain();
+        g.gain.value = 0.0001;
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.linearRampToValueAtTime(v.level / 2, now + Math.max(2, fadeIn));
+        osc.connect(g);
+        g.connect(this.padBus!);
+        osc.start(now);
+        this.padOscillators.push(osc);
+        this.padGains.push(g);
+      });
+    });
+  }
+
+  private scheduleChordEvolution(): void {
+    if (this.chordTimer) clearTimeout(this.chordTimer);
+    const next = 20000 + Math.random() * 20000; // change chord/color every 20-40s
+    this.chordTimer = setTimeout(() => {
+      if (!this.usingSynth) return;
+      this.currentChordIndex++;
+      this.voiceChord(this.currentChordIndex, 8.0); // long crossfade
+      this.scheduleChordEvolution();
+    }, next);
+  }
+
+  // Sparse, soft bell/pad notes from a pentatonic set at long random intervals.
+  private scheduleBell(): void {
+    if (this.bellTimer) clearTimeout(this.bellTimer);
+    const next = 12000 + Math.random() * 22000; // 12-34s apart
+    this.bellTimer = setTimeout(() => {
+      if (!this.usingSynth) return;
+      this.playBell();
+      this.scheduleBell();
+    }, next);
+  }
+
+  private playBell(): void {
+    if (!this.audioContext || !this.padFilter) return;
+    const ctx = this.audioContext;
+    const now = ctx.currentTime;
+
+    const rootShift = AmbientAudioEngine.CHORD_PROGRESSION[
+      this.currentChordIndex % AmbientAudioEngine.CHORD_PROGRESSION.length
+    ];
+    const chordRoot = this.semitone(this.padRootFreq, rootShift);
+    const pent = AmbientAudioEngine.PENTATONIC;
+    const degree = pent[Math.floor(Math.random() * pent.length)];
+    const octave = 24 + (Math.random() < 0.5 ? 12 : 0); // 2-3 octaves up = airy
+    const freq = this.semitone(chordRoot, degree + octave);
+
+    // Soft sine "bell": quick-ish attack, long gentle release, routed through reverb
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const g = ctx.createGain();
+    const peak = 0.05;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(peak, now + 0.6);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 6.0);
+    osc.connect(g);
+    if (this.dryGain) g.connect(this.dryGain);
+    if (this.reverbNode) g.connect(this.reverbNode);
+    osc.start(now);
+    osc.stop(now + 6.5);
+  }
+
   private stopSynthesis(): void {
-    this.oscillators.forEach(osc => {
+    if (this.chordTimer) { clearTimeout(this.chordTimer); this.chordTimer = null; }
+    if (this.bellTimer) { clearTimeout(this.bellTimer); this.bellTimer = null; }
+
+    this.padOscillators.forEach(osc => {
       try { osc.stop(); osc.disconnect(); } catch {}
     });
+    this.padOscillators = [];
+    this.padGains.forEach(g => { try { g.disconnect(); } catch {} });
+    this.padGains = [];
+
+    const disc = (n: AudioNode | null) => { if (n) { try { n.disconnect(); } catch {} } };
+    const stopOsc = (o: OscillatorNode | null) => { if (o) { try { o.stop(); o.disconnect(); } catch {} } };
+
+    stopOsc(this.filterLfo); this.filterLfo = null;
+    disc(this.filterLfoGain); this.filterLfoGain = null;
+    stopOsc(this.swellLfo); this.swellLfo = null;
+    disc(this.swellLfoGain); this.swellLfoGain = null;
+    disc(this.padBus); this.padBus = null;
+    disc(this.padFilter); this.padFilter = null;
+    disc(this.reverbNode); this.reverbNode = null;
+    disc(this.wetGain); this.wetGain = null;
+    disc(this.dryGain); this.dryGain = null;
+    disc(this.swellGain); this.swellGain = null;
+
+    // Legacy fields (kept for safety; unused by new engine)
+    this.oscillators.forEach(osc => { try { osc.stop(); osc.disconnect(); } catch {} });
     this.oscillators = [];
-
-    this.secondaryOscillators.forEach(osc => {
-      try { osc.stop(); osc.disconnect(); } catch {}
-    });
+    this.secondaryOscillators.forEach(osc => { try { osc.stop(); osc.disconnect(); } catch {} });
     this.secondaryOscillators = [];
-
-    if (this.noiseSource) {
-      try { this.noiseSource.stop(); this.noiseSource.disconnect(); } catch {}
-      this.noiseSource = null;
-    }
-
-    if (this.lfo) {
-      try { this.lfo.stop(); this.lfo.disconnect(); } catch {}
-      this.lfo = null;
-    }
-
-    if (this.tremoloLfo) {
-      try { this.tremoloLfo.stop(); this.tremoloLfo.disconnect(); } catch {}
-      this.tremoloLfo = null;
-    }
-
-    if (this.tremolo) {
-      try { this.tremolo.disconnect(); } catch {}
-      this.tremolo = null;
-    }
-
-    if (this.filter) {
-      try { this.filter.disconnect(); } catch {}
-      this.filter = null;
-    }
+    if (this.noiseSource) { try { this.noiseSource.stop(); this.noiseSource.disconnect(); } catch {} this.noiseSource = null; }
+    stopOsc(this.lfo); this.lfo = null;
+    stopOsc(this.tremoloLfo); this.tremoloLfo = null;
+    disc(this.tremolo); this.tremolo = null;
+    disc(this.filter); this.filter = null;
 
     this.usingSynth = false;
   }
@@ -853,27 +979,51 @@ class AmbientAudioEngine {
     this.fadeToVolume(config.volume, 1000);
   }
 
+  // Soft, pleasant riser/whoosh (filtered-noise swell) — no beep.
   playTransitionSound(): void {
     if (typeof window === 'undefined') return;
 
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
+      // Reuse the shared context if available so we don't leak AudioContexts.
+      const ctx = this.audioContext
+        ?? new (window.AudioContext || (window as any).webkitAudioContext)();
+      const now = ctx.currentTime;
+      const dur = 1.4;
 
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
+      // Gentle filtered white-noise whoosh
+      const noiseLen = Math.floor(ctx.sampleRate * dur);
+      const noiseBuf = ctx.createBuffer(1, noiseLen, ctx.sampleRate);
+      const nd = noiseBuf.getChannelData(0);
+      for (let i = 0; i < noiseLen; i++) nd[i] = (Math.random() * 2 - 1) * 0.5;
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
 
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(200, ctx.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.1);
-      oscillator.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
+      const bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.Q.value = 0.8;
+      bp.frequency.setValueAtTime(300, now);
+      bp.frequency.exponentialRampToValueAtTime(2400, now + dur * 0.8); // rising sweep
 
-      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+      const nGain = ctx.createGain();
+      nGain.gain.setValueAtTime(0.0001, now);
+      nGain.gain.linearRampToValueAtTime(0.06, now + dur * 0.5);
+      nGain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
 
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.3);
+      // Warm sine sub-swell underneath for body
+      const sub = ctx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(120, now);
+      sub.frequency.exponentialRampToValueAtTime(220, now + dur * 0.8);
+      const subGain = ctx.createGain();
+      subGain.gain.setValueAtTime(0.0001, now);
+      subGain.gain.linearRampToValueAtTime(0.05, now + dur * 0.4);
+      subGain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      noise.connect(bp); bp.connect(nGain); nGain.connect(ctx.destination);
+      sub.connect(subGain); subGain.connect(ctx.destination);
+
+      noise.start(now); noise.stop(now + dur);
+      sub.start(now); sub.stop(now + dur);
     } catch (error) {
       console.warn('[AmbientAudio] Could not play transition sound:', error);
     }

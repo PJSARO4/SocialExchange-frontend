@@ -44,17 +44,55 @@ export function AmbientAudioProvider({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentMood, setCurrentMood] = useState('default');
 
-  // Sync with audio engine on mount
+  // Sync with audio engine on mount + auto-start the space pad on the
+  // user's FIRST gesture inside the cockpit (Web Audio needs a gesture).
+  // This provider is only mounted in the cockpit, so the landing stays silent.
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const audio = getAmbientAudio();
-      setIsPlaying(audio.getIsPlaying());
-    }
+    if (typeof window === 'undefined') return;
+    const audio = getAmbientAudio();
+    setIsPlaying(audio.getIsPlaying());
+
+    // Respect an explicit user mute preference if one was ever set.
+    const muted = (() => {
+      try { return localStorage.getItem('se-audio-muted') === 'true'; } catch { return false; }
+    })();
+
+    if (audio.getIsPlaying() || muted) return;
+
+    let started = false;
+    const startOnce = () => {
+      if (started) return;
+      started = true;
+      audio.start('cockpit')
+        .then(() => setIsPlaying(true))
+        .catch(err => console.warn('[AmbientAudio] Could not auto-start:', err));
+      cleanup();
+    };
+    const cleanup = () => {
+      window.removeEventListener('pointerdown', startOnce);
+      window.removeEventListener('keydown', startOnce);
+      window.removeEventListener('click', startOnce);
+      window.removeEventListener('touchstart', startOnce);
+    };
+    window.addEventListener('pointerdown', startOnce, { once: false });
+    window.addEventListener('keydown', startOnce, { once: false });
+    window.addEventListener('click', startOnce, { once: false });
+    window.addEventListener('touchstart', startOnce, { once: false });
+
+    return cleanup;
+  }, []);
+
+  // Stop the ambient bed when the cockpit provider unmounts (leaving the app).
+  useEffect(() => {
+    return () => {
+      try { getAmbientAudio().stop(); } catch {}
+    };
   }, []);
 
   const play = useCallback(async () => {
     try {
       const audio = getAmbientAudio();
+      try { localStorage.setItem('se-audio-muted', 'false'); } catch {}
       await audio.start(currentMood || 'cockpit');
       setIsPlaying(true);
       console.log('[AmbientAudio] Started playing');
@@ -65,6 +103,7 @@ export function AmbientAudioProvider({
 
   const pause = useCallback(() => {
     const audio = getAmbientAudio();
+    try { localStorage.setItem('se-audio-muted', 'true'); } catch {}
     audio.pause();
     setIsPlaying(false);
     console.log('[AmbientAudio] Paused');
