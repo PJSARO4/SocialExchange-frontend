@@ -20,6 +20,9 @@ export default function LoginPage() {
   const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [generalError, setGeneralError] = useState('');
 
+  // Dev-only affordances (Demo Login / Reset Demo Data) are never rendered in production.
+  const isDev = process.env.NODE_ENV !== 'production';
+
   useEffect(() => {
     seedAuthIfEmpty();
     repairAuthIfNeeded(); // Ensure auth data is valid
@@ -230,27 +233,29 @@ export default function LoginPage() {
           <span>or</span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleDemoLogin}
-          disabled={isLoading}
-          style={{
-            width: '100%',
-            padding: '12px',
-            background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05))',
-            border: '1px solid rgba(0, 255, 136, 0.4)',
-            borderRadius: '8px',
-            color: '#00ff88',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 200ms ease',
-            marginBottom: '16px',
-            letterSpacing: '0.05em',
-          }}
-        >
-          {isLoading ? 'Signing in...' : <><Zap size={16} /> Demo Login (One Click)</>}
-        </button>
+        {isDev && (
+          <button
+            type="button"
+            onClick={handleDemoLogin}
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05))',
+              border: '1px solid rgba(0, 255, 136, 0.4)',
+              borderRadius: '8px',
+              color: '#00ff88',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 200ms ease',
+              marginBottom: '16px',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {isLoading ? 'Signing in...' : <><Zap size={16} /> Demo Login (One Click)</>}
+          </button>
+        )}
 
         <div className="auth-alternate-actions">
           <Link href="/auth/signup" className="auth-alternate-btn">
@@ -261,36 +266,27 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        <div className="auth-demo-credentials">
-          <div className="auth-demo-label">Demo Credentials</div>
-          <div className="auth-demo-item">
-            <span className="auth-demo-email">demo@example.com</span>
-            <span className="auth-demo-separator">•</span>
-            <span className="auth-demo-password">Demo@2024!User</span>
+        {isDev && (
+          <div className="auth-demo-credentials">
+            <button
+              type="button"
+              onClick={handleResetDemo}
+              style={{
+                marginTop: '0.75rem',
+                padding: '0.5rem 1rem',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '6px',
+                color: '#ef4444',
+                fontSize: '0.7rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <RefreshCw size={16} /> Reset Demo Data (if login fails)
+            </button>
           </div>
-          <div className="auth-demo-item" style={{ marginTop: '0.5rem', fontSize: '0.7rem', opacity: 0.7 }}>
-            <span className="auth-demo-email">admin@socialexchange.io</span>
-            <span className="auth-demo-separator">•</span>
-            <span className="auth-demo-password">SocialX@2024!Admin</span>
-          </div>
-          <button
-            type="button"
-            onClick={handleResetDemo}
-            style={{
-              marginTop: '0.75rem',
-              padding: '0.5rem 1rem',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '6px',
-              color: '#ef4444',
-              fontSize: '0.7rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            <RefreshCw size={16} /> Reset Demo Data (if login fails)
-          </button>
-        </div>
+        )}
       </div>
 
       <div className="auth-footer">

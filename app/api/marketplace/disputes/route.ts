@@ -6,11 +6,40 @@ import * as disputeService from '@/lib/market/dispute-service';
 
 export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const escrowId = searchParams.get('escrowId');
 
     if (!escrowId) {
       return NextResponse.json({ error: 'escrowId is required' }, { status: 400 });
+    }
+
+    // Scope to disputes the user is party to: verify the user is the
+    // buyer or seller on the escrow these disputes belong to.
+    const escrow = await prisma.escrowTransaction.findUnique({
+      where: { id: escrowId },
+      select: { buyerId: true, sellerId: true },
+    });
+
+    if (!escrow) {
+      return NextResponse.json({ error: 'Escrow not found' }, { status: 404 });
+    }
+
+    if (escrow.buyerId !== user.id && escrow.sellerId !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const disputes = await disputeService.getDisputesByEscrow(escrowId);

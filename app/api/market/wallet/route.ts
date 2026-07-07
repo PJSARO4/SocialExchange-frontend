@@ -22,13 +22,37 @@ export const dynamic = 'force-dynamic';
 // Demo user ID for testing without auth
 const DEMO_USER_ID = 'demo-user-001';
 
+// The hardcoded demo user may only be used for unauthenticated access OUTSIDE
+// of production. In production, a real authenticated session is always required.
+const ALLOW_DEMO_USER = IS_DEMO_MODE && process.env.NODE_ENV !== 'production';
+
+/**
+ * Resolve the acting user id.
+ *
+ * A valid session always takes precedence and the id is derived from it.
+ * The unauthenticated demo-user fallback is only available outside production
+ * (and only when demo mode is on) so that anonymous callers can never mutate
+ * a shared wallet in production.
+ */
 async function getUserId(req: NextRequest): Promise<string | null> {
-  // In demo mode, use demo user
-  if (IS_DEMO_MODE) {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.id) {
+    return session.user.id;
+  }
+
+  if (ALLOW_DEMO_USER) {
     return DEMO_USER_ID;
   }
 
-  // Production: Get from session
+  return null;
+}
+
+/**
+ * Resolve the acting user id for balance-mutating operations
+ * (deposit / withdraw). These ALWAYS require a real authenticated session —
+ * the hardcoded demo user is never allowed to move money.
+ */
+async function getMutatingUserId(): Promise<string | null> {
   const session = await getServerSession(authOptions);
   return session?.user?.id || null;
 }
@@ -83,7 +107,9 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const userId = await getUserId(req);
+    // Balance-mutating operations always require a real authenticated session.
+    // The demo user fallback is intentionally NOT used here.
+    const userId = await getMutatingUserId();
 
     if (!userId) {
       return NextResponse.json(

@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { getAccountInsights, refreshLongLivedToken } from '@/app/lib/social/instagram';
+
+/**
+ * Fail-closed CRON_SECRET check.
+ * - If CRON_SECRET is undefined/empty => deny (return false).
+ * - Otherwise require `Authorization: Bearer <CRON_SECRET>` (timing-safe).
+ */
+function isAuthorizedCron(request: NextRequest): boolean {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret) {
+    // Fail closed: no secret configured means no one is authorized.
+    return false;
+  }
+
+  const authHeader = request.headers.get('authorization') || '';
+  const expected = `Bearer ${cronSecret}`;
+
+  const a = Buffer.from(authHeader);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
 
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
@@ -17,11 +39,8 @@ export const dynamic = 'force-dynamic';
  * Security: Validates CRON_SECRET to ensure only Vercel can trigger this.
  */
 export async function GET(request: NextRequest) {
-  // Verify the request is from Vercel Cron
-  const authHeader = request.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  // Verify the request is from Vercel Cron (fail closed if CRON_SECRET unset)
+  if (!isAuthorizedCron(request)) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }

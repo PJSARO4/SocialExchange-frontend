@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Decimal } from '@prisma/client/runtime/library';
-import { SEXCOIN_USD_RATE } from '@/lib/market/constants';
+import { SEXCOIN_USD_RATE, IS_DEMO_MODE } from '@/lib/market/constants';
 
 export async function POST(request: NextRequest) {
   try {
@@ -38,8 +38,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 });
     }
 
-    // Demo mode: always accept
-    if (paymentMethod !== 'demo') {
+    // The free 'demo' crediting path mints wallet balance without a real
+    // payment. It is only permitted outside production AND when demo mode is on.
+    // In production, deposits must go through the real Stripe payment path.
+    if (paymentMethod === 'demo') {
+      if (process.env.NODE_ENV === 'production' || !IS_DEMO_MODE) {
+        return NextResponse.json(
+          { error: 'Demo deposits are disabled. Use a real payment method.' },
+          { status: 403 }
+        );
+      }
+    } else {
       return NextResponse.json(
         { error: 'Only demo mode is currently supported' },
         { status: 400 }

@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
@@ -21,8 +24,9 @@ export const dynamic = 'force-dynamic';
  */
 
 interface PublishRequest {
-  access_token: string;
-  instagram_user_id: string;
+  feedId?: string; // Which of the caller's connected feeds to publish through
+  access_token: string; // Resolved server-side from the feed; never trusted from the body
+  instagram_user_id: string; // Resolved server-side from the feed; never trusted from the body
   media_type: 'IMAGE' | 'VIDEO' | 'CAROUSEL' | 'REELS';
   media_url?: string; // For IMAGE/VIDEO - must be publicly accessible URL
   video_url?: string; // For REELS
@@ -133,9 +137,48 @@ async function waitForContainer(containerId: string, accessToken: string, maxAtt
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const body: PublishRequest = await request.json();
 
-    const { access_token, instagram_user_id, media_type, media_url, video_url, caption } = body;
+    // SECURITY: never trust credentials from the request body. Resolve the
+    // Instagram access token + user id from a feed owned by the session user.
+    const feed = await prisma.socialFeed.findFirst({
+      where: {
+        userId: user.id,
+        platform: 'INSTAGRAM',
+        isConnected: true,
+        ...(body.feedId ? { id: body.feedId } : {}),
+      },
+      select: { id: true, accessToken: true, platformAccountId: true },
+    });
+
+    if (!feed) {
+      return NextResponse.json(
+        { error: 'No connected Instagram feed found for this account' },
+        { status: 403 }
+      );
+    }
+
+    const access_token = feed.accessToken;
+    const instagram_user_id = feed.platformAccountId;
+    // Overwrite any body-supplied credentials with the server-resolved values
+    body.access_token = access_token;
+    body.instagram_user_id = instagram_user_id;
+
+    const { media_type, media_url, video_url, caption } = body;
 
     // Validate required fields
     if (!access_token) {
@@ -203,13 +246,43 @@ export async function POST(request: NextRequest) {
 
 // GET endpoint to check publishing quota
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const accessToken = searchParams.get('access_token');
-  const instagramUserId = searchParams.get('instagram_user_id');
+  const session = await getServerSession(authOptions);
 
-  if (!accessToken || !instagramUserId) {
-    return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  const searchParams = request.nextUrl.searchParams;
+  const feedId = searchParams.get('feedId');
+
+  // SECURITY: resolve credentials server-side from a feed owned by the user.
+  const feed = await prisma.socialFeed.findFirst({
+    where: {
+      userId: user.id,
+      platform: 'INSTAGRAM',
+      isConnected: true,
+      ...(feedId ? { id: feedId } : {}),
+    },
+    select: { accessToken: true, platformAccountId: true },
+  });
+
+  if (!feed) {
+    return NextResponse.json(
+      { error: 'No connected Instagram feed found for this account' },
+      { status: 403 }
+    );
+  }
+
+  const accessToken = feed.accessToken;
+  const instagramUserId = feed.platformAccountId;
 
   try {
     // Get content publishing limit

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { timingSafeEqual } from 'crypto';
 
 import { jobQueue, Job } from '@/lib/queue';
 import { processJob } from '@/lib/worker/job-processor';
@@ -24,16 +25,23 @@ let processedCount = 0;
 let lastProcessedAt: Date | null = null;
 
 /**
- * Verify CRON_SECRET for protected endpoints
+ * Verify CRON_SECRET for protected endpoints.
+ * Fail closed: if CRON_SECRET is undefined/empty, deny. Otherwise require
+ * `Authorization: Bearer <CRON_SECRET>` compared in constant time.
  */
 function verifyCronSecret(request: NextRequest): boolean {
-  const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
 
-  // If no secret is configured, allow (dev mode)
-  if (!cronSecret) return true;
+  // Fail closed: no secret configured means no one is authorized.
+  if (!cronSecret) return false;
 
-  return authHeader === `Bearer ${cronSecret}`;
+  const authHeader = request.headers.get('authorization') || '';
+  const expected = `Bearer ${cronSecret}`;
+
+  const a = Buffer.from(authHeader);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
 }
 
 // GET - Get worker status (no auth needed, just status)

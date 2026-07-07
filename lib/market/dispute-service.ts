@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Dispute Service for Trading Post
  */

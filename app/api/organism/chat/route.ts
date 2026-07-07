@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import {
   isQwenConfigured,
   chatCompletion,
@@ -14,6 +16,12 @@ import { checkRateLimit } from '../rate-limit';
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Rate limiting
     const clientIp = req.headers.get('x-forwarded-for') || 'anonymous';
     const rateCheck = checkRateLimit('chat', clientIp);

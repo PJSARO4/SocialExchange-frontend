@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Escrow Service for Trading Post
  * Handles secure account transfers with multi-stage verification

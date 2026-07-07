@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { PLATFORM_SPECS } from '@/app/cockpit/my-e-assets/my-e-storage/organism/lib/compression-engine';
 
 // ============================================
@@ -8,6 +10,12 @@ import { PLATFORM_SPECS } from '@/app/cockpit/my-e-assets/my-e-storage/organism/
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { platform } = await req.json();
 
     if (platform && PLATFORM_SPECS[platform as keyof typeof PLATFORM_SPECS]) {

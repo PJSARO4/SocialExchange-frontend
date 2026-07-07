@@ -41,18 +41,18 @@ export async function GET(request: NextRequest) {
       // Completed escrows — for fee revenue
       prisma.escrowTransaction.findMany({
         where: { status: 'COMPLETED' },
-        select: { amount: true, platformFee: true },
+        select: { listingPrice: true, platformFee: true },
       }),
 
       // Live/active escrows
       prisma.escrowTransaction.findMany({
         where: {
-          status: { in: ['FUNDS_HELD', 'CREDENTIALS_SENT', 'VERIFICATION_PENDING', 'LOCK_PERIOD'] },
+          status: { in: ['FUNDS_HELD', 'CREDENTIALS_SENT', 'VERIFICATION_PENDING'] },
         },
         select: {
           id: true,
           status: true,
-          amount: true,
+          listingPrice: true,
           createdAt: true,
         },
         orderBy: { createdAt: 'desc' },
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
       prisma.escrowTransaction.groupBy({
         by: ['status'],
         _count: { id: true },
-        _sum: { amount: true },
+        _sum: { listingPrice: true },
       }),
 
       // Total USD deposited via Stripe
@@ -81,8 +81,8 @@ export async function GET(request: NextRequest) {
     ]);
 
     const totalFeeRevenue = completedEscrows.reduce((sum, e) => sum + Number(e.platformFee ?? 0), 0);
-    const totalTradeVolume = completedEscrows.reduce((sum, e) => sum + Number(e.amount ?? 0), 0);
-    const liveEscrowValue = liveEscrows.reduce((sum, e) => sum + Number(e.amount ?? 0), 0);
+    const totalTradeVolume = completedEscrows.reduce((sum, e) => sum + Number(e.listingPrice ?? 0), 0);
+    const liveEscrowValue = liveEscrows.reduce((sum, e) => sum + Number(e.listingPrice ?? 0), 0);
 
     return NextResponse.json({
       users: {
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
         byStatus: allEscrows.map(g => ({
           status: g.status,
           count: g._count.id,
-          volume: Number(g._sum.amount ?? 0),
+          volume: Number(g._sum.listingPrice ?? 0),
         })),
       },
     });

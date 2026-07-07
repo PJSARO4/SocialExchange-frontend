@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { jobQueue } from '@/lib/queue';
 
@@ -38,6 +40,20 @@ interface AutopilotConfig {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     const body = await request.json();
     const { feedId, config } = body as { feedId: string; config: AutopilotConfig };
 
@@ -46,6 +62,16 @@ export async function POST(request: NextRequest) {
         { error: 'feedId and config are required' },
         { status: 400 }
       );
+    }
+
+    // Ownership check: the feed must belong to the session user
+    const ownedFeed = await prisma.socialFeed.findFirst({
+      where: { id: feedId, userId: user.id },
+      select: { id: true },
+    });
+
+    if (!ownedFeed) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Get content from library
@@ -232,11 +258,35 @@ function shuffleArray<T>(array: T[]): T[] {
 
 // GET - Get autopilot status
 export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const feedId = searchParams.get('feed_id');
 
   if (!feedId) {
     return NextResponse.json({ error: 'feed_id is required' }, { status: 400 });
+  }
+
+  // Ownership check: the feed must belong to the session user
+  const ownedFeed = await prisma.socialFeed.findFirst({
+    where: { id: feedId, userId: user.id },
+    select: { id: true },
+  });
+
+  if (!ownedFeed) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   try {
@@ -276,11 +326,35 @@ export async function GET(request: NextRequest) {
 
 // DELETE - Deactivate autopilot
 export async function DELETE(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const feedId = searchParams.get('feed_id');
 
   if (!feedId) {
     return NextResponse.json({ error: 'feed_id is required' }, { status: 400 });
+  }
+
+  // Ownership check: the feed must belong to the session user
+  const ownedFeed = await prisma.socialFeed.findFirst({
+    where: { id: feedId, userId: user.id },
+    select: { id: true },
+  });
+
+  if (!ownedFeed) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   try {

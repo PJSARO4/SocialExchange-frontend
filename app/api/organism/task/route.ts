@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 // ============================================
 // POST /api/organism/task
@@ -7,6 +9,12 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { type, description, behaviorId, userId } = await req.json();
 
     if (type === 'approval_request') {
@@ -41,6 +49,12 @@ export async function POST(req: Request) {
 // ============================================
 
 export async function GET() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   // Future: query Neon DB for pending requests
   return NextResponse.json({
     pending: [],
