@@ -149,8 +149,12 @@ export default function Entrance() {
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    let w = (canvas.width = window.innerWidth);
-    let h = (canvas.height = window.innerHeight);
+    // Cap the canvas backing resolution so cost can't scale with huge/retina displays.
+    // CSS (inset:0) stretches this smaller buffer to fill the viewport.
+    const RES_CAP = 1280;
+    const capScale = () => Math.min(1, RES_CAP / window.innerWidth);
+    let w = (canvas.width = Math.round(window.innerWidth * capScale()));
+    let h = (canvas.height = Math.round(window.innerHeight * capScale()));
 
     // Three depth layers: far (slow, faint, small) -> near (fast, bright, big)
     const LAYERS = [
@@ -252,8 +256,8 @@ export default function Entrance() {
     }
 
     const onResize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
+      w = canvas.width = Math.round(window.innerWidth * capScale());
+      h = canvas.height = Math.round(window.innerHeight * capScale());
     };
     window.addEventListener("resize", onResize);
 
