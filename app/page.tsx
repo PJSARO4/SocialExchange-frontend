@@ -106,37 +106,7 @@ export default function Entrance() {
     return () => clearInterval(interval);
   }, []);
 
-  /* ===============================
-     POINTER PARALLAX
-     Writes normalized offset to CSS vars + a ref the canvas reads.
-  ================================ */
-  useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-
-    let raf = 0;
-    const onMove = (e: MouseEvent) => {
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = (e.clientY / window.innerHeight) * 2 - 1;
-      pointerRef.current.x = nx;
-      pointerRef.current.y = ny;
-      if (!raf) {
-        raf = requestAnimationFrame(() => {
-          raf = 0;
-          const el = pageRef.current;
-          if (el) {
-            el.style.setProperty("--mx", nx.toFixed(3));
-            el.style.setProperty("--my", ny.toFixed(3));
-          }
-        });
-      }
-    };
-    window.addEventListener("mousemove", onMove);
-    return () => {
-      window.removeEventListener("mousemove", onMove);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
+  /* Pointer parallax removed — nothing follows the mouse (stars + logo stay put). */
 
   /* ===============================
      STARFIELD (depth layers) + SHOOTING STARS
