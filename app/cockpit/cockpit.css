@@ -161,8 +161,6 @@ body {
     rgba(17, 23, 38, 0.92)
   );
   border-bottom: 1px solid var(--border-subtle);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   z-index: 100;
 }
 
@@ -227,7 +225,7 @@ body {
   flex: 1;
   height: 100%;
   transition: opacity 0.1s ease;
-  will-change: opacity, box-shadow;
+  will-change: opacity;
 }
 
 .lightbar-reflection {
@@ -462,9 +460,7 @@ body {
   justify-content: center;
   gap: 32px;
   padding: 0 20px;
-  background: rgba(17, 23, 38, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(17, 23, 38, 0.97);
   border-top: 1px solid var(--border-subtle);
   z-index: 10000;
   pointer-events: auto;
