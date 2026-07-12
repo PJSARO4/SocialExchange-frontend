@@ -116,8 +116,6 @@
   align-items: center;
   padding: 1rem 2rem;
   background: linear-gradient(180deg, rgba(30, 39, 64, 0.6), rgba(23, 31, 49, 0.6));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-subtle);
   position: relative;
   z-index: 10;
@@ -250,8 +248,6 @@
   background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .cc-welcome-greeting {
@@ -350,8 +346,6 @@
     var(--surface-3) 0%,
     var(--surface-2) 100%
   );
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   position: relative;
@@ -516,8 +510,6 @@
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   transition: border-color 200ms ease, background 200ms ease;
 }
 
