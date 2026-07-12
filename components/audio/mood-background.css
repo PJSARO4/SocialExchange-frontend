@@ -83,7 +83,7 @@
 /* ---- Starfield: two layered dot patterns, drift via transform only ---- */
 .mood-bg__stars {
   position: absolute;
-  inset: -50%;
+  inset: -8%;                 /* was -50% (4x viewport) — just enough overscan for the ~4% drift */
   pointer-events: none;
   will-change: transform;
   background-repeat: repeat;
