@@ -47,11 +47,12 @@
   position: fixed;
   inset: 0;
   background:
-    /* Nebula glow layers */
-    radial-gradient(ellipse 80% 60% at 15% 85%, rgba(75, 0, 130, 0.35), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 85% 15%, rgba(0, 240, 255, 0.12), transparent 55%),
-    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(123, 47, 190, 0.18), transparent 50%),
-    radial-gradient(ellipse 120% 100% at 50% 100%, rgba(75, 0, 130, 0.10), transparent 60%),
+    /* Static nebula glow — replaces the removed blurred blob layers (free, no compositing cost) */
+    radial-gradient(circle 44vw at 8% 16%, rgba(122, 92, 255, 0.22), transparent 60%),
+    radial-gradient(circle 40vw at 92% 6%, rgba(198, 75, 255, 0.15), transparent 60%),
+    radial-gradient(circle 52vw at 60% 110%, rgba(0, 240, 255, 0.13), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 15% 85%, rgba(75, 0, 130, 0.30), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(123, 47, 190, 0.14), transparent 50%),
     /* Deep void base */
     var(--void);
   overflow: hidden;
@@ -97,7 +98,8 @@
     radial-gradient(1px 1px at 20% 65%, rgba(255, 255, 255, 0.45) 50%, transparent 50%),
     radial-gradient(1.4px 1.4px at 80% 45%, rgba(255, 255, 255, 0.35) 50%, transparent 50%);
   background-size: 200% 200%;
-  animation: starfield-drift 120s linear infinite;
+  /* static — the animated <canvas> starfield already provides the moving stars;
+     transforming this full 2x-viewport layer every frame was redundant cost. */
 }
 
 @keyframes starfield-drift {
@@ -155,11 +157,9 @@
 ====================================================== */
 
 .nebula-field {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+  /* Removed: 3 large blur(60px) layers were too heavy to composite on 2x displays.
+     The nebula color is provided statically by the .entrance-page background gradients. */
+  display: none;
 }
 
 /* Static, GPU-cheap nebula: no blend-mode, no per-frame scale, lighter blur */
