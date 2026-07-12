@@ -196,14 +196,10 @@ export default function Entrance() {
     let hue = 210;
     let running = true;
 
-    let lastDraw = 0;
     const draw = () => {
       if (!running) return;
       requestAnimationFrame(draw);
       if (document.hidden) return;
-      const now = performance.now();
-      if (now - lastDraw < 33) return; // throttle canvas to ~30fps (halves cost on large displays)
-      lastDraw = now;
       ctx.clearRect(0, 0, w, h);
 
       /* ---------- STARS (parallax by depth) ---------- */
