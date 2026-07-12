@@ -17,6 +17,10 @@
   overflow: hidden;
   /* Deep-space cool blue-violet base gradient */
   background:
+    /* Aurora color baked in statically (replaces the removed blurred blob layers) */
+    radial-gradient(circle 46vw at 6% 4%, rgba(56, 225, 255, 0.10), transparent 60%),
+    radial-gradient(circle 52vw at 96% 14%, rgba(139, 108, 255, 0.13), transparent 60%),
+    radial-gradient(circle 44vw at 52% 110%, rgba(52, 224, 161, 0.08), transparent 60%),
     radial-gradient(ellipse 90% 70% at 20% 15%, rgba(30, 24, 66, 0.55), transparent 60%),
     radial-gradient(ellipse 80% 60% at 85% 90%, rgba(14, 34, 58, 0.5), transparent 62%),
     linear-gradient(180deg, #0A0E1A 0%, #080B14 55%, #05070E 100%);
@@ -24,10 +28,10 @@
 
 /* ---- Aurora blobs: pre-blurred (STATIC filter), drift via transform only ---- */
 .mood-bg__aurora {
-  position: absolute;
-  border-radius: 50%;
-  will-change: transform;
-  /* blur is applied ONCE and never animated */
+  /* Removed: the scale() in the drift keyframes re-rasterized these blur(85-100px)
+     layers every frame (heavy on 2x displays). Aurora color is now baked into the
+     static .mood-bg background gradient above — zero per-frame cost. */
+  display: none;
 }
 
 .mood-bg__aurora--cyan {
