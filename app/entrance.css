@@ -176,7 +176,6 @@
   left: -8vw;
   top: 8vh;
   background: radial-gradient(circle at 50% 50%, rgba(122, 92, 255, 0.55), transparent 68%);
-  animation: nebula-drift-a 26s ease-in-out infinite;
 }
 
 .nebula-magenta {
@@ -185,7 +184,6 @@
   right: -6vw;
   top: -6vh;
   background: radial-gradient(circle at 50% 50%, rgba(198, 75, 255, 0.4), transparent 68%);
-  animation: nebula-drift-b 32s ease-in-out infinite;
 }
 
 .nebula-cyan {
@@ -194,7 +192,6 @@
   left: 30vw;
   bottom: -22vh;
   background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.28), transparent 66%);
-  animation: nebula-drift-c 30s ease-in-out infinite;
 }
 
 @keyframes nebula-drift-a {
