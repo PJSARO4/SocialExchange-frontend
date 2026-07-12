@@ -74,9 +74,11 @@
   );
 }
 
-/* CSS starfield layer */
+/* CSS starfield layer — DISABLED: the animated <canvas> provides the stars;
+   this 4x-viewport layer was pure fill-rate cost (huge on big/retina displays). */
 .entrance-page::after {
   content: '';
+  display: none;
   position: absolute;
   inset: -50%;
   z-index: 0;
