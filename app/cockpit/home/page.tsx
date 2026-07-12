@@ -12,7 +12,6 @@ import {
   MessageCircle,
   Radio,
   TrendingUp,
-  Store,
   MessagesSquare,
   ArrowLeftRight,
   Monitor,
@@ -82,14 +81,6 @@ const FEATURES = [
     color: '#a78bfa',
   },
   {
-    id: 'market',
-    title: 'Marketplace',
-    icon: <Store size={28} strokeWidth={1.5} />,
-    description: 'Buy, sell, and trade digital social assets securely. Browse trending listings, make offers, and build your digital portfolio.',
-    href: '/cockpit/trading-post',
-    color: '#f59e0b',
-  },
-  {
     id: 'comms',
     title: 'Comms',
     icon: <MessagesSquare size={28} strokeWidth={1.5} />,
@@ -99,9 +90,9 @@ const FEATURES = [
   },
   {
     id: 'trading-post',
-    title: 'Trading Post',
+    title: 'The Exchange Floor',
     icon: <ArrowLeftRight size={28} strokeWidth={1.5} />,
-    description: 'Peer-to-peer trading hub for social media assets. Post your offers, browse what others are trading, and close deals directly.',
+    description: 'Buy, sell, and trade social media assets securely. Browse trending listings, post your offers, make deals, and build your digital portfolio.',
     href: '/cockpit/trading-post',
     color: '#ef4444',
   },
@@ -156,7 +147,7 @@ export default function HomePage() {
       },
       {
         id: 'browse-market',
-        label: 'Browse the Marketplace',
+        label: 'Browse the Exchange Floor',
         description: 'Check out what social assets are available',
         icon: <Search size={20} strokeWidth={1.5} />,
         completed: progress['browse-market'] || false,

@@ -114,11 +114,11 @@ const getAIResponse = (input: string, context: string): { content: string; actio
   // Navigation help
   if (lowerInput.includes('navigate') || lowerInput.includes('where') || lowerInput.includes('find')) {
     return {
-      content: `**Social Exchange Navigation**\n\nHere's where to find things:\n\n• **Command Center** - Your main dashboard with overview stats\n• **My E-Assets** - Manage feeds and digital shares\n• **Trading Post** - Buy and sell digital assets\n• **E-Shares** - Invest in creator communities with USD\n• **Comms** - Messages and communications\n\nWhat would you like to explore?`,
+      content: `**Social Exchange Navigation**\n\nHere's where to find things:\n\n• **Command Center** - Your main dashboard with overview stats\n• **My E-Assets** - Manage feeds and digital shares\n• **The Exchange Floor** - Buy and sell digital assets\n• **E-Shares** - Invest in creator communities with USD\n• **Comms** - Messages and communications\n\nWhat would you like to explore?`,
       actions: [
         { id: 'go-dashboard', label: 'Command Center', type: 'navigate', payload: '/cockpit/dashboard' },
         { id: 'go-assets', label: 'My E-Assets', type: 'navigate', payload: '/cockpit/my-e-assets' },
-        { id: 'go-market', label: 'Market', type: 'navigate', payload: '/cockpit/trading-post' },
+        { id: 'go-market', label: 'The Exchange Floor', type: 'navigate', payload: '/cockpit/trading-post' },
       ],
     };
   }
@@ -133,9 +133,9 @@ const getAIResponse = (input: string, context: string): { content: string; actio
   // Market-related
   if (lowerInput.includes('market') || lowerInput.includes('invest') || lowerInput.includes('credits') || lowerInput.includes('e-shares')) {
     return {
-      content: `**E-Shares & Trading Post**\n\nThe platform lets you invest in creators and trade social accounts:\n\n**E-Shares (Community Credits):**\n• Buy credits in creator communities with USD\n• Support your favorite brands and earn tier status\n• Prices move based on supply/demand\n• Cash out anytime (10% fee)\n\n**Creator IPO:**\n• Creators can "go public" and set their own ticker\n• Set initial price and retain founder shares\n• Earn royalty on every trade\n\nWant me to help you get started?`,
+      content: `**E-Shares & The Exchange Floor**\n\nThe platform lets you invest in creators and trade social accounts:\n\n**E-Shares (Community Credits):**\n• Buy credits in creator communities with USD\n• Support your favorite brands and earn tier status\n• Prices move based on supply/demand\n• Cash out anytime (10% fee)\n\n**Creator IPO:**\n• Creators can "go public" and set their own ticker\n• Set initial price and retain founder shares\n• Earn royalty on every trade\n\nWant me to help you get started?`,
       actions: [
-        { id: 'go-market', label: 'Open Market', type: 'navigate', payload: '/cockpit/trading-post' },
+        { id: 'go-market', label: 'Open the Exchange Floor', type: 'navigate', payload: '/cockpit/trading-post' },
         { id: 'learn-ipo', label: 'Learn About IPO', type: 'action', payload: 'ipo-info' },
       ],
     };
@@ -211,7 +211,7 @@ const getAIResponse = (input: string, context: string): { content: string; actio
     market: `You're in the Trading Floor!\n\nHere you can invest in creators and manage your portfolio. I can help with:\n\n• Finding creators to invest in\n• Understanding market trends\n• Managing your holdings\n• Going public with your brand`,
     feeds: `You're in My Feeds!\n\nThis is your social media command center. I can help with:\n\n• Content ideas and scheduling\n• Growth strategies\n• Analytics and insights\n• Automation setup`,
     'e-assets': `You're in My E-Assets!\n\nManage all your digital assets here. I can help with:\n\n• Understanding your portfolio\n• Optimizing your assets\n• Growing your brand value\n• Trading strategies`,
-    trading: `You're in the Trading Post!\n\nBuy, sell, and trade digital assets. I can help with:\n\n• Finding good deals\n• Pricing your assets\n• Market analysis\n• Trading strategies`,
+    trading: `You're in the Exchange Floor!\n\nBuy, sell, and trade digital assets. I can help with:\n\n• Finding good deals\n• Pricing your assets\n• Market analysis\n• Trading strategies`,
     default: `Welcome to Social Exchange!\n\nI'm here to help you navigate and succeed. What would you like to explore?\n\n• Social media management\n• Creator investments\n• Digital asset trading\n• Growth strategies`,
   };
 

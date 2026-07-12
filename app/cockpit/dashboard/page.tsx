@@ -458,7 +458,7 @@ export default function CommandCenter() {
           </Link>
           <Link href="/cockpit/trading-post" className="cc-quick-action">
             <span className="cc-qa-icon"><Store size={20} /></span>
-            <span className="cc-qa-label">Marketplace</span>
+            <span className="cc-qa-label">The Exchange Floor</span>
           </Link>
           {permissions?.canAccessOwnerDashboard && (
             <Link href="/cockpit/owner" className="cc-quick-action owner">
@@ -579,7 +579,7 @@ export default function CommandCenter() {
             ))}
           </div>
           <Link href="/cockpit/trading-post" className="cc-panel-link">
-            View Marketplace →
+            View the Exchange Floor →
           </Link>
         </section>
 
@@ -656,7 +656,7 @@ export default function CommandCenter() {
         <Link href="/cockpit/trading-post" className="cc-nav-card market">
           <div className="cc-nav-card-icon"><Store size={24} /></div>
           <div className="cc-nav-card-content">
-            <h3 className="cc-nav-card-title">Market</h3>
+            <h3 className="cc-nav-card-title">The Exchange Floor</h3>
             <p className="cc-nav-card-desc">Buy & sell digital assets securely</p>
           </div>
           <span className="cc-nav-card-arrow">→</span>

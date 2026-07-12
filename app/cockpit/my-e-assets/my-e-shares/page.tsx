@@ -18,6 +18,7 @@ import {
   applyMicroFluctuation,
   getBrandById,
   getTransactionsByUser,
+  smartGetWalletBalance,
 } from './lib/e-shares-api';
 
 import {
@@ -29,8 +30,6 @@ import type {
 } from './types/e-shares';
 
 import {
-  getWallet,
-  deposit,
   type Wallet,
 } from './lib/wallet-store';
 
@@ -70,8 +69,11 @@ export default function MyESharesPage() {
     setBrands(allBrands);
     setHoldings(getMyHoldings(currentUserId));
     setStats(getMarketStats());
-    setWallet(getWallet(currentUserId));
     setTransactions(getTransactionsByUser(currentUserId));
+    // Wallet balance comes from the REAL database wallet (same source as the
+    // top-bar badge + Stripe deposits). The server derives the user from the
+    // session, so the hardcoded `currentUserId` is only a display placeholder.
+    void smartGetWalletBalance(currentUserId).then(setWallet);
   }, [currentUserId]);
 
   // Live price fluctuation with micro-animations

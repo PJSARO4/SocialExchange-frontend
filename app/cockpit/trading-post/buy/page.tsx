@@ -57,10 +57,10 @@ export default function BuyPage() {
   return (
     <section className="cockpit-panel">
       <Link href="/cockpit/trading-post" style={{ fontSize: '0.8rem', opacity: 0.5, textDecoration: 'none', color: 'white', display: 'inline-block', marginBottom: '1rem' }}>
-        ← Back to Trading Post
+        ← Back to the Exchange Floor
       </Link>
       <header className="panel-header">
-        <h1>Trading Post — Buy</h1>
+        <h1>The Exchange Floor — Buy</h1>
         <p className="panel-subtitle">Live market telemetry</p>
       </header>
 

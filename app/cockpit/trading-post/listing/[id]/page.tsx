@@ -183,7 +183,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
       <div className="trading-post">
         <div className="trading-post-container">
           <Link href="/cockpit/trading-post" style={{ color: '#f59e0b', textDecoration: 'none', marginBottom: '2rem', display: 'flex', gap: '0.5rem' }}>
-            ← Back to Trading Post
+            ← Back to the Exchange Floor
           </Link>
           <div style={{ padding: '2rem', textAlign: 'center' }}>
             <h2 style={{ color: '#fff', marginBottom: '0.5rem' }}>Listing Not Found</h2>
@@ -217,7 +217,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
       <div className="trading-post">
         <div className="trading-post-container">
           <Link href="/cockpit/trading-post" style={{ color: '#f59e0b', textDecoration: 'none', marginBottom: '2rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            ← Back to Trading Post
+            ← Back to the Exchange Floor
           </Link>
 
           {/* Header */}

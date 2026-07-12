@@ -204,7 +204,7 @@ export default function TradingPostPage() {
           <div className="trading-post-header-text">
             <h1 className="trading-post-title">
               <span className="trading-post-title-icon"><Store size={24} /></span>
-              Trading Post
+              The Exchange Floor
             </h1>
             <p className="trading-post-subtitle">
               The trusted marketplace for buying and selling social media accounts, content, and services

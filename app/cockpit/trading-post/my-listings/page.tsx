@@ -136,7 +136,7 @@ export default function MyListingsPage() {
       }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-            <Link href="/cockpit/trading-post" style={{ color: '#555', fontSize: '13px', textDecoration: 'none' }}>Trading Post</Link>
+            <Link href="/cockpit/trading-post" style={{ color: '#555', fontSize: '13px', textDecoration: 'none' }}>The Exchange Floor</Link>
             <span style={{ color: '#333' }}>›</span>
             <span style={{ color: '#aaa', fontSize: '13px' }}>My Listings</span>
           </div>

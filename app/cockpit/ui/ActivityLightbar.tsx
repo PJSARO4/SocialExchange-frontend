@@ -13,7 +13,7 @@ type ActivityMode =
   | "feeds"      // Working in My Feeds — productive green/cyan pulses
   | "trading"    // E-Shares / Market — amber/gold energy
   | "comms"      // Communications — blue/purple waves
-  | "building"   // Founder Panel / Trading Post — intense multi-color
+  | "building"   // Founder Panel / The Exchange Floor — intense multi-color
   | "dashboard"; // Dashboard — calm monitoring mode
 
 interface ModeConfig {

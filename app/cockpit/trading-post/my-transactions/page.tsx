@@ -187,7 +187,7 @@ export default function MyTransactionsPage() {
 
         <div style={{ padding: '2rem', background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.02) 100%)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '12px', textAlign: 'center' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#fff', marginBottom: '0.5rem' }}>Have an Account to Sell?</h3>
-          <p style={{ color: 'rgba(255, 255, 255, 0.65)', marginBottom: '1.5rem' }}>List your social media account on the Trading Post and reach thousands of buyers.</p>
+          <p style={{ color: 'rgba(255, 255, 255, 0.65)', marginBottom: '1.5rem' }}>List your social media account on the Exchange Floor and reach thousands of buyers.</p>
           <Link
             href="/cockpit/trading-post/sell"
             style={{

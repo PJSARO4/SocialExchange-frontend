@@ -259,7 +259,7 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
                 : ''
             }`}
           >
-            Trading Post
+            The Exchange Floor
           </Link>
 
           <Link

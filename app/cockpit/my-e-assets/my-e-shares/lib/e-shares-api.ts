@@ -96,7 +96,7 @@ import {
 //  Set to `true` when the database-backed API routes are live.
 // ============================================================
 
-export const USE_API = false;
+export const USE_API = true;
 
 // ============================================================
 //  SHARED TYPES FOR API RESPONSES
@@ -317,19 +317,32 @@ export async function apiSellShares(params: {
 export async function apiGetWalletBalance(): Promise<
   ApiResult<{ total: number; available: number; locked: number }>
 > {
-  return safeFetch<{ total: number; available: number; locked: number }>(
-    '/api/market/wallet'
-  ).then((res) => {
-    if (res.success && res.data) {
-      // The wallet route nests balance inside a `balance` key
-      const raw = res.data as unknown as WalletApiResponse;
-      return {
-        success: true,
-        data: raw.balance ?? { total: 0, available: 0, locked: 0 },
-      };
-    }
-    return res;
-  });
+  // SINGLE SOURCE OF TRUTH:
+  // Read the SAME database wallet that the top-bar badge and Stripe deposits
+  // use. GET /api/wallet/balance returns { wallet: { balance, lockedBalance,
+  // ... } } where `balance` is USD (1.00 = $1), keyed by the SESSION user.
+  //
+  // (The legacy /api/market/wallet endpoint is backed by an in-memory demo
+  // Map, so it can drift from the real Stripe-credited balance. We intentionally
+  // do NOT read it here.)
+  const res = await safeFetch<{
+    wallet?: { balance: number; lockedBalance: number };
+  }>('/api/wallet/balance');
+
+  if (res.success && res.data?.wallet) {
+    const w = res.data.wallet;
+    const available = Number(w.balance) || 0;
+    const locked = Number(w.lockedBalance) || 0;
+    return {
+      success: true,
+      data: { total: available + locked, available, locked },
+    };
+  }
+
+  return {
+    success: false,
+    error: res.error || 'Failed to read wallet balance',
+  };
 }
 
 export async function apiDepositFunds(

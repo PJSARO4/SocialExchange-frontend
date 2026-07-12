@@ -266,7 +266,7 @@ export default function BrowseMarketplacePage() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
           <Link href="/cockpit/trading-post" style={{ color: '#555', fontSize: '13px', textDecoration: 'none' }}>
-            Trading Post
+            The Exchange Floor
           </Link>
           <span style={{ color: '#333' }}>›</span>
           <span style={{ color: '#aaa', fontSize: '13px' }}>Browse Marketplace</span>
