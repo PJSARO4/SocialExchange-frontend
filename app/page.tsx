@@ -197,14 +197,6 @@ export default function Entrance() {
       if (document.hidden) { requestAnimationFrame(draw); return; }
       ctx.clearRect(0, 0, w, h);
 
-      /* ---------- AMBIENT COLOR FIELD ---------- */
-      hue = (hue + 0.015) % 360;
-      const ambient = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w);
-      ambient.addColorStop(0, `hsla(${hue}, 60%, 45%, 0.04)`);
-      ambient.addColorStop(1, `hsla(${(hue + 50) % 360}, 60%, 20%, 0)`);
-      ctx.fillStyle = ambient;
-      ctx.fillRect(0, 0, w, h);
-
       /* ---------- STARS (parallax by depth) ---------- */
       const px = pointerRef.current.x;
       const py = pointerRef.current.y;
@@ -400,8 +392,6 @@ export default function Entrance() {
           <span className="trust-chip"><span className="chip-ico chip-gold">◈</span> Priced in E-Shares</span>
           <span className="trust-chip"><span className="chip-dot" /> System online</span>
         </div>
-
-        <p className="typewriter">{typed}<span className="cursor">|</span></p>
       </main>
 
       {/* ===== MARKET TICKER HUD ===== */}
