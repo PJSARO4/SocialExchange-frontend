@@ -74,13 +74,11 @@
   );
 }
 
-/* CSS starfield layer — DISABLED: the animated <canvas> provides the stars;
-   this 4x-viewport layer was pure fill-rate cost (huge on big/retina displays). */
+/* CSS starfield — cheap GPU-composited drifting stars (replaces the canvas). */
 .entrance-page::after {
   content: '';
-  display: none;
   position: absolute;
-  inset: -50%;
+  inset: -8%;
   z-index: 0;
   pointer-events: none;
   background-image:
@@ -100,8 +98,7 @@
     radial-gradient(1px 1px at 20% 65%, rgba(255, 255, 255, 0.45) 50%, transparent 50%),
     radial-gradient(1.4px 1.4px at 80% 45%, rgba(255, 255, 255, 0.35) 50%, transparent 50%);
   background-size: 200% 200%;
-  /* static — the animated <canvas> starfield already provides the moving stars;
-     transforming this full 2x-viewport layer every frame was redundant cost. */
+  animation: starfield-drift 140s linear infinite;
 }
 
 @keyframes starfield-drift {
@@ -127,10 +124,7 @@
 ====================================================== */
 
 .entrance-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+  display: none; /* replaced by the cheap CSS starfield (::after) */
 }
 
 

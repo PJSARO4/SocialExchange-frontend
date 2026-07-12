@@ -142,6 +142,11 @@ export default function Entrance() {
      STARFIELD (depth layers) + SHOOTING STARS
   ================================ */
   useEffect(() => {
+    // Canvas starfield disabled — replaced by a GPU-cheap CSS starfield (.entrance-page::after).
+    // Kept the ref/element out of the paint path; no per-frame redraw runs.
+    return;
+
+    // eslint-disable-next-line no-unreachable
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
