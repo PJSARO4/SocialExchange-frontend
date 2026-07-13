@@ -256,6 +256,13 @@ export default function Entrance() {
         <span className="nebula-blob nebula-cyan" />
       </div>
 
+      {/* Shooting stars */}
+      <div className="shooting-stars" aria-hidden="true">
+        <span className="shooting-star" style={{ top: '14%', left: '76%', animationDelay: '0s', animationDuration: '12s' } as React.CSSProperties} />
+        <span className="shooting-star" style={{ top: '30%', left: '34%', animationDelay: '5s', animationDuration: '15s' } as React.CSSProperties} />
+        <span className="shooting-star" style={{ top: '8%', left: '52%', animationDelay: '9.5s', animationDuration: '13s' } as React.CSSProperties} />
+      </div>
+
       {/* Exit transition overlay */}
       <div className={`entrance-exit-overlay ${isExiting ? 'active' : ''}`}>
         <div className="exit-warp-lines">

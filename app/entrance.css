@@ -108,8 +108,35 @@
     radial-gradient(1.6px 1.6px at 12% 68%, rgba(180,160,255,0.6) 50%, transparent 51%),
     radial-gradient(2px 2px at 88% 72%, rgba(255,255,255,0.72) 50%, transparent 51%),
     radial-gradient(1.6px 1.6px at 58% 6%, rgba(255,255,255,0.62) 50%, transparent 51%);
-  background-size: 90% 90%;
+  background-size: 55% 70%; /* denser field (tiles the pattern) */
   animation: starfield-drift 140s linear infinite;
+}
+
+/* ---- Shooting stars (cheap: transform + opacity only) ---- */
+.shooting-star {
+  position: fixed;
+  height: 2px;
+  width: 120px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(200, 240, 255, 0.95));
+  border-radius: 2px;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  transform: rotate(135deg) translateX(0);
+  animation-name: shoot;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes shoot {
+  0%   { opacity: 0; transform: rotate(135deg) translateX(0); }
+  5%   { opacity: 1; }
+  16%  { opacity: 0; transform: rotate(135deg) translateX(680px); }
+  100% { opacity: 0; transform: rotate(135deg) translateX(680px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shooting-star { display: none; }
 }
 
 @keyframes starfield-drift {
