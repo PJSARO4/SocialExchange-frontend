@@ -589,23 +589,14 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
             {/* Rate Limits Dashboard */}
             {rateLimits && (
               <div className="automation-stats" style={{ marginBottom: '1rem', background: 'rgba(255, 200, 0, 0.05)' }}>
-                <div className="stat">
-                  <span className="stat-value" style={{ color: '#ffc800' }}>
-                    {rateLimits.daily_usage?.LIKE || 0}/{rateLimits.daily_limits.likes}
-                  </span>
-                  <span className="stat-label">Likes Today</span>
-                </div>
+                {/* Auto-Like / Auto-Follow removed: Instagram's Graph API does not permit
+                    automated liking or following, so tracking those limits was misleading.
+                    Only comment + DM automation is genuinely executable. */}
                 <div className="stat">
                   <span className="stat-value" style={{ color: '#ffc800' }}>
                     {rateLimits.daily_usage?.COMMENT || 0}/{rateLimits.daily_limits.comments}
                   </span>
                   <span className="stat-label">Comments Today</span>
-                </div>
-                <div className="stat">
-                  <span className="stat-value" style={{ color: '#ffc800' }}>
-                    {rateLimits.daily_usage?.FOLLOW || 0}/{rateLimits.daily_limits.follows}
-                  </span>
-                  <span className="stat-label">Follows Today</span>
                 </div>
                 <div className="stat">
                   <span className="stat-value" style={{ color: '#ffc800' }}>

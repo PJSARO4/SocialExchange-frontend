@@ -63,10 +63,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   // Default rate limits if none fetched
+  // LIKE / FOLLOW removed: Instagram's API does not permit automated liking/following.
   const displayLimits: RateLimitInfo[] = rateLimits.length > 0 ? rateLimits : [
-    { action: 'LIKE', used: 45, limit: 150 },
     { action: 'COMMENT', used: 12, limit: 30 },
-    { action: 'FOLLOW', used: 8, limit: 50 },
     { action: 'DM', used: 3, limit: 20 },
     { action: 'PUBLISH', used: 2, limit: 25 },
   ];
