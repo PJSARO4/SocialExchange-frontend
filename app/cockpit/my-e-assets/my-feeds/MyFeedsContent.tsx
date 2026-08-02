@@ -333,13 +333,8 @@ export default function MyFeedsContent() {
                   <span className="nav-icon"><CurrencyDollarIcon style={{ width: 18, height: 18 }} /></span>
                   <span className="nav-label">EarnEx</span>
                 </button>
-                <button
-                  className={`workspace-nav-item ${workspaceSection === 'competitors' ? 'active' : ''}`}
-                  onClick={() => setWorkspaceSection('competitors')}
-                >
-                  <span className="nav-icon"><EyeIcon style={{ width: 18, height: 18 }} /></span>
-                  <span className="nav-label">Competitors</span>
-                </button>
+                {/* Competitors tab removed for Meta Platform Policy compliance —
+                    tracking/analyzing other (non-authorizing) accounts is prohibited. */}
               </nav>
 
               {/* Workspace Content */}
@@ -523,9 +518,6 @@ export default function MyFeedsContent() {
                   <EarnExTab feed={selectedFeed} feeds={feeds} />
                 )}
 
-                {workspaceSection === 'competitors' && (
-                  <CompetitorsTab feed={selectedFeed} feeds={feeds} />
-                )}
                 </div>
               </div>
             </div>
