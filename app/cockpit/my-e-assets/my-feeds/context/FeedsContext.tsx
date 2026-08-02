@@ -284,7 +284,51 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    // Load the content library from the API (source of truth). localStorage
+    // remains a cache/fallback: API items override, local-only items are kept.
+    const syncContentFromAPI = async () => {
+      try {
+        const res = await fetch('/api/content');
+
+        // Unauthorized or server error — keep localStorage as the source.
+        if (!res.ok) {
+          console.log('Content API sync skipped (status %d) — using localStorage only', res.status);
+          return;
+        }
+
+        const apiContent: ContentItem[] = await res.json();
+
+        if (!Array.isArray(apiContent)) return;
+
+        setContent((localContent) => {
+          // API items take priority; keep local-only items not present in the API.
+          const merged = new Map<string, ContentItem>();
+          for (const ac of apiContent) {
+            merged.set(ac.id, ac);
+          }
+          for (const lc of localContent) {
+            if (!merged.has(lc.id)) {
+              merged.set(lc.id, lc);
+            }
+          }
+
+          const mergedArray = Array.from(merged.values());
+          console.log(
+            'Content API sync complete: %d API items, %d local items -> %d merged',
+            apiContent.length,
+            localContent.length,
+            mergedArray.length
+          );
+          return mergedArray;
+        });
+      } catch (err) {
+        // Network / parse error — localStorage remains the source of truth.
+        console.warn('Content API sync failed (falling back to localStorage):', err);
+      }
+    };
+
     syncFeedsFromAPI();
+    syncContentFromAPI();
   }, [isHydrated]);
 
   // Computed
@@ -477,7 +521,33 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
   const addContent = useCallback(async (payload: CreateContentPayload): Promise<ContentItem> => {
     setContentLoading(true);
     try {
-      // TODO: Replace with actual API call to content endpoint
+      // API is the source of truth — try to persist to the Content model first.
+      try {
+        const res = await fetch('/api/content', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          const created: ContentItem = await res.json();
+          // Preserve client-only fields the Content model can't store
+          // (feedId, folder) so the UI keeps working while offline-equivalent.
+          const newContent: ContentItem = {
+            ...created,
+            feedId: payload.feedId ?? created.feedId,
+            folder: payload.folder ?? created.folder,
+          };
+          setContent(prev => [...prev, newContent]);
+          return newContent;
+        }
+
+        console.warn('API addContent failed (status %d), falling back to local', res.status);
+      } catch (apiErr) {
+        console.warn('API addContent error, falling back to local:', apiErr);
+      }
+
+      // Fallback: keep offline behavior via localStorage-backed state.
       const newContent = generateMockContent(payload);
       setContent(prev => [...prev, newContent]);
       return newContent;
@@ -492,7 +562,43 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
   const updateContent = useCallback(async (id: string, payload: UpdateContentPayload): Promise<ContentItem> => {
     setContentLoading(true);
     try {
-      // TODO: Replace with actual API call to content endpoint
+      // Try to persist the update to the API first.
+      try {
+        const res = await fetch(`/api/content/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          const serverItem: ContentItem = await res.json();
+          let updatedContent: ContentItem | null = null;
+          setContent(prev =>
+            prev.map(c => {
+              if (c.id === id) {
+                // Merge server response, then re-apply the payload so client-only
+                // fields (status, folder, feedId, scheduledFor) that the API drops
+                // still reflect the requested change locally.
+                updatedContent = {
+                  ...c,
+                  ...serverItem,
+                  ...payload,
+                  updatedAt: serverItem.updatedAt || new Date().toISOString(),
+                };
+                return updatedContent;
+              }
+              return c;
+            })
+          );
+          if (updatedContent) return updatedContent;
+        } else {
+          console.warn('API updateContent failed (status %d), updating locally', res.status);
+        }
+      } catch (apiErr) {
+        console.warn('API updateContent error, updating locally:', apiErr);
+      }
+
+      // Fallback: update local state only.
       let updatedContent: ContentItem | null = null;
       setContent(prev =>
         prev.map(c => {
@@ -516,7 +622,17 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
   const removeContent = useCallback(async (id: string): Promise<void> => {
     setContentLoading(true);
     try {
-      // TODO: Replace with actual API call to content endpoint
+      // Attempt to delete from the API; ignore failures (e.g. local-only items).
+      try {
+        const res = await fetch(`/api/content/${id}`, { method: 'DELETE' });
+        if (!res.ok) {
+          console.warn('API removeContent failed (status %d), removing locally', res.status);
+        }
+      } catch (apiErr) {
+        console.warn('API removeContent error, removing locally:', apiErr);
+      }
+
+      // Always remove from local state regardless of API result.
       setContent(prev => prev.filter(c => c.id !== id));
       if (selectedContentId === id) setSelectedContentId(null);
     } catch (err) {
@@ -724,7 +840,16 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
   const removeMultipleContent = useCallback(async (ids: string[]): Promise<void> => {
     setContentLoading(true);
     try {
-      // TODO: Replace with actual API call to content endpoint
+      // Delete each item from the API; ignore individual failures.
+      await Promise.allSettled(
+        ids.map(id =>
+          fetch(`/api/content/${id}`, { method: 'DELETE' }).catch(apiErr => {
+            console.warn('API removeMultipleContent error for %s, removing locally:', id, apiErr);
+          })
+        )
+      );
+
+      // Always remove from local state regardless of API result.
       setContent(prev => prev.filter(c => !ids.includes(c.id)));
       if (selectedContentId && ids.includes(selectedContentId)) {
         setSelectedContentId(null);
@@ -740,7 +865,8 @@ export function FeedsProvider({ children }: { children: ReactNode }) {
   const assignContentToFeed = useCallback(async (contentIds: string[], feedId: string): Promise<void> => {
     setContentLoading(true);
     try {
-      // TODO: Replace with actual API call to content endpoint
+      // NOTE: The `Content` model has no `feedId` column, so this association is
+      // client-only (persisted via localStorage). Nothing to send to the API.
       setContent(prev =>
         prev.map(c =>
           contentIds.includes(c.id)
