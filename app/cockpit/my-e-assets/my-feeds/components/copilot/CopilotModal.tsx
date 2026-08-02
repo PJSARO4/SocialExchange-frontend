@@ -154,14 +154,8 @@ const WORKFLOW_SUGGESTIONS: WorkflowSuggestion[] = [
     benefit: 'Consistent posting without manual effort',
     difficulty: 'easy',
   },
-  {
-    id: 'content-scraper',
-    name: 'Competitor Content Monitor',
-    description: 'Track competitor posts and save high-performing content for inspiration',
-    trigger: 'Every 6 hours',
-    benefit: 'Stay ahead of trends and competition',
-    difficulty: 'medium',
-  },
+  // 'Competitor Content Monitor' suggestion removed for Meta Platform Policy compliance —
+  // it promoted scraping competitor posts, which is prohibited.
   {
     id: 'ai-caption',
     name: 'AI Caption Enhancement',
@@ -178,14 +172,8 @@ const WORKFLOW_SUGGESTIONS: WorkflowSuggestion[] = [
     benefit: 'Maximize reach with optimal hashtags',
     difficulty: 'easy',
   },
-  {
-    id: 'engagement-responder',
-    name: 'Engagement Auto-Responder',
-    description: 'Auto-like and reply to comments on your posts',
-    trigger: 'When new comments arrive',
-    benefit: 'Boost engagement and build community',
-    difficulty: 'advanced',
-  },
+  // 'Engagement Auto-Responder' suggestion removed for Meta Platform Policy compliance —
+  // auto-like / auto-reply to comments is prohibited engagement automation.
   {
     id: 'analytics-report',
     name: 'Weekly Analytics Report',

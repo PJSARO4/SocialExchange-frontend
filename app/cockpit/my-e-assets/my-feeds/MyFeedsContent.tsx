@@ -371,10 +371,8 @@ export default function MyFeedsContent() {
                           <span className="action-icon"><BoltIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">Automation</span>
                         </button>
-                        <button className="quick-action-card" onClick={() => setContentFinderOpen(true)}>
-                          <span className="action-icon"><MagnifyingGlassIcon style={{ width: 24, height: 24 }} /></span>
-                          <span className="action-label">Find Content</span>
-                        </button>
+                        {/* Content Finder (Instagram/hashtag/competitor scraping) removed for Meta Platform Policy compliance.
+                            Source content via file upload or CSV import instead. */}
                         <button className="quick-action-card linkex" onClick={() => setAutomationOpen(true)}>
                           <span className="action-icon"><LinkIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">LinkEx</span>
@@ -452,7 +450,6 @@ export default function MyFeedsContent() {
                                 <ul>
                                   <li>Publish posts (Business account)</li>
                                   <li>Schedule posts</li>
-                                  <li>Auto-comment (30/day)</li>
                                   <li>Fetch analytics</li>
                                 </ul>
                               </div>

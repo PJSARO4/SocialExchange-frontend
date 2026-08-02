@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Bot, RefreshCw, BarChart3, Zap, ClipboardList, Wrench, Trash2,
-  BookOpen, Eye, Timer, Play, Pencil, Save
+  BookOpen, Timer, Play, Pencil, Save
 } from 'lucide-react';
 import { ChainBuilder } from './chain-builder/ChainBuilder';
 import { AutomationChain, ChainNode, NodeConnection } from './chain-builder/types';
@@ -114,27 +114,8 @@ const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
       { id: 'c6', sourceNodeId: 'schedule-1', targetNodeId: 'end-1', sourceHandle: 'output', targetHandle: 'input' },
     ],
   },
-  {
-    id: 'competitor-monitor',
-    name: 'Competitor Content Monitor',
-    description: 'Track and save competitor content for inspiration',
-    icon: <Eye size={16} />,
-    category: 'Research',
-    difficulty: 'intermediate',
-    nodes: [
-      { id: 'start-1', type: 'start', position: { x: 100, y: 200 }, data: { label: 'Daily Check', triggerType: 'schedule', scheduleInterval: 'daily', isConfigured: false } },
-      { id: 'scrape-1', type: 'scrape', position: { x: 350, y: 200 }, data: { label: 'Scrape Content', scrapeSource: 'instagram', targetType: 'hashtag', targetValue: '', scrapeLimit: 5, filterNSFW: true, isConfigured: false } },
-      { id: 'filter-1', type: 'filter', position: { x: 600, y: 200 }, data: { label: 'Filter', conditionType: 'engagement', operator: 'greater-than', value: 1000, isConfigured: false } },
-      { id: 'analytics-1', type: 'analytics', position: { x: 850, y: 200 }, data: { label: 'Analytics', checkType: 'recent-performance', action: 'proceed', isConfigured: false } },
-      { id: 'end-1', type: 'end', position: { x: 1100, y: 200 }, data: { label: 'End', isConfigured: false } },
-    ],
-    connections: [
-      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'scrape-1', sourceHandle: 'output', targetHandle: 'input' },
-      { id: 'c2', sourceNodeId: 'scrape-1', targetNodeId: 'filter-1', sourceHandle: 'output', targetHandle: 'input' },
-      { id: 'c3', sourceNodeId: 'filter-1', targetNodeId: 'analytics-1', sourceHandle: 'yes', targetHandle: 'input' },
-      { id: 'c4', sourceNodeId: 'analytics-1', targetNodeId: 'end-1', sourceHandle: 'output', targetHandle: 'input' },
-    ],
-  },
+  // 'Competitor Content Monitor' template removed for Meta Platform Policy compliance —
+  // it scraped content from Instagram hashtags/accounts, which is prohibited.
   {
     id: 'smart-queue',
     name: 'Smart Content Queue',
@@ -330,8 +311,9 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
     });
 
     if (isOpen) {
-      fetchApiRules();
-      fetchRateLimits();
+      // Engagement-automation rules (auto-comment / auto-DM) and their rate limits
+      // are no longer fetched or surfaced — removed for Meta Platform Policy compliance.
+      // Only content-publishing workflows (chain builder) remain.
 
       // Start automation engine if any chains are enabled
       const enabledChains = loadedChains.filter(c => c.enabled);
@@ -586,74 +568,10 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
               </div>
             </div>
 
-            {/* Rate Limits Dashboard */}
-            {rateLimits && (
-              <div className="automation-stats" style={{ marginBottom: '1rem', background: 'rgba(255, 200, 0, 0.05)' }}>
-                {/* Auto-Like / Auto-Follow removed: Instagram's Graph API does not permit
-                    automated liking or following, so tracking those limits was misleading.
-                    Only comment + DM automation is genuinely executable. */}
-                <div className="stat">
-                  <span className="stat-value" style={{ color: '#ffc800' }}>
-                    {rateLimits.daily_usage?.COMMENT || 0}/{rateLimits.daily_limits.comments}
-                  </span>
-                  <span className="stat-label">Comments Today</span>
-                </div>
-                <div className="stat">
-                  <span className="stat-value" style={{ color: '#ffc800' }}>
-                    {rateLimits.daily_usage?.DM || 0}/{rateLimits.daily_limits.dms}
-                  </span>
-                  <span className="stat-label">DMs Today</span>
-                </div>
-              </div>
-            )}
-
-            {/* API Loading State */}
-            {apiLoading && (
-              <div className="automation-stats" style={{ justifyContent: 'center', color: '#888' }}>
-                Loading automation rules...
-              </div>
-            )}
-
-            {/* API Error */}
-            {apiError && (
-              <div style={{ padding: '0.75rem 1rem', background: 'rgba(255,68,68,0.1)', border: '1px solid rgba(255,68,68,0.3)', borderRadius: '6px', color: '#ff6464', fontSize: '0.875rem', marginBottom: '1rem' }}>
-                {apiError}
-              </div>
-            )}
-
-            {/* Server-Side Automation Rules */}
-            {apiRules.length > 0 && (
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ color: '#00ffc8', fontSize: '0.875rem', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Server Rules (Instagram API)
-                </h3>
-                {apiRules.map(rule => (
-                  <div key={rule.id} className={`workflow-item ${rule.enabled ? 'enabled' : 'disabled'}`} style={{ marginBottom: '0.5rem' }}>
-                    <div className="workflow-status">
-                      <button
-                        className={`toggle-btn ${rule.enabled ? 'on' : 'off'}`}
-                        onClick={() => toggleApiRule(rule.id, rule.enabled)}
-                        disabled={togglingRuleId === rule.id}
-                      >
-                        {togglingRuleId === rule.id ? '...' : rule.enabled ? 'ON' : 'OFF'}
-                      </button>
-                    </div>
-                    <div className="workflow-info">
-                      <h4>{rule.name}</h4>
-                      <p>Type: {rule.type} | Today: {rule.stats.actions_today} actions | Total: {rule.stats.actions_total}</p>
-                      <div className="workflow-meta">
-                        <span>{rule.stats.last_run ? `Last run: ${new Date(rule.stats.last_run).toLocaleString()}` : 'Never run'}</span>
-                      </div>
-                    </div>
-                    <div className="workflow-actions">
-                      <button className="icon-btn" onClick={() => deleteApiRule(rule.id)} title="Delete">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Engagement-automation surfaces removed for Meta Platform Policy compliance:
+                the daily Comments/DMs rate-limit dashboard and the "Server Rules (Instagram API)"
+                section previously exposed auto-comment / auto-DM automation that acts on other
+                users. Only content-publishing workflows (chain builder, below) remain. */}
 
             {/* Actions */}
             <div className="automation-actions">
@@ -664,12 +582,6 @@ export function AutomationModal({ isOpen, onClose, feedId, children }: Automatio
                 <ClipboardList size={14} /> Browse Templates
               </button>
             </div>
-
-            {apiRules.length > 0 && chains.length > 0 && (
-              <h3 style={{ color: '#00ffc8', fontSize: '0.875rem', margin: '1rem 0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Local Workflows (Chain Builder)
-              </h3>
-            )}
 
             {/* Workflow List */}
             <div className="workflow-list">

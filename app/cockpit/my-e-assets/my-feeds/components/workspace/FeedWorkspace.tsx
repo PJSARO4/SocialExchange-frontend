@@ -243,13 +243,7 @@ export default function FeedWorkspace({
             <span className="workspace-action-icon"><Zap size={16} /></span>
             <span className="workspace-action-label">Automation</span>
           </button>
-          <button
-            className="workspace-action-btn finder"
-            onClick={onOpenContentFinder}
-          >
-            <span className="workspace-action-icon"><Search size={16} /></span>
-            <span className="workspace-action-label">Content Finder</span>
-          </button>
+          {/* Content Finder (scraping) removed for Meta Platform Policy compliance. */}
           <button
             className="workspace-action-btn linkex"
             onClick={onOpenLinkEx}

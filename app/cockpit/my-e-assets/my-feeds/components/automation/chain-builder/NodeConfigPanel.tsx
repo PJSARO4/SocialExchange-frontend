@@ -211,7 +211,7 @@ const PullContentConfig: React.FC<{
       >
         <option value="library">Content Library</option>
         <option value="rss">RSS Feed</option>
-        <option value="scrape">Scraped Content</option>
+        {/* 'Scraped Content' option removed for Meta Platform Policy compliance. */}
         <option value="ai-generate">AI Generated</option>
         <option value="upload">Direct Upload</option>
       </select>

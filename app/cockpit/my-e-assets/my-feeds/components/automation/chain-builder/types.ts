@@ -189,14 +189,9 @@ export const NODE_CATALOG: NodeCatalogItem[] = [
     category: 'content',
     color: '#3b82f6',
   },
-  {
-    type: 'scrape',
-    label: 'Scrape Content',
-    description: 'Scrape from social platforms',
-    icon: 'search',
-    category: 'content',
-    color: '#8b5cf6',
-  },
+  // 'scrape' node removed from palette for Meta Platform Policy compliance —
+  // scraping content from Instagram/other platforms is prohibited. The ScrapeNodeData
+  // type is retained only to keep existing type unions valid; it is not selectable.
   // Transform
   {
     type: 'add-caption',

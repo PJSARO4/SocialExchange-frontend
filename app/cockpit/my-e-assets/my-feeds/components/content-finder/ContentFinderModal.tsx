@@ -55,40 +55,12 @@ const DEFAULT_SOURCES: ContentSource[] = [
   { id: '3', type: 'rss', name: 'TechCrunch', url: 'https://techcrunch.com/feed', enabled: true, itemCount: 12 },
 ];
 
-// Fetch real content from SYN organism scraping API
+// Scraping of Instagram/hashtags/competitor accounts has been DISABLED for
+// Meta Platform Policy compliance. This previously called /api/organism/scrape.
+// Content sourcing is now limited to legitimate methods (file upload + CSV import).
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function fetchDiscoveredContent(query: string, perPage = 8): Promise<DiscoveredContent[]> {
-  try {
-    const res = await fetch('/api/organism/scrape', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, type: 'all', perPage }),
-    });
-
-    if (!res.ok) return [];
-
-    const data = await res.json();
-
-    if (!data.results || data.results.length === 0) return [];
-
-    // Transform ContentSuggestion[] → DiscoveredContent[]
-    return data.results.map((item: any, index: number) => ({
-      id: item.id || `api-${Date.now()}-${index}`,
-      source: item.sourceName || 'web',
-      sourceType: 'trending' as const,
-      title: item.title || 'Untitled',
-      description: item.description || '',
-      imageUrl: item.imageUrl || undefined,
-      link: item.sourceUrl || '#',
-      publishedAt: new Date().toISOString(),
-      engagement: {
-        likes: Math.floor(Math.random() * 2000 + 100),
-        comments: Math.floor(Math.random() * 200 + 10),
-      },
-    }));
-  } catch (err) {
-    console.error('[ContentFinder] API fetch failed:', err);
-    return [];
-  }
+  return [];
 }
 
 // Fallback content shown when no API keys are configured
