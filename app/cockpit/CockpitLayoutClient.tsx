@@ -277,7 +277,7 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
               pathname === '/cockpit/meme-lab' ? 'active' : ''
             }`}
           >
-            Meme Lab
+            Content Lab
           </Link>
 
           {session?.user?.email === 'pjsaro4@gmail.com' && (
