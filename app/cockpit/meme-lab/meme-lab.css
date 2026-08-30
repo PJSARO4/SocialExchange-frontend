@@ -240,15 +240,13 @@
 
 /* ---------- action rail ---------- */
 .ml-rail {
-  position: sticky; bottom: 0; z-index: 10;
+  position: static;
   display: flex; align-items: center; gap: 0.75rem;
   flex-wrap: wrap;
   margin-top: 2rem;
-  padding: 0.85rem 0;
+  padding: 1rem 0 2.5rem;
   border-top: 1px solid var(--ml-hair);
-  background: rgba(2, 4, 9, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: transparent;
 }
 .ml-rail .spacer { flex: 1; }
 
