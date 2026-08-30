@@ -271,6 +271,15 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
             Comms
           </Link>
 
+          <Link
+            href="/cockpit/meme-lab"
+            className={`sidebar-link ${
+              pathname === '/cockpit/meme-lab' ? 'active' : ''
+            }`}
+          >
+            Meme Lab
+          </Link>
+
           {session?.user?.email === 'pjsaro4@gmail.com' && (
             <Link
               href="/cockpit/owner"
