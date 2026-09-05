@@ -376,10 +376,13 @@ export default function CommandCenter() {
     // Update time every minute
     const clockTimer = setInterval(() => setCurrentTime(new Date()), 60000);
 
-    // Refresh dashboard data every 10 seconds for live stats
+    // Refresh dashboard data periodically for live stats.
+    // Throttled to 30s and paused while the tab is hidden to avoid
+    // constant re-render churn (a big contributor to the slow-feeling load).
     const dataTimer = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       loadDashboardData();
-    }, 10000);
+    }, 30000);
 
     return () => {
       clearInterval(clockTimer);
