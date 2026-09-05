@@ -1,19 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * POST /api/instagram/accounts/connect
- * Store OAuth token and user info in the database after successful OAuth flow
+ * Persist the OAuth token + account info as a SocialFeed row in the database.
+ * The publish/scheduler routes resolve the access token from this row, so a
+ * feed MUST exist here for end-to-end posting to work.
  */
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const body = await request.json();
@@ -21,16 +31,15 @@ export async function POST(request: NextRequest) {
       instagramUserId,
       handle,
       displayName,
-      accountType,
       profilePictureUrl,
-      biography,
       accessToken,
       accessTokenExpires,
       refreshToken,
-      scopes = [],
+      followersCount,
+      followsCount,
+      mediaCount,
     } = body;
 
-    // Validate required fields
     if (!instagramUserId || !handle || !accessToken) {
       return NextResponse.json(
         { error: 'Missing required fields: instagramUserId, handle, accessToken' },
@@ -38,43 +47,60 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, you would use Prisma here:
-    // const account = await prisma.instagramAccount.upsert({
-    //   where: { userId_instagramUserId: { userId: session.user.id, instagramUserId } },
-    //   update: { ... },
-    //   create: { ... }
-    // });
+    const cleanHandle = String(handle).startsWith('@') ? String(handle) : `@${handle}`;
+    const expires = accessTokenExpires
+      ? new Date(accessTokenExpires)
+      : new Date(Date.now() + 60 * 24 * 60 * 60 * 1000); // default 60 days
 
-    // For now, store in a mock database (localStorage bridge)
-    // This will be replaced with actual Prisma calls once DB is ready
-    console.log('📱 Instagram account connected:', {
-      userId: session.user.id,
-      instagramUserId,
-      handle,
-      accountType,
-      tokenExpires: accessTokenExpires,
-    });
-
-    // Return the stored account data
-    return NextResponse.json({
-      success: true,
-      account: {
-        id: `ig-${instagramUserId}`,
-        userId: session.user.id,
-        instagramUserId,
-        handle,
-        displayName,
-        accountType,
-        profilePictureUrl,
-        biography,
-        scopes,
+    const feed = await prisma.socialFeed.upsert({
+      where: {
+        userId_platform_platformAccountId: {
+          userId: user.id,
+          platform: 'INSTAGRAM',
+          platformAccountId: String(instagramUserId),
+        },
+      },
+      update: {
+        handle: cleanHandle,
+        displayName: displayName || cleanHandle,
+        profilePictureUrl: profilePictureUrl ?? undefined,
+        accessToken,
+        accessTokenExpires: expires,
+        refreshToken: refreshToken ?? undefined,
         isConnected: true,
-        isPrimary: true, // Mark first connection as primary
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        lastSyncAt: new Date(),
+        lastSyncError: null,
+        ...(typeof followersCount === 'number' ? { followers: followersCount } : {}),
+        ...(typeof followsCount === 'number' ? { following: followsCount } : {}),
+        ...(typeof mediaCount === 'number' ? { postsCount: mediaCount } : {}),
+      },
+      create: {
+        userId: user.id,
+        platform: 'INSTAGRAM',
+        platformAccountId: String(instagramUserId),
+        handle: cleanHandle,
+        displayName: displayName || cleanHandle,
+        profilePictureUrl: profilePictureUrl ?? undefined,
+        accessToken,
+        accessTokenExpires: expires,
+        refreshToken: refreshToken ?? undefined,
+        isConnected: true,
+        lastSyncAt: new Date(),
+        followers: typeof followersCount === 'number' ? followersCount : 0,
+        following: typeof followsCount === 'number' ? followsCount : 0,
+        postsCount: typeof mediaCount === 'number' ? mediaCount : 0,
+      },
+      select: {
+        id: true,
+        platformAccountId: true,
+        handle: true,
+        displayName: true,
+        profilePictureUrl: true,
+        isConnected: true,
       },
     });
 
+    return NextResponse.json({ success: true, feed });
   } catch (error: any) {
     console.error('Instagram connect error:', error);
     return NextResponse.json(
@@ -86,39 +112,44 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/instagram/accounts/connect
- * Get all connected Instagram accounts for the current user
+ * List the current user's connected Instagram feeds from the database.
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // In production:
-    // const accounts = await prisma.instagramAccount.findMany({
-    //   where: { userId: session.user.id },
-    //   select: {
-    //     id, instagramUserId, handle, displayName, accountType,
-    //     profilePictureUrl, isConnected, isPrimary, cachedFollowers,
-    //     cachedFollowing, cachedMediaCount, lastSyncAt, createdAt
-    //   }
-    // });
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+    if (!user) {
+      return NextResponse.json({ accounts: [], count: 0 });
+    }
 
-    console.log('📱 Fetching connected accounts for user:', session.user.id);
-
-    // Mock response
-    return NextResponse.json({
-      accounts: [],
-      count: 0,
+    const feeds = await prisma.socialFeed.findMany({
+      where: { userId: user.id, platform: 'INSTAGRAM' },
+      select: {
+        id: true,
+        platformAccountId: true,
+        handle: true,
+        displayName: true,
+        profilePictureUrl: true,
+        isConnected: true,
+        followers: true,
+        following: true,
+        postsCount: true,
+        lastSyncAt: true,
+        accessTokenExpires: true,
+      },
+      orderBy: { createdAt: 'asc' },
     });
 
+    return NextResponse.json({ accounts: feeds, count: feeds.length });
   } catch (error: any) {
     console.error('Failed to fetch accounts:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch accounts' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch accounts' }, { status: 500 });
   }
 }
