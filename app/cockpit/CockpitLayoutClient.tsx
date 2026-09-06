@@ -8,6 +8,7 @@ import './cockpit.css';
 
 
 import ActivityLightbar from './ui/ActivityLightbar';
+import PresencePing from './ui/PresencePing';
 import LivePulse from './ui/LivePulse';
 import LogsPanel from './ui/LogsPanel';
 import SignalPanel from './ui/SignalPanel';
@@ -165,6 +166,9 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
 
   return (
     <div className="cockpit-root">
+      {/* SILENT PRESENCE BEACON (admin live map) */}
+      <PresencePing />
+
       {/* MOOD-REACTIVE BACKGROUND */}
       <MoodBackground />
 

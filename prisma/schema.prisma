@@ -46,6 +46,16 @@ model User {
   savedListings   SavedListing[]
   disputes        Dispute[]      @relation("UserDisputes")
 
+  // Presence / geolocation (admin live map) — populated from Vercel geo headers
+  lastActiveAt  DateTime?
+  lastActivity  String?   // human label of what they're working on (e.g. "Automation")
+  lastPath      String?
+  lastCity      String?
+  lastRegion    String?
+  lastCountry   String?
+  lastLat       Float?
+  lastLng       Float?
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }

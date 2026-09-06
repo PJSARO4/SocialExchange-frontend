@@ -75,6 +75,178 @@ function ShellCard({ title, description, badge = 'Coming Soon' }: { title: strin
   );
 }
 
+// What each user is working on -> dot color (matches PresencePing labels)
+const ACTIVITY_COLOR: Record<string, string> = {
+  'Automation': '#06b6d4',
+  'Content Lab': '#a78bfa',
+  'Exchange Floor': '#f59e0b',
+  'Comms': '#22c55e',
+  'Wallet': '#eab308',
+  'Admin': '#ef4444',
+  'Command Center': '#3b82f6',
+  'Online': '#94a3b8',
+};
+
+function activityColor(activity?: string | null): string {
+  if (!activity) return '#64748b';
+  return ACTIVITY_COLOR[activity] || '#94a3b8';
+}
+
+function timeAgo(iso?: string | null): string {
+  if (!iso) return 'never';
+  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
+// Equirectangular projection into a viewBox of WxH.
+function project(lat: number, lng: number, w: number, h: number): [number, number] {
+  const x = ((lng + 180) / 360) * w;
+  const y = ((90 - lat) / 180) * h;
+  return [x, y];
+}
+
+/** Live world map: glowing dots per located user, colored by current activity. */
+function UserMap({ users }: { users: any[] }) {
+  const W = 1000, H = 500;
+  const located = users.filter((u) => u.location);
+
+  // Jitter overlapping dots (city-level geo clusters everyone in a metro to one point)
+  const seen: Record<string, number> = {};
+  const dots = located.map((u) => {
+    const key = `${u.location.lat.toFixed(1)},${u.location.lng.toFixed(1)}`;
+    const n = (seen[key] = (seen[key] || 0) + 1);
+    const [bx, by] = project(u.location.lat, u.location.lng, W, H);
+    const ring = Math.floor((n - 1) / 8);
+    const ang = ((n - 1) % 8) * (Math.PI / 4);
+    const r = ring * 9 + (ring ? 9 : 0);
+    return { u, x: bx + Math.cos(ang) * r, y: by + Math.sin(ang) * r, color: activityColor(u.activity), online: u.online };
+  });
+
+  return (
+    <div style={{ position: 'relative', width: '100%', background: 'radial-gradient(ellipse at 50% 40%, rgba(59,130,246,0.06), rgba(0,0,0,0) 70%)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px', overflow: 'hidden' }}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', display: 'block' }}>
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3.5" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <radialGradient id="land" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.05)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </radialGradient>
+        </defs>
+
+        {/* Soft landmass hints (evocative, not exact coastlines) */}
+        {[
+          [180, 150, 150, 90],   // N. America
+          [300, 330, 80, 110],   // S. America
+          [510, 170, 70, 70],    // Europe
+          [540, 300, 100, 130],  // Africa
+          [720, 180, 190, 120],  // Asia
+          [860, 380, 70, 50],    // Australia
+        ].map(([cx, cy, rx, ry], i) => (
+          <ellipse key={i} cx={cx} cy={cy} rx={rx} ry={ry} fill="url(#land)" />
+        ))}
+
+        {/* Graticule */}
+        {Array.from({ length: 11 }).map((_, i) => (
+          <line key={`v${i}`} x1={(i / 10) * W} y1={0} x2={(i / 10) * W} y2={H} stroke="rgba(255,255,255,0.045)" strokeWidth={1} />
+        ))}
+        {Array.from({ length: 7 }).map((_, i) => (
+          <line key={`h${i}`} x1={0} y1={(i / 6) * H} x2={W} y2={(i / 6) * H} stroke="rgba(255,255,255,0.045)" strokeWidth={1} />
+        ))}
+        <line x1={0} y1={H / 2} x2={W} y2={H / 2} stroke="rgba(255,255,255,0.09)" strokeWidth={1} />
+
+        {/* User dots */}
+        {dots.map(({ u, x, y, color, online }) => (
+          <g key={u.id} filter="url(#glow)">
+            {online && (
+              <circle cx={x} cy={y} r={5} fill="none" stroke={color} strokeWidth={1.5} opacity={0.6}>
+                <animate attributeName="r" values="5;16" dur="2.2s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.6;0" dur="2.2s" repeatCount="indefinite" />
+              </circle>
+            )}
+            <circle cx={x} cy={y} r={online ? 5 : 3.5} fill={color} opacity={online ? 1 : 0.55}>
+              <title>{`${u.name || u.email || 'User'} — ${u.activity || 'idle'}${u.location.city ? ' · ' + u.location.city : ''}`}</title>
+            </circle>
+          </g>
+        ))}
+      </svg>
+
+      {located.length === 0 && (
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', textAlign: 'center', padding: '1rem' }}>
+          No located users yet. Dots appear once signed-in users browse the cockpit<br />(location comes from their connection — city-level, no GPS).
+        </div>
+      )}
+
+      {/* Legend */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem 1rem', padding: '0.75rem 1rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        {Object.entries(ACTIVITY_COLOR).map(([label, color]) => (
+          <span key={label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)' }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, boxShadow: `0 0 6px ${color}` }} />
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Full user directory table. */
+function UserTable({ users }: { users: any[] }) {
+  return (
+    <div style={{ overflowX: 'auto', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '12px' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', minWidth: 720 }}>
+        <thead>
+          <tr style={{ textAlign: 'left', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.68rem' }}>
+            <th style={{ padding: '0.7rem 1rem' }}>User</th>
+            <th style={{ padding: '0.7rem 1rem' }}>Status</th>
+            <th style={{ padding: '0.7rem 1rem' }}>Working on</th>
+            <th style={{ padding: '0.7rem 1rem' }}>Location</th>
+            <th style={{ padding: '0.7rem 1rem' }}>Feeds</th>
+            <th style={{ padding: '0.7rem 1rem' }}>Joined</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((u) => {
+            const color = activityColor(u.activity);
+            const loc = u.location
+              ? [u.location.city, u.location.region, u.location.country].filter(Boolean).join(', ')
+              : '—';
+            return (
+              <tr key={u.id} style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <td style={{ padding: '0.7rem 1rem' }}>
+                  <div style={{ color: '#e2e8f0', fontWeight: 600 }}>{u.name || 'Unnamed'}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.75rem' }}>{u.email}</div>
+                </td>
+                <td style={{ padding: '0.7rem 1rem', whiteSpace: 'nowrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: u.online ? '#86efac' : 'rgba(255,255,255,0.4)' }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: u.online ? '#22c55e' : '#475569', boxShadow: u.online ? '0 0 6px #22c55e' : 'none' }} />
+                    {u.online ? 'Online' : timeAgo(u.lastActiveAt)}
+                  </span>
+                </td>
+                <td style={{ padding: '0.7rem 1rem' }}>
+                  {u.activity ? (
+                    <span style={{ padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 600, color, background: `rgba(${hexToRgb(color)},0.12)`, border: `1px solid rgba(${hexToRgb(color)},0.25)` }}>{u.activity}</span>
+                  ) : <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                </td>
+                <td style={{ padding: '0.7rem 1rem', color: 'rgba(255,255,255,0.55)' }}>{loc}</td>
+                <td style={{ padding: '0.7rem 1rem', color: 'rgba(255,255,255,0.55)' }}>{u.feeds}</td>
+                <td style={{ padding: '0.7rem 1rem', color: 'rgba(255,255,255,0.35)', whiteSpace: 'nowrap' }}>
+                  {new Date(u.joinedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function hexToRgb(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return '245, 158, 11';
@@ -85,6 +257,7 @@ export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
+  const [directory, setDirectory] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -93,9 +266,11 @@ export default function AdminPage() {
     if (status !== 'authenticated') return;
     if (session?.user?.email !== ADMIN_EMAIL) { router.push('/cockpit/home'); return; }
 
-    fetch('/api/admin/stats')
-      .then(r => r.json())
-      .then(data => { setStats(data); setLoading(false); })
+    Promise.all([
+      fetch('/api/admin/stats').then(r => r.json()),
+      fetch('/api/admin/users').then(r => r.json()).catch(() => null),
+    ])
+      .then(([s, u]) => { setStats(s); setDirectory(u); setLoading(false); })
       .catch(err => { setError(err.message); setLoading(false); });
   }, [status, session, router]);
 
@@ -180,6 +355,31 @@ export default function AdminPage() {
             ))}
           </div>
         </div>
+      )}
+
+      {/* Live user map */}
+      <SectionHeader title="Live User Map" icon="🌍" />
+      {directory?.users ? (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+            <MetricCard label="Total Users" value={Number(directory.total).toLocaleString()} color="#06b6d4" />
+            <MetricCard label="Online Now" value={Number(directory.onlineNow).toLocaleString()} sub="Active in last 5 min" color="#22c55e" />
+            <MetricCard label="On the Map" value={Number(directory.located).toLocaleString()} sub="City-level location known" color="#a78bfa" />
+          </div>
+          <UserMap users={directory.users} />
+        </>
+      ) : (
+        <div style={{ padding: '1.5rem', textAlign: 'center', color: 'rgba(255,255,255,0.25)', fontSize: '0.85rem', border: '1px dashed rgba(255,255,255,0.08)', borderRadius: '10px' }}>
+          User directory unavailable
+        </div>
+      )}
+
+      {/* All users */}
+      {directory?.users?.length > 0 && (
+        <>
+          <SectionHeader title="All Users" icon="👤" />
+          <UserTable users={directory.users} />
+        </>
       )}
 
       {/* Live Escrows */}
