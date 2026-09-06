@@ -236,20 +236,13 @@ export default function FeedWorkspace({
             <span className="workspace-action-icon"><Bot size={16} /></span>
             <span className="workspace-action-label">AI Copilot</span>
           </button>
-          <button
-            className="workspace-action-btn automation"
-            onClick={onOpenAutomation}
-          >
-            <span className="workspace-action-icon"><Zap size={16} /></span>
-            <span className="workspace-action-label">Automation</span>
-          </button>
-          {/* Content Finder (scraping) removed for Meta Platform Policy compliance. */}
+          {/* Automation now lives in LinkEx (the Chain Builder) — one home for automation. */}
           <button
             className="workspace-action-btn linkex"
             onClick={onOpenLinkEx}
           >
-            <span className="workspace-action-icon"><Link2 size={16} /></span>
-            <span className="workspace-action-label">LinkEx</span>
+            <span className="workspace-action-icon"><Zap size={16} /></span>
+            <span className="workspace-action-label">Automation</span>
           </button>
         </div>
       </section>
