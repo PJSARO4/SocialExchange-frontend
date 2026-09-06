@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { FileText, Calendar, BarChart3, Settings, Bot, Zap, Search, Link2, Play, Layers, Heart, MessageSquare, Camera, Mailbox } from 'lucide-react';
 import { Feed, PLATFORMS, ControlMode } from '../../types/feed';
 import { useFeeds } from '../../context/FeedsContext';
+import BulkScheduleModal from '../automation/BulkScheduleModal';
 import ModeSelector from '../ModeSelector';
 
 interface InstagramPost {
@@ -46,6 +47,7 @@ export default function FeedWorkspace({
   const { updateFeed, toggleAutomation, setControlMode, removeFeed } = useFeeds();
   const platform = PLATFORMS[feed.platform];
   const [isEditing, setIsEditing] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [recentPosts, setRecentPosts] = useState<InstagramPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(false);
 
@@ -244,8 +246,23 @@ export default function FeedWorkspace({
             <span className="workspace-action-icon"><Zap size={16} /></span>
             <span className="workspace-action-label">Automation</span>
           </button>
+          <button
+            className="workspace-action-btn linkex"
+            onClick={() => setBulkOpen(true)}
+          >
+            <span className="workspace-action-icon"><Layers size={16} /></span>
+            <span className="workspace-action-label">Bulk Schedule</span>
+          </button>
         </div>
       </section>
+
+      {bulkOpen && (
+        <BulkScheduleModal
+          feedId={feed.id}
+          feedLabel={feed.handle ? `@${feed.handle}` : feed.displayName}
+          onClose={() => setBulkOpen(false)}
+        />
+      )}
 
       {/* Recent Posts Section (for OAuth accounts) */}
       {feed.isOAuth && (

@@ -82,7 +82,10 @@ export async function GET(req: NextRequest) {
 
   const due = await prisma.scheduledPostNew.findMany({
     where: {
-      status: 'PENDING',
+      // PENDING = created by the bulk automation engine;
+      // QUEUED  = created by the single-post scheduler UI (its job queue has no
+      //           running worker on Hobby, so this cron is the sole publisher).
+      status: { in: ['PENDING', 'QUEUED'] },
       scheduledFor: { lte: new Date() },
       attempts: { lt: 3 },
     },
