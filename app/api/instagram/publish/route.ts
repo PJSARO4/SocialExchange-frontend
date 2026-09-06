@@ -203,11 +203,11 @@ export async function POST(request: NextRequest) {
     const containerId = await createMediaContainer(body);
     console.log('📦 Media container created:', containerId);
 
-    // Step 2: Wait for container to be ready (especially important for videos)
-    if (media_type === 'VIDEO' || media_type === 'REELS') {
-      console.log('⏳ Waiting for video processing...');
-      await waitForContainer(containerId, access_token);
-    }
+    // Step 2: Wait for the container to be FINISHED before publishing.
+    // Required for video/reels, but images can also be briefly PENDING —
+    // publishing too early throws "Media ID is not available".
+    console.log('⏳ Waiting for media container to be ready...');
+    await waitForContainer(containerId, access_token);
 
     // Step 3: Publish
     const mediaId = await publishMedia(containerId, instagram_user_id, access_token);
