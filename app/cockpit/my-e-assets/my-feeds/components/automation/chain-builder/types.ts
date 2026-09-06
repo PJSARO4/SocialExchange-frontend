@@ -15,6 +15,11 @@ export type NodeType =
   | 'scrape'          // Scrape content from sources
   | 'delay'           // Add delay between actions
   | 'analytics'       // Check analytics before proceeding
+  | 'select-account'  // Choose which connected account to post through
+  | 'drive-select'    // Pick a file from a connected Google Drive folder
+  | 'publish'         // Publish immediately to the selected account
+  | 'move-file'       // Move a Drive file between folders (e.g. to-post -> posted)
+  | 'notify'          // Send a report/alert (email, in-app)
   | 'end';            // End of chain
 
 export interface NodePosition {

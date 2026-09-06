@@ -53,6 +53,33 @@ interface WorkflowTemplate {
 
 const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
   {
+    id: 'drive-auto-poster',
+    name: 'Daily Drive Auto-Poster',
+    description: 'Pull the next file from a Google Drive folder, caption it, schedule + publish, then move it to "posted" so you never repost.',
+    icon: 'refresh',
+    category: 'Publishing',
+    difficulty: 'beginner',
+    nodes: [
+      { id: 'start-1', type: 'start', position: { x: 80, y: 220 }, data: { label: 'Every day', triggerType: 'schedule', isConfigured: false } },
+      { id: 'acct-1', type: 'select-account', position: { x: 300, y: 220 }, data: { label: 'Post to account', isConfigured: false } },
+      { id: 'drive-1', type: 'drive-select', position: { x: 520, y: 220 }, data: { label: 'Drive: to-post', folder: 'to-post', pick: 'oldest', isConfigured: false } },
+      { id: 'ai-1', type: 'ai-enhance', position: { x: 740, y: 220 }, data: { label: 'Caption', enhanceType: 'caption', tone: 'funny', isConfigured: false } },
+      { id: 'sched-1', type: 'schedule', position: { x: 960, y: 220 }, data: { label: 'Schedule', scheduleType: 'best-time', isConfigured: false } },
+      { id: 'pub-1', type: 'publish', position: { x: 1180, y: 220 }, data: { label: 'Publish', isConfigured: false } },
+      { id: 'move-1', type: 'move-file', position: { x: 1400, y: 220 }, data: { label: 'Move to posted', fromFolder: 'to-post', toFolder: 'posted', isConfigured: false } },
+      { id: 'end-1', type: 'end', position: { x: 1620, y: 220 }, data: { label: 'End', isConfigured: false } },
+    ],
+    connections: [
+      { id: 'c1', sourceNodeId: 'start-1', targetNodeId: 'acct-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c2', sourceNodeId: 'acct-1', targetNodeId: 'drive-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c3', sourceNodeId: 'drive-1', targetNodeId: 'ai-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c4', sourceNodeId: 'ai-1', targetNodeId: 'sched-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c5', sourceNodeId: 'sched-1', targetNodeId: 'pub-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c6', sourceNodeId: 'pub-1', targetNodeId: 'move-1', sourceHandle: 'output', targetHandle: 'input' },
+      { id: 'c7', sourceNodeId: 'move-1', targetNodeId: 'end-1', sourceHandle: 'output', targetHandle: 'input' },
+    ],
+  },
+  {
     id: 'auto-post-library',
     name: 'Auto Post from Library',
     description: 'Automatically post content from your library on a schedule',
