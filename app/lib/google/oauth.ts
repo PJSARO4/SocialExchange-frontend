@@ -12,7 +12,9 @@
 const GOOGLE_AUTH = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN = 'https://oauth2.googleapis.com/token';
 
-export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.readonly';
+// Full drive scope: needed to MOVE files (to-post -> posted) as well as read.
+// (Restricted scope — for public launch, verify or use Picker + drive.file.)
+export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive';
 export const GOOGLE_REDIRECT_URI =
   process.env.GOOGLE_REDIRECT_URI ||
   'https://social-exchange-frontend.vercel.app/api/google/callback';
