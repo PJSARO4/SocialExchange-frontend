@@ -423,8 +423,11 @@ export async function exchangeForLongLivedToken(
 export async function refreshLongLivedToken(
   currentToken: string
 ): Promise<{ accessToken: string; expiresIn: number }> {
+  // Instagram API with Instagram Login: refresh a long-lived token to extend
+  // it ~60 more days. Uses the Instagram host + ig_refresh_token grant (NOT the
+  // Facebook fb_exchange_token flow). Token must be valid and >24h old.
   const response = await fetch(
-    `${GRAPH_API_BASE}/oauth/access_token?grant_type=fb_exchange_token&client_id=${process.env.META_CLIENT_ID}&client_secret=${process.env.META_CLIENT_SECRET}&fb_exchange_token=${currentToken}`
+    `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${currentToken}`
   );
 
   if (!response.ok) {
