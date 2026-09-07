@@ -1,6 +1,6 @@
 'use client';
 
-import { Component, ReactNode } from 'react';
+import { Component, ReactNode, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { CommsProvider } from './context/CommsContext';
 import ChannelList from './components/ChannelList';
@@ -71,25 +71,78 @@ export default function CommsPage() {
   return (
     <CommsErrorBoundary>
       <CommsProvider>
-        <div className="comms-page">
-          <header className="comms-header">
-            <h1 className="comms-title">COMMUNICATIONS</h1>
-            <div className="comms-status-bar">
-              <span className="comms-status-indicator">ONLINE</span>
-            </div>
-          </header>
-
-          <div className="comms-layout">
-            <aside className="comms-left-panel">
-              <ChannelList />
-            </aside>
-
-            <main className="comms-main-panel">
-              <RightPanel />
-            </main>
-          </div>
-        </div>
+        <CommsInner />
       </CommsProvider>
     </CommsErrorBoundary>
+  );
+}
+
+type CommsTab = 'inbox' | 'opportunities' | 'partnerships' | 'notifications';
+
+function CommsInner() {
+  const [tab, setTab] = useState<CommsTab>('inbox');
+
+  const TABS: { id: CommsTab; label: string }[] = [
+    { id: 'inbox', label: 'Inbox' },
+    { id: 'opportunities', label: 'Opportunities' },
+    { id: 'partnerships', label: 'Partnerships' },
+    { id: 'notifications', label: 'Notifications' },
+  ];
+
+  const PLACEHOLDER: Record<Exclude<CommsTab, 'inbox'>, { title: string; body: string }> = {
+    opportunities: { title: 'Opportunities', body: 'Inbound deal flow — brand collabs, sponsorships and paid asks — will collect here as your accounts grow.' },
+    partnerships: { title: 'Partnerships', body: 'Active partnerships and their terms live here. Accept a deal from Opportunities and it graduates to this tab.' },
+    notifications: { title: 'Notifications', body: 'Mentions, new followers of note, and system alerts across your fleet will surface here.' },
+  };
+
+  return (
+    <div className="comms-page comms-redesign">
+      {/* HERO */}
+      <header className="comms-hero">
+        <div className="comms-hero-main">
+          <h1 className="comms-title">COMMS</h1>
+          <p className="comms-subtitle">REAL CONVERSATIONS. REAL OPPORTUNITIES.</p>
+        </div>
+        <div className="comms-hero-tag">
+          RELATIONSHIPS<br />EXPAND REALMS
+        </div>
+        <div className="comms-hero-art" aria-hidden="true">
+          <span className="cha-ring" />
+          <span className="cha-ring cha-ring2" />
+          <span className="cha-planet" />
+          <span className="cha-sat" />
+        </div>
+      </header>
+
+      {/* TABS */}
+      <nav className="comms-tabs">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            className={`comms-tab ${tab === t.id ? 'active' : ''}`}
+            onClick={() => setTab(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </nav>
+
+      {tab === 'inbox' ? (
+        <div className="comms-layout">
+          <aside className="comms-left-panel">
+            <ChannelList />
+          </aside>
+          <main className="comms-main-panel">
+            <RightPanel />
+          </main>
+        </div>
+      ) : (
+        <div className="comms-tabpane">
+          <div className="comms-tabpane-icon">◎</div>
+          <h2 className="comms-tabpane-title">{PLACEHOLDER[tab].title}</h2>
+          <p className="comms-tabpane-body">{PLACEHOLDER[tab].body}</p>
+        </div>
+      )}
+    </div>
   );
 }

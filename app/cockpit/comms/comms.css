@@ -1399,3 +1399,136 @@
   border-color: #0d9373;
   color: #0d9373;
 }
+/* ================================================================
+   COMMS REDESIGN — mission-control mockup
+   ================================================================ */
+.comms-redesign { background: transparent; padding: 0; }
+
+/* Hero */
+.comms-redesign .comms-hero {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 4px 4px 20px;
+  overflow: hidden;
+}
+.comms-redesign .comms-hero-main { flex: 1; min-width: 0; z-index: 2; }
+.comms-redesign .comms-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #fff;
+  margin: 0;
+  text-shadow: 0 0 30px rgba(56,189,248,0.35);
+}
+.comms-redesign .comms-subtitle {
+  margin: 8px 0 0;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  color: rgba(125,227,255,0.75);
+  text-transform: uppercase;
+}
+.comms-redesign .comms-hero-tag {
+  z-index: 2;
+  text-align: right;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  line-height: 1.7;
+  letter-spacing: 0.28em;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  padding-top: 6px;
+  white-space: nowrap;
+}
+/* CSS space art (satellite + orbits + planet glow), performant */
+.comms-redesign .comms-hero-art {
+  position: absolute;
+  right: 8%;
+  top: -10px;
+  width: 220px;
+  height: 130px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.9;
+}
+.comms-redesign .cha-planet {
+  position: absolute; right: 10px; top: 20px;
+  width: 84px; height: 84px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffb27a, #d76a3a 45%, #7a2f1c 100%);
+  box-shadow: 0 0 40px rgba(255,150,90,0.35);
+}
+.comms-redesign .cha-ring, .comms-redesign .comms-hero-art .cha-ring2 {
+  position: absolute; right: -10px; top: 34px;
+  width: 210px; height: 60px;
+  border: 1px solid rgba(125,227,255,0.35);
+  border-radius: 50%;
+  transform: rotate(-18deg);
+}
+.comms-redesign .cha-ring2 { width: 150px; height: 44px; right: 20px; top: 42px; border-color: rgba(125,227,255,0.2); }
+.comms-redesign .cha-sat {
+  position: absolute; left: 20px; top: 8px;
+  width: 16px; height: 6px; border-radius: 2px;
+  background: #9fd8ff;
+  box-shadow: -10px 3px 0 -1px #9fd8ff, 10px 3px 0 -1px #9fd8ff, 0 0 14px rgba(159,216,255,0.8);
+}
+
+/* Tabs */
+.comms-redesign .comms-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 0;
+}
+.comms-redesign .comms-tab {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 180ms ease;
+}
+.comms-redesign .comms-tab:hover { color: rgba(255,255,255,0.85); }
+.comms-redesign .comms-tab.active {
+  color: #7de3ff;
+  border-bottom-color: #38bdf8;
+  text-shadow: 0 0 14px rgba(56,189,248,0.4);
+}
+
+/* Translucent panels so the Earth shows through */
+.comms-redesign .comms-layout { gap: 16px; }
+.comms-redesign .comms-left-panel,
+.comms-redesign .comms-main-panel {
+  background: rgba(12,20,38,0.55) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Placeholder panes for non-inbox tabs */
+.comms-redesign .comms-tabpane {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 12px;
+  min-height: 46vh;
+  padding: 3rem 2rem;
+  background: rgba(12,20,38,0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+}
+.comms-redesign .comms-tabpane-icon { font-size: 2rem; color: #38bdf8; text-shadow: 0 0 20px rgba(56,189,248,0.6); }
+.comms-redesign .comms-tabpane-title { margin: 0; font-size: 1.2rem; font-weight: 700; color: #eaf6ff; letter-spacing: 0.04em; }
+.comms-redesign .comms-tabpane-body { margin: 0; max-width: 420px; font-size: 0.85rem; line-height: 1.6; color: rgba(255,255,255,0.5); }
+
+@media (max-width: 640px) {
+  .comms-redesign .comms-hero-art { display: none; }
+  .comms-redesign .comms-hero-tag { display: none; }
+  .comms-redesign .comms-title { font-size: 1.6rem; }
+}
