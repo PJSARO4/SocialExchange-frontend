@@ -97,6 +97,14 @@ function CommsInner() {
 
   return (
     <div className="comms-page comms-redesign">
+      {/* LIVING STATION LIGHTS (over the backdrop, behind content) */}
+      <div className="comms-lights" aria-hidden="true">
+        {Array.from({ length: 16 }).map((_, i) => (
+          <span key={i} className={`cl cl-${i + 1}`} />
+        ))}
+        <span className="cl-beacon" />
+      </div>
+
       {/* HERO */}
       <header className="comms-hero">
         <div className="comms-hero-main">
