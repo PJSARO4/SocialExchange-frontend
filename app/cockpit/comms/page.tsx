@@ -114,12 +114,6 @@ function CommsInner() {
         <div className="comms-hero-tag">
           RELATIONSHIPS<br />EXPAND REALMS
         </div>
-        <div className="comms-hero-art" aria-hidden="true">
-          <span className="cha-ring" />
-          <span className="cha-ring cha-ring2" />
-          <span className="cha-planet" />
-          <span className="cha-sat" />
-        </div>
       </header>
 
       {/* TABS */}

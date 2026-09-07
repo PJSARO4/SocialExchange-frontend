@@ -1443,36 +1443,6 @@
   white-space: nowrap;
 }
 /* CSS space art (satellite + orbits + planet glow), performant */
-.comms-redesign .comms-hero-art {
-  position: absolute;
-  right: 8%;
-  top: -10px;
-  width: 220px;
-  height: 130px;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.9;
-}
-.comms-redesign .cha-planet {
-  position: absolute; right: 10px; top: 20px;
-  width: 84px; height: 84px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffb27a, #d76a3a 45%, #7a2f1c 100%);
-  box-shadow: 0 0 40px rgba(255,150,90,0.35);
-}
-.comms-redesign .cha-ring, .comms-redesign .comms-hero-art .cha-ring2 {
-  position: absolute; right: -10px; top: 34px;
-  width: 210px; height: 60px;
-  border: 1px solid rgba(125,227,255,0.35);
-  border-radius: 50%;
-  transform: rotate(-18deg);
-}
-.comms-redesign .cha-ring2 { width: 150px; height: 44px; right: 20px; top: 42px; border-color: rgba(125,227,255,0.2); }
-.comms-redesign .cha-sat {
-  position: absolute; left: 20px; top: 8px;
-  width: 16px; height: 6px; border-radius: 2px;
-  background: #9fd8ff;
-  box-shadow: -10px 3px 0 -1px #9fd8ff, 10px 3px 0 -1px #9fd8ff, 0 0 14px rgba(159,216,255,0.8);
-}
 
 /* Tabs */
 .comms-redesign .comms-tabs {
@@ -1528,7 +1498,7 @@
 .comms-redesign .comms-tabpane-body { margin: 0; max-width: 420px; font-size: 0.85rem; line-height: 1.6; color: rgba(255,255,255,0.5); }
 
 @media (max-width: 640px) {
-  .comms-redesign .comms-hero-art { display: none; }
+  
   .comms-redesign .comms-hero-tag { display: none; }
   .comms-redesign .comms-title { font-size: 1.6rem; }
 }
