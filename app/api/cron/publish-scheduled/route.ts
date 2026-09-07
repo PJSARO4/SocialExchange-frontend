@@ -79,20 +79,6 @@ async function publishToInstagram(
  * multi-per-day timing. Marks posts PUBLISHED/FAILED; retries up to 3x.
  */
 export async function GET(req: NextRequest) {
-  // Safe diagnostic: never returns the value, only whether the runtime sees it
-  // and its length. Helps confirm env wiring without leaking the secret.
-  if (req.nextUrl.searchParams.get('debug') === '1') {
-    const s = (process.env.CRON_TOKEN || process.env.CRON_SECRET || '');
-    return NextResponse.json({
-      source: process.env.CRON_TOKEN ? 'CRON_TOKEN' : (process.env.CRON_SECRET ? 'CRON_SECRET' : 'none'),
-      length: s.length,
-      trimmedLength: s.trim().length,
-      first2: s.slice(0, 2),
-      vercelEnv: process.env.VERCEL_ENV || null,
-      commit: (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || null,
-    });
-  }
-
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
