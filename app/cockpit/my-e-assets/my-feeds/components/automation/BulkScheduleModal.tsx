@@ -35,6 +35,8 @@ export default function BulkScheduleModal({ feedId, feedLabel, onClose }: Props)
   const [loading, setLoading] = useState(true);
   const [driveError, setDriveError] = useState('');
   const [selected, setSelected] = useState<Record<string, DriveItem>>({});
+  // Folder the selected files came from (locked on first pick) — used as move "from".
+  const [sourceFolder, setSourceFolder] = useState<{ id: string; name: string } | null>(null);
 
   const today = new Date().toISOString().slice(0, 10);
   const [startDate, setStartDate] = useState(today);
@@ -80,10 +82,13 @@ export default function BulkScheduleModal({ feedId, feedLabel, onClose }: Props)
     loadFolder(next[next.length - 1].id);
   };
 
+  const here = crumbs[crumbs.length - 1];
   const toggleFile = (item: DriveItem) => {
     setSelected((s) => {
       const n = { ...s };
       if (n[item.id]) delete n[item.id]; else n[item.id] = item;
+      if (Object.keys(n).length === 0) setSourceFolder(null);
+      else if (!sourceFolder) setSourceFolder(here);
       return n;
     });
   };
@@ -93,7 +98,8 @@ export default function BulkScheduleModal({ feedId, feedLabel, onClose }: Props)
       const n = { ...s };
       const allSel = files.every((f) => n[f.id]);
       if (allSel) files.forEach((f) => delete n[f.id]);
-      else files.forEach((f) => { n[f.id] = f; });
+      else { files.forEach((f) => { n[f.id] = f; }); if (!sourceFolder && files.length) setSourceFolder(here); }
+      if (Object.keys(n).length === 0) setSourceFolder(null);
       return n;
     });
   };
@@ -123,8 +129,8 @@ export default function BulkScheduleModal({ feedId, feedLabel, onClose }: Props)
           hashtags: hashtags.split(',').map((h) => h.trim()).filter(Boolean),
         },
       };
-      if (moveEnabled && postedFolder) {
-        body.move = { fromFolderId: currentFolder.id, toFolderId: postedFolder.id };
+      if (moveEnabled && postedFolder && (sourceFolder || currentFolder)) {
+        body.move = { fromFolderId: (sourceFolder || currentFolder).id, toFolderId: postedFolder.id };
       }
       const res = await fetch('/api/automation/bulk-schedule', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
@@ -268,10 +274,14 @@ export default function BulkScheduleModal({ feedId, feedLabel, onClose }: Props)
             <div style={label}>4 · Avoid duplicates (optional)</div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', cursor: 'pointer' }}>
               <input type="checkbox" checked={moveEnabled} onChange={(e) => setMoveEnabled(e.target.checked)} />
-              After scheduling, move originals to a “posted” folder {postedFolder && <b style={{ color: '#86efac' }}>→ {postedFolder.name}</b>}
+              After posting, move originals out of the source folder into a “posted” folder
             </label>
-            {moveEnabled && !postedFolder && (
-              <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>Browse to your “posted” folder above and click <b>Set Posted</b> next to it.</div>
+            {moveEnabled && (
+              <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>
+                From <b style={{ color: sourceFolder ? '#38bdf8' : '#fbbf24' }}>{sourceFolder ? sourceFolder.name : 'select files first'}</b>
+                {' '}→ <b style={{ color: postedFolder ? '#86efac' : '#fbbf24' }}>{postedFolder ? postedFolder.name : 'not set'}</b>
+                {!postedFolder && <div style={{ marginTop: 2 }}>Navigate to your “posted” folder above and click <b>Set Posted</b> next to it (your file selection stays locked).</div>}
+              </div>
             )}
           </div>
 
