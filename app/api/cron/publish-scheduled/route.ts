@@ -7,7 +7,7 @@ export const maxDuration = 60;
 
 /** Fail-closed CRON_SECRET check (also accepts ?secret= for external cron pingers). */
 function isAuthorized(req: NextRequest): boolean {
-  const secret = (process.env.CRON_SECRET || '').trim();
+  const secret = (process.env.CRON_TOKEN || process.env.CRON_SECRET || '').trim();
   if (!secret) return false;
   const header = (req.headers.get('authorization') || '').trim();
   const token = header.replace(/^Bearer\s+/i, '').trim();
@@ -82,9 +82,9 @@ export async function GET(req: NextRequest) {
   // Safe diagnostic: never returns the value, only whether the runtime sees it
   // and its length. Helps confirm env wiring without leaking the secret.
   if (req.nextUrl.searchParams.get('debug') === '1') {
-    const s = process.env.CRON_SECRET || '';
+    const s = (process.env.CRON_TOKEN || process.env.CRON_SECRET || '');
     return NextResponse.json({
-      hasSecret: !!s,
+      source: process.env.CRON_TOKEN ? 'CRON_TOKEN' : (process.env.CRON_SECRET ? 'CRON_SECRET' : 'none'),
       length: s.length,
       trimmedLength: s.trim().length,
       first2: s.slice(0, 2),
