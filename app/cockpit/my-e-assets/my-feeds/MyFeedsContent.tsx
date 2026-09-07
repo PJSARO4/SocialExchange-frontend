@@ -11,6 +11,7 @@ import { AnalyticsModal } from './components/analytics';
 import { SchedulerModal } from './components/scheduler/SchedulerModal';
 import { CopilotModal } from './components/copilot/CopilotModal';
 import { AutomationModal } from './components/automation/AutomationModal';
+import BulkScheduleModal from './components/automation/BulkScheduleModal';
 import { ContentFinderModal } from './components/content-finder/ContentFinderModal';
 import { CreatePostModal } from './components/create-post';
 import { SettingsModal } from './components/settings';
@@ -59,6 +60,7 @@ export default function MyFeedsContent() {
   const [schedulerOpen, setSchedulerOpen] = useState(false);
   const [copilotModalOpen, setCopilotModalOpen] = useState(false);
   const [automationOpen, setAutomationOpen] = useState(false);
+  const [bulkScheduleOpen, setBulkScheduleOpen] = useState(false);
   const [contentFinderOpen, setContentFinderOpen] = useState(false);
   const searchParams = useSearchParams();
   const { data: session } = useSession();
@@ -373,6 +375,11 @@ export default function MyFeedsContent() {
                           <span className="action-label">LinkEx</span>
                           <span className="action-subtitle">Chain Builder</span>
                         </button>
+                        <button className="quick-action-card linkex" onClick={() => setBulkScheduleOpen(true)}>
+                          <span className="action-icon"><CalendarIcon style={{ width: 24, height: 24 }} /></span>
+                          <span className="action-label">Bulk Schedule</span>
+                          <span className="action-subtitle">From Drive</span>
+                        </button>
                         <button className="quick-action-card" onClick={() => setSettingsOpen(true)}>
                           <span className="action-icon"><Cog6ToothIcon style={{ width: 24, height: 24 }} /></span>
                           <span className="action-label">Settings</span>
@@ -607,6 +614,14 @@ export default function MyFeedsContent() {
           feedId={selectedFeed.id}
           isOpen={automationOpen}
           onClose={() => setAutomationOpen(false)}
+        />
+      )}
+
+      {bulkScheduleOpen && selectedFeed && (
+        <BulkScheduleModal
+          feedId={selectedFeed.id}
+          feedLabel={selectedFeed.handle ? `@${selectedFeed.handle.replace(/^@/, '')}` : selectedFeed.displayName}
+          onClose={() => setBulkScheduleOpen(false)}
         />
       )}
 
