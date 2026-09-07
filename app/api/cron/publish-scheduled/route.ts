@@ -7,14 +7,17 @@ export const maxDuration = 60;
 
 /** Fail-closed CRON_SECRET check (also accepts ?secret= for external cron pingers). */
 function isAuthorized(req: NextRequest): boolean {
-  const secret = process.env.CRON_SECRET;
+  const secret = (process.env.CRON_SECRET || '').trim();
   if (!secret) return false;
-  const header = req.headers.get('authorization') || '';
-  const a = Buffer.from(header);
-  const b = Buffer.from(`Bearer ${secret}`);
-  if (a.length === b.length && timingSafeEqual(a, b)) return true;
+  const header = (req.headers.get('authorization') || '').trim();
+  const token = header.replace(/^Bearer\s+/i, '').trim();
+  if (token && token.length === secret.length) {
+    const a = Buffer.from(token);
+    const b = Buffer.from(secret);
+    if (timingSafeEqual(a, b)) return true;
+  }
   // Allow ?secret= for external schedulers that can't set headers.
-  return req.nextUrl.searchParams.get('secret') === secret;
+  return (req.nextUrl.searchParams.get('secret') || '').trim() === secret;
 }
 
 const IG = 'https://graph.instagram.com/v21.0';
@@ -76,6 +79,13 @@ async function publishToInstagram(
  * multi-per-day timing. Marks posts PUBLISHED/FAILED; retries up to 3x.
  */
 export async function GET(req: NextRequest) {
+  // Safe diagnostic: never returns the value, only whether the runtime sees it
+  // and its length. Helps confirm env wiring without leaking the secret.
+  if (req.nextUrl.searchParams.get('debug') === '1') {
+    const s = process.env.CRON_SECRET || '';
+    return NextResponse.json({ hasSecret: !!s, length: s.length, trimmedLength: s.trim().length });
+  }
+
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
