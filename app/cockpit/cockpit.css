@@ -2314,3 +2314,44 @@ body {
   background: radial-gradient(ellipse 50% 100% at 50% 100%, rgba(140,220,255,0.6), transparent 74%);
   filter: blur(6px);
 }
+
+/* ================================================================
+   PER-PAGE PHOTO BACKDROPS (driven by data-section on .cockpit-root)
+   ================================================================ */
+.cockpit-root[data-section="my-e-assets"] .earth-backdrop {
+  background-image:
+    linear-gradient(90deg, rgba(4,8,16,0.95) 0%, rgba(4,8,16,0.88) 38%, rgba(4,8,16,0.55) 70%, rgba(4,8,16,0.3) 100%),
+    linear-gradient(180deg, rgba(4,8,16,0.55) 0%, rgba(4,8,16,0.12) 40%, rgba(4,8,16,0.5) 100%),
+    url('/backdrops/fleet-backdrop.webp');
+  background-size: cover, cover, cover;
+  background-position: center, center, center right;
+  background-repeat: no-repeat;
+}
+/* photo replaces the CSS earth, but keep the twinkling stars alive */
+.cockpit-root[data-section="my-e-assets"] .eb-earth,
+.cockpit-root[data-section="my-e-assets"] .eb-atmo { display: none; }
+
+/* ================================================================
+   PAGE TRANSITION — warp-in
+   ================================================================ */
+.page-enter {
+  animation: page-warp-in 380ms cubic-bezier(0.16, 0.84, 0.44, 1) both;
+  will-change: opacity, transform, filter;
+}
+@keyframes page-warp-in {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.988);
+    filter: blur(6px);
+  }
+  60% { filter: blur(0.5px); }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter { animation: page-fade-min 160ms ease-out both; }
+  @keyframes page-fade-min { from { opacity: 0; } to { opacity: 1; } }
+}

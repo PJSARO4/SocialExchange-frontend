@@ -165,7 +165,7 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
   }, [pathname, setMoodForPath]);
 
   return (
-    <div className="cockpit-root">
+    <div className="cockpit-root" data-section={(pathname || '').split('/')[2] || 'home'}>
       {/* SILENT PRESENCE BEACON (admin live map) */}
       <PresencePing />
 
@@ -283,7 +283,9 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
           </div>
         </aside>
 
-        <main className="cockpit-main page-enter">{children}</main>
+        {/* key={pathname} remounts on route change so the enter animation
+            actually re-fires — previously it only ran once on first load. */}
+        <main key={pathname} className="cockpit-main page-enter">{children}</main>
       </div>
 
       {/* FOOTER */}
