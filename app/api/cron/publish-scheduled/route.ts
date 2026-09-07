@@ -83,7 +83,14 @@ export async function GET(req: NextRequest) {
   // and its length. Helps confirm env wiring without leaking the secret.
   if (req.nextUrl.searchParams.get('debug') === '1') {
     const s = process.env.CRON_SECRET || '';
-    return NextResponse.json({ hasSecret: !!s, length: s.length, trimmedLength: s.trim().length });
+    return NextResponse.json({
+      hasSecret: !!s,
+      length: s.length,
+      trimmedLength: s.trim().length,
+      first2: s.slice(0, 2),
+      vercelEnv: process.env.VERCEL_ENV || null,
+      commit: (process.env.VERCEL_GIT_COMMIT_SHA || '').slice(0, 7) || null,
+    });
   }
 
   if (!isAuthorized(req)) {
