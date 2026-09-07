@@ -1,0 +1,38 @@
+name: Publish scheduled posts
+
+# Fires the Social Exchange publisher on a short cadence so scheduled Instagram
+# posts go out at (roughly) their real times. Vercel Hobby crons only run once a
+# day, so this GitHub Actions schedule is the real multi-per-day trigger.
+#
+# One-time setup: add a repo secret named CRON_SECRET (Settings -> Secrets and
+# variables -> Actions) whose value matches the CRON_SECRET env var in Vercel.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # every 10 minutes (UTC; GitHub runs it best-effort)
+  workflow_dispatch: {}       # lets you run it manually from the Actions tab
+
+concurrency:
+  group: publish-cron
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger publisher
+        run: |
+          if [ -z "${{ secrets.CRON_SECRET }}" ]; then
+            echo "CRON_SECRET repo secret is not set — add it in repo Settings." >&2
+            exit 1
+          fi
+          code=$(curl -sS -o /tmp/out.json -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "https://social-exchange-frontend.vercel.app/api/cron/publish-scheduled")
+          echo "HTTP $code"
+          cat /tmp/out.json || true
+          echo
+          if [ "$code" != "200" ]; then
+            echo "Publisher returned non-200" >&2
+            exit 1
+          fi
