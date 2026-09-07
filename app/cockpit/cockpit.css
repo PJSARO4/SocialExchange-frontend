@@ -2257,3 +2257,39 @@ body {
 .nav-admin .nav-ico { color: #f6b73c; }
 .nav-admin.active .nav-ico { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 0 14px rgba(245,158,11,0.5); }
 .nav-admin .nav-label { color: #f6b73c; }
+
+/* --- Earth backdrop: make the horizon actually visible --- */
+.earth-backdrop {
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 120%, rgba(30,70,130,0.35), transparent 60%),
+    linear-gradient(180deg, #05070f 0%, #070c1a 40%, #0a1730 78%, #0c2140 100%);
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 120%, rgba(30,70,130,0.35), transparent 60%),
+    linear-gradient(180deg, #05070f 0%, #070c1a 40%, #0a1730 78%, #0c2140 100%);
+}
+.earth-backdrop .eb-earth {
+  top: 60%;
+  bottom: auto;
+  left: 50%;
+  width: 220vw;
+  height: 220vw;
+  transform: translateX(-50%);
+  background: radial-gradient(circle at 50% 50%,
+    rgba(8,26,52,0) 58.5%,
+    rgba(120,205,255,0.55) 60%,
+    rgba(56,150,235,0.55) 61.5%,
+    rgba(28,95,175,0.55) 64%,
+    rgba(18,60,120,0.6) 72%,
+    rgba(9,30,60,0.85) 100%);
+  box-shadow: none;
+}
+.earth-backdrop .eb-atmo {
+  top: 57.5%;
+  bottom: auto;
+  left: 50%;
+  width: 220vw;
+  height: 16vh;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse 45% 100% at 50% 100%, rgba(125,215,255,0.45), transparent 72%);
+  filter: blur(4px);
+}
