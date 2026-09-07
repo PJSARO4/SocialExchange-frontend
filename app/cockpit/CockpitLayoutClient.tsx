@@ -18,7 +18,7 @@ import { PageTransitionProvider } from '@/components/transitions/PageTransition'
 import { AmbientAudioProvider, useAmbientAudio } from '@/lib/audio/useAmbientAudio';
 import AudioControl from '@/components/audio/AudioControl';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import { Brain } from 'lucide-react';
+import { Brain, Home, Layers, TrendingUp, FlaskConical, MessageSquare, SlidersHorizontal, Shield } from 'lucide-react';
 import MoodBackground from '@/components/audio/MoodBackground';
 import GlobalChatWidget from './comms/components/GlobalChatWidget';
 import { ToastProvider } from './ui/toast/ToastProvider';
@@ -169,6 +169,13 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
       {/* SILENT PRESENCE BEACON (admin live map) */}
       <PresencePing />
 
+      {/* CONSTANT EARTH-FROM-ORBIT BACKDROP (pure CSS, perf-safe) */}
+      <div className="earth-backdrop" aria-hidden="true">
+        <div className="eb-stars" />
+        <div className="eb-earth" />
+        <div className="eb-atmo" />
+      </div>
+
       {/* MOOD-REACTIVE BACKGROUND */}
       <MoodBackground />
 
@@ -193,7 +200,24 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
       {/* TOP BAR */}
       <header className="cockpit-topbar">
         <ActivityLightbar />
-        <div className="logo">SOCIAL · EXCHANGE</div>
+        <div className="brand">
+          <svg className="brand-mark" viewBox="0 0 40 40" width="30" height="30" aria-hidden="true">
+            <defs>
+              <radialGradient id="brandPlanet" cx="38%" cy="34%" r="70%">
+                <stop offset="0%" stopColor="#7de3ff" />
+                <stop offset="55%" stopColor="#2b8fd6" />
+                <stop offset="100%" stopColor="#123a63" />
+              </radialGradient>
+            </defs>
+            <ellipse cx="20" cy="20" rx="18.5" ry="6.4" fill="none" stroke="#38bdf8" strokeWidth="1.4" opacity="0.85" transform="rotate(-22 20 20)" />
+            <circle cx="20" cy="20" r="9.5" fill="url(#brandPlanet)" />
+            <ellipse cx="16.5" cy="16.5" rx="3" ry="2" fill="rgba(255,255,255,0.35)" />
+          </svg>
+          <div className="brand-text">
+            <span className="brand-word">SOCIAL · EXCHANGE</span>
+            <span className="brand-tag">ACQUIRE · GROW · DOMINATE</span>
+          </div>
+        </div>
         <div className="topbar-center">
           <LivePulse />
         </div>
@@ -224,73 +248,33 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
         <aside className={`cockpit-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
           <div className="sidebar-title">NAVIGATION</div>
 
-          <Link
-            href="/cockpit/home"
-            className={`sidebar-link ${
-              pathname === '/cockpit/home' ? 'active' : ''
-            }`}
-          >
-            Home
-          </Link>
-
-          <Link
-            href="/cockpit/dashboard"
-            className={`sidebar-link ${
-              pathname === '/cockpit/dashboard' ? 'active' : ''
-            }`}
-          >
-            Command Center
-          </Link>
-
-          <Link
-            href="/cockpit/my-e-assets"
-            className={`sidebar-link ${
-              pathname === '/cockpit/my-e-assets' ||
-              pathname?.startsWith('/cockpit/my-e-assets/')
-                ? 'active'
-                : ''
-            }`}
-          >
-            My E-Assets
-          </Link>
-
-          <Link
-            href="/cockpit/trading-post"
-            className={`sidebar-link ${
-              pathname === '/cockpit/trading-post' ||
-              pathname?.startsWith('/cockpit/trading-post/')
-                ? 'active'
-                : ''
-            }`}
-          >
-            The Exchange Floor
-          </Link>
-
-          <Link
-            href="/cockpit/comms"
-            className={`sidebar-link ${
-              pathname === '/cockpit/comms' ? 'active' : ''
-            }`}
-          >
-            Comms
-          </Link>
-
-          <Link
-            href="/cockpit/meme-lab"
-            className={`sidebar-link ${
-              pathname === '/cockpit/meme-lab' ? 'active' : ''
-            }`}
-          >
-            Content Lab
-          </Link>
+          {[
+            { href: '/cockpit/home', label: 'Cockpit', sub: 'Mission Control', Icon: Home, match: (p: string) => p === '/cockpit/home' },
+            { href: '/cockpit/my-e-assets', label: 'My E-Assets', sub: 'Your Fleet', Icon: Layers, match: (p: string) => p === '/cockpit/my-e-assets' || p.startsWith('/cockpit/my-e-assets/') },
+            { href: '/cockpit/trading-post', label: 'The Exchange Floor', sub: 'Trade & Discover', Icon: TrendingUp, match: (p: string) => p === '/cockpit/trading-post' || p.startsWith('/cockpit/trading-post/') },
+            { href: '/cockpit/meme-lab', label: 'Content Lab', sub: 'Create & Deploy', Icon: FlaskConical, match: (p: string) => p === '/cockpit/meme-lab' },
+            { href: '/cockpit/comms', label: 'Comms', sub: 'Messages & Deals', Icon: MessageSquare, match: (p: string) => p === '/cockpit/comms' },
+            { href: '/cockpit/dashboard', label: 'Command Center', sub: 'Settings & Integrations', Icon: SlidersHorizontal, match: (p: string) => p === '/cockpit/dashboard' },
+          ].map(({ href, label, sub, Icon, match }) => (
+            <Link key={href} href={href} className={`sidebar-link ${match(pathname || '') ? 'active' : ''}`}>
+              <span className="nav-ico"><Icon size={18} strokeWidth={1.8} /></span>
+              <span className="nav-txt">
+                <span className="nav-label">{label}</span>
+                <span className="nav-sub">{sub}</span>
+              </span>
+            </Link>
+          ))}
 
           {session?.user?.email === 'pjsaro4@gmail.com' && (
             <Link
               href="/cockpit/owner"
-              className={`sidebar-link ${pathname === '/cockpit/owner' ? 'active' : ''}`}
-              style={{ color: '#f59e0b', marginTop: '0.5rem' }}
+              className={`sidebar-link nav-admin ${pathname === '/cockpit/owner' ? 'active' : ''}`}
             >
-              ⚙ Admin
+              <span className="nav-ico"><Shield size={18} strokeWidth={1.8} /></span>
+              <span className="nav-txt">
+                <span className="nav-label">Admin</span>
+                <span className="nav-sub">Owner Access</span>
+              </span>
             </Link>
           )}
 
