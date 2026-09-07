@@ -38,9 +38,15 @@ export default function RightPanel() {
     .filter(c => mentionFilter ? c.name.toLowerCase().includes(mentionFilter.toLowerCase()) || c.username.toLowerCase().includes(mentionFilter.toLowerCase()) : true)
     .slice(0, 5);
 
-  // Scroll to bottom on new messages
+  // Scroll to bottom on new messages — scoped to the message list only.
+  // (scrollIntoView() walks every scrollable ancestor, which yanked the whole
+  // page to the bottom on load. Scroll the container directly instead.)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const end = messagesEndRef.current;
+    if (!end) return;
+    const container = end.closest('.comms-messages-container') as HTMLElement | null;
+    if (!container) return;
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
   }, [threadMessages.length, activeThreadId]);
 
   // Focus search input when opened
