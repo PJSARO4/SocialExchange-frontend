@@ -46,13 +46,36 @@ function SignInContent() {
     <div className="auth-page">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
-        .auth-page { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: hidden;
-          font-family: 'JetBrains Mono', ui-monospace, monospace;
-          background:
-            radial-gradient(ellipse 50% 40% at 15% 10%, rgba(122,92,255,0.18), transparent 60%),
-            radial-gradient(ellipse 50% 40% at 85% 90%, rgba(0,240,255,0.12), transparent 60%),
-            radial-gradient(ellipse 60% 50% at 60% 50%, rgba(198,75,255,0.06), transparent 55%),
-            #02040a; }
+        /* body is a centering flexbox for non-cockpit pages, which made this a
+           shrink-to-fit flex item. Force it to fill the viewport. */
+        .auth-page { position: relative; min-height: 100vh; width: 100%; flex: 1 0 100%; align-self: stretch;
+          display: flex; align-items: center; justify-content: center; padding: 24px; overflow: hidden;
+          font-family: 'JetBrains Mono', ui-monospace, monospace; background: #02040a; }
+        /* pulsing teal + purple aura */
+        .auth-aura { position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+          filter: blur(90px); will-change: transform, opacity; }
+        .auth-aura.a1 { width: 70vw; height: 70vw; left: -14vw; top: -26vh;
+          background: radial-gradient(circle, rgba(122,92,255,0.40), rgba(122,92,255,0) 66%);
+          animation: auraDrift1 15s ease-in-out infinite; }
+        .auth-aura.a2 { width: 74vw; height: 74vw; right: -16vw; bottom: -30vh;
+          background: radial-gradient(circle, rgba(0,240,255,0.32), rgba(0,240,255,0) 66%);
+          animation: auraDrift2 19s ease-in-out infinite; }
+        .auth-aura.a3 { width: 52vw; height: 52vw; left: 32vw; top: 22vh;
+          background: radial-gradient(circle, rgba(198,75,255,0.20), rgba(198,75,255,0) 68%);
+          animation: auraDrift3 23s ease-in-out infinite; }
+        @keyframes auraDrift1 {
+          0%,100% { transform: translate3d(0,0,0) scale(1);    opacity: 0.7; }
+          50%     { transform: translate3d(5vw,4vh,0) scale(1.14); opacity: 1; }
+        }
+        @keyframes auraDrift2 {
+          0%,100% { transform: translate3d(0,0,0) scale(1.08); opacity: 0.6; }
+          50%     { transform: translate3d(-5vw,-4vh,0) scale(1); opacity: 0.95; }
+        }
+        @keyframes auraDrift3 {
+          0%,100% { transform: translate3d(0,0,0) scale(1);   opacity: 0.45; }
+          50%     { transform: translate3d(-3vw,3vh,0) scale(1.18); opacity: 0.8; }
+        }
+        @media (prefers-reduced-motion: reduce) { .auth-aura { animation: none; } }
         .auth-card { position: relative; z-index: 1; max-width: 400px; width: 100%; padding: 40px 36px 34px;
           background: rgba(10,17,24,0.55); border: 1px solid rgba(0,240,255,0.16); border-radius: 18px;
           backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -77,6 +100,9 @@ function SignInContent() {
         .auth-footer a { color: #3FFFDC; text-decoration: none; }
         .auth-footer a:hover { text-decoration: underline; }
       `}</style>
+      <div className="auth-aura a1" aria-hidden="true" />
+      <div className="auth-aura a2" aria-hidden="true" />
+      <div className="auth-aura a3" aria-hidden="true" />
       <div className="auth-card">
         <svg className="auth-logo" viewBox="0 0 100 100" fill="none" aria-hidden="true">
           <g stroke="currentColor" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round">

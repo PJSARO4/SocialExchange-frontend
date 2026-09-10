@@ -58,7 +58,8 @@ function SignUpContent() {
     <div className="auth-page">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap');
-        .auth-page { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: hidden;
+        .auth-page { position: relative; min-height: 100vh; width: 100%; flex: 1 0 100%; align-self: stretch;
+          display: flex; align-items: center; justify-content: center; padding: 24px; overflow: hidden;
           font-family: 'JetBrains Mono', ui-monospace, monospace;
           background:
             radial-gradient(ellipse 50% 40% at 15% 10%, rgba(122,92,255,0.18), transparent 60%),
