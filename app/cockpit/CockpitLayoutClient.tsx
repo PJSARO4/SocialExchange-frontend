@@ -5,6 +5,11 @@ import { ReactNode, useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import './cockpit.css';
+// The SYN (Organism) panel is mounted globally below, but organism.css was only
+// ever imported by the My Feeds and E-Storage routes. Without this import the
+// panel mounts on every other cockpit route and renders completely unstyled —
+// present in the DOM, invisible on screen. Styles only; no behaviour change.
+import './my-e-assets/my-e-storage/organism/organism.css';
 
 
 import ActivityLightbar from './ui/ActivityLightbar';
