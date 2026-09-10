@@ -14,6 +14,10 @@ import LivePulse from './ui/LivePulse';
 import LogsPanel from './ui/LogsPanel';
 import SignalPanel from './ui/SignalPanel';
 import GlobalCopilot from './ui/GlobalCopilot';
+// SYN — the existing Organism system. This is the ONLY SYN implementation;
+// the footer control below opens it globally instead of leaving it inert.
+import { useOrganism } from '@/app/context/OrganismContext';
+import OrganismPanel from './my-e-assets/my-e-storage/organism/components/OrganismPanel';
 import WelcomeExperience from '@/components/welcome/WelcomeExperience';
 import { PageTransitionProvider } from '@/components/transitions/PageTransition';
 import { AmbientAudioProvider, useAmbientAudio } from '@/lib/audio/useAmbientAudio';
@@ -142,6 +146,11 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
   const { data: session } = useSession();
   const { setMoodForPath } = useAmbientAudio();
   const { isOpen: mobileMenuOpen, toggle: toggleMobileMenu, close: closeMobileMenu } = useMobileMenu();
+
+  // SYN panel state is owned by OrganismContext (globally mounted in
+  // app/providers.tsx), so opening SYN from the footer and opening it from
+  // E-Storage are the same panel with the same chat history, tasks and mood.
+  const { isPanelOpen: synOpen, togglePanel: toggleSyn, closePanel: closeSyn } = useOrganism();
 
   const [logsOpen, setLogsOpen] = useState(false);
   const [signalOpen, setSignalOpen] = useState(false);
@@ -309,8 +318,9 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
         </span>
 
         <span
-          className="footer-tab"
+          className={`footer-tab ${synOpen ? 'active' : ''}`}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+          onClick={toggleSyn}
           title="SYN Organism"
         >
           <span style={{
@@ -344,6 +354,10 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
 
       {/* GLOBAL COPILOT */}
       <GlobalCopilot isOpen={copilotOpen} onClose={() => setCopilotOpen(false)} />
+
+      {/* SYN — mounted once, here, for every cockpit page. E-Storage renders the
+          SYN avatar (OrganismCity) but no longer renders its own panel copy. */}
+      <OrganismPanel isOpen={synOpen} onClose={closeSyn} />
 
       {/* GLOBAL CHAT WIDGET */}
       <GlobalChatWidget isOpen={globalChatOpen} onClose={() => setGlobalChatOpen(false)} />

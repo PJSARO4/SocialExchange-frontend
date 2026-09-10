@@ -3,7 +3,6 @@
 import { useOrganism } from '@/app/context/OrganismContext';
 import OrganismCity from './OrganismCity';
 import OrganismActivityBubble from './OrganismActivityBubble';
-import OrganismPanel from './OrganismPanel';
 import { OrganismErrorBoundary } from './OrganismErrorBoundary';
 
 // ============================================
@@ -12,7 +11,8 @@ import { OrganismErrorBoundary } from './OrganismErrorBoundary';
 // ============================================
 
 export default function OrganismEStorageIntegration() {
-  const { isPanelOpen, closePanel } = useOrganism();
+  // Panel state lives in OrganismContext; this wrapper only renders the avatar.
+  useOrganism();
 
   return (
     <OrganismErrorBoundary fallbackMessage="SYN organism encountered an error">
@@ -31,8 +31,9 @@ export default function OrganismEStorageIntegration() {
           <OrganismActivityBubble />
         </div>
 
-        {/* Panel */}
-        <OrganismPanel isOpen={isPanelOpen} onClose={closePanel} />
+        {/* The SYN panel is mounted globally in CockpitLayoutClient so the
+            footer SYN control and this avatar open the same panel. Rendering it
+            here as well would put two identical panels on the E-Storage page. */}
       </>
     </OrganismErrorBoundary>
   );

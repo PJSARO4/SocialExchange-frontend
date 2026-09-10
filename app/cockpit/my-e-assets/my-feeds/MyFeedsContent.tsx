@@ -20,6 +20,7 @@ import { CompetitorsTab } from './components/competitors';
 import { PageTutorial } from './components/PageTutorial';
 import { Platform, PLATFORMS } from './types/feed';
 import ModeSelector from './components/ModeSelector';
+import { useSynContextPublisher } from '@/app/syn/SynFeedContext';
 import MyEStorageContent from '../my-e-storage/MyEStorageContent';
 import '../my-e-storage/e-storage.css';
 import '../my-e-storage/organism/organism.css';
@@ -59,12 +60,40 @@ export default function MyFeedsContent() {
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [schedulerOpen, setSchedulerOpen] = useState(false);
   const [copilotModalOpen, setCopilotModalOpen] = useState(false);
+
+  // SYN-0: publish the focused feed so a globally-mounted SYN knows which
+  // account the operator is working on. Identity only — no permissions.
+  const { setSynFeed, setSynSection } = useSynContextPublisher();
   const [automationOpen, setAutomationOpen] = useState(false);
   const [bulkScheduleOpen, setBulkScheduleOpen] = useState(false);
   const [contentFinderOpen, setContentFinderOpen] = useState(false);
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [oauthProcessed, setOauthProcessed] = useState(false);
+
+  // SYN-0 context plumbing: mirror the focused feed into SYN context, and clear
+  // it on unmount so SYN falls back to general cockpit context on other pages.
+  useEffect(() => {
+    setSynSection('my-feeds');
+    if (selectedFeed) {
+      setSynFeed({
+        feedId: selectedFeed.id,
+        handle: selectedFeed.handle,
+        platform: String(selectedFeed.platform),
+        controlMode: String(selectedFeed.controlMode),
+        displayName: selectedFeed.displayName,
+      });
+    } else {
+      setSynFeed(null);
+    }
+  }, [selectedFeed, setSynFeed, setSynSection]);
+
+  useEffect(() => {
+    return () => {
+      setSynFeed(null);
+      setSynSection(null);
+    };
+  }, [setSynFeed, setSynSection]);
 
   // Handle OAuth callback - save the connected account or upgrade existing manual feed
   useEffect(() => {

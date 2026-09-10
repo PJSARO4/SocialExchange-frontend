@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ReactNode } from 'react';
 import {
   CpuChipIcon,
   HandRaisedIcon,
   EyeIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/20/solid';
 import { ControlMode } from '../types/feed';
 
@@ -14,6 +16,14 @@ interface ModeSelectorProps {
   onModeChange: (mode: ControlMode) => void;
   disabled?: boolean;
   compact?: boolean;
+  /**
+   * Which modes to offer. Defaults to COMPACT_MODE_ORDER for the compact
+   * dropdown and to every defined mode for the full card variant.
+   *
+   * This is the expansion seam for SYN: adding RECOMMEND / ASSISTED later is a
+   * change to MODES + this list, not a change to the component.
+   */
+  modes?: ControlMode[];
 }
 
 // Mode configuration with full details
@@ -58,6 +68,21 @@ const MODES: Array<{
     ]
   },
   {
+    id: 'escrow',
+    icon: <ShieldCheckIcon style={{ width: 18, height: 18 }} />,
+    label: 'Escrow',
+    shortLabel: 'ESCROW',
+    color: '#a78bfa',
+    bgColor: 'rgba(167, 139, 250, 0.1)',
+    description: 'Actions are prepared and queued for your review. Nothing is posted until you approve it.',
+    features: [
+      'Queued for review',
+      'Approval required',
+      'Nothing auto-posts',
+      'Full audit trail'
+    ]
+  },
+  {
     id: 'observation',
     icon: <EyeIcon style={{ width: 18, height: 18 }} />,
     label: 'Observe',
@@ -74,17 +99,100 @@ const MODES: Array<{
   }
 ];
 
+/**
+ * Display order for the compact dropdown. MANUAL -> ESCROW -> AUTOPILOT is the
+ * order of increasing autonomy, which is the order the operator reasons in.
+ *
+ * 'observation' is intentionally absent here: it is still a valid ControlMode
+ * (and still resolvable for display if a feed is already in it), but it is not
+ * a step on the autonomy ladder.
+ */
+export const COMPACT_MODE_ORDER: ControlMode[] = ['manual', 'escrow', 'autopilot'];
+
+/**
+ * SYN autonomy ladder — NOT YET IMPLEMENTED, documented here so the expansion
+ * path is explicit and so nobody has to re-derive it later.
+ *
+ *   MANUAL     SYN observes only.                        (exists)
+ *   RECOMMEND  SYN analyses and recommends. No side effects.
+ *   ASSISTED   SYN may create/store content after approval.
+ *   ESCROW     SYN may prepare schedules/actions after approval. (exists)
+ *   AUTOPILOT  SYN may execute explicitly permitted actions.     (exists)
+ *
+ * Adding RECOMMEND/ASSISTED requires: a Prisma enum migration, an entry in
+ * MODES, and inserting the id into COMPACT_MODE_ORDER. Nothing else in this
+ * component is order- or count-dependent.
+ */
+export const PLANNED_MODES = ['recommend', 'assisted'] as const;
+
 export default function ModeSelector({
   currentMode,
   onModeChange,
   disabled = false,
-  compact = false
+  compact = false,
+  modes
 }: ModeSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredMode, setHoveredMode] = useState<ControlMode | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement | null>(null);
 
-  const currentModeConfig = MODES.find(m => m.id === currentMode) || MODES[1];
-  const displayMode = hoveredMode ? MODES.find(m => m.id === hoveredMode) : currentModeConfig;
+  useEffect(() => { setMounted(true); }, []);
+
+  const byId = (id: ControlMode) => MODES.find(m => m.id === id);
+  const currentModeConfig = byId(currentMode) || MODES.find(m => m.id === 'manual') || MODES[0];
+
+  const compactIds = modes ?? COMPACT_MODE_ORDER;
+  const compactModes = compactIds
+    .map(byId)
+    .filter((m): m is (typeof MODES)[number] => Boolean(m));
+
+  const fullModes = modes
+    ? modes.map(byId).filter((m): m is (typeof MODES)[number] => Boolean(m))
+    : MODES;
+
+  const displayMode = hoveredMode ? byId(hoveredMode) : currentModeConfig;
+
+  /**
+   * The dropdown is portalled to <body> and positioned with position:fixed from
+   * the trigger's viewport rect. See the comment on .mode-selector-dropdown in
+   * my-feeds.css for why anchoring it to the trigger was not survivable.
+   */
+  const MENU_WIDTH = 300;
+  const GUTTER = 12;
+
+  const placeMenu = useCallback(() => {
+    const el = btnRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+
+    // Prefer right-aligning the menu to the trigger (the trigger sits at the
+    // right edge of the account bar), then clamp into the viewport.
+    let left = r.right - MENU_WIDTH;
+    const maxLeft = window.innerWidth - MENU_WIDTH - GUTTER;
+    if (left > maxLeft) left = maxLeft;
+    if (left < GUTTER) left = GUTTER;
+
+    setMenuPos({ top: Math.round(r.bottom + 6), left: Math.round(left) });
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    placeMenu();
+    const onScroll = () => placeMenu();
+    const onResize = () => placeMenu();
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsOpen(false); };
+    // capture:true so we also react to scrolling of inner scroll containers
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', onResize);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [isOpen, placeMenu]);
 
   const handleModeSelect = (mode: ControlMode) => {
     if (!disabled && mode !== currentMode) {
@@ -97,9 +205,13 @@ export default function ModeSelector({
     return (
       <div className="mode-selector-compact">
         <button
-          className="mode-selector-compact-btn"
-          onClick={() => setIsOpen(!isOpen)}
+          ref={btnRef}
+          type="button"
+          className={`mode-selector-compact-btn ${isOpen ? 'open' : ''}`}
+          onClick={() => setIsOpen(v => !v)}
           disabled={disabled}
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
           style={{
             borderColor: currentModeConfig.color,
             backgroundColor: currentModeConfig.bgColor
@@ -112,13 +224,23 @@ export default function ModeSelector({
           <span className="mode-chevron">▼</span>
         </button>
 
-        {isOpen && (
+        {isOpen && mounted && menuPos && createPortal(
           <>
-            <div className="mode-selector-backdrop" onClick={() => setIsOpen(false)} />
-            <div className="mode-selector-dropdown">
-              {MODES.map((mode) => (
+            <div
+              className="mode-selector-backdrop"
+              onClick={() => setIsOpen(false)}
+            />
+            <div
+              className="mode-selector-dropdown"
+              role="listbox"
+              style={{ top: menuPos.top, left: menuPos.left }}
+            >
+              {compactModes.map((mode) => (
                 <button
                   key={mode.id}
+                  type="button"
+                  role="option"
+                  aria-selected={mode.id === currentMode}
                   className={`mode-dropdown-item ${mode.id === currentMode ? 'active' : ''}`}
                   onClick={() => handleModeSelect(mode.id)}
                   style={{
@@ -126,15 +248,16 @@ export default function ModeSelector({
                     '--mode-bg': mode.bgColor
                   } as React.CSSProperties}
                 >
-                  <span className="mode-icon">{mode.icon}</span>
+                  <span className="mode-icon" style={{ color: mode.color }}>{mode.icon}</span>
                   <span className="mode-info">
-                    <span className="mode-name">{mode.label}</span>
+                    <span className="mode-name">{mode.shortLabel}</span>
                     <span className="mode-desc">{mode.description}</span>
                   </span>
                 </button>
               ))}
             </div>
-          </>
+          </>,
+          document.body
         )}
       </div>
     );
@@ -144,7 +267,7 @@ export default function ModeSelector({
     <div className="mode-selector">
       {/* Mode Cards */}
       <div className="mode-selector-cards">
-        {MODES.map((mode) => (
+        {fullModes.map((mode) => (
           <button
             key={mode.id}
             className={`mode-card ${mode.id === currentMode ? 'selected' : ''}`}
@@ -198,7 +321,13 @@ export default function ModeSelector({
   );
 }
 
-// CSS styles for the mode selector
+/**
+ * DEAD STRING — kept only so any stray import keeps resolving.
+ *
+ * These rules are NOT injected anywhere. The live styles are in my-feeds.css
+ * (search: .mode-selector-compact). Editing this string has no visual effect;
+ * edit my-feeds.css instead.
+ */
 export const modeSelectorStyles = `
 .mode-selector {
   display: flex;

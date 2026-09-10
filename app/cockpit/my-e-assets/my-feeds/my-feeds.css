@@ -10256,25 +10256,55 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
+/* The control-mode menu is PORTALLED TO <body> and positioned with
+   position:fixed from the trigger's rect (see ModeSelector.tsx).
+
+   Why it cannot be anchored to the trigger:
+     1. `left:0; right:0` sized it to the ~110px trigger, then `min-width:280px`
+        forced it wider — so it overflowed ~170px to the right of a trigger that
+        already sits at the right edge of .workspace-account-bar.
+     2. .feeds-deck-main sets `overflow-x: hidden`, so that overflow was CLIPPED
+        rather than merely ugly.
+     3. .workspace-content is a sibling scroll container (`overflow-y: auto`)
+        holding the quick-action cards, and it painted over an absolutely
+        positioned menu living in an earlier sibling.
+
+   Portalling to <body> escapes all three at once: no ancestor overflow can clip
+   it and no ancestor stacking context can outrank it. Do not reintroduce
+   `position: absolute` here. */
 .mode-selector-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 99;
+  z-index: 9000;
 }
 
 .mode-selector-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  min-width: 280px;
-  margin-top: 4px;
-  background: rgba(0, 20, 30, 0.95);
+  position: fixed;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  background: rgba(4, 16, 24, 0.98);
   border: 1px solid rgba(0, 200, 255, 0.3);
   border-radius: 8px;
-  overflow: hidden;
-  z-index: 100;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 9001;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 24px rgba(0, 200, 255, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+.mode-selector-compact-btn.open .mode-chevron {
+  transform: rotate(180deg);
+}
+
+.mode-chevron {
+  transition: transform 0.15s ease;
+  display: inline-block;
+}
+
+@media (max-width: 560px) {
+  .mode-selector-dropdown {
+    width: calc(100vw - 24px);
+  }
 }
 
 .mode-dropdown-item {
