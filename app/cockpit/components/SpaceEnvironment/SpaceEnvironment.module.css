@@ -62,7 +62,9 @@
   display: block;
 }
 
-/* ---- 4. Primary planet: enormous, mostly off-viewport ---- */
+/* ---- 4. Primary planet: enormous, mostly off-viewport ----
+   NOTE: gradients use `closest-side` so 100% == the disc rim. With the default
+   (farthest-corner) the rim lands at ~70.7% and every band renders off-screen. */
 .planet {
   position: absolute;
   left: 72%;
@@ -72,31 +74,34 @@
   transform: translateX(-50%);
   border-radius: 50%;
   overflow: hidden;
-  /* body: darkest away from the lit limb at the top edge */
+  /* dark core -> limb brightening as it approaches the rim */
   background:
-    radial-gradient(circle at 50% 50%,
-      rgba(10, 30, 58, 0) 47.4%,
-      rgba(26, 86, 140, 0.55) 48.0%,
-      rgba(18, 62, 108, 0.62) 49.5%,
-      rgba(12, 44, 80, 0.72) 54%,
-      rgba(8, 28, 54, 0.86) 68%,
-      rgba(5, 16, 32, 0.95) 100%);
+    radial-gradient(circle closest-side at 50% 50%,
+      rgba(4, 12, 26, 0.97) 0%,
+      rgba(6, 20, 40, 0.96) 45%,
+      rgba(9, 32, 62, 0.95) 68%,
+      rgba(14, 50, 92, 0.94) 84%,
+      rgba(22, 76, 132, 0.93) 93%,
+      rgba(38, 112, 175, 0.92) 98%,
+      rgba(64, 150, 214, 0.92) 100%);
   animation: planetDrift 420s ease-in-out infinite;
   will-change: transform;
 }
 
-/* subtle surface texture, drifts sideways like slow rotation.
-   background-position animation on a repeating pattern = no visible reset. */
+/* Cloud/terrain banding. Positioned in the top slice of the box because that is
+   the only part of this enormous disc that is ever on screen. */
 .planetSurface {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  opacity: 0.5;
+  opacity: 0.75;
   background-image:
-    radial-gradient(ellipse 22% 9% at 20% 51%, rgba(120, 175, 220, 0.16), transparent 70%),
-    radial-gradient(ellipse 16% 7% at 44% 53%, rgba(140, 195, 235, 0.13), transparent 70%),
-    radial-gradient(ellipse 26% 8% at 68% 50.5%, rgba(110, 165, 215, 0.14), transparent 70%),
-    radial-gradient(ellipse 14% 6% at 88% 52.5%, rgba(150, 200, 240, 0.10), transparent 70%);
+    radial-gradient(ellipse 15% 3.2% at 14% 7.5%, rgba(150, 200, 240, 0.30), transparent 70%),
+    radial-gradient(ellipse 11% 2.4% at 33% 12%, rgba(120, 175, 225, 0.24), transparent 72%),
+    radial-gradient(ellipse 18% 3.6% at 52% 6%, rgba(165, 215, 250, 0.26), transparent 70%),
+    radial-gradient(ellipse 9% 2.2% at 68% 13.5%, rgba(110, 165, 215, 0.22), transparent 72%),
+    radial-gradient(ellipse 14% 3% at 84% 9%, rgba(150, 205, 245, 0.25), transparent 70%),
+    radial-gradient(ellipse 7% 1.8% at 95% 15%, rgba(130, 185, 230, 0.18), transparent 74%);
   background-repeat: repeat-x;
   background-size: 50% 100%;
   animation: surfaceRotate 560s linear infinite;
@@ -108,10 +113,12 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: linear-gradient(105deg, rgba(2, 6, 14, 0.55) 0%, rgba(2, 6, 14, 0) 42%);
+  background: linear-gradient(105deg, rgba(2, 6, 14, 0.60) 0%, rgba(2, 6, 14, 0) 46%);
 }
 
-/* ---- Atmospheric rim: the thin glowing limb ---- */
+/* ---- Atmospheric rim ----
+   No border-radius: the halo must bleed OUTSIDE the disc into space, and
+   border-radius would clip exactly that part away. */
 .atmosphere {
   position: absolute;
   left: 72%;
@@ -119,16 +126,17 @@
   width: 170vw;
   height: 170vw;
   transform: translateX(-50%);
-  border-radius: 50%;
   animation: planetDrift 420s ease-in-out infinite;
   background:
-    radial-gradient(circle at 50% 50%,
-      rgba(120, 210, 255, 0) 46.9%,
-      rgba(165, 232, 255, 0.85) 47.6%,
-      rgba(95, 190, 255, 0.45) 48.4%,
-      rgba(45, 140, 230, 0.18) 49.6%,
-      rgba(40, 130, 220, 0) 51%);
-  filter: blur(2px);
+    radial-gradient(circle closest-side at 50% 50%,
+      rgba(120, 210, 255, 0) 95%,
+      rgba(140, 220, 255, 0.35) 98.4%,
+      rgba(200, 243, 255, 0.95) 100%,
+      rgba(110, 200, 255, 0.55) 101.2%,
+      rgba(60, 155, 240, 0.22) 103%,
+      rgba(40, 130, 220, 0.08) 105.5%,
+      rgba(40, 130, 220, 0) 109%);
+  filter: blur(1px);
 }
 
 @keyframes planetDrift {

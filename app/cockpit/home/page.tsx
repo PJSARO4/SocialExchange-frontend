@@ -113,18 +113,21 @@ export default function HomePage() {
   const [onboardingSteps, setOnboardingSteps] = useState<OnboardingStep[]>([]);
   const [animateIn, setAnimateIn] = useState(false);
 
+  // Time-of-day greeting. Kept in its own effect with no auth gate — the main
+  // effect below depends on [router], so it only runs while the session is
+  // still "loading" and its early return meant the greeting never got set.
+  // Client-only (empty deps) so server/client clocks can't mismatch.
+  useEffect(() => {
+    const hour = new Date().getHours();
+    setGreeting(hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
+  }, []);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/signin');
       return;
     }
     if (status !== 'authenticated') return;
-
-    // Set greeting
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Good morning');
-    else if (hour < 18) setGreeting('Good afternoon');
-    else setGreeting('Good evening');
 
     // Load onboarding progress
     const progress = getOnboardingProgress();
@@ -209,7 +212,7 @@ export default function HomePage() {
         <div className="home-hero-content">
           <div className="home-hero-badge">WELCOME TO SOCIAL EXCHANGE</div>
           <h1 className="home-hero-greeting">
-            {greeting}, <span className="home-hero-name">{firstName}</span>
+            {greeting ? `${greeting}, ` : ''}<span className="home-hero-name">{firstName}</span>
           </h1>
           <p className="home-hero-tagline">
             Your mission control for social media management, digital asset trading, and creator community building.
