@@ -97,3 +97,88 @@ export async function moveDriveFile(
   const data = await res.json();
   if (data.error) throw new Error(data.error.message || 'Drive move failed');
 }
+
+/* ---------------------------------------------------------------------------
+ * Drive as a content STORAGE PROVIDER (Social Exchange -> Drive).
+ *
+ * Everything above this line reads FROM Drive and is used by the protected
+ * Bulk Schedule pipeline. Everything below writes TO Drive. The two directions
+ * share only the token resolver, deliberately: nothing here changes the
+ * behaviour of listDrive / downloadDriveToBlob / moveDriveFile.
+ *
+ * Write access is already granted — DRIVE_SCOPE is the full drive scope that
+ * moveDriveFile() depends on, so no new consent screen is required.
+ * ------------------------------------------------------------------------- */
+
+const DRIVE_UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3';
+
+export interface DriveUploadResult {
+  id: string;
+  name: string;
+  webViewLink?: string;
+}
+
+export interface DriveUploadInput {
+  folderId: string;
+  name: string;
+  mimeType: string;
+  data: Buffer;
+  /**
+   * Structured metadata stored on the Drive file itself. Survives the round
+   * trip and is readable later via files.get?fields=appProperties, without any
+   * Social Exchange schema change. Google caps each key at 124 chars and each
+   * value at 124 bytes — callers must clip before calling.
+   */
+  appProperties?: Record<string, string>;
+}
+
+/**
+ * Create a new file inside a Drive folder using a multipart/related upload.
+ * Additive counterpart to downloadDriveToBlob().
+ */
+export async function uploadDriveFile(
+  token: string,
+  input: DriveUploadInput
+): Promise<DriveUploadResult> {
+  const boundary =
+    `sx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
+  const metadata: Record<string, unknown> = {
+    name: input.name,
+    mimeType: input.mimeType,
+    parents: [input.folderId],
+  };
+  if (input.appProperties && Object.keys(input.appProperties).length > 0) {
+    metadata.appProperties = input.appProperties;
+  }
+
+  const head = Buffer.from(
+    `--${boundary}\r\n` +
+      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
+      `${JSON.stringify(metadata)}\r\n` +
+      `--${boundary}\r\n` +
+      `Content-Type: ${input.mimeType}\r\n\r\n`,
+    'utf8'
+  );
+  const tail = Buffer.from(`\r\n--${boundary}--\r\n`, 'utf8');
+  const body = Buffer.concat([head, input.data, tail]);
+
+  const res = await fetch(
+    `${DRIVE_UPLOAD_API}/files` +
+      `?uploadType=multipart&supportsAllDrives=true&fields=id,name,webViewLink`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': `multipart/related; boundary=${boundary}`,
+      },
+      body: new Uint8Array(body),
+    }
+  );
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data?.error) {
+    throw new Error(data?.error?.message || `Drive upload failed (${res.status})`);
+  }
+  return { id: data.id, name: data.name, webViewLink: data.webViewLink };
+}

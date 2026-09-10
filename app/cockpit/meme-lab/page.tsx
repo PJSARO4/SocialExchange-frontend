@@ -20,6 +20,8 @@ import {
   buildPackage, triggerDownload, NETWORK_KEYS, slugify,
   type PackageItem,
 } from './lib/exportPackage';
+import SaveToDriveModal from './components/SaveToDriveModal';
+import type { SaveCandidate } from './lib/storage';
 
 const GRID_SIZE = 12;
 const SETTINGS_KEY = 'meme-lab-settings';
@@ -75,6 +77,7 @@ export default function MemeLabPage() {
   const [exporting, setExporting] = useState(false);
   const [notice, setNotice] = useState<{ text: string; kind: 'ok' | 'warn' | 'err' } | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showDrive, setShowDrive] = useState(false);
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
 
   // object URLs we own and must revoke
@@ -260,6 +263,20 @@ export default function MemeLabPage() {
   };
 
   const selectedCount = selected.size;
+
+  // Provider-neutral view of the selection, handed to the storage boundary.
+  const driveCandidates: SaveCandidate[] = results
+    .filter(r => selected.has(r.id))
+    .map(r => ({
+      blob: r.blob,
+      subject: activeKeyword,
+      topText: r.top,
+      bottomText: r.bottom,
+      mode: r.mode,
+      modeLabel: r.modeLabel,
+      template: r.template,
+      templateName: r.templateName,
+    }));
 
   return (
     <div className="meme-lab">
@@ -466,6 +483,14 @@ export default function MemeLabPage() {
           </button>
           <button
             type="button"
+            className="ml-btn ml-btn-ghost"
+            onClick={() => setShowDrive(true)}
+            disabled={selectedCount === 0}
+          >
+            Save to Drive
+          </button>
+          <button
+            type="button"
             className="ml-btn ml-btn-primary"
             onClick={() => void exportPackage()}
             disabled={selectedCount === 0 || exporting}
@@ -474,6 +499,22 @@ export default function MemeLabPage() {
           </button>
         </div>
       </div>
+
+      {showDrive && driveCandidates.length > 0 && (
+        <SaveToDriveModal
+          candidates={driveCandidates}
+          onClose={() => setShowDrive(false)}
+          onSaved={out =>
+            setNotice({
+              text:
+                out.failed === 0
+                  ? `${out.saved} saved to Drive. Nothing was scheduled — use Bulk Schedule when you want to post them.`
+                  : `${out.saved} saved to Drive, ${out.failed} failed.`,
+              kind: out.failed === 0 ? 'ok' : 'warn',
+            })
+          }
+        />
+      )}
     </div>
   );
 }
