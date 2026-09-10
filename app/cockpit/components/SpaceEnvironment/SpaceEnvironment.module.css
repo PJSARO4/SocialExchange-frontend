@@ -65,10 +65,10 @@
 /* ---- 4. Primary planet: enormous, mostly off-viewport ---- */
 .planet {
   position: absolute;
-  left: 50%;
-  top: 74%;
-  width: 210vw;
-  height: 210vw;
+  left: 72%;
+  top: 40%;
+  width: 170vw;
+  height: 170vw;
   transform: translateX(-50%);
   border-radius: 50%;
   overflow: hidden;
@@ -114,19 +114,19 @@
 /* ---- Atmospheric rim: the thin glowing limb ---- */
 .atmosphere {
   position: absolute;
-  left: 50%;
-  top: 74%;
-  width: 210vw;
-  height: 210vw;
+  left: 72%;
+  top: 40%;
+  width: 170vw;
+  height: 170vw;
   transform: translateX(-50%);
   border-radius: 50%;
   animation: planetDrift 420s ease-in-out infinite;
   background:
     radial-gradient(circle at 50% 50%,
       rgba(120, 210, 255, 0) 46.9%,
-      rgba(140, 220, 255, 0.55) 47.6%,
-      rgba(80, 175, 255, 0.30) 48.4%,
-      rgba(40, 130, 220, 0.10) 49.6%,
+      rgba(165, 232, 255, 0.85) 47.6%,
+      rgba(95, 190, 255, 0.45) 48.4%,
+      rgba(45, 140, 230, 0.18) 49.6%,
       rgba(40, 130, 220, 0) 51%);
   filter: blur(2px);
 }
@@ -145,7 +145,7 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(4, 7, 14, 0.55) 0%, rgba(4, 7, 14, 0.30) 42%, rgba(4, 7, 14, 0.10) 100%),
+    linear-gradient(90deg, rgba(4, 7, 14, 0.62) 0%, rgba(4, 7, 14, 0.34) 45%, rgba(4, 7, 14, 0.06) 100%),
     radial-gradient(ellipse 120% 80% at 50% 0%, rgba(4, 7, 14, 0.45), transparent 60%);
 }
 
