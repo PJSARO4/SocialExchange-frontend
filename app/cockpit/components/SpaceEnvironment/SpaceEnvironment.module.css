@@ -117,25 +117,27 @@
 }
 
 /* ---- Atmospheric rim ----
-   No border-radius: the halo must bleed OUTSIDE the disc into space, and
-   border-radius would clip exactly that part away. */
+   Box is deliberately LARGER than the planet (200vw vs 170vw) and re-centred so
+   the halo has room to fade into space. At equal size the glow above the
+   horizon's apex fell outside the element and got clipped into a hard line.
+   Planet rim = 85vw; here closest-side = 100vw, so the rim sits at 85%. */
 .atmosphere {
   position: absolute;
   left: 72%;
-  top: 40%;
-  width: 170vw;
-  height: 170vw;
+  top: calc(40% - 15vw);
+  width: 200vw;
+  height: 200vw;
   transform: translateX(-50%);
   animation: planetDrift 420s ease-in-out infinite;
   background:
     radial-gradient(circle closest-side at 50% 50%,
-      rgba(120, 210, 255, 0) 95%,
-      rgba(140, 220, 255, 0.35) 98.4%,
-      rgba(200, 243, 255, 0.95) 100%,
-      rgba(110, 200, 255, 0.55) 101.2%,
-      rgba(60, 155, 240, 0.22) 103%,
-      rgba(40, 130, 220, 0.08) 105.5%,
-      rgba(40, 130, 220, 0) 109%);
+      rgba(120, 210, 255, 0) 80.7%,
+      rgba(140, 220, 255, 0.35) 83.6%,
+      rgba(200, 243, 255, 0.95) 85%,
+      rgba(110, 200, 255, 0.55) 86%,
+      rgba(60, 155, 240, 0.22) 87.6%,
+      rgba(40, 130, 220, 0.08) 89.7%,
+      rgba(40, 130, 220, 0) 92.7%);
   filter: blur(1px);
 }
 
