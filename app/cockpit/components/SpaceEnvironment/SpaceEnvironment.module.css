@@ -1,0 +1,157 @@
+/* SpaceEnvironment — isolated scene styling. Nothing here targets cockpit UI. */
+
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;
+}
+
+/* ---- 1. Deep space: near-black, never flat pure black ---- */
+.deepSpace {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 140% 90% at 50% 118%, rgba(14, 46, 84, 0.55), transparent 62%),
+    radial-gradient(ellipse 90% 70% at 78% 96%, rgba(10, 58, 92, 0.35), transparent 60%),
+    linear-gradient(180deg, #04060d 0%, #050914 46%, #060d1c 100%);
+}
+
+/* ---- 2. Nebula / space dust: perceived subconsciously ---- */
+.nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform, opacity;
+}
+.nebulaA {
+  width: 70vw;
+  height: 46vw;
+  left: -12vw;
+  top: -10vh;
+  background: radial-gradient(ellipse, rgba(18, 62, 110, 0.20), rgba(18, 62, 110, 0) 68%);
+  opacity: 0.75;
+  animation: nebulaDriftA 190s ease-in-out infinite;
+}
+.nebulaB {
+  width: 62vw;
+  height: 40vw;
+  right: -14vw;
+  top: 18vh;
+  background: radial-gradient(ellipse, rgba(16, 86, 104, 0.16), rgba(16, 86, 104, 0) 70%);
+  opacity: 0.6;
+  animation: nebulaDriftB 240s ease-in-out infinite;
+}
+@keyframes nebulaDriftA {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(3vw, 2vh, 0) scale(1.07); }
+}
+@keyframes nebulaDriftB {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50%      { transform: translate3d(-3vw, -2vh, 0) scale(1); }
+}
+
+/* ---- 3. Starfield canvas (parallax handled in JS) ---- */
+.stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---- 4. Primary planet: enormous, mostly off-viewport ---- */
+.planet {
+  position: absolute;
+  left: 50%;
+  top: 74%;
+  width: 210vw;
+  height: 210vw;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  overflow: hidden;
+  /* body: darkest away from the lit limb at the top edge */
+  background:
+    radial-gradient(circle at 50% 50%,
+      rgba(10, 30, 58, 0) 47.4%,
+      rgba(26, 86, 140, 0.55) 48.0%,
+      rgba(18, 62, 108, 0.62) 49.5%,
+      rgba(12, 44, 80, 0.72) 54%,
+      rgba(8, 28, 54, 0.86) 68%,
+      rgba(5, 16, 32, 0.95) 100%);
+  animation: planetDrift 420s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* subtle surface texture, drifts sideways like slow rotation.
+   background-position animation on a repeating pattern = no visible reset. */
+.planetSurface {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(ellipse 22% 9% at 20% 51%, rgba(120, 175, 220, 0.16), transparent 70%),
+    radial-gradient(ellipse 16% 7% at 44% 53%, rgba(140, 195, 235, 0.13), transparent 70%),
+    radial-gradient(ellipse 26% 8% at 68% 50.5%, rgba(110, 165, 215, 0.14), transparent 70%),
+    radial-gradient(ellipse 14% 6% at 88% 52.5%, rgba(150, 200, 240, 0.10), transparent 70%);
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  animation: surfaceRotate 560s linear infinite;
+  will-change: background-position;
+}
+
+/* terminator: darkens the side away from the light */
+.planetShade {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(105deg, rgba(2, 6, 14, 0.55) 0%, rgba(2, 6, 14, 0) 42%);
+}
+
+/* ---- Atmospheric rim: the thin glowing limb ---- */
+.atmosphere {
+  position: absolute;
+  left: 50%;
+  top: 74%;
+  width: 210vw;
+  height: 210vw;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  animation: planetDrift 420s ease-in-out infinite;
+  background:
+    radial-gradient(circle at 50% 50%,
+      rgba(120, 210, 255, 0) 46.9%,
+      rgba(140, 220, 255, 0.55) 47.6%,
+      rgba(80, 175, 255, 0.30) 48.4%,
+      rgba(40, 130, 220, 0.10) 49.6%,
+      rgba(40, 130, 220, 0) 51%);
+  filter: blur(2px);
+}
+
+@keyframes planetDrift {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50.7%) translateY(-0.9vh); }
+}
+@keyframes surfaceRotate {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: -200% 0, -200% 0, -200% 0, -200% 0; }
+}
+
+/* ---- 5. Readability veil (between scene and UI) ---- */
+.veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(4, 7, 14, 0.55) 0%, rgba(4, 7, 14, 0.30) 42%, rgba(4, 7, 14, 0.10) 100%),
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(4, 7, 14, 0.45), transparent 60%);
+}
+
+/* ---- Reduced motion: hold the scene still ---- */
+@media (prefers-reduced-motion: reduce) {
+  .nebulaA, .nebulaB, .planet, .planetSurface, .atmosphere {
+    animation: none;
+  }
+}

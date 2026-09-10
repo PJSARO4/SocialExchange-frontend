@@ -2158,63 +2158,7 @@ body {
 }
 
 /* --- Constant Earth-from-orbit backdrop --- */
-.earth-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(20,30,60,0.55), transparent 60%),
-    linear-gradient(180deg, #05070f 0%, #070b18 45%, #060a16 100%);
-}
-/* Earth limb: a large sphere glowing up from the bottom edge */
-.earth-backdrop .eb-earth {
-  position: absolute;
-  left: 50%;
-  bottom: -62vh;
-  transform: translateX(-50%);
-  width: 165vw;
-  height: 165vw;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 42% 30%, rgba(120,200,255,0.28), rgba(30,90,150,0.22) 40%, rgba(8,24,48,0.9) 66%, rgba(4,10,22,0) 70%);
-  box-shadow: 0 -30px 120px rgba(56,140,220,0.25);
-}
-/* Atmospheric rim above the limb */
-.earth-backdrop .eb-atmo {
-  position: absolute;
-  left: 50%;
-  bottom: 30vh;
-  transform: translateX(-50%);
-  width: 150vw;
-  height: 40vh;
-  background: radial-gradient(ellipse 100% 100% at 50% 100%, rgba(90,190,255,0.16), transparent 62%);
-  filter: blur(2px);
-}
-/* Starfield — a few layered points, cheap */
-.earth-backdrop .eb-stars {
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(1.2px 1.2px at 12% 18%, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 28% 42%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1.4px 1.4px at 46% 12%, rgba(255,255,255,0.65), transparent),
-    radial-gradient(1px 1px at 63% 33%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1.2px 1.2px at 78% 16%, rgba(255,255,255,0.7), transparent),
-    radial-gradient(1px 1px at 88% 40%, rgba(255,255,255,0.45), transparent),
-    radial-gradient(1px 1px at 8% 60%, rgba(255,255,255,0.4), transparent),
-    radial-gradient(1.2px 1.2px at 35% 70%, rgba(255,255,255,0.5), transparent),
-    radial-gradient(1px 1px at 70% 62%, rgba(255,255,255,0.4), transparent);
-  opacity: 0.85;
-  animation: eb-twinkle 6s ease-in-out infinite;
-}
-@keyframes eb-twinkle { 0%,100% { opacity: 0.8; } 50% { opacity: 0.5; } }
-@media (prefers-reduced-motion: reduce) {
-  .earth-backdrop .eb-stars { animation: none; }
-}
 
-/* Let the backdrop show through the main viewport */
 .cockpit-main {
   background:
     radial-gradient(ellipse 70% 50% at 15% 85%, rgba(99,102,241,0.06), transparent 55%),
@@ -2258,63 +2202,6 @@ body {
 .nav-admin.active .nav-ico { background: linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow: 0 0 14px rgba(245,158,11,0.5); }
 .nav-admin .nav-label { color: #f6b73c; }
 
-/* --- Earth backdrop: make the horizon actually visible --- */
-.earth-backdrop {
-  background:
-    radial-gradient(ellipse 120% 70% at 50% 120%, rgba(30,70,130,0.35), transparent 60%),
-    linear-gradient(180deg, #05070f 0%, #070c1a 40%, #0a1730 78%, #0c2140 100%);
-  background:
-    radial-gradient(ellipse 120% 70% at 50% 120%, rgba(30,70,130,0.35), transparent 60%),
-    linear-gradient(180deg, #05070f 0%, #070c1a 40%, #0a1730 78%, #0c2140 100%);
-}
-.earth-backdrop .eb-earth {
-  top: 60%;
-  bottom: auto;
-  left: 50%;
-  width: 220vw;
-  height: 220vw;
-  transform: translateX(-50%);
-  background: radial-gradient(circle at 50% 50%,
-    rgba(8,26,52,0) 58.5%,
-    rgba(120,205,255,0.55) 60%,
-    rgba(56,150,235,0.55) 61.5%,
-    rgba(28,95,175,0.55) 64%,
-    rgba(18,60,120,0.6) 72%,
-    rgba(9,30,60,0.85) 100%);
-  box-shadow: none;
-}
-.earth-backdrop .eb-atmo {
-  top: 57.5%;
-  bottom: auto;
-  left: 50%;
-  width: 220vw;
-  height: 16vh;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse 45% 100% at 50% 100%, rgba(125,215,255,0.45), transparent 72%);
-  filter: blur(4px);
-}
-
-/* --- Earth backdrop: stronger + higher so it's clearly visible --- */
-.earth-backdrop .eb-earth {
-  top: 46%;
-  width: 240vw;
-  height: 240vw;
-  background: radial-gradient(circle at 50% 50%,
-    rgba(8,26,52,0) 57.5%,
-    rgba(150,220,255,0.85) 59%,
-    rgba(70,165,245,0.8) 60.5%,
-    rgba(36,120,205,0.7) 64%,
-    rgba(22,78,150,0.7) 74%,
-    rgba(10,34,70,0.85) 100%);
-}
-.earth-backdrop .eb-atmo {
-  top: 40%;
-  width: 240vw;
-  height: 22vh;
-  background: radial-gradient(ellipse 50% 100% at 50% 100%, rgba(140,220,255,0.6), transparent 74%);
-  filter: blur(6px);
-}
-
 /* ================================================================
    PER-PAGE PHOTO BACKDROPS (driven by data-section on .cockpit-root)
    ================================================================ */
@@ -2327,9 +2214,6 @@ body {
   background-position: center, center, center right;
   background-repeat: no-repeat;
 }
-/* photo replaces the CSS earth, but keep the twinkling stars alive */
-.cockpit-root[data-section="my-e-assets"] .eb-earth,
-.cockpit-root[data-section="my-e-assets"] .eb-atmo { display: none; }
 
 /* ================================================================
    PAGE TRANSITION — warp-in
@@ -2355,3 +2239,30 @@ body {
   .page-enter { animation: page-fade-min 160ms ease-out both; }
   @keyframes page-fade-min { from { opacity: 0; } to { opacity: 1; } }
 }
+
+/* ================================================================
+   BACKGROUND LAYERING CONTRACT
+   space-env-host : living SpaceEnvironment scene   (default)
+   earth-backdrop : commissioned photo art          ([data-section] only)
+   Exactly one is visible at a time.
+   ================================================================ */
+.space-env-host { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+.earth-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: none;
+  opacity: 0;
+}
+
+/* Sections with their own art: show the photo, hide the live scene. */
+.cockpit-root[data-section="my-e-assets"] .earth-backdrop,
+.cockpit-root[data-section="comms"] .earth-backdrop { opacity: 1; }
+.cockpit-root[data-section="my-e-assets"] .space-env-host,
+.cockpit-root[data-section="comms"] .space-env-host { display: none; }
+
+/* MoodBackground keeps its audio-reactive auroras, but stops drawing a second
+   competing starfield now that SpaceEnvironment owns stars. */
+.cockpit-root .mood-bg__stars { display: none; }

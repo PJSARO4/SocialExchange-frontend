@@ -9,6 +9,7 @@ import './cockpit.css';
 
 import ActivityLightbar from './ui/ActivityLightbar';
 import PresencePing from './ui/PresencePing';
+import SpaceEnvironment from './components/SpaceEnvironment/SpaceEnvironment';
 import LivePulse from './ui/LivePulse';
 import LogsPanel from './ui/LogsPanel';
 import SignalPanel from './ui/SignalPanel';
@@ -169,12 +170,14 @@ function CockpitContent({ children, userName }: { children: ReactNode; userName:
       {/* SILENT PRESENCE BEACON (admin live map) */}
       <PresencePing />
 
-      {/* CONSTANT EARTH-FROM-ORBIT BACKDROP (pure CSS, perf-safe) */}
-      <div className="earth-backdrop" aria-hidden="true">
-        <div className="eb-stars" />
-        <div className="eb-earth" />
-        <div className="eb-atmo" />
+      {/* LIVING SPACE ENVIRONMENT (behind everything; pointer-events: none).
+          Pages with their own photo backdrop hide this via [data-section]. */}
+      <div className="space-env-host" aria-hidden="true">
+        <SpaceEnvironment />
       </div>
+
+      {/* Photo backdrop layer for sections that use commissioned art */}
+      <div className="earth-backdrop" aria-hidden="true" />
 
       {/* MOOD-REACTIVE BACKGROUND */}
       <MoodBackground />
