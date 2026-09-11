@@ -134,11 +134,18 @@ export interface ModelProvider {
 // ---------------------------------------------------------------------------
 
 /**
- * Default per-request timeout. Deliberately well under the 10s Vercel Hobby
- * function ceiling so the route can return a normalized error rather than
- * being killed mid-flight and surfacing as an opaque 504.
+ * Default per-request timeout.
+ *
+ * Was 8s, sized around a ~10s Vercel Hobby function ceiling. SYN-1B's chat
+ * route sets maxDuration = 30, so 8s became the binding constraint and aborted
+ * substantive answers mid-generation (observed: a capability-registry question
+ * failing with provider_timeout while short answers succeeded). 24s leaves
+ * ~6s of route headroom for request overhead.
+ *
+ * Note: an abort here is client-side, so a timed-out request has already cost
+ * input tokens. Raising this reduces wasted spend as well as failed answers.
  */
-export const DEFAULT_TIMEOUT_MS = 8_000;
+export const DEFAULT_TIMEOUT_MS = 24_000;
 
 /** Health checks are one token; they should fail fast. */
 export const HEALTH_TIMEOUT_MS = 5_000;
