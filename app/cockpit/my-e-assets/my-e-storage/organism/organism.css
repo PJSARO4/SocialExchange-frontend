@@ -711,3 +711,31 @@
 [data-theme="light"] .organism-mini-dot {
   background: #059669;
 }
+
+/* ---------- SYN-1B provenance marker ----------
+   Tells the operator whether a reply came from a model, from deterministic
+   system code, or from an offline fallback. Deliberately quiet: one small line
+   under the message, in the existing organism type/colour language. */
+.orgo-provenance {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.25rem 0 0.6rem 0.15rem;
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.orgo-provenance .pv-mark { font-size: 9px; }
+
+.orgo-provenance .pv-detail {
+  opacity: 0.6;
+  letter-spacing: 0.06em;
+  text-transform: none;
+}
+
+.orgo-provenance.model { color: #3fffdc; }
+.orgo-provenance.deterministic { color: #9ca3af; }
+.orgo-provenance.fallback { color: #f59e0b; opacity: 0.85; }

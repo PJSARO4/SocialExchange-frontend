@@ -67,12 +67,24 @@ export interface OrganismConfig {
 
 // --- Chat ---
 
+/**
+ * Provenance of an assistant message (SYN-1B).
+ *  'model'         a language model generated it
+ *  'fallback'      the provider was unavailable; this is NOT reasoning
+ *  'deterministic' a system/status answer produced by code
+ * Absent on user messages and on history written before SYN-1B.
+ */
+export type ChatSource = 'model' | 'fallback' | 'deterministic';
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'organism' | 'system';
   content: string;
   timestamp: string;
   actions?: OrganismAction[];
+  source?: ChatSource;
+  provider?: string;
+  model?: string;
 }
 
 export interface OrganismAction {

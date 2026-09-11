@@ -87,6 +87,22 @@ export default function OrganismChatView() {
             <div className={`orgo-chat-message ${msg.role}`}>
               {msg.content}
             </div>
+            {/* SYN-1B provenance. Shown only on assistant messages that carry a
+                source, so pre-SYN-1B history renders exactly as before. */}
+            {msg.role === 'organism' && msg.source && (
+              <div className={`orgo-provenance ${msg.source}`}>
+                {msg.source === 'model' ? (
+                  <>
+                    <span className="pv-mark">◆</span> SYN · MODEL
+                    {msg.model ? <span className="pv-detail">{msg.model}</span> : null}
+                  </>
+                ) : msg.source === 'deterministic' ? (
+                  <><span className="pv-mark">▣</span> SYN · SYSTEM</>
+                ) : (
+                  <><span className="pv-mark">◇</span> SYN · OFFLINE</>
+                )}
+              </div>
+            )}
             {msg.actions && msg.actions.length > 0 && (
               <div className="orgo-chat-actions">
                 {msg.actions.map((action) => (

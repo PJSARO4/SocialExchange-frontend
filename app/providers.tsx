@@ -15,11 +15,14 @@ export default function Providers({ children }: ProvidersProps) {
     <SessionProvider>
       <AuthProvider>
         <EStorageProvider>
-          <OrganismProvider>
-            <SynFeedProvider>
+          {/* SynFeedProvider is OUTSIDE OrganismProvider on purpose: SYN chat
+              reads the focused-feed context from OrganismContext, so the feed
+              context must be an ancestor. Reversing these breaks feed grounding. */}
+          <SynFeedProvider>
+            <OrganismProvider>
               {children}
-            </SynFeedProvider>
-          </OrganismProvider>
+            </OrganismProvider>
+          </SynFeedProvider>
         </EStorageProvider>
       </AuthProvider>
     </SessionProvider>

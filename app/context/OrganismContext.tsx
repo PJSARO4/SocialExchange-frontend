@@ -20,6 +20,7 @@ import type {
   CopilotBridgeItem,
 } from '@/app/cockpit/my-e-assets/my-e-storage/organism/types/organism';
 import * as oStore from '@/app/cockpit/my-e-assets/my-e-storage/organism/lib/organism-store';
+import { useSynContext } from '@/app/syn/SynFeedContext';
 import { isBehaviorEnabled } from '@/app/cockpit/my-e-assets/my-e-storage/organism/lib/organism-store';
 import {
   compressForPlatform,
@@ -87,6 +88,10 @@ function generateId(): string {
 // ============================================
 
 export function OrganismProvider({ children }: { children: ReactNode }) {
+  // SYN-1B: the focused feed, so SYN can be grounded in which account is in
+  // view. Identity only — SynFeedContext carries no tokens or credentials.
+  const synContext = useSynContext();
+
   const eStorage = useEStorage();
 
   const [mood, setMood] = useState<OrganismMood>('idle');
@@ -166,6 +171,10 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
         let responseContent: string;
         let responseActions: OrganismAction[] | undefined;
 
+        let responseSource: ChatMessage['source'];
+        let responseProvider: string | undefined;
+        let responseModel: string | undefined;
+
         try {
           // Get recent chat history for context
           const recentHistory = chatHistory
@@ -179,6 +188,10 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
               message,
               history: recentHistory,
               context: {
+                // SYN-1B: application context. Identity and counts only —
+                // no tokens, no credentials, no database dumps.
+                section: synContext.section,
+                feed: synContext.feed,
                 totalItems: eStorage.items.length,
                 usedPercent: eStorage.stats?.usedPercent || 0,
                 recentActivity: tasks
@@ -191,22 +204,33 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
             }),
           });
 
-          if (res.ok) {
-            const data = await res.json();
+          const data = await res.json().catch(() => null);
+
+          if (data && typeof data.reply === 'string') {
+            // The server is authoritative for provenance. It already labels
+            // provider failures as 'fallback', so we pass them through rather
+            // than substituting anything of our own.
             responseContent = data.reply;
-            responseActions = data.suggestedActions;
+            responseSource = data.source;
+            responseProvider = data.provider;
+            responseModel = data.model;
           } else {
-            throw new Error('API failed');
+            throw new Error('Malformed response');
           }
         } catch {
-          // Fallback to local pattern-matching
-          const fallback = getLocalFallbackResponse(message, {
-            totalItems: eStorage.items.length,
-            usedPercent: eStorage.stats?.usedPercent || 0,
-          });
-          responseContent = fallback.content;
-          responseActions = fallback.actions as OrganismAction[] | undefined;
+          // SYN-1B: the old code ran getLocalFallbackResponse() here, which
+          // produced confident pattern-matched text indistinguishable from
+          // reasoning. That was the deceptive behaviour this milestone removes.
+          // A genuine network failure is now reported as what it is.
+          responseContent =
+            'SYN INTELLIGENCE OFFLINE\n\n' +
+            'I could not reach the Social Exchange server, so I have no model ' +
+            'response for you. I am not going to improvise one.';
+          responseSource = 'fallback';
         }
+
+        // Action tokens are never produced for model responses (see the route).
+        responseActions = undefined;
 
         const assistantMsg: ChatMessage = {
           id: generateId(),
@@ -214,6 +238,9 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
           content: responseContent,
           timestamp: new Date().toISOString(),
           actions: responseActions,
+          source: responseSource,
+          provider: responseProvider,
+          model: responseModel,
         };
 
         setChatHistory((prev) => {
@@ -232,7 +259,7 @@ export function OrganismProvider({ children }: { children: ReactNode }) {
         setIsProcessing(false);
       }
     },
-    [eStorage.items.length, eStorage.stats, tasks, config.userTraining, chatHistory]
+    [eStorage.items.length, eStorage.stats, tasks, config.userTraining, chatHistory, synContext]
   );
 
   const clearChat = useCallback(() => {
