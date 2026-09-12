@@ -20,6 +20,18 @@
  * qwen-client.ts is intentionally NOT deleted: buildOrganismSystemPrompt and
  * getLocalFallbackResponse are still referenced elsewhere, and removing them is
  * a separate cleanup.
+ *
+ * SYN-2B FIRST EYES — evidence IN.
+ *
+ * The client names the asset it believes is selected; the SERVER decides
+ * whether that asset belongs to the session user, using SEC-1's
+ * resolveOwnedFeed unchanged. Only an ownership-resolved asset can produce
+ * evidence, and only an id-free projection of that evidence reaches the model.
+ * A non-owned or non-existent asset yields the same empty result, so this
+ * endpoint cannot be used to probe another tenant.
+ *
+ * Still true after this milestone: SYN has no hands. No capability is wired to
+ * an executor, and nothing here writes anything except the chat quota counter.
  */
 
 import { NextResponse } from 'next/server';
@@ -32,6 +44,9 @@ import { resolveProvider } from '@/app/syn/model/resolve';
 import { ProviderError, type ResponseSource, type FallbackReason } from '@/app/syn/model/types';
 import { buildSynContext, type SynRequestContext } from '@/app/syn/context/build-syn-context';
 import { consumeChatQuota } from '@/app/syn/chat-quota';
+import { resolveOwnedFeed } from '@/lib/security/tenant';
+import { assembleAssetEvidence, unverifiedAssetEvidence } from '@/app/syn/evidence/assemble';
+import { renderEvidenceForModel } from '@/app/syn/evidence/render';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -139,7 +154,47 @@ export async function POST(req: Request) {
     });
   }
 
-  const system = buildSynContext(body.context ?? {}, null);
+  // ---- SYN-2B: ownership-gated evidence retrieval -------------------------
+  //
+  // Failure to assemble evidence must never take SYN offline: on any error we
+  // fall through with no evidence, and the prompt states the absence honestly.
+  let evidenceText: string | null = null;
+  const claimedFeedId = body.context?.feed?.feedId;
+
+  if (user && claimedFeedId) {
+    try {
+      const owned = await resolveOwnedFeed(user.id, claimedFeedId);
+
+      if (!owned) {
+        // Unknown and non-owned are deliberately indistinguishable, and no
+        // tenant query is issued for either.
+        evidenceText = renderEvidenceForModel(
+          unverifiedAssetEvidence({
+            handle: body.context?.feed?.handle ?? null,
+            platform: body.context?.feed?.platform ?? null,
+            displayName: body.context?.feed?.displayName ?? null,
+          })
+        );
+      } else {
+        // The access token on `owned` is deliberately NOT carried across this
+        // boundary: the evidence layer has no field for it.
+        const evidence = await assembleAssetEvidence({
+          id: owned.id,
+          ownerUserId: user.id,
+          handle: owned.handle,
+          platform: String(owned.platform),
+          displayName: owned.displayName,
+        });
+        evidenceText = renderEvidenceForModel(evidence);
+      }
+    } catch {
+      // Never log the error body: it can contain query detail.
+      console.error('[SYN chat] evidence assembly failed; continuing without evidence');
+      evidenceText = null;
+    }
+  }
+
+  const system = buildSynContext(body.context ?? {}, null, evidenceText);
 
   const history = (body.history ?? [])
     .slice(-MAX_HISTORY)
