@@ -1,34 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+
+import {
+  getTenantUser,
+  notFound,
+  resolveConnectedOwnedFeed,
+  unauthorized,
+} from '@/lib/security/tenant';
 
 export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/instagram/analytics
  * Fetch analytics/insights for a connected Instagram account
- * Query params: accountId or accessToken
+ * Query params: feedId (optional), period
+ *
+ * SEC-1: this route required a session but accepted the Instagram credential
+ * directly from the query string, so any authenticated user could pull
+ * analytics for any account whose token they held. The credential is now
+ * resolved from a feed the session user owns. Metric handling is unchanged.
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const accountId = request.nextUrl.searchParams.get('accountId');
-    const accessToken = request.nextUrl.searchParams.get('accessToken');
-    const period = request.nextUrl.searchParams.get('period') || 'lifetime'; // lifetime, last_90_days, last_30_days, last_7_days
-
-    if (!accountId && !accessToken) {
+    if (request.nextUrl.searchParams.has('accessToken')) {
       return NextResponse.json(
-        { error: 'Either accountId or accessToken is required' },
+        {
+          error:
+            'accessToken is no longer accepted in the query string. Pass feedId; the server resolves the token.',
+        },
         { status: 400 }
       );
     }
 
-    console.log('📊 Fetching analytics for account:', accountId || accessToken?.substring(0, 10) + '...');
+    const user = await getTenantUser();
+    if (!user) return unauthorized();
+
+    const period = request.nextUrl.searchParams.get('period') || 'lifetime'; // lifetime, last_90_days, last_30_days, last_7_days
+
+    const feed = await resolveConnectedOwnedFeed(
+      user.id,
+      request.nextUrl.searchParams.get('feedId')
+    );
+    if (!feed) return notFound('Feed');
+
+    // Never log a token or a token prefix.
+    console.log('📊 Fetching analytics for owned feed:', feed.handle);
 
     // In production, if accountId is provided:
     // 1. Fetch the InstagramAccount from DB
@@ -38,15 +53,7 @@ export async function GET(request: NextRequest) {
     // If accessToken is directly provided (during OAuth flow):
     // Use it immediately to fetch data
 
-    let token = accessToken;
-
-    if (accountId && !accessToken) {
-      // Fetch from DB (when implemented)
-      // const account = await prisma.instagramAccount.findUnique({
-      //   where: { id: accountId }
-      // });
-      // token = account?.accessToken;
-    }
+    const token = feed.accessToken;
 
     if (!token) {
       return NextResponse.json(

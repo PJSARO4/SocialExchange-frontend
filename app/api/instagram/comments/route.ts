@@ -1,31 +1,49 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+
+import {
+  getTenantUser,
+  notFound,
+  resolveConnectedOwnedFeed,
+  unauthorized,
+} from '@/lib/security/tenant';
 
 export const dynamic = 'force-dynamic';
 
 /**
+ * SEC-1: this route required a session but still took the Instagram credential
+ * from the caller (`accessToken` query param on GET, body field on POST), so an
+ * authenticated user could read or reply to comments on any account whose token
+ * they held. The credential is now resolved from an owned feed.
+ */
+
+/**
  * GET /api/instagram/comments
  * Fetch recent comments on posts for a connected Instagram account
- * Query params: accessToken, limit (default 10)
+ * Query params: feedId (optional), limit (default 10)
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const accessToken = request.nextUrl.searchParams.get('accessToken');
-    const limit = parseInt(request.nextUrl.searchParams.get('limit') || '10');
-
-    if (!accessToken) {
+    if (request.nextUrl.searchParams.has('accessToken')) {
       return NextResponse.json(
-        { error: 'accessToken is required' },
+        {
+          error:
+            'accessToken is no longer accepted in the query string. Pass feedId; the server resolves the token.',
+        },
         { status: 400 }
       );
     }
+
+    const user = await getTenantUser();
+    if (!user) return unauthorized();
+
+    const feed = await resolveConnectedOwnedFeed(
+      user.id,
+      request.nextUrl.searchParams.get('feedId')
+    );
+    if (!feed) return notFound('Feed');
+
+    const accessToken = feed.accessToken;
+    const limit = parseInt(request.nextUrl.searchParams.get('limit') || '10');
 
     console.log('💬 Fetching recent comments...');
 
@@ -130,21 +148,23 @@ async function fetchMediaComments(mediaId: string, accessToken: string, limit: n
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const user = await getTenantUser();
+    if (!user) return unauthorized();
 
     const body = await request.json();
-    const { commentId, accessToken, message } = body;
+    const { commentId, message } = body;
 
-    if (!commentId || !accessToken || !message) {
+    if (!commentId || !message) {
       return NextResponse.json(
-        { error: 'commentId, accessToken, and message are required' },
+        { error: 'commentId and message are required' },
         { status: 400 }
       );
     }
+
+    const feed = await resolveConnectedOwnedFeed(user.id, body?.feedId ?? null);
+    if (!feed) return notFound('Feed');
+
+    const accessToken = feed.accessToken;
 
     console.log('💬 Posting reply to comment:', commentId);
 

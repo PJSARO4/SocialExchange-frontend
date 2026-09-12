@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { rateLimiter } from '@/lib/rate-limit';
+import {
+  getTenantUser,
+  notFound,
+  resolveOwnedAutomationRule,
+  resolveOwnedFeed,
+  unauthorized,
+} from '@/lib/security/tenant';
 
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
@@ -18,6 +25,12 @@ export const dynamic = 'force-dynamic';
  * - DMs: ~20-50 per day
  *
  * Exceeding these can result in temporary blocks or account suspension.
+ *
+ * SEC-1: all four methods were previously unauthenticated. Any caller who knew
+ * a feed_id could read, create, enable, disable or delete that feed's
+ * automation rules — rules that drive real actions against a real Instagram
+ * account. Rule semantics and the rate limiter are unchanged; only the gate is
+ * new.
  */
 
 // Default rules to initialize for new feeds
@@ -82,6 +95,14 @@ export async function GET(request: NextRequest) {
   if (!feedId) {
     return NextResponse.json({ error: 'feed_id is required' }, { status: 400 });
   }
+
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
+  // Ownership first: initializeDefaultRules() below WRITES rows, so this must
+  // never run for a feed the caller does not own.
+  const ownedFeed = await resolveOwnedFeed(user.id, feedId);
+  if (!ownedFeed) return notFound('Feed');
 
   try {
     // Initialize default rules if none exist
@@ -152,6 +173,9 @@ export async function GET(request: NextRequest) {
 
 // POST - Create a new automation rule
 export async function POST(request: NextRequest) {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const body = await request.json();
     const { feed_id, name, type, settings } = body;
@@ -170,6 +194,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const ownedFeed = await resolveOwnedFeed(user.id, feed_id);
+    if (!ownedFeed) return notFound('Feed');
 
     const rule = await prisma.automationRule.create({
       data: {
@@ -214,6 +241,9 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update an automation rule
 export async function PUT(request: NextRequest) {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const body = await request.json();
     const { id, ...updates } = body;
@@ -222,12 +252,11 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Rule ID is required' }, { status: 400 });
     }
 
-    const existingRule = await prisma.automationRule.findUnique({
-      where: { id },
-    });
+    // Ownership is established through the rule's owning feed.
+    const existingRule = await resolveOwnedAutomationRule(user.id, id);
 
     if (!existingRule) {
-      return NextResponse.json({ error: 'Rule not found' }, { status: 404 });
+      return notFound('Rule');
     }
 
     // Build update data
@@ -279,13 +308,14 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Rule ID is required' }, { status: 400 });
   }
 
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
-    const rule = await prisma.automationRule.findUnique({
-      where: { id },
-    });
+    const rule = await resolveOwnedAutomationRule(user.id, id);
 
     if (!rule) {
-      return NextResponse.json({ error: 'Rule not found' }, { status: 404 });
+      return notFound('Rule');
     }
 
     // Delete associated actions first

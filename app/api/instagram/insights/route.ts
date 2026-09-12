@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  getTenantUser,
+  notFound,
+  resolveConnectedOwnedFeed,
+  unauthorized,
+} from '@/lib/security/tenant';
+
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
 
@@ -12,31 +19,48 @@ export const dynamic = 'force-dynamic';
  * Account metrics (period=day): impressions, reach, profile_views, follower_count
  * Account metrics (period=lifetime): online_followers (by hour)
  * Media metrics: impressions, reach, engagement, saved, video_views
+ *
+ * SEC-1 — CONTRACT CHANGE
+ *
+ * Previously unauthenticated, with `access_token` AND `instagram_user_id` in
+ * the query string. Any caller could point the server at any account whose
+ * token they held, and the credential travelled through the URL.
+ *
+ * Now: the client passes an optional feedId. The server resolves both the
+ * token and the Instagram user id from a SocialFeed the session user owns.
+ * The requested metric set, period handling and response shape are unchanged —
+ * metric semantics are explicitly OUT of scope for SEC-1.
  */
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const accessToken = searchParams.get('access_token');
-  const instagramUserId = searchParams.get('instagram_user_id');
+
+  if (searchParams.has('access_token')) {
+    return NextResponse.json(
+      {
+        error:
+          'access_token is no longer accepted in the query string. Pass feedId; the server resolves the token.',
+      },
+      { status: 400 }
+    );
+  }
+
   const metricType = searchParams.get('type') || 'account'; // 'account' | 'media'
   const mediaId = searchParams.get('media_id');
   const since = searchParams.get('since');
   const until = searchParams.get('until');
   const period = searchParams.get('period') || 'day';
 
-  if (!accessToken) {
-    return NextResponse.json(
-      { error: 'Access token is required' },
-      { status: 400 }
-    );
-  }
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
 
-  if (!instagramUserId) {
-    return NextResponse.json(
-      { error: 'Instagram user ID is required' },
-      { status: 400 }
-    );
-  }
+  const feed = await resolveConnectedOwnedFeed(user.id, searchParams.get('feedId'));
+  if (!feed) return notFound('Feed');
+
+  // Both credentials come from the owned feed. A client-supplied
+  // instagram_user_id is ignored entirely: it was the cross-tenant lever.
+  const accessToken = feed.accessToken;
+  const instagramUserId = feed.platformAccountId;
 
   try {
     if (metricType === 'media' && mediaId) {

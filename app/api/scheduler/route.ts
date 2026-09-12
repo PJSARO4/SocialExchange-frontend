@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jobQueue } from '@/lib/queue';
+import {
+  getTenantUser,
+  notFound,
+  resolveOwnedFeed,
+  resolveOwnedScheduledPost,
+  unauthorized,
+} from '@/lib/security/tenant';
 
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
@@ -14,6 +21,11 @@ export const dynamic = 'force-dynamic';
  *
  * The worker fetches access tokens from the SocialFeed record at execution time,
  * so we don't store tokens in the scheduled post or job payload.
+ *
+ * SEC-1: every method below is tenant-gated. Before this milestone all four
+ * were unauthenticated — any caller who knew a feed_id could read, create,
+ * rewrite or delete that feed's publishing queue. Scheduling semantics, job
+ * queueing and publishing behaviour are unchanged; only the gate is new.
  */
 
 // GET - List scheduled posts
@@ -25,6 +37,14 @@ export async function GET(request: NextRequest) {
   if (!feedId) {
     return NextResponse.json({ error: 'feed_id is required' }, { status: 400 });
   }
+
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
+  // Ownership before any tenant data is read. A feed belonging to someone else
+  // is indistinguishable from one that does not exist.
+  const ownedFeed = await resolveOwnedFeed(user.id, feedId);
+  if (!ownedFeed) return notFound('Feed');
 
   try {
     const posts = await prisma.scheduledPostNew.findMany({
@@ -60,6 +80,9 @@ export async function GET(request: NextRequest) {
 
 // POST - Create a new scheduled post
 export async function POST(request: NextRequest) {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const body = await request.json();
     const { feed_id, platform, content, media_urls, media_type, scheduled_time } = body;
@@ -81,14 +104,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify the feed exists and is connected
-    const feed = await prisma.socialFeed.findUnique({
-      where: { id: feed_id },
-      select: { id: true, isConnected: true, platformAccountId: true, accessToken: true },
-    });
+    // Verify the feed exists, is OWNED BY THIS USER, and is connected.
+    // Creating a scheduled post is a write the publish cron will later act on,
+    // so ownership is resolved before anything is created.
+    const feed = await resolveOwnedFeed(user.id, feed_id);
 
     if (!feed) {
-      return NextResponse.json({ error: 'Feed not found' }, { status: 404 });
+      return notFound('Feed');
     }
 
     if (!feed.isConnected || !feed.accessToken) {
@@ -174,6 +196,9 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update a scheduled post
 export async function PUT(request: NextRequest) {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const body = await request.json();
     const { id, ...updates } = body;
@@ -182,12 +207,18 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Post ID is required' }, { status: 400 });
     }
 
+    // Ownership is established through the post's owning feed, not by post id.
+    const owned = await resolveOwnedScheduledPost(user.id, id);
+    if (!owned) {
+      return notFound('Post');
+    }
+
     const existingPost = await prisma.scheduledPostNew.findUnique({
       where: { id },
     });
 
     if (!existingPost) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+      return notFound('Post');
     }
 
     // Don't allow updating published posts
@@ -287,13 +318,22 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Post ID is required' }, { status: 400 });
   }
 
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
+  // Ownership through the owning feed before any destructive action.
+  const owned = await resolveOwnedScheduledPost(user.id, id);
+  if (!owned) {
+    return notFound('Post');
+  }
+
   try {
     const existingPost = await prisma.scheduledPostNew.findUnique({
       where: { id },
     });
 
     if (!existingPost) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+      return notFound('Post');
     }
 
     // Don't allow deleting published posts

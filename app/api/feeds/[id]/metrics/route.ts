@@ -98,14 +98,20 @@ export async function GET(
   } catch (error) {
     console.error('GET /api/feeds/[id]/metrics failed:', error);
 
-    // Update the feed with the error
-    const { id } = await params;
-    await prisma.socialFeed.update({
-      where: { id },
-      data: {
-        lastSyncError: error instanceof Error ? error.message : 'Unknown error',
-      },
-    });
+    // SEC-1: scope the error write to a feed this session owns. Previously this
+    // updated by bare id, so any error raised before the ownership check above
+    // would have written to another tenant's row.
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as any)?.id;
+    if (userId) {
+      const { id } = await params;
+      await prisma.socialFeed.updateMany({
+        where: { id, userId },
+        data: {
+          lastSyncError: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+    }
 
     return NextResponse.json(
       {

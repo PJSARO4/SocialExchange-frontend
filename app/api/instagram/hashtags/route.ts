@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  getTenantUser,
+  notFound,
+  resolveConnectedOwnedFeed,
+  unauthorized,
+} from '@/lib/security/tenant';
+
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
 
@@ -14,18 +21,31 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const accessToken = searchParams.get('access_token');
-  const instagramUserId = searchParams.get('instagram_user_id');
   const hashtagName = searchParams.get('q'); // hashtag to search
   const hashtagId = searchParams.get('hashtag_id'); // if already known
   const edge = searchParams.get('edge') || 'top_media'; // 'top_media' | 'recent_media'
 
-  if (!accessToken || !instagramUserId) {
+  // SEC-1: previously unauthenticated with the credential in the query string.
+  // Hashtag search is billed against the querying IG account's quota, so an
+  // open endpoint let anyone spend another tenant's API budget.
+  if (searchParams.has('access_token')) {
     return NextResponse.json(
-      { error: 'access_token and instagram_user_id are required' },
+      {
+        error:
+          'access_token is no longer accepted in the query string. Pass feedId; the server resolves the token.',
+      },
       { status: 400 }
     );
   }
+
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
+  const feed = await resolveConnectedOwnedFeed(user.id, searchParams.get('feedId'));
+  if (!feed) return notFound('Feed');
+
+  const accessToken = feed.accessToken;
+  const instagramUserId = feed.platformAccountId;
 
   try {
     // If we have a hashtag name but not an ID, search for it first

@@ -67,7 +67,16 @@ export async function GET(request: NextRequest) {
     });
 
     const tokenData = await tokenRes.json();
-    console.log('[IG OAuth] Token response:', JSON.stringify(tokenData));
+    // SEC-1: never log the token exchange response — it carries the Instagram
+    // access token (and, on some flows, a refresh token). Log only a
+    // non-sensitive outcome shape: presence flags, never values or prefixes.
+    console.log('[IG OAuth] Token exchange:', {
+      ok: tokenRes.ok,
+      status: tokenRes.status,
+      hasAccessToken: Boolean(tokenData?.access_token),
+      hasUserId: Boolean(tokenData?.user_id),
+      errorType: tokenData?.error_type ?? null,
+    });
 
     if (tokenData.error_type || tokenData.error_message) {
       throw new Error(tokenData.error_message || 'Token exchange failed');

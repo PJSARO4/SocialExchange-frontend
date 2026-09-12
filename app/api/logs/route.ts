@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { query } from "@/app/lib/db";
 import { logEvent } from "@/app/lib/logEvent";
 import { LogCategory, LogLevel } from "@/app/types/SystemLog";
+import { getTenantUser, unauthorized } from "@/lib/security/tenant";
 
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
@@ -14,10 +15,25 @@ export const dynamic = 'force-dynamic';
 const TEMP_USER_ID = "00000000-0000-0000-0000-000000000001";
 
 /**
+ * SEC-1: both methods were unauthenticated. They are now session-gated so an
+ * anonymous caller can neither read the log stream nor inject entries into it.
+ *
+ * The TEMP_USER_ID scoping is UNCHANGED and is deliberately left in place:
+ * repointing logs at the real session user would change what the logs feature
+ * means (the SYN capability registry documents this route as PARTIAL for
+ * exactly this reason), and that is a data-semantics change, not a tenant
+ * boundary fix. Because every row is written under one shared synthetic id,
+ * this endpoint exposes no real tenant's data today. Flagged for follow-up.
+ */
+
+/**
  * GET — fetch recent logs for the current user
  * This endpoint MUST NEVER throw.
  */
 export async function GET() {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const { rows } = await query(
       `
@@ -54,6 +70,9 @@ export async function GET() {
  * This endpoint also MUST NEVER throw.
  */
 export async function POST(request: Request) {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const body = await request.json();
 

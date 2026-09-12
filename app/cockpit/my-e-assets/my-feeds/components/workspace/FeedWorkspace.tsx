@@ -53,9 +53,11 @@ export default function FeedWorkspace({
 
   // Fetch recent posts when feed changes (for OAuth accounts)
   useEffect(() => {
-    if (feed.isOAuth && feed.accessToken && feed.platform === 'instagram') {
+    if (feed.isOAuth && feed.platform === 'instagram') {
       setPostsLoading(true);
-      fetch(`/api/instagram/media?access_token=${encodeURIComponent(feed.accessToken)}&limit=6`)
+      // SEC-1: identify the feed; the server resolves the token from the
+      // SocialFeed row it has confirmed this user owns.
+      fetch(`/api/instagram/media?feedId=${encodeURIComponent(feed.id)}&limit=6`)
         .then(res => res.json())
         .then(data => {
           if (data.posts) {

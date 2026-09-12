@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { rateLimiter } from '@/lib/rate-limit/rate-limiter';
+import {
+  getTenantUser,
+  notFound,
+  resolveOwnedFeed,
+  unauthorized,
+} from '@/lib/security/tenant';
 
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
@@ -9,6 +15,11 @@ export const dynamic = 'force-dynamic';
  * Rate Limits API
  *
  * Provides endpoints for checking and managing rate limits.
+ *
+ * SEC-1: previously unauthenticated. A caller who knew a feed_id could read
+ * another tenant's action history, inflate their counters, raise their limits
+ * or clear a protective block — all of which affect what that tenant's real
+ * Instagram account is allowed to do. Limit semantics are unchanged.
  */
 
 // GET - Get rate limit status
@@ -20,6 +31,12 @@ export async function GET(request: NextRequest) {
   if (!feedId) {
     return NextResponse.json({ error: 'feed_id is required' }, { status: 400 });
   }
+
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
+  const ownedFeed = await resolveOwnedFeed(user.id, feedId);
+  if (!ownedFeed) return notFound('Feed');
 
   try {
     if (actionType) {
@@ -47,6 +64,9 @@ export async function GET(request: NextRequest) {
 
 // POST - Record an action (increments counters)
 export async function POST(request: NextRequest) {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const body = await request.json();
     const { feed_id, action_type } = body;
@@ -66,6 +86,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const ownedFeed = await resolveOwnedFeed(user.id, feed_id);
+    if (!ownedFeed) return notFound('Feed');
+
     const status = await rateLimiter.recordAction(feed_id, action_type.toUpperCase() as any);
 
     return NextResponse.json({
@@ -80,6 +103,9 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update custom limits
 export async function PUT(request: NextRequest) {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const body = await request.json();
     const { feed_id, action_type, daily_limit, hourly_limit } = body;
@@ -90,6 +116,9 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const ownedFeed = await resolveOwnedFeed(user.id, feed_id);
+    if (!ownedFeed) return notFound('Feed');
 
     await rateLimiter.setCustomLimits(feed_id, action_type.toUpperCase() as any, {
       daily: daily_limit,
@@ -120,6 +149,12 @@ export async function DELETE(request: NextRequest) {
       { status: 400 }
     );
   }
+
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
+  const ownedFeed = await resolveOwnedFeed(user.id, feedId);
+  if (!ownedFeed) return notFound('Feed');
 
   try {
     await rateLimiter.clearBlock(feedId, actionType.toUpperCase() as any);

@@ -132,9 +132,10 @@ export default function MyFeedsContent() {
 
         if (connectedPlatform === 'instagram' && user.accessToken) {
           try {
-            const response = await fetch(
-              `/api/instagram/profile?access_token=${encodeURIComponent(user.accessToken)}`
-            );
+            // SEC-1: the access token is no longer sent from the browser. The
+            // server resolves it from this user's owned feed, falling back to
+            // their own session token during the first connection.
+            const response = await fetch('/api/instagram/profile');
             if (response.ok) {
               profileData = await response.json();
               console.log('📊 Fetched real Instagram data:', profileData);

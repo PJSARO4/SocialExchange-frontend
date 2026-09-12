@@ -37,12 +37,13 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
 
   // Fetch Instagram Insights data
   const fetchInsights = useCallback(async () => {
-    if (!feed.accessToken || !feed.platformUserId) return;
+    if (!feed.id) return;
     setInsightsLoading(true);
     try {
+      // SEC-1: no credential leaves the browser. The server resolves both the
+      // token and the Instagram user id from the owned feed.
       const params = new URLSearchParams({
-        access_token: feed.accessToken,
-        instagram_user_id: feed.platformUserId,
+        feedId: feed.id,
         type: 'account',
         period: 'day',
       });
@@ -68,7 +69,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
     } finally {
       setInsightsLoading(false);
     }
-  }, [feed.accessToken, feed.platformUserId]);
+  }, [feed.id]);
 
   // Auto-fetch insights on mount
   useEffect(() => {
@@ -77,8 +78,8 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
 
   // Fetch live metrics from Instagram API
   const refreshMetrics = useCallback(async () => {
-    if (!feed.accessToken) {
-      setRefreshError('No access token available. Please reconnect your account.');
+    if (!feed.id) {
+      setRefreshError('No connected account available. Please reconnect your account.');
       return;
     }
 
@@ -86,7 +87,8 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
     setRefreshError(null);
 
     try {
-      const response = await fetch(`/api/instagram/profile?access_token=${encodeURIComponent(feed.accessToken)}`);
+      // SEC-1: feed identity only; the server resolves the token.
+      const response = await fetch(`/api/instagram/profile?feedId=${encodeURIComponent(feed.id)}`);
       const data = await response.json();
 
       if (response.ok && !data.error) {
@@ -110,7 +112,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
     } finally {
       setIsRefreshing(false);
     }
-  }, [feed.accessToken, fetchInsights]);
+  }, [feed.id, fetchInsights]);
 
   // Use live metrics if available, otherwise fall back to feed metrics
   const currentFollowers = liveMetrics?.followers ?? feed.metrics.followers ?? 0;

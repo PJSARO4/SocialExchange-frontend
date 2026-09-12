@@ -277,7 +277,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          access_token: feed.accessToken,
+          // SEC-1: no Instagram credential is sent from the browser. The
+          // publish route resolves the access token (and the Instagram user
+          // id) server-side from a SocialFeed owned by the authenticated user.
           instagram_user_id: feed.platformUserId || feed.id,
           media_url: selectedMedia.publicUrl,
           caption: caption,

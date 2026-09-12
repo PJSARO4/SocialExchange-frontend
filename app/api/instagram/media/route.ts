@@ -1,20 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  getTenantUser,
+  notFound,
+  resolveConnectedOwnedFeed,
+  unauthorized,
+} from '@/lib/security/tenant';
+
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
 
-
-// Instagram Graph API endpoint to fetch user's media/posts
+/**
+ * GET /api/instagram/media?feedId=<optional>&limit=12
+ *
+ * Returns the authenticated user's own Instagram media.
+ *
+ * SEC-1: previously unauthenticated with `access_token` in the query string.
+ * The token is now resolved server-side from an owned SocialFeed. Response
+ * shape is unchanged.
+ */
 export async function GET(request: NextRequest) {
-  const accessToken = request.nextUrl.searchParams.get('access_token');
-  const limit = request.nextUrl.searchParams.get('limit') || '12';
-
-  if (!accessToken) {
+  if (request.nextUrl.searchParams.has('access_token')) {
     return NextResponse.json(
-      { error: 'Access token is required' },
+      {
+        error:
+          'access_token is no longer accepted in the query string. Pass feedId; the server resolves the token.',
+      },
       { status: 400 }
     );
   }
+
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
+  const feedId = request.nextUrl.searchParams.get('feedId');
+  const feed = await resolveConnectedOwnedFeed(user.id, feedId);
+  if (!feed) return notFound('Feed');
+
+  const accessToken = feed.accessToken;
+  const rawLimit = parseInt(request.nextUrl.searchParams.get('limit') || '12', 10);
+  const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 50) : 12;
 
   try {
     // Fetch user's media with engagement metrics
@@ -31,7 +56,9 @@ export async function GET(request: NextRequest) {
       'username',
     ].join(',');
 
-    const url = `https://graph.instagram.com/me/media?fields=${fields}&limit=${limit}&access_token=${accessToken}`;
+    const url = `https://graph.instagram.com/me/media?fields=${fields}&limit=${limit}&access_token=${encodeURIComponent(
+      accessToken
+    )}`;
 
     console.log('📸 Fetching Instagram media...');
 
@@ -39,7 +66,7 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
 
     if (data.error) {
-      console.error('❌ Instagram Media API Error:', data.error);
+      console.error('❌ Instagram Media API Error:', data.error?.message || 'unknown');
       return NextResponse.json(
         { error: data.error.message || 'Failed to fetch Instagram media' },
         { status: 400 }
@@ -68,7 +95,7 @@ export async function GET(request: NextRequest) {
       totalCount: posts.length,
     });
   } catch (error) {
-    console.error('❌ Error fetching Instagram media:', error);
+    console.error('❌ Error fetching Instagram media');
     return NextResponse.json(
       { error: 'Failed to fetch Instagram media' },
       { status: 500 }

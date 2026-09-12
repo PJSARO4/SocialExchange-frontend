@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  getTenantUser,
+  notFound,
+  resolveConnectedOwnedFeed,
+  unauthorized,
+} from '@/lib/security/tenant';
+
 // Force dynamic rendering - prevent build-time pre-rendering
 export const dynamic = 'force-dynamic';
 
@@ -10,20 +17,36 @@ export const dynamic = 'force-dynamic';
  * POST - Publish a new story (image or video)
  *
  * Requires: instagram_business_content_publish, instagram_business_basic
+ *
+ * SEC-1: both methods were unauthenticated and took Instagram credentials from
+ * the caller — POST could publish a story to ANY account whose token the caller
+ * supplied. Both now require a session and resolve the credential from a feed
+ * the user owns. The publish flow itself (container -> poll -> media_publish)
+ * is byte-for-byte unchanged.
  */
 
 // GET: List recent stories
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const accessToken = searchParams.get('access_token');
-  const instagramUserId = searchParams.get('instagram_user_id');
 
-  if (!accessToken || !instagramUserId) {
+  if (searchParams.has('access_token')) {
     return NextResponse.json(
-      { error: 'access_token and instagram_user_id are required' },
+      {
+        error:
+          'access_token is no longer accepted in the query string. Pass feedId; the server resolves the token.',
+      },
       { status: 400 }
     );
   }
+
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
+  const feed = await resolveConnectedOwnedFeed(user.id, searchParams.get('feedId'));
+  if (!feed) return notFound('Feed');
+
+  const accessToken = feed.accessToken;
+  const instagramUserId = feed.platformAccountId;
 
   try {
     // Fetch stories using the stories edge
@@ -53,17 +76,21 @@ export async function GET(request: NextRequest) {
 
 // POST: Publish a new story
 export async function POST(request: NextRequest) {
+  const user = await getTenantUser();
+  if (!user) return unauthorized();
+
   try {
     const body = await request.json();
-    const { access_token, instagram_user_id, media_type, media_url, video_url } = body;
+    const { media_type, media_url, video_url } = body;
 
-    if (!access_token) {
-      return NextResponse.json({ error: 'Access token is required' }, { status: 400 });
-    }
+    // Credentials are resolved server-side from an owned feed. A client-supplied
+    // access_token / instagram_user_id is ignored: publishing to an account the
+    // caller does not own was the vulnerability.
+    const feed = await resolveConnectedOwnedFeed(user.id, body?.feedId ?? null);
+    if (!feed) return notFound('Feed');
 
-    if (!instagram_user_id) {
-      return NextResponse.json({ error: 'Instagram user ID is required' }, { status: 400 });
-    }
+    const access_token = feed.accessToken;
+    const instagram_user_id = feed.platformAccountId;
 
     if (!media_url && !video_url) {
       return NextResponse.json({ error: 'Media URL is required' }, { status: 400 });
