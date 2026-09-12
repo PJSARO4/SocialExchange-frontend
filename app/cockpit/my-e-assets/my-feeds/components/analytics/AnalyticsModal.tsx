@@ -120,9 +120,33 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
   const currentTotalPosts = liveMetrics?.totalPosts ?? feed.metrics.totalPosts ?? 0;
 
   // Calculate some derived metrics
-  const engagementRate = feed.metrics.engagement || 4.2;
-  const avgLikesPerPost = feed.metrics.avgLikes || Math.round((feed.metrics.followers || 1500) * (engagementRate / 100) * 0.8);
-  const avgCommentsPerPost = feed.metrics.avgComments || Math.round((feed.metrics.followers || 1500) * (engagementRate / 100) * 0.2);
+  // METRICS-1: no invented engagement rate.
+  //
+  // The cached column is non-nullable with @default(0), so a stored 0 cannot be
+  // distinguished from a real measurement of zero. It is therefore treated as
+  // UNKNOWN here and rendered as an em dash rather than claimed as "0.0%" —
+  // and the previous `|| 4.2` fallback, which displayed an invented rate, is
+  // gone.
+  const engagementRate: number | null =
+    typeof feed.metrics.engagement === 'number' && feed.metrics.engagement > 0
+      ? feed.metrics.engagement
+      : null;
+  const engagementRateLabel = engagementRate === null ? '—' : `${engagementRate.toFixed(1)}%`;
+
+  // STILL SYNTHETIC — tracked for ANALYTICS-1, not repaired here. With the
+  // invented rate removed there is no basis to synthesise from when engagement
+  // is unknown, so these become null and render as an em dash instead of a
+  // fabricated number.
+  const avgLikesPerPost: number | null =
+    feed.metrics.avgLikes ||
+    (engagementRate === null
+      ? null
+      : Math.round((feed.metrics.followers || 1500) * (engagementRate / 100) * 0.8));
+  const avgCommentsPerPost: number | null =
+    feed.metrics.avgComments ||
+    (engagementRate === null
+      ? null
+      : Math.round((feed.metrics.followers || 1500) * (engagementRate / 100) * 0.2));
 
   // Growth data for chart
   const growthData = [
@@ -253,7 +277,6 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                       {formatNumber(currentFollowers)}
                     </div>
                     <div className="analytics-stat-label">Followers</div>
-                    <div className="analytics-stat-change positive">+2.4%</div>
                   </div>
                   <div className={`analytics-stat-card ${isRefreshing ? 'loading' : ''}`}>
                     <div className="analytics-stat-value">
@@ -268,9 +291,8 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                     <div className="analytics-stat-label">Total Posts</div>
                   </div>
                   <div className="analytics-stat-card highlight">
-                    <div className="analytics-stat-value">{engagementRate.toFixed(1)}%</div>
+                    <div className="analytics-stat-value">{engagementRateLabel}</div>
                     <div className="analytics-stat-label">Engagement Rate</div>
-                    <div className="analytics-stat-change positive">+0.3%</div>
                   </div>
                 </div>
               </section>
@@ -291,7 +313,11 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                     <span className="analytics-engagement-icon"><Heart size={16} /></span>
                     <div className="analytics-engagement-info">
                       <span className="analytics-engagement-value">
-                        {formatNumber(insights?.totalInteractions ?? avgLikesPerPost)}
+                        {insights?.totalInteractions != null
+                          ? formatNumber(insights.totalInteractions)
+                          : avgLikesPerPost != null
+                            ? formatNumber(avgLikesPerPost)
+                            : '—'}
                       </span>
                       <span className="analytics-engagement-label">{insights ? 'Total Interactions' : 'Avg. Likes/Post'}</span>
                     </div>
@@ -728,7 +754,7 @@ export default function AnalyticsModal({ feed, onClose }: AnalyticsModalProps) {
                           <span className="benchmark-avg-label">Avg: 3.5%</span>
                         </div>
                         <div className="benchmark-bar-yours" style={{ width: '70%' }}>
-                          <span className="benchmark-yours-value">{engagementRate.toFixed(1)}%</span>
+                          <span className="benchmark-yours-value">{engagementRateLabel}</span>
                         </div>
                       </div>
                     </div>
