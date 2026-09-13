@@ -30,6 +30,20 @@
  * A non-owned or non-existent asset yields the same empty result, so this
  * endpoint cannot be used to probe another tenant.
  *
+ * SYN-3 PRE CHAT TRUST BOUNDARY — history IN.
+ *
+ * Chat history is client-held (browser localStorage) and posted back on every
+ * request, so a modified client can assert arbitrary prior turns — including
+ * turns attributed to SYN. That cannot be authenticated here and this milestone
+ * does not pretend otherwise. Instead: history is narrowed at the boundary
+ * (strict roles, bounded size, credential/identifier redaction) by
+ * app/syn/chat/history.ts, and the prompt states explicitly that the record is
+ * unauthenticated and confers no authority.
+ *
+ * SYN-3 PRE also fences operator personalization (userTraining): it is
+ * client-held, unverifiable, and was previously interpolated raw into the tail
+ * of the system prompt. It is now data inside an explicit untrusted fence.
+ *
  * Still true after this milestone: SYN has no hands. No capability is wired to
  * an executor, and nothing here writes anything except the chat quota counter.
  */
@@ -47,13 +61,21 @@ import { consumeChatQuota } from '@/app/syn/chat-quota';
 import { resolveOwnedFeed } from '@/lib/security/tenant';
 import { assembleAssetEvidence, unverifiedAssetEvidence } from '@/app/syn/evidence/assemble';
 import { renderEvidenceForModel } from '@/app/syn/evidence/render';
+import {
+  normaliseChatHistory,
+  historyWasAltered,
+  normalisePersonalization,
+  personalizationWasAltered,
+  UNTRUSTED_HISTORY_NOTICE,
+} from '@/app/syn/chat/history';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 /** Above the 8s provider timeout so we return a normalized error, not a 504. */
 export const maxDuration = 30;
 
-const MAX_HISTORY = 10;
+// MAX_HISTORY now lives in app/syn/chat/history.ts, with the rest of the
+// history trust boundary. One source of truth.
 const MAX_MESSAGE_CHARS = 4_000;
 
 interface SynChatResponse {
@@ -110,7 +132,12 @@ export async function POST(req: Request) {
   let body: {
     message?: string;
     history?: Array<{ role: string; content: string }>;
-    context?: SynRequestContext;
+    /**
+     * userTraining is typed `unknown` on purpose. It is no longer a field of
+     * SynRequestContext (see that interface), so it cannot reach the prompt
+     * except through normalisePersonalization below.
+     */
+    context?: SynRequestContext & { userTraining?: unknown };
   };
   try {
     body = await req.json();
@@ -194,17 +221,62 @@ export async function POST(req: Request) {
     }
   }
 
-  const system = buildSynContext(body.context ?? {}, null, evidenceText);
+  // ---- SYN-3 PRE: chat history trust boundary -----------------------------
+  //
+  // History is client-held (localStorage) and posted back with every request,
+  // so every turn — including turns labelled as SYN's own — is untrusted input.
+  // normaliseChatHistory narrows what it can carry: strict roles (an unknown or
+  // 'system' role is DROPPED, not silently relabelled as an assistant turn),
+  // bounded size, and redaction of credential- and identifier-shaped text so
+  // material persisted by earlier builds cannot re-enter model context.
+  const { messages: history, stats: historyStats } = normaliseChatHistory(body.history);
 
-  const history = (body.history ?? [])
-    .slice(-MAX_HISTORY)
-    .filter(m => typeof m?.content === 'string' && m.content.trim().length > 0)
-    .map(m => ({
-      // The organism UI calls the assistant role 'organism'.
-      role: (m.role === 'organism' ? 'assistant' : m.role === 'user' ? 'user' : 'assistant') as
-        'user' | 'assistant',
-      content: m.content,
+  if (historyWasAltered(historyStats)) {
+    // COUNTS ONLY. The rejected or redacted value is never logged.
+    console.warn('[SYN chat] history boundary applied:', JSON.stringify({
+      received: historyStats.received,
+      accepted: historyStats.accepted,
+      dropped: historyStats.dropped,
+      budgetDropped: historyStats.budgetDropped,
+      truncated: historyStats.truncated,
+      redactions: historyStats.redactions,
     }));
+  }
+
+  // ---- SYN-3 PRE: operator personalization trust boundary ------------------
+  //
+  // userTraining is browser-held (localStorage 'sx_organism_config') and was
+  // previously interpolated RAW into the tail of the system prompt — a
+  // higher-authority position than any chat turn. It is now validated, redacted,
+  // bounded and fence-defused here, and rendered inside an explicit untrusted
+  // fence by buildSynContext. This is personalization, not configuration, and
+  // explicitly NOT the future Operator Constitution: its provenance is
+  // unverifiable and its contents must never be migrated automatically.
+  const { text: personalization, stats: personalizationStats } =
+    normalisePersonalization(body.context?.userTraining);
+
+  if (personalizationWasAltered(personalizationStats)) {
+    // COUNTS AND FLAGS ONLY. The personalization text — raw or redacted — is
+    // never logged.
+    console.warn('[SYN chat] personalization boundary applied:', JSON.stringify({
+      present: personalizationStats.present,
+      rejected: personalizationStats.rejected,
+      truncated: personalizationStats.truncated,
+      fenceEscapes: personalizationStats.fenceEscapes,
+      redactions: personalizationStats.redactions,
+    }));
+  }
+
+  // The notice is appended unconditionally — including when history is empty —
+  // so its presence never signals anything about the request. Narrowing limits
+  // what history can carry; this states what history IS. We do not claim the
+  // transcript is verified, because it cannot be in this architecture.
+  //
+  // It is also the LAST thing in the prompt, after the personalization fence, so
+  // the closing word on authority belongs to the system.
+  const system =
+    buildSynContext(body.context ?? {}, null, evidenceText, personalization) +
+    '\n\n' + UNTRUSTED_HISTORY_NOTICE;
 
   try {
     const result = await resolution.provider.chat({
