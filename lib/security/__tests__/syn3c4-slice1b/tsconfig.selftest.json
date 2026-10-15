@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.cert.json",
+  "compilerOptions": { "outDir": "./build-selftest" },
+  "include": ["selftest.ts", "guard.ts", "isolation.ts"],
+  "exclude": ["build", "build-selftest", "certify.ts"]
+}

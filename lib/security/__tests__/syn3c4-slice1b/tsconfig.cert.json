@@ -1,0 +1,23 @@
+{
+  "extends": "../../../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../../../..",
+    "paths": { "@/*": ["./*"] },
+    "rootDir": "../../../..",
+    "outDir": "./build",
+    "noEmit": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "incremental": false,
+    "plugins": []
+  },
+  "include": ["certify.ts", "guard.ts", "isolation.ts", "selftest.ts"],
+  "exclude": ["build"]
+}
